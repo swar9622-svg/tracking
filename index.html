@@ -5,12 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="نظام متابعة الطلاب المدرسي">
+  <meta name="apple-mobile-web-app-title" content="كشف الغياب">
   
-  <!-- مكتبة تحويل HTML إلى PDF -->
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#007AFF">
+
+  <!-- مكتبة تحويل HTML إلى PDF (استدعاء محلي للعمل بدون إنترنت) -->
   <script src="./html2pdf.bundle.min.js"></script>
 
-  <title>نظام متابعة الطلاب المدرسي</title>
+  <title>كشف الغياب والمخالفات</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -40,13 +44,6 @@
       padding-bottom: 120px;
     }
 
-    .screen {
-      display: none;
-    }
-    .screen.active-screen {
-      display: block;
-    }
-
     header {
       background-color: var(--card-bg);
       padding: 14px 16px;
@@ -58,7 +55,6 @@
       font-weight: 800;
       text-align: center;
       margin-bottom: 12px;
-      color: #2c3e50;
     }
 
     .controls-bar {
@@ -67,7 +63,7 @@
       margin-bottom: 12px;
     }
 
-    select, input[type="date"], input[type="text"], input[type="number"] {
+    select, input[type="date"], input[type="text"] {
       padding: 8px 12px;
       border-radius: 10px;
       border: 1px solid #D1D1D6;
@@ -183,90 +179,6 @@
     .btn-reset { background-color: #E5E5EA; color: var(--text-primary); }
     .btn-data { background-color: #32ADE6; }
 
-    .top-bar-followup {
-      background-color: #34495e;
-      color: white;
-      padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .back-btn {
-      background-color: #bdc3c7;
-      color: #2c3e50;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    
-    .units-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin: 12px;
-      background: #eef2f3;
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    .unit-dropdown-select {
-      flex: 1;
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #bdc3c7;
-      background-color: #ffffff;
-      font-size: 13px;
-      font-weight: bold;
-      color: #2c3e50;
-      outline: none;
-    }
-
-    .btn-manage-units {
-      background-color: #8e44ad;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      white-space: nowrap;
-      font-size: 12px;
-      flex-shrink: 0;
-    }
-
-    .followup-table-container {
-      margin: 0 15px;
-      background: white;
-      border-radius: 6px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 10px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .followup-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: center;
-      font-size: 13px;
-    }
-    .followup-table th, .followup-table td {
-      border: 1px solid #ddd;
-      padding: 8px 6px;
-      white-space: nowrap;
-    }
-    .followup-table th {
-      background-color: #f8f9fa;
-      color: #2c3e50;
-    }
-    .th-hw { background-color: #d4efdf; }
-    .th-act { background-color: #fcf3cf; }
-    .th-part { background-color: #ebdef0; }
-    .th-test { background-color: #fadbd8; }
-    .th-weighted { background-color: #d5f5e3; font-weight: bold; color: #1e8449; }
-
     .modal {
       display: none;
       position: fixed;
@@ -289,7 +201,7 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
 
-    .modal-title { font-size: 17px; font-weight: 900; text-align: center; margin-bottom: 12px; }
+    .modal-title { font-size: 17px; font-weight: 900; text-align: center; }
 
     .violations-list-container {
       display: flex;
@@ -305,6 +217,7 @@
       align-items: center;
       justify-content: flex-start;
       gap: 10px;
+      flex-direction: row;
       padding: 7px 12px;
       border-radius: 14px;
       background: #F9F9FB;
@@ -313,6 +226,7 @@
       font-size: 13.5px;
       font-weight: 800;
       color: var(--text-primary);
+      transition: background 0.2s;
       width: 100%;
     }
 
@@ -376,6 +290,7 @@
       border-radius: 10px;
       border: 1px solid #E5E5EA;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .report-table { width: 100%; border-collapse: collapse; }
@@ -401,6 +316,7 @@
       vertical-align: middle;
       padding: 6px 2px !important;
       white-space: normal;
+      word-break: keep-all;
     }
     
     .badge-num { display: inline-block; min-width: 20px; height: 20px; line-height: 20px; border-radius: 10px; font-weight: 800; font-size: 11px; padding: 0 4px; }
@@ -421,7 +337,7 @@
       font-weight: 700; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; color: white;
     }
 
-    .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
+    .modal-actions { display: flex; gap: 10px; }
     .btn-modal-save { flex: 1; background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; }
     .btn-modal-cancel { flex: 1; background-color: #8E8E93; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; }
     .field-label { font-size: 13px; font-weight: 700; color: #666; margin-bottom: 6px; display: block; }
@@ -439,139 +355,42 @@
     .confirm-modal-actions { display: flex; gap: 8px; }
     .btn-confirm-delete { flex: 1; background-color: var(--red); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer; }
     .btn-confirm-cancel { flex: 1; background-color: var(--gray-btn); color: var(--text-primary); border: none; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer; }
-
-    .btn-goto-followup {
-      width: 100%;
-      background-color: #2980b9;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 10px;
-      font-weight: 800;
-      font-size: 13px;
-      cursor: pointer;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
   </style>
 </head>
 <body>
 
-  <!-- ================= الشاشة الأولى: كشف الغياب والمخالفات ================= -->
-  <div id="absenceScreen" class="screen active-screen">
-    <header>
-      <div class="header-title">كشف الغياب والمخالفات 1.2</div>
-      
-      <button class="btn-goto-followup" onclick="switchToFollowupScreen()">
-        📊 الانتقال إلى كشوف المتابعة وتقسيم الوحدات
-      </button>
-
-      <div class="controls-bar">
-        <select id="classSelect" onchange="renderStudents()"></select>
-        <input type="date" id="dateSelect" onchange="renderStudents()">
-      </div>
-      <div class="stats-container">
-        <div class="stat-card absent">
-          <div class="stat-number" id="absentCount">0</div>
-          <div class="stat-label">غياب اليوم</div>
-        </div>
-        <div class="stat-card late">
-          <div class="stat-number" id="lateCount">0</div>
-          <div class="stat-label">تأخر اليوم</div>
-        </div>
-        <div class="stat-card violation">
-          <div class="stat-number" id="violationCount">0</div>
-          <div class="stat-label">مخالفات اليوم</div>
-        </div>
-      </div>
-    </header>
-
-    <main class="student-list" id="studentList"></main>
-
-    <div class="bottom-controls">
-      <button class="btn-action btn-report" onclick="openReportModal()">📈 التقارير الشاملة</button>
-      <button class="btn-action btn-data" onclick="openDataMenuModal()">📂 النسخ الاحتياطي والتقارير</button>
-      <button class="btn-action btn-reset" onclick="resetToday()">إعادة ضبط اليوم</button>
-      <button class="btn-action btn-manage" onclick="openManageModal()">⚙️ إدارة الأسماء والصفوف</button>
+  <header>
+    <div class="header-title">كشف الغياب و المخالفات 1.3  </div>
+    <div class="controls-bar">
+      <select id="classSelect" onchange="renderStudents()"></select>
+      <input type="date" id="dateSelect" onchange="renderStudents()">
     </div>
+    <div class="stats-container">
+      <div class="stat-card absent">
+        <div class="stat-number" id="absentCount">0</div>
+        <div class="stat-label">غياب اليوم</div>
+      </div>
+      <div class="stat-card late">
+        <div class="stat-number" id="lateCount">0</div>
+        <div class="stat-label">تأخر اليوم</div>
+      </div>
+      <div class="stat-card violation">
+        <div class="stat-number" id="violationCount">0</div>
+        <div class="stat-label">مخالفات اليوم</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="student-list" id="studentList"></main>
+
+  <div class="bottom-controls">
+    <button class="btn-action btn-report" onclick="openReportModal()">📈 التقارير الشاملة</button>
+    <button class="btn-action btn-data" onclick="openDataMenuModal()">📂 النسخ الاحتياطي والتقارير</button>
+    <button class="btn-action btn-reset" onclick="resetToday()">إعادة ضبط اليوم</button>
+    <button class="btn-action btn-manage" onclick="openManageModal()">⚙️ إدارة الأسماء والصفوف</button>
   </div>
 
-
-  <!-- ================= الشاشة الثانية: كشوف المتابعة وتقسيم الوحدات ================= -->
-  <div id="followupScreen" class="screen">
-    <div class="top-bar-followup">
-      <span style="font-weight: bold; font-size: 16px;">كشوف المتابعة - إدارة الوحدات والدروس</span>
-      <button class="back-btn" onclick="switchToAbsenceScreen()">⬅ العودة لكشف الغياب</button>
-    </div>
-
-    <!-- أزرار اختيار الفصل، الوحدة، وإدارة الوحدات بجانب بعضها -->
-    <div class="units-wrapper">
-      <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)">
-        <!-- يتم تعبئتها ديناميكياً -->
-      </select>
-      <select id="unitDropdownSelect" class="unit-dropdown-select" onchange="onUnitDropdownChange(this.value)">
-        <!-- يتم تعبئتها ديناميكياً -->
-      </select>
-      <button class="btn-manage-units" onclick="openUnitsManageModal()">⚙️ إدارة الوحدات</button>
-    </div>
-
-    <!-- جدول كشوف المتابعة -->
-    <div class="followup-table-container">
-      <table class="followup-table" id="followupTable">
-        <thead id="followupTableHead"></thead>
-        <tbody id="followupTableBody"></tbody>
-      </table>
-    </div>
-
-    <!-- شريط ثابت بالأسفل للتقارير الخاصة بكشوف المتابعة -->
-    <div class="bottom-controls">
-      <button class="btn-action btn-report" onclick="openFollowupReportModal()">📈 تقارير كشوف المتابعة</button>
-      <button class="btn-action btn-data" onclick="openFollowupExportModal()">📂 تصدير تقارير المتابعة (PDF / CSV)</button>
-    </div>
-  </div>
-
-
-  <!-- ================= نافذة إدارة الوحدات والدروس ================= -->
-  <div class="modal" id="unitsManageModal">
-    <div class="modal-content">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <div class="modal-title" style="margin:0;">⚙️ إدارة الوحدات والدروس</div>
-        <button class="btn-close-circle" onclick="closeUnitsManageModal()">✕</button>
-      </div>
-
-      <span class="field-label">اختر الوحدة للتعديل أو الحذف:</span>
-      <select id="modalUnitSelect" class="select-class-full" onchange="loadUnitDetailsToModal()"></select>
-
-      <div class="class-manage-btns">
-        <button type="button" class="btn-add-cls-btn" onclick="toggleAddUnitBox()">➕ إضافة وحدة</button>
-        <button type="button" class="btn-del-cls-btn" onclick="promptDeleteUnit()">🗑️ حذف الوحدة</button>
-      </div>
-
-      <div class="inline-add-box" id="inlineAddUnitBox">
-        <input type="text" id="newUnitNameInput" placeholder="اسم الوحدة الجديدة (مثال: الوحدة الخامسة)...">
-        <button class="btn-confirm-add" onclick="saveNewUnit()">حفظ</button>
-      </div>
-
-      <div style="margin-top: 10px;">
-        <span class="field-label">عدد دروس هذه الوحدة:</span>
-        <input type="number" id="unitLessonsCountInput" min="1" max="10" value="3" style="width: 100%; text-align: center; margin-bottom: 10px;" onchange="generateLessonNameInputs()">
-      </div>
-
-      <span class="field-label">أسماء الدروس بالتسلسل:</span>
-      <div id="lessonNamesInputsContainer" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;"></div>
-
-      <div class="modal-actions">
-        <button class="btn-modal-cancel" onclick="closeUnitsManageModal()">إلغاء</button>
-        <button class="btn-modal-save" onclick="saveUnitConfig()">حفظ التعديلات</button>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ================= نافذة المخالفات ================= -->
+  <!-- نافذة المخالفات -->
   <div class="modal" id="violationModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -584,7 +403,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة التقارير الشاملة (للغياب والمخالفات) ================= -->
+  <!-- نافذة التقارير المصممة بتبويبين -->
   <div class="modal" id="reportModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -605,34 +424,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة تقارير كشوف المتابعة (العرض على الشاشة) ================= -->
-  <div class="modal" id="followupReportModal">
-    <div class="modal-content" style="max-width: 600px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <div class="modal-title" id="followupReportModalTitle" style="margin:0;">📈 تقارير كشوف المتابعة</div>
-        <button class="btn-close-circle" onclick="closeFollowupReportModal()">✕</button>
-      </div>
-      <div id="followupReportContent"></div>
-    </div>
-  </div>
-
-  <!-- ================= نافذة تصدير كشوف المتابعة (PDF و CSV) ================= -->
-  <div class="modal" id="followupExportModal">
-    <div class="modal-content">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <div class="modal-title" style="margin:0;">📂 تصدير كشوف المتابعة</div>
-        <button class="btn-close-circle" onclick="closeFollowupExportModal()">✕</button>
-      </div>
-
-      <div class="data-box-section">
-        <div class="data-box-title" id="followupExportTitle">خيارات التصدير للوحدة والفصل الحالي</div>
-        <button class="btn-menu-option" style="background-color: var(--accent);" onclick="exportFollowupPDF()">📄 تصدير كشف المتابعة PDF</button>
-        <button class="btn-menu-option" style="background-color: var(--green);" onclick="exportFollowupCSV()">📊 تصدير كشف المتابعة CSV</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= نافذة النسخ الاحتياطي (للغياب والمخالفات) ================= -->
+  <!-- نافذة النسخ الاحتياطي والتقارير CSV -->
   <div class="modal" id="dataMenuModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -655,7 +447,6 @@
     </div>
   </div>
 
-  <!-- ================= نافذة إدارة الأسماء والصفوف ================= -->
   <div class="modal" id="manageModal">
     <div class="modal-content">
       <div class="modal-title">⚙️ إدارة الأسماء والصفوف</div>
@@ -683,25 +474,30 @@
     </div>
   </div>
 
-  <!-- ================= نافذة تأكيد الحذف ================= -->
   <div class="modal" id="confirmDeleteModal" style="z-index: 110;">
     <div class="confirm-modal-content">
       <div class="confirm-modal-title">تأكيد الحذف</div>
       <div class="confirm-modal-desc" id="confirmDeleteText">هل أنت تأكد من حذف هذا الفصل؟</div>
       <div class="confirm-modal-actions">
         <button class="btn-confirm-cancel" onclick="closeConfirmModal()">إلغاء</button>
-        <button class="btn-confirm-delete" onclick="executeDelete()">حذف نهائي</button>
+        <button class="btn-confirm-delete" onclick="executeDeleteClass()">حذف نهائي</button>
       </div>
     </div>
   </div>
 
-  <!-- ================= سكربت التطبيق البرمجي ================= -->
   <script>
     const VIOLATIONS_LIST = [
-      "النوم اثناء الشرح", "الحديث أثناء الشرح", "الاكل اثناء الشرح",
-      "عدم أداء الواجب", "عدم احضار اللوازم الدراسية", "العبث بممتلكات الفصل",
-      "إثارة الفوضى", "التنمر أو الإساءة للآخرين", "الخروج من المقعد دون إذن",
-      "إحضار أدوات غير مسموح بها", "رمي النفايات"
+      "النوم اثناء الشرح",
+      "الحديث أثناء الشرح",
+      "الاكل اثناء الشرح",
+      "عدم أداء الواجب",
+      "عدم احضار اللوازم الدراسية",
+      "العبث بممتلكات الفصل",
+      "إثارة الفوضى",
+      "التنمر أو الإساءة للآخرين",
+      "الخروج من المقعد دون إذن",
+      "إحضار أدوات غير مسموح بها",
+      "رمي النفايات"
     ];
 
     let defaultData = {
@@ -709,57 +505,36 @@
       "ثالث 2": ["عبدالملك", "عبدالله"]
     };
 
-    let defaultUnits = {
-      "الوحدة الأولى": { lessons: ["درس 1", "درس 2", "درس 3"] },
-      "الوحدة الثانية": { lessons: ["درس 1", "درس 2", "درس 3"] },
-      "الوحدة الثالثة": { lessons: ["درس 1", "درس 2", "درس 3"] },
-      "الوحدة الرابعة": { lessons: ["درس 1", "درس 2", "درس 3"] }
-    };
-
     let appData = JSON.parse(localStorage.getItem('attendance_app_data')) || defaultData;
     let records = JSON.parse(localStorage.getItem('attendance_records')) || {};
-    let unitsData = JSON.parse(localStorage.getItem('attendance_units_data')) || defaultUnits;
-    let followupData = JSON.parse(localStorage.getItem('attendance_followup_data')) || {};
 
     let currentStudentForViolation = '';
     let currentReportTab = 'summary';
-    let currentActiveUnit = Object.keys(unitsData)[0] || "الوحدة الأولى";
-
-    let itemToDelete = '';
-    let deleteTargetType = ''; 
 
     document.getElementById('dateSelect').valueAsDate = new Date();
 
     function saveData() {
       localStorage.setItem('attendance_app_data', JSON.stringify(appData));
       localStorage.setItem('attendance_records', JSON.stringify(records));
-      localStorage.setItem('attendance_units_data', JSON.stringify(unitsData));
-      localStorage.setItem('attendance_followup_data', JSON.stringify(followupData));
     }
 
     function initClassSelects() {
       const classSelect = document.getElementById('classSelect');
       const modalClassSelect = document.getElementById('modalClassSelect');
-      const followupClassSelect = document.getElementById('followupClassSelect');
-      
       const selectedMain = classSelect.value;
       const selectedModal = modalClassSelect.value;
-      const selectedFollowup = followupClassSelect.value;
 
       classSelect.innerHTML = '';
       modalClassSelect.innerHTML = '';
-      followupClassSelect.innerHTML = '';
       
       const classKeys = Object.keys(appData);
       classKeys.forEach(cls => {
         classSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
         modalClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
-        followupClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
       });
 
       if (classKeys.includes(selectedMain)) classSelect.value = selectedMain;
       if (classKeys.includes(selectedModal)) modalClassSelect.value = selectedModal;
-      if (classKeys.includes(selectedFollowup)) followupClassSelect.value = selectedFollowup;
     }
 
     function getStudentDayRecord(date, cls, student) {
@@ -1003,57 +778,29 @@
       renderStudents();
     }
 
+    let classToDelete = '';
     function promptDeleteClass() {
       const selectedClass = document.getElementById('modalClassSelect').value;
       if (!selectedClass) return;
 
-      itemToDelete = selectedClass;
-      deleteTargetType = 'class';
+      classToDelete = selectedClass;
       document.getElementById('confirmDeleteText').innerText = `هل أنت تأكد من حذف "${selectedClass}" بالكامل وبشكل نهائي؟`;
-      document.getElementById('confirmDeleteModal').style.display = 'flex';
-    }
-
-    function promptDeleteUnit() {
-      const selectedUnit = document.getElementById('modalUnitSelect').value;
-      const keys = Object.keys(unitsData);
-      
-      if (keys.length <= 1) {
-        alert("يجب أن تبقى وحدة واحدة على الأقل!");
-        return;
-      }
-
-      if (!selectedUnit) return;
-
-      itemToDelete = selectedUnit;
-      deleteTargetType = 'unit';
-      document.getElementById('confirmDeleteText').innerText = `هل أنت متأكد من حذف "${selectedUnit}"؟`;
       document.getElementById('confirmDeleteModal').style.display = 'flex';
     }
 
     function closeConfirmModal() {
       document.getElementById('confirmDeleteModal').style.display = 'none';
-      itemToDelete = '';
-      deleteTargetType = '';
+      classToDelete = '';
     }
 
-    function executeDelete() {
-      if (!itemToDelete) return;
+    function executeDeleteClass() {
+      if (!classToDelete) return;
 
-      if (deleteTargetType === 'class') {
-        delete appData[itemToDelete];
-        saveData();
-        initClassSelects();
-        loadClassTextarea();
-        renderStudents();
-      } else if (deleteTargetType === 'unit') {
-        delete unitsData[itemToDelete];
-        saveData();
-        initUnitsModalSelect();
-        currentActiveUnit = Object.keys(unitsData)[0] || "الوحدة الأولى";
-        loadUnitDetailsToModal();
-        renderUnitsDropdown();
-        renderFollowupTable(currentActiveUnit);
-      }
+      delete appData[classToDelete];
+      saveData();
+      initClassSelects();
+      loadClassTextarea();
+      renderStudents();
       closeConfirmModal();
     }
 
@@ -1066,6 +813,7 @@
 
     function switchReportTab(tab) {
       currentReportTab = tab;
+      
       const tabSummaryBtn = document.getElementById('tabSummaryBtn');
       const tabViolationsBtn = document.getElementById('tabViolationsBtn');
 
@@ -1223,242 +971,9 @@
       document.getElementById('reportModal').style.display = 'none';
     }
 
-    function openFollowupReportModal() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      document.getElementById('followupReportModalTitle').innerText = `📈 تقرير المتابعة - ${currentClass} (${currentActiveUnit})`;
-      
-      const reportContainer = document.getElementById('followupReportContent');
-      if (!currentClass || !appData[currentClass]) {
-        reportContainer.innerHTML = '<div style="text-align:center; padding:10px;">لا يوجد فصل محدد</div>';
-        document.getElementById('followupReportModal').style.display = 'flex';
-        return;
-      }
-
-      const classStudents = appData[currentClass];
-      const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
-      const lessons = unitObj.lessons;
-      const clsKey = `${currentClass}_${currentActiveUnit}`;
-      const fData = followupData[clsKey] || {};
-
-      let html = `
-        <div class="table-responsive-wrapper">
-          <table class="report-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th style="text-align:right;">اسم الطالب</th>
-                <th>معدل الواجبات</th>
-                <th>معدل الأنشطة</th>
-                <th>معدل المشاركة</th>
-                <th>الاختبار/المشروع</th>
-                <th style="background-color: #1e8449;">المجموع الكلي</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
-      classStudents.forEach((student, idx) => {
-        const stData = fData[student] || { hw: {}, act: {}, part: {}, test1: '', test2: '' };
-        
-        let hwSum = 0, hwCount = 0;
-        lessons.forEach(l => { let v = parseFloat(stData.hw[l]); if (!isNaN(v)) { hwSum += v; hwCount++; } });
-        let hwAvg = hwCount > 0 ? (hwSum / hwCount).toFixed(2) : '-';
-
-        let actSum = 0, actCount = 0;
-        lessons.forEach(l => { let v = parseFloat(stData.act[l]); if (!isNaN(v)) { actSum += v; actCount++; } });
-        let actAvg = actCount > 0 ? (actSum / actCount).toFixed(2) : '-';
-
-        let partSum = 0, partCount = 0;
-        lessons.forEach(l => { let v = parseFloat(stData.part[l]); if (!isNaN(v)) { partSum += v; partCount++; } });
-        let partAvg = partCount > 0 ? (partSum / partCount).toFixed(2) : '-';
-
-        let t1 = parseFloat(stData.test1) || 0;
-        let t2 = parseFloat(stData.test2) || 0;
-        let testTotal = (stData.test1 !== '' || stData.test2 !== '') ? (t1 + t2).toFixed(2) : '-';
-
-        let totalSumVal = '-';
-        if (hwAvg !== '-' || actAvg !== '-' || partAvg !== '-' || testTotal !== '-') {
-          totalSumVal = ((parseFloat(hwAvg)||0) + (parseFloat(actAvg)||0) + (parseFloat(partAvg)||0) + (parseFloat(testTotal)||0)).toFixed(2);
-        }
-
-        html += `
-          <tr>
-            <td style="color:var(--text-secondary); font-weight:bold;">${idx + 1}</td>
-            <td class="student-name-td">${student}</td>
-            <td><b>${hwAvg}</b></td>
-            <td><b>${actAvg}</b></td>
-            <td><b>${partAvg}</b></td>
-            <td><b>${testTotal}</b></td>
-            <td><span class="badge-num" style="background-color: #d5f5e3; color: #1e8449; font-size:12px;">${totalSumVal}</span></td>
-          </tr>
-        `;
-      });
-
-      html += `</tbody></table></div>`;
-      reportContainer.innerHTML = html;
-      document.getElementById('followupReportModal').style.display = 'flex';
-    }
-
-    function closeFollowupReportModal() {
-      document.getElementById('followupReportModal').style.display = 'none';
-    }
-
-    function openFollowupExportModal() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      document.getElementById('followupExportTitle').innerText = `تصدير بيانات: ${currentClass} - ${currentActiveUnit}`;
-      document.getElementById('followupExportModal').style.display = 'flex';
-    }
-
-    function closeFollowupExportModal() {
-      document.getElementById('followupExportModal').style.display = 'none';
-    }
-
-    async function exportFollowupPDF() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
-
-      try {
-        const classStudents = appData[currentClass];
-        const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
-        const lessons = unitObj.lessons;
-        const clsKey = `${currentClass}_${currentActiveUnit}`;
-        const fData = followupData[clsKey] || {};
-        const todayDate = new Date().toLocaleDateString('ar-SA');
-
-        const element = document.createElement('div');
-        element.style.padding = '8px';
-        element.style.direction = 'rtl';
-        element.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
-        element.style.backgroundColor = '#ffffff';
-
-        let tableHeader = `
-          <tr style="background-color: #2980b9; color: white; font-size: 8px;">
-            <th style="border: 1px solid #ddd; padding: 4px; text-align: center;">#</th>
-            <th style="border: 1px solid #ddd; padding: 4px; text-align: right; min-width: 80px;">اسم الطالب</th>
-        `;
-        lessons.forEach(l => tableHeader += `<th style="border: 1px solid #ddd; padding: 4px;">واجب: ${l}</th>`);
-        lessons.forEach(l => tableHeader += `<th style="border: 1px solid #ddd; padding: 4px;">نشاط: ${l}</th>`);
-        lessons.forEach(l => tableHeader += `<th style="border: 1px solid #ddd; padding: 4px;">مشاركة: ${l}</th>`);
-        tableHeader += `<th style="border: 1px solid #ddd; padding: 4px;">اختبار</th><th style="border: 1px solid #ddd; padding: 4px;">مشروع</th><th style="border: 1px solid #ddd; padding: 4px; background:#1e8449;">المجموع</th></tr>`;
-
-        let tableRows = '';
-        classStudents.forEach((student, idx) => {
-          const stData = fData[student] || { hw: {}, act: {}, part: {}, test1: '', test2: '' };
-          tableRows += `<tr style="font-size: 8px;"><td style="border:1px solid #ddd; padding:4px; text-align:center;">${idx + 1}</td><td style="border:1px solid #ddd; padding:4px; text-align:right; font-weight:bold;">${student}</td>`;
-          
-          lessons.forEach(l => {
-            let val = (stData.hw && stData.hw[l] !== undefined) ? stData.hw[l] : '';
-            tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${val}</td>`;
-          });
-          lessons.forEach(l => {
-            let val = (stData.act && stData.act[l] !== undefined) ? stData.act[l] : '';
-            tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${val}</td>`;
-          });
-          lessons.forEach(l => {
-            let val = (stData.part && stData.part[l] !== undefined) ? stData.part[l] : '';
-            tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${val}</td>`;
-          });
-          
-          tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${stData.test1 !== undefined ? stData.test1 : ''}</td>`;
-          tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${stData.test2 !== undefined ? stData.test2 : ''}</td>`;
-
-          let hwSum=0, hwC=0, actSum=0, actC=0, partSum=0, partC=0;
-          lessons.forEach(l => { let v=parseFloat(stData.hw[l]); if(!isNaN(v)){hwSum+=v;hwC++;} });
-          lessons.forEach(l => { let v=parseFloat(stData.act[l]); if(!isNaN(v)){actSum+=v;actC++;} });
-          lessons.forEach(l => { let v=parseFloat(stData.part[l]); if(!isNaN(v)){partSum+=v;partC++;} });
-          let hwAvg = hwC>0 ? hwSum/hwC : 0;
-          let actAvg = actC>0 ? actSum/actC : 0;
-          let partAvg = partC>0 ? partSum/partC : 0;
-          let t1 = parseFloat(stData.test1)||0;
-          let t2 = parseFloat(stData.test2)||0;
-          let tot = (hwAvg + actAvg + partAvg + t1 + t2).toFixed(2);
-
-          tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold; color:#1e8449;">${tot}</td></tr>`;
-        });
-
-        element.innerHTML = `
-          <div style="text-align: center; border-bottom: 2px solid #2980b9; padding-bottom: 6px; margin-bottom: 8px;">
-            <h1 style="margin: 0; font-size: 13px; color: #2980b9; font-weight: 900;">كشف المتابعة الشامل - ${currentActiveUnit}</h1>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
-            <span>الفصل: ${currentClass}</span>
-            <span>التاريخ: ${todayDate}</span>
-          </div>
-          <table style="width: 100%; border-collapse: collapse; table-layout: auto;">
-            <thead>${tableHeader}</thead>
-            <tbody>${tableRows}</tbody>
-          </table>
-        `;
-
-        const filename = `كشف_متابعة_شامل_${currentClass}_${currentActiveUnit}.pdf`;
-        const opt = {
-          margin: 4, filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-
-        const pdfWorker = html2pdf().set(opt).from(element);
-        const pdfBlob = await pdfWorker.output('blob');
-        const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
-
-        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({ files: [pdfFile], title: filename, text: `كشف المتابعة الشامل - ${currentClass}` });
-        } else {
-          pdfWorker.save();
-        }
-        closeFollowupExportModal();
-      } catch (err) {
-        console.error(err);
-        alert("حدث خطأ أثناء تصدير PDF");
-      }
-    }
-
-    function exportFollowupCSV() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
-
-      const classStudents = appData[currentClass];
-      const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
-      const lessons = unitObj.lessons;
-      const clsKey = `${currentClass}_${currentActiveUnit}`;
-      const fData = followupData[clsKey] || {};
-
-      let csv = "\uFEFFاسم الطالب,";
-      lessons.forEach(l => csv += `واجب_${l},`);
-      lessons.forEach(l => csv += `نشاط_${l},`);
-      lessons.forEach(l => csv += `مشاركة_${l},`);
-      csv += "اختبار_الوحدة,المشروع,المجموع\n";
-
-      classStudents.forEach(student => {
-        const stData = fData[student] || { hw: {}, act: {}, part: {}, test1: '', test2: '' };
-        csv += `${student},`;
-        lessons.forEach(l => csv += `${stData.hw[l] !== undefined ? stData.hw[l] : ''},`);
-        lessons.forEach(l => csv += `${stData.act[l] !== undefined ? stData.act[l] : ''},`);
-        lessons.forEach(l => csv += `${stData.part[l] !== undefined ? stData.part[l] : ''},`);
-        csv += `${stData.test1 || ''},${stData.test2 || ''},`;
-
-        let hwSum=0, hwC=0, actSum=0, actC=0, partSum=0, partC=0;
-        lessons.forEach(l => { let v=parseFloat(stData.hw[l]); if(!isNaN(v)){hwSum+=v;hwC++;} });
-        lessons.forEach(l => { let v=parseFloat(stData.act[l]); if(!isNaN(v)){actSum+=v;actC++;} });
-        lessons.forEach(l => { let v=parseFloat(stData.part[l]); if(!isNaN(v)){partSum+=v;partC++;} });
-        let hwAvg = hwC>0 ? hwSum/hwC : 0;
-        let actAvg = actC>0 ? actSum/actC : 0;
-        let partAvg = partC>0 ? partSum/partC : 0;
-        let t1 = parseFloat(stData.test1)||0;
-        let t2 = parseFloat(stData.test2)||0;
-        let tot = (hwAvg + actAvg + partAvg + t1 + t2).toFixed(2);
-
-        csv += `${tot}\n`;
-      });
-
-      downloadFile(csv, `كشف_متابعة_${currentClass}_${currentActiveUnit}.csv`, 'text/csv;charset=utf-8;');
-      closeFollowupExportModal();
-    }
-
     function openDataMenuModal() {
       const currentClass = document.getElementById('classSelect').value || '';
-      document.getElementById('csvSectionTitle').innerText = `📊 تقارير الفصل الحالي (${currentClass})`;
+      document.getElementById('csvSectionTitle').innerText = `📊 تقارير CSV (${currentClass})`;
       document.getElementById('dataMenuModal').style.display = 'flex';
     }
 
@@ -1470,13 +985,12 @@
       const backupObj = {
         appData: appData,
         records: records,
-        unitsData: unitsData,
-        followupData: followupData,
         exportDate: new Date().toISOString()
       };
+
       const jsonStr = JSON.stringify(backupObj, null, 2);
       const dateStr = new Date().toISOString().split('T')[0];
-      downloadFile(jsonStr, `Backup_${dateStr}.json`, 'application/json');
+downloadFile(jsonStr, `Backup_${dateStr}.json`, 'application/json');
     }
 
     function triggerFileInput() {
@@ -1495,25 +1009,20 @@
           const parsed = JSON.parse(e.target.result);
           let importedAppData = parsed.appData || (parsed["ثالث 1"] ? parsed : null);
           let importedRecords = parsed.records || {};
-          let importedUnits = parsed.unitsData || null;
-          let importedFollowup = parsed.followupData || {};
 
           if (importedAppData) {
             appData = importedAppData;
             if (parsed.records) records = importedRecords;
-            if (importedUnits) unitsData = importedUnits;
-            if (importedFollowup) followupData = importedFollowup;
-            
             saveData();
             initClassSelects();
             renderStudents();
-            alert("✅ تم استعادة جميع البيانات من الملف بنجاح!");
+            alert("✅ تم استعادة جميع البيانات من الملف بنجاح 100%!");
             closeDataMenuModal();
           } else {
             alert("⚠️ الملف المختار لا يحتوي على تنسيق بيانات نسخة احتياطية صحيح.");
           }
         } catch (err) {
-          alert("❌ تعذر قراءة الملف.");
+          alert("❌ تعذر قراءة الملف. يرجى التأكد من اختيار ملف النسخة الاحتياطية (JSON) الصحيح.");
         }
       };
       reader.readAsText(file, 'UTF-8');
@@ -1525,8 +1034,8 @@
 
       let csv = "\uFEFFالتاريخ,اسم الطالب,الحالة,المخالفات المسجلة\n";
       const dates = Object.keys(records).sort();
-      let hasData = false;
 
+      let hasData = false;
       dates.forEach(date => {
         if (records[date] && records[date][currentClass]) {
           const dayRecords = records[date][currentClass];
@@ -1539,7 +1048,11 @@
         }
       });
 
-      if (!hasData) return alert("لا توجد سجلات مسجلة لهذا الفصل.");
+      if (!hasData) {
+        alert("لا توجد سجلات غياب أو سلوك مسجلة لهذا الفصل.");
+        return;
+      }
+
       downloadFile(csv, `سجل_السلوك_والغياب_${currentClass}.csv`, 'text/csv;charset=utf-8;');
     }
 
@@ -1549,7 +1062,10 @@
 
       const classStudents = appData[currentClass];
       let studentStats = {};
-      classStudents.forEach(st => { studentStats[st] = { absent: 0, late: 0, violations: 0 }; });
+
+      classStudents.forEach(st => {
+        studentStats[st] = { absent: 0, late: 0, violations: 0 };
+      });
 
       for (let date in records) {
         if (records[date] && records[date][currentClass]) {
@@ -1569,6 +1085,7 @@
       classStudents.forEach(st => {
         csv += `${st},${studentStats[st].absent},${studentStats[st].late},${studentStats[st].violations}\n`;
       });
+
       downloadFile(csv, `تقرير_إحصائي_${currentClass}.csv`, 'text/csv;charset=utf-8;');
     }
 
@@ -1591,6 +1108,7 @@
         element.style.backgroundColor = '#ffffff';
 
         let reportTitleText = currentReportTab === 'summary' ? "التقرير الشامل للغياب والتأخر والمخالفات" : "التقرير التفصيلي لسجل المخالفات السلوكية";
+
         let tableHeaderHtml = '';
         let tableRowsHtml = '';
 
@@ -1633,6 +1151,7 @@
               </tr>
             `;
           });
+
         } else {
           let studentVioCounts = {};
           classStudents.forEach(st => {
@@ -1659,28 +1178,42 @@
           tableHeaderHtml = `
             <tr style="background-color: #007AFF; color: white; font-size: 8px;">
               <th style="border: 1px solid #007AFF; padding: 4px 2px; width: 16px; text-align: center;">#</th>
-              <th style="border: 1px solid #007AFF; padding: 4px 6px; text-align: right; width: 85px;">اسم الطالب</th>
+              <th style="border: 1px solid #007AFF; padding: 4px 6px; text-align: right; width: 85px; max-width: 85px; word-break: break-word;">اسم الطالب</th>
           `;
+
           VIOLATIONS_LIST.forEach(vText => {
             const wordByWord = vText.split(' ').join('<br>');
-            tableHeaderHtml += `<th style="border: 1px solid #007AFF; padding: 4px 2px; text-align: center; vertical-align: middle; font-weight: bold; line-height: 1.1; width: 25px;">${wordByWord}</th>`;
+            tableHeaderHtml += `
+              <th style="border: 1px solid #007AFF; padding: 4px 2px; text-align: center; vertical-align: middle; font-weight: bold; line-height: 1.1; width: 25px;">
+                ${wordByWord}
+              </th>
+            `;
           });
-          tableHeaderHtml += `<th style="border: 1px solid #007AFF; padding: 4px 2px; width: 25px; text-align: center; background-color: #6A1B9A;">الإجمالي</th></tr>`;
+
+          tableHeaderHtml += `
+              <th style="border: 1px solid #007AFF; padding: 4px 2px; width: 25px; text-align: center; background-color: #6A1B9A;">الإجمالي</th>
+            </tr>
+          `;
 
           classStudents.forEach((st, idx) => {
             let totalStVio = 0;
             tableRowsHtml += `
               <tr style="font-size: 9px;">
                 <td style="border:1px solid #D1D1D6; padding: 4px 2px; text-align: center; color: #8E8E93; font-weight: bold;">${idx + 1}</td>
-                <td style="border:1px solid #D1D1D6; padding: 4px 6px; text-align: right; font-weight: bold; color: #1C1C1E; width: 85px;">${st}</td>
+                <td style="border:1px solid #D1D1D6; padding: 4px 6px; text-align: right; font-weight: bold; color: #1C1C1E; width: 85px; max-width: 85px; line-height: 1.2; word-break: break-word;">${st}</td>
             `;
+
             VIOLATIONS_LIST.forEach(vText => {
               const cnt = studentVioCounts[st][vText] || 0;
               totalStVio += cnt;
               const displayVal = cnt > 0 ? `<b style="color:#AF52DE; font-size: 11px; font-weight: 900;">${cnt}</b>` : '<span style="color:#D1D1D6;">-</span>';
               tableRowsHtml += `<td style="border:1px solid #D1D1D6; padding: 4px 2px; text-align: center;">${displayVal}</td>`;
             });
-            tableRowsHtml += `<td style="border:1px solid #D1D1D6; padding: 4px 2px; text-align: center; color: #AF52DE; font-weight: 900; font-size: 11px;">${totalStVio}</td></tr>`;
+
+            tableRowsHtml += `
+                <td style="border:1px solid #D1D1D6; padding: 4px 2px; text-align: center; color: #AF52DE; font-weight: 900; font-size: 11px;">${totalStVio}</td>
+              </tr>
+            `;
           });
         }
 
@@ -1694,14 +1227,24 @@
             <span>إجمالي الطلاب: ${classStudents.length}</span>
           </div>
           <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-            <thead>${tableHeaderHtml}</thead>
-            <tbody>${tableRowsHtml}</tbody>
+            <thead>
+              ${tableHeaderHtml}
+            </thead>
+            <tbody>
+              ${tableRowsHtml}
+            </tbody>
           </table>
+          <div style="margin-top: 14px; display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; padding: 0 10px; color: #3A3A3C;">
+            <div>توقيع المعلم: ........................................</div>
+            <div>اعتماد إدارة المدرسة: ........................................</div>
+          </div>
         `;
 
         const filename = `تقرير_${currentReportTab === 'summary' ? 'شامل' : 'المخالفات'}_${currentClass}.pdf`;
+        
         const opt = {
-          margin: 6, filename: filename,
+          margin: 6,
+          filename: filename,
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 2, useCORS: true },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -1712,7 +1255,11 @@
         const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
 
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({ files: [pdfFile], title: filename, text: `تقرير الغياب والمخالفات - ${currentClass}` });
+          await navigator.share({
+            files: [pdfFile],
+            title: filename,
+            text: `تقرير الغياب والمخالفات - ${currentClass}`
+          });
         } else {
           pdfWorker.save();
         }
@@ -1731,7 +1278,11 @@
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
-          await navigator.share({ files: [file], title: fileName, text: 'مشاركة الملف' });
+          await navigator.share({
+            files: [file],
+            title: fileName,
+            text: 'مشاركة الملف من تطبيق كشف الغياب'
+          });
           return;
         } catch (err) {
           if (err.name === 'AbortError') return;
@@ -1746,348 +1297,16 @@
       document.body.removeChild(link);
     }
 
-    /* دوال التنقل وإدارة الوحدات والدروس */
-    function switchToFollowupScreen() {
-      document.getElementById('absenceScreen').classList.remove('active-screen');
-      document.getElementById('followupScreen').classList.add('active-screen');
-      
-      initClassSelects();
-      const currentMainClass = document.getElementById('classSelect').value;
-      if (currentMainClass) {
-        document.getElementById('followupClassSelect').value = currentMainClass;
-      }
-
-      renderUnitsDropdown();
-      if (!unitsData[currentActiveUnit]) {
-        currentActiveUnit = Object.keys(unitsData)[0] || "الوحدة الأولى";
-      }
-      document.getElementById('unitDropdownSelect').value = currentActiveUnit;
-      renderFollowupTable(currentActiveUnit);
-    }
-
-    function switchToAbsenceScreen() {
-      document.getElementById('followupScreen').classList.remove('active-screen');
-      document.getElementById('absenceScreen').classList.add('active-screen');
-    }
-
-    function onFollowupClassChange(className) {
-      document.getElementById('classSelect').value = className;
-      renderFollowupTable(currentActiveUnit);
-    }
-
-    function renderUnitsDropdown() {
-      const selectElem = document.getElementById('unitDropdownSelect');
-      const selectedVal = selectElem.value;
-      selectElem.innerHTML = '';
-      
-      Object.keys(unitsData).forEach(uName => {
-        selectElem.innerHTML += `<option value="${uName}">${uName}</option>`;
-      });
-
-      if (unitsData[selectedVal]) {
-        selectElem.value = selectedVal;
-      } else {
-        selectElem.value = currentActiveUnit;
-      }
-    }
-
-    function onUnitDropdownChange(unitName) {
-      currentActiveUnit = unitName;
-      renderFollowupTable(unitName);
-    }
-
-    function renderFollowupTable(unitName) {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      
-      const thead = document.getElementById('followupTableHead');
-      const tbody = document.getElementById('followupTableBody');
-      thead.innerHTML = '';
-      tbody.innerHTML = '';
-
-      if (!currentClass || !appData[currentClass]) {
-        tbody.innerHTML = '<tr><td colspan="20" style="padding:15px; color:#888;">لا توجد بيانات طلاب لهذا الفصل</td></tr>';
-        return;
-      }
-
-      const unitObj = unitsData[unitName] || { lessons: ["درس 1"] };
-      const lessons = unitObj.lessons;
-
-      thead.innerHTML = `
-        <tr>
-          <th rowspan="2">م</th>
-          <th rowspan="2">اسم الطالب</th>
-          <th colspan="${lessons.length}" class="th-hw">الواجبات</th>
-          <th colspan="${lessons.length}" class="th-act">الأنشطة</th>
-          <th colspan="${lessons.length}" class="th-part">المشاركة</th>
-          <th colspan="2" class="th-test">الاختبارات والمشاريع</th>
-          <th colspan="5" class="th-weighted">الدرجات الموزونة</th>
-        </tr>
-        <tr>
-          ${lessons.map(l => `<th class="th-hw">${l}</th>`).join('')}
-          ${lessons.map(l => `<th class="th-act">${l}</th>`).join('')}
-          ${lessons.map(l => `<th class="th-part">${l}</th>`).join('')}
-          <th class="th-test">اختبار الوحدة</th>
-          <th class="th-test">المشروع</th>
-          <th class="th-weighted">واجبات</th>
-          <th class="th-weighted">أنشطة</th>
-          <th class="th-weighted">مشاركة</th>
-          <th class="th-weighted">اختبار</th>
-          <th class="th-weighted">مجموع</th>
-        </tr>
-      `;
-
-      const classStudents = appData[currentClass];
-      const clsKey = `${currentClass}_${unitName}`;
-      if (!followupData[clsKey]) followupData[clsKey] = {};
-
-      classStudents.forEach((student, idx) => {
-        if (!followupData[clsKey][student]) {
-          followupData[clsKey][student] = { hw: {}, act: {}, part: {}, test1: '', test2: '' };
-        }
-        const stData = followupData[clsKey][student];
-        const safeId = student.replace(/\s+/g, '_');
-
-        let trHtml = `
-          <td>${idx + 1}</td>
-          <td style="text-align: right; font-weight: bold;">${student}</td>
-        `;
-
-        lessons.forEach((lName) => {
-          let val = (stData.hw && stData.hw[lName]) !== undefined ? stData.hw[lName] : '';
-          trHtml += `<td><input type="number" style="width:50px; text-align:center;" value="${val}" onchange="updateFollowupVal('${student}', 'hw', '${lName}', this.value)"></td>`;
-        });
-
-        lessons.forEach((lName) => {
-          let val = (stData.act && stData.act[lName]) !== undefined ? stData.act[lName] : '';
-          trHtml += `<td><input type="number" style="width:50px; text-align:center;" value="${val}" onchange="updateFollowupVal('${student}', 'act', '${lName}', this.value)"></td>`;
-        });
-
-        lessons.forEach((lName) => {
-          let val = (stData.part && stData.part[lName]) !== undefined ? stData.part[lName] : '';
-          trHtml += `<td><input type="number" style="width:50px; text-align:center;" value="${val}" onchange="updateFollowupVal('${student}', 'part', '${lName}', this.value)"></td>`;
-        });
-
-        let test1Val = stData.test1 !== undefined ? stData.test1 : '';
-        let test2Val = stData.test2 !== undefined ? stData.test2 : '';
-        trHtml += `
-          <td><input type="number" style="width:70px; text-align:center;" value="${test1Val}" onchange="updateFollowupVal('${student}', 'test1', '', this.value)"></td>
-          <td><input type="number" style="width:70px; text-align:center;" value="${test2Val}" onchange="updateFollowupVal('${student}', 'test2', '', this.value)"></td>
-        `;
-
-        let hwSum = 0, hwCount = 0;
-        lessons.forEach(l => {
-          let v = parseFloat(stData.hw[l]);
-          if (!isNaN(v)) { hwSum += v; hwCount++; }
-        });
-        let hwAvg = hwCount > 0 ? (hwSum / hwCount).toFixed(2) : '-';
-
-        let actSum = 0, actCount = 0;
-        lessons.forEach(l => {
-          let v = parseFloat(stData.act[l]);
-          if (!isNaN(v)) { actSum += v; actCount++; }
-        });
-        let actAvg = actCount > 0 ? (actSum / actCount).toFixed(2) : '-';
-
-        let partSum = 0, partCount = 0;
-        lessons.forEach(l => {
-          let v = parseFloat(stData.part[l]);
-          if (!isNaN(v)) { partSum += v; partCount++; }
-        });
-        let partAvg = partCount > 0 ? (partSum / partCount).toFixed(2) : '-';
-
-        let t1Num = parseFloat(test1Val) || 0;
-        let t2Num = parseFloat(test2Val) || 0;
-        let testTotal = (test1Val !== '' || test2Val !== '') ? (t1Num + t2Num).toFixed(2) : '-';
-
-        let totalSumVal = '-';
-        let hasAnyWeighted = (hwAvg !== '-' || actAvg !== '-' || partAvg !== '-' || testTotal !== '-');
-        if (hasAnyWeighted) {
-          let hNum = parseFloat(hwAvg) || 0;
-          let aNum = parseFloat(actAvg) || 0;
-          let pNum = parseFloat(partAvg) || 0;
-          let ttNum = parseFloat(testTotal) || 0;
-          totalSumVal = (hNum + aNum + pNum + ttNum).toFixed(2);
-        }
-
-        trHtml += `
-          <td class="th-weighted" id="hw_avg_${safeId}">${hwAvg}</td>
-          <td class="th-weighted" id="act_avg_${safeId}">${actAvg}</td>
-          <td class="th-weighted" id="part_avg_${safeId}">${partAvg}</td>
-          <td class="th-weighted" id="test_total_${safeId}">${testTotal}</td>
-          <th class="th-weighted" id="total_sum_${safeId}">${totalSumVal}</th>
-        `;
-
-        let rowElem = document.createElement('tr');
-        rowElem.innerHTML = trHtml;
-        tbody.appendChild(rowElem);
-      });
-    }
-
-    function updateFollowupVal(student, category, subKey, value) {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      const clsKey = `${currentClass}_${currentActiveUnit}`;
-      
-      if (!followupData[clsKey]) followupData[clsKey] = {};
-      if (!followupData[clsKey][student]) {
-        followupData[clsKey][student] = { hw: {}, act: {}, part: {}, test1: '', test2: '' };
-      }
-
-      if (category === 'test1' || category === 'test2') {
-        followupData[clsKey][student][category] = value;
-      } else {
-        if (!followupData[clsKey][student][category]) followupData[clsKey][student][category] = {};
-        followupData[clsKey][student][category][subKey] = value;
-      }
-      saveData();
-
-      const unitObj = unitsData[currentActiveUnit] || { lessons: [] };
-      const lessons = unitObj.lessons;
-      const stData = followupData[clsKey][student];
-      const safeId = student.replace(/\s+/g, '_');
-
-      let hwSum = 0, hwCount = 0;
-      lessons.forEach(l => {
-        let v = parseFloat(stData.hw[l]);
-        if (!isNaN(v)) { hwSum += v; hwCount++; }
-      });
-      let hwAvg = hwCount > 0 ? (hwSum / hwCount).toFixed(2) : '-';
-      document.getElementById(`hw_avg_${safeId}`).innerText = hwAvg;
-
-      let actSum = 0, actCount = 0;
-      lessons.forEach(l => {
-        let v = parseFloat(stData.act[l]);
-        if (!isNaN(v)) { actSum += v; actCount++; }
-      });
-      let actAvg = actCount > 0 ? (actSum / actCount).toFixed(2) : '-';
-      document.getElementById(`act_avg_${safeId}`).innerText = actAvg;
-
-      let partSum = 0, partCount = 0;
-      lessons.forEach(l => {
-        let v = parseFloat(stData.part[l]);
-        if (!isNaN(v)) { partSum += v; partCount++; }
-      });
-      let partAvg = partCount > 0 ? (partSum / partCount).toFixed(2) : '-';
-      document.getElementById(`part_avg_${safeId}`).innerText = partAvg;
-
-      let t1 = parseFloat(stData.test1);
-      let t2 = parseFloat(stData.test2);
-      let hasVal = (stData.test1 !== '' && !isNaN(t1)) || (stData.test2 !== '' && !isNaN(t2));
-      let testTotalVal = hasVal ? ((isNaN(t1) ? 0 : t1) + (isNaN(t2) ? 0 : t2)).toFixed(2) : '-';
-      document.getElementById(`test_total_${safeId}`).innerText = testTotalVal;
-
-      let hNum = parseFloat(hwAvg) || 0;
-      let aNum = parseFloat(actAvg) || 0;
-      let pNum = parseFloat(partAvg) || 0;
-      let ttNum = parseFloat(testTotalVal) || 0;
-      let hasAny = (hwAvg !== '-' || actAvg !== '-' || partAvg !== '-' || testTotalVal !== '-');
-      document.getElementById(`total_sum_${safeId}`).innerText = hasAny ? (hNum + aNum + pNum + ttNum).toFixed(2) : '-';
-    }
-
-    function openUnitsManageModal() {
-      document.getElementById('unitsManageModal').style.display = 'flex';
-      initUnitsModalSelect();
-      loadUnitDetailsToModal();
-    }
-
-    function closeUnitsManageModal() {
-      document.getElementById('unitsManageModal').style.display = 'none';
-      document.getElementById('inlineAddUnitBox').style.display = 'none';
-    }
-
-    function initUnitsModalSelect() {
-      const select = document.getElementById('modalUnitSelect');
-      const selectedVal = select.value;
-      select.innerHTML = '';
-      
-      Object.keys(unitsData).forEach(uName => {
-        select.innerHTML += `<option value="${uName}">${uName}</option>`;
-      });
-
-      if (unitsData[selectedVal]) select.value = selectedVal;
-    }
-
-    function loadUnitDetailsToModal() {
-      const selectedUnit = document.getElementById('modalUnitSelect').value;
-      if (!selectedUnit || !unitsData[selectedUnit]) return;
-
-      const unitObj = unitsData[selectedUnit];
-      const lessons = unitObj.lessons || ["درس 1"];
-      
-      document.getElementById('unitLessonsCountInput').value = lessons.length;
-      generateLessonNameInputs(lessons);
-    }
-
-    function generateLessonNameInputs(existingLessons = null) {
-      const count = parseInt(document.getElementById('unitLessonsCountInput').value) || 1;
-      const container = document.getElementById('lessonNamesInputsContainer');
-      container.innerHTML = '';
-
-      for (let i = 0; i < count; i++) {
-        const defaultName = existingLessons && existingLessons[i] ? existingLessons[i] : `درس ${i + 1}`;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'lesson-name-input';
-        input.value = defaultName;
-        input.placeholder = `اسم الدرس ${i + 1}`;
-        container.appendChild(input);
-      }
-    }
-
-    function toggleAddUnitBox() {
-      const box = document.getElementById('inlineAddUnitBox');
-      box.style.display = (box.style.display === 'flex') ? 'none' : 'flex';
-      if (box.style.display === 'flex') document.getElementById('newUnitNameInput').focus();
-    }
-
-    function saveNewUnit() {
-      const input = document.getElementById('newUnitNameInput');
-      const uName = input.value.trim();
-      if (!uName) return;
-
-      if (unitsData[uName]) {
-        alert("هذه الوحدة موجودة بالفعل!");
-        return;
-      }
-
-      unitsData[uName] = { lessons: ["درس 1", "درس 2", "درس 3"] };
-      saveData();
-      initUnitsModalSelect();
-      document.getElementById('modalUnitSelect').value = uName;
-      loadUnitDetailsToModal();
-
-      input.value = '';
-      document.getElementById('inlineAddUnitBox').style.display = 'none';
-      renderUnitsDropdown();
-    }
-
-    function saveUnitConfig() {
-      const selectedUnit = document.getElementById('modalUnitSelect').value;
-      if (!selectedUnit) return;
-
-      const inputElements = document.querySelectorAll('.lesson-name-input');
-      let lessonsList = [];
-      inputElements.forEach(inp => {
-        let val = inp.value.trim();
-        if (val) lessonsList.push(val);
-      });
-
-      if (lessonsList.length === 0) {
-        alert("يجب إدخال درس واحد على الأقل!");
-        return;
-      }
-
-      unitsData[selectedUnit] = { lessons: lessonsList };
-      saveData();
-      renderUnitsDropdown();
-      currentActiveUnit = selectedUnit;
-      document.getElementById('unitDropdownSelect').value = selectedUnit;
-      renderFollowupTable(selectedUnit);
-      closeUnitsManageModal();
-      alert("✅ تم حفظ إعدادات الوحدة بنجاح!");
-    }
-
     initClassSelects();
     renderStudents();
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js');
+      });
+    }
   </script>
 </body>
 </html>
