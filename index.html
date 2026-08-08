@@ -526,10 +526,10 @@
       </table>
     </div>
 
-    <!-- شريط ثابت بالأسفل للتقارير والنسخ الاحتياطي -->
+    <!-- شريط ثابت بالأسفل للتقارير الخاصة بكشوف المتابعة -->
     <div class="bottom-controls">
-      <button class="btn-action btn-report" onclick="openReportModal()">📈 التقارير الشاملة</button>
-      <button class="btn-action btn-data" onclick="openDataMenuModal()">📂 النسخ الاحتياطي والتقارير</button>
+      <button class="btn-action btn-report" onclick="openFollowupReportModal()">📈 تقارير كشوف المتابعة</button>
+      <button class="btn-action btn-data" onclick="openFollowupExportModal()">📂 تصدير تقارير المتابعة (PDF / CSV)</button>
     </div>
   </div>
 
@@ -584,7 +584,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة التقارير ================= -->
+  <!-- ================= نافذة التقارير الشاملة (للغياب والمخالفات) ================= -->
   <div class="modal" id="reportModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -605,7 +605,34 @@
     </div>
   </div>
 
-  <!-- ================= نافذة النسخ الاحتياطي ================= -->
+  <!-- ================= نافذة تقارير كشوف المتابعة (العرض على الشاشة) ================= -->
+  <div class="modal" id="followupReportModal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div class="modal-title" id="followupReportModalTitle" style="margin:0;">📈 تقارير كشوف المتابعة</div>
+        <button class="btn-close-circle" onclick="closeFollowupReportModal()">✕</button>
+      </div>
+      <div id="followupReportContent"></div>
+    </div>
+  </div>
+
+  <!-- ================= نافذة تصدير كشوف المتابعة (PDF و CSV) ================= -->
+  <div class="modal" id="followupExportModal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <div class="modal-title" style="margin:0;">📂 تصدير كشوف المتابعة</div>
+        <button class="btn-close-circle" onclick="closeFollowupExportModal()">✕</button>
+      </div>
+
+      <div class="data-box-section">
+        <div class="data-box-title" id="followupExportTitle">خيارات التصدير للوحدة والفصل الحالي</div>
+        <button class="btn-menu-option" style="background-color: var(--accent);" onclick="exportFollowupPDF()">📄 تصدير كشف المتابعة PDF</button>
+        <button class="btn-menu-option" style="background-color: var(--green);" onclick="exportFollowupCSV()">📊 تصدير كشف المتابعة CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= نافذة النسخ الاحتياطي (للغياب والمخالفات) ================= -->
   <div class="modal" id="dataMenuModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -1194,6 +1221,231 @@
 
     function closeReportModal() {
       document.getElementById('reportModal').style.display = 'none';
+    }
+
+    /* دوال تقارير كشوف المتابعة الجديدة (عرض على الشاشة، PDF، CSV) */
+    function openFollowupReportModal() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      document.getElementById('followupReportModalTitle').innerText = `📈 تقرير المتابعة - ${currentClass} (${currentActiveUnit})`;
+      
+      const reportContainer = document.getElementById('followupReportContent');
+      if (!currentClass || !appData[currentClass]) {
+        reportContainer.innerHTML = '<div style="text-align:center; padding:10px;">لا يوجد فصل محدد</div>';
+        document.getElementById('followupReportModal').style.display = 'flex';
+        return;
+      }
+
+      const classStudents = appData[currentClass];
+      const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
+      const lessons = unitObj.lessons;
+      const clsKey = `${currentClass}_${currentActiveUnit}`;
+      const fData = followupData[clsKey] || {};
+
+      let html = `
+        <div class="table-responsive-wrapper">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th style="text-align:right;">اسم الطالب</th>
+                <th>معدل الواجبات</th>
+                <th>معدل الأنشطة</th>
+                <th>معدل المشاركة</th>
+                <th>الاختبار/المشروع</th>
+                <th style="background-color: #1e8449;">المجموع الكلي</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      classStudents.forEach((student, idx) => {
+        const stData = fData[student] || { hw: {}, act: {}, part: {}, test1: '', test2: '' };
+        
+        let hwSum = 0, hwCount = 0;
+        lessons.forEach(l => { let v = parseFloat(stData.hw[l]); if (!isNaN(v)) { hwSum += v; hwCount++; } });
+        let hwAvg = hwCount > 0 ? (hwSum / hwCount).toFixed(2) : '-';
+
+        let actSum = 0, actCount = 0;
+        lessons.forEach(l => { let v = parseFloat(stData.act[l]); if (!isNaN(v)) { actSum += v; actCount++; } });
+        let actAvg = actCount > 0 ? (actSum / actCount).toFixed(2) : '-';
+
+        let partSum = 0, partCount = 0;
+        lessons.forEach(l => { let v = parseFloat(stData.part[l]); if (!isNaN(v)) { partSum += v; partCount++; } });
+        let partAvg = partCount > 0 ? (partSum / partCount).toFixed(2) : '-';
+
+        let t1 = parseFloat(stData.test1) || 0;
+        let t2 = parseFloat(stData.test2) || 0;
+        let testTotal = (stData.test1 !== '' || stData.test2 !== '') ? (t1 + t2).toFixed(2) : '-';
+
+        let totalSumVal = '-';
+        if (hwAvg !== '-' || actAvg !== '-' || partAvg !== '-' || testTotal !== '-') {
+          totalSumVal = ((parseFloat(hwAvg)||0) + (parseFloat(actAvg)||0) + (parseFloat(partAvg)||0) + (parseFloat(testTotal)||0)).toFixed(2);
+        }
+
+        html += `
+          <tr>
+            <td style="color:var(--text-secondary); font-weight:bold;">${idx + 1}</td>
+            <td class="student-name-td">${student}</td>
+            <td><b>${hwAvg}</b></td>
+            <td><b>${actAvg}</b></td>
+            <td><b>${partAvg}</b></td>
+            <td><b>${testTotal}</b></td>
+            <td><span class="badge-num" style="background-color: #d5f5e3; color: #1e8449; font-size:12px;">${totalSumVal}</span></td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table></div>`;
+      reportContainer.innerHTML = html;
+      document.getElementById('followupReportModal').style.display = 'flex';
+    }
+
+    function closeFollowupReportModal() {
+      document.getElementById('followupReportModal').style.display = 'none';
+    }
+
+    function openFollowupExportModal() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      document.getElementById('followupExportTitle').innerText = `تصدير بيانات: ${currentClass} - ${currentActiveUnit}`;
+      document.getElementById('followupExportModal').style.display = 'flex';
+    }
+
+    function closeFollowupExportModal() {
+      document.getElementById('followupExportModal').style.display = 'none';
+    }
+
+    async function exportFollowupPDF() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
+
+      try {
+        const classStudents = appData[currentClass];
+        const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
+        const lessons = unitObj.lessons;
+        const clsKey = `${currentClass}_${currentActiveUnit}`;
+        const fData = followupData[clsKey] || {};
+        const todayDate = new Date().toLocaleDateString('ar-SA');
+
+        const element = document.createElement('div');
+        element.style.padding = '8px';
+        element.style.direction = 'rtl';
+        element.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
+        element.style.backgroundColor = '#ffffff';
+
+        let tableHeader = `
+          <tr style="background-color: #2980b9; color: white; font-size: 10px;">
+            <th style="border: 1px solid #ddd; padding: 4px; text-align: center;">#</th>
+            <th style="border: 1px solid #ddd; padding: 4px; text-align: right;">اسم الطالب</th>
+        `;
+        lessons.forEach(l => tableHeader += `<th style="border: 1px solid #ddd; padding: 4px;">واجب: ${l}</th>`);
+        lessons.forEach(l => tableHeader += `<th style="border: 1px solid #ddd; padding: 4px;">نشاط: ${l}</th>`);
+        lessons.forEach(l => tableHeader += `<th style="border: 1px solid #ddd; padding: 4px;">مشاركة: ${l}</th>`);
+        tableHeader += `<th style="border: 1px solid #ddd; padding: 4px;">اختبار</th><th style="border: 1px solid #ddd; padding: 4px;">مشروع</th><th style="border: 1px solid #ddd; padding: 4px; background:#1e8449;">المجموع</th></tr>`;
+
+        let tableRows = '';
+        classStudents.forEach((student, idx) => {
+          const stData = fData[student] || { hw: {}, act: {}, part: {}, test1: '', test2: '' };
+          tableRows += `<tr style="font-size: 9px;"><td style="border:1px solid #ddd; padding:4px; text-align:center;">${idx + 1}</td><td style="border:1px solid #ddd; padding:4px; text-align:right; font-weight:bold;">${student}</td>`;
+          
+          lessons.forEach(l => tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${stData.hw[l] !== undefined ? stData.hw[l] : ''}</td>`);
+          lessons.forEach(l => tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${stData.act[l] !== undefined ? stData.act[l] : ''}</td>`);
+          lessons.forEach(l => tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${stData.part[l] !== undefined ? stData.part[l] : ''}</td>`);
+          
+          tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${stData.test1 || ''}</td>`;
+          tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${stData.test2 || ''}</td>`;
+
+          let hwSum=0, hwC=0, actSum=0, actC=0, partSum=0, partC=0;
+          lessons.forEach(l => { let v=parseFloat(stData.hw[l]); if(!isNaN(v)){hwSum+=v;hwC++;} });
+          lessons.forEach(l => { let v=parseFloat(stData.act[l]); if(!isNaN(v)){actSum+=v;actC++;} });
+          lessons.forEach(l => { let v=parseFloat(stData.part[l]); if(!isNaN(v)){partSum+=v;partC++;} });
+          let hwAvg = hwC>0 ? hwSum/hwC : 0;
+          let actAvg = actC>0 ? actSum/actC : 0;
+          let partAvg = partC>0 ? partSum/partC : 0;
+          let t1 = parseFloat(stData.test1)||0;
+          let t2 = parseFloat(stData.test2)||0;
+          let tot = (hwAvg + actAvg + partAvg + t1 + t2).toFixed(2);
+
+          tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold; color:#1e8449;">${tot}</td></tr>`;
+        });
+
+        element.innerHTML = `
+          <div style="text-align: center; border-bottom: 2px solid #2980b9; padding-bottom: 6px; margin-bottom: 8px;">
+            <h1 style="margin: 0; font-size: 14px; color: #2980b9; font-weight: 900;">كشف متابعة الطلاب - ${currentActiveUnit}</h1>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
+            <span>الفصل: ${currentClass}</span>
+            <span>التاريخ: ${todayDate}</span>
+          </div>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>${tableHeader}</thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        `;
+
+        const filename = `كشف_متابعة_${currentClass}_${currentActiveUnit}.pdf`;
+        const opt = {
+          margin: 6, filename: filename,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        const pdfWorker = html2pdf().set(opt).from(element);
+        const pdfBlob = await pdfWorker.output('blob');
+        const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
+
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+          await navigator.share({ files: [pdfFile], title: filename, text: `كشف المتابعة - ${currentClass}` });
+        } else {
+          pdfWorker.save();
+        }
+        closeFollowupExportModal();
+      } catch (err) {
+        console.error(err);
+        alert("حدث خطأ أثناء تصدير PDF");
+      }
+    }
+
+    function exportFollowupCSV() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
+
+      const classStudents = appData[currentClass];
+      const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
+      const lessons = unitObj.lessons;
+      const clsKey = `${currentClass}_${currentActiveUnit}`;
+      const fData = followupData[clsKey] || {};
+
+      let csv = "\uFEFFاسم الطالب,";
+      lessons.forEach(l => csv += `واجب_${l},`);
+      lessons.forEach(l => csv += `نشاط_${l},`);
+      lessons.forEach(l => csv += `مشاركة_${l},`);
+      csv += "اختبار_الوحدة,المشروع,المجموع\n";
+
+      classStudents.forEach(student => {
+        const stData = fData[student] || { hw: {}, act: {}, part: {}, test1: '', test2: '' };
+        csv += `${student},`;
+        lessons.forEach(l => csv += `${stData.hw[l] !== undefined ? stData.hw[l] : ''},`);
+        lessons.forEach(l => csv += `${stData.act[l] !== undefined ? stData.act[l] : ''},`);
+        lessons.forEach(l => csv += `${stData.part[l] !== undefined ? stData.part[l] : ''},`);
+        csv += `${stData.test1 || ''},${stData.test2 || ''},`;
+
+        let hwSum=0, hwC=0, actSum=0, actC=0, partSum=0, partC=0;
+        lessons.forEach(l => { let v=parseFloat(stData.hw[l]); if(!isNaN(v)){hwSum+=v;hwC++;} });
+        lessons.forEach(l => { let v=parseFloat(stData.act[l]); if(!isNaN(v)){actSum+=v;actC++;} });
+        lessons.forEach(l => { let v=parseFloat(stData.part[l]); if(!isNaN(v)){partSum+=v;partC++;} });
+        let hwAvg = hwC>0 ? hwSum/hwC : 0;
+        let actAvg = actC>0 ? actSum/actC : 0;
+        let partAvg = partC>0 ? partSum/partC : 0;
+        let t1 = parseFloat(stData.test1)||0;
+        let t2 = parseFloat(stData.test2)||0;
+        let tot = (hwAvg + actAvg + partAvg + t1 + t2).toFixed(2);
+
+        csv += `${tot}\n`;
+      });
+
+      downloadFile(csv, `كشف_متابعة_${currentClass}_${currentActiveUnit}.csv`, 'text/csv;charset=utf-8;');
+      closeFollowupExportModal();
     }
 
     function openDataMenuModal() {
