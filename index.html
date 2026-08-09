@@ -30,7 +30,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Tahoma, Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -38,6 +38,7 @@
       background-color: var(--bg-color);
       color: var(--text-primary);
       padding-bottom: 120px;
+      direction: rtl;
     }
 
     .screen {
@@ -940,7 +941,6 @@
       appData[selectedClass] = names;
       saveData();
       
-      // مزامنة فورية للقوائم المنسدلة وجداول المتابعة
       initClassSelects();
       document.getElementById('classSelect').value = selectedClass;
       renderStudents();
@@ -1298,7 +1298,7 @@
         const element = document.createElement('div');
         element.style.padding = '12px';
         element.style.direction = 'rtl';
-        element.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
+        element.style.fontFamily = 'Tahoma, Arial, sans-serif';
         element.style.backgroundColor = '#ffffff';
 
         let tableHeader = `
@@ -1407,7 +1407,7 @@
         const element = document.createElement('div');
         element.style.padding = '8px';
         element.style.direction = 'rtl';
-        element.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
+        element.style.fontFamily = 'Tahoma, Arial, sans-serif';
         element.style.backgroundColor = '#ffffff';
 
         let tableHeader = `
@@ -1698,7 +1698,7 @@
         const element = document.createElement('div');
         element.style.padding = '8px';
         element.style.direction = 'rtl';
-        element.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
+        element.style.fontFamily = 'Tahoma, Arial, sans-serif';
         element.style.backgroundColor = '#ffffff';
 
         let reportTitleText = currentReportTab === 'summary' ? "التقرير الشامل للغياب والتأخر والمخالفات" : "التقرير التفصيلي لسجل المخالفات السلوكية";
@@ -1857,7 +1857,6 @@
       document.body.removeChild(link);
     }
 
-    /* دوال التنقل وإدارة الوحدات والدروس */
     function switchToFollowupScreen() {
       document.getElementById('absenceScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.add('active-screen');
@@ -2164,12 +2163,9 @@
 
       for (let i = 0; i < count; i++) {
         const defaultName = existingLessons && existingLessons[i] ? existingLessons[i] : `درس ${i + 1}`;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'lesson-name-input';
-        input.value = defaultName;
-        input.placeholder = `اسم الدرس ${i + 1}`;
-        container.appendChild(input);
+        container.innerHTML += `
+          <input type="text" class="lesson-name-input" value="${defaultName}" placeholder="اسم الدرس ${i + 1}" style="width: 100%;">
+        `;
       }
     }
 
@@ -2181,17 +2177,21 @@
 
     function saveNewUnit() {
       const input = document.getElementById('newUnitNameInput');
-      const unitName = input.value.trim();
+      const newName = input.value.trim();
+      if (!newName) return;
 
-      if (!unitName) return alert("يرجى إدخال اسم الوحدة!");
-      if (unitsData[unitName]) return alert("هذه الوحدة موجودة بالفعل!");
+      if (unitsData[newName]) {
+        alert("هذه الوحدة موجودة بالفعل!");
+        return;
+      }
 
-      unitsData[unitName] = { lessons: ["درس 1", "درس 2", "درس 3"] };
+      unitsData[newName] = { lessons: ["درس 1", "درس 2", "درس 3"] };
       saveData();
       initUnitsModalSelect();
-      document.getElementById('modalUnitSelect').value = unitName;
-      currentActiveUnit = unitName;
-
+      
+      document.getElementById('modalUnitSelect').value = newName;
+      currentActiveUnit = newName;
+      
       input.value = '';
       document.getElementById('inlineAddUnitBox').style.display = 'none';
       loadUnitDetailsToModal();
@@ -2203,27 +2203,24 @@
       const selectedUnit = document.getElementById('modalUnitSelect').value;
       if (!selectedUnit) return;
 
-      const inputs = document.querySelectorAll('.lesson-name-input');
-      const lessonNames = [];
-      inputs.forEach(inp => {
-        const val = inp.value.trim();
-        if (val) lessonNames.push(val);
+      const lessonInputs = document.querySelectorAll('.lesson-name-input');
+      let newLessons = [];
+      lessonInputs.forEach((inp, idx) => {
+        let val = inp.value.trim();
+        newLessons.push(val || `درس ${idx + 1}`);
       });
 
-      if (lessonNames.length === 0) return alert("يرجى إدخال اسم درس واحد على الأقل!");
-
-      unitsData[selectedUnit] = { lessons: lessonNames };
+      unitsData[selectedUnit] = { lessons: newLessons };
       saveData();
+      
       renderUnitsDropdown();
       renderFollowupTable(currentActiveUnit);
       closeUnitsManageModal();
     }
 
-    // التهيئة البدائية عند تحميل الصفحة
-    window.onload = function() {
-      initClassSelects();
-      renderStudents();
-    };
+    // التهيئة عند تحميل الصفحة
+    initClassSelects();
+    renderStudents();
   </script>
 </body>
 </html>
