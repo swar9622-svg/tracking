@@ -1483,6 +1483,8 @@
         element.style.direction = 'rtl';
         element.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
         element.style.backgroundColor = '#ffffff';
+        element.style.width='fit-content';
+        element.style.minWidth='1400px';
 
         let tableHeader = `
           <tr style="background-color: #007AFF; color: white; font-size: 11px;">
@@ -1542,7 +1544,7 @@
             <span>التاريخ: ${todayDate}</span>
             <span>إجمالي الطلاب: ${classStudents.length}</span>
           </div>
-          <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+          <table style="border-collapse: collapse; width:auto; min-width:1400px; table-layout:auto;">
             <thead>${tableHeader}</thead>
             <tbody>${tableRows}</tbody>
           </table>
@@ -2048,8 +2050,9 @@
         const opt = {
           margin: 4, filename: filename,
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+          html2canvas: { scale: 1.5, useCORS: true, scrollX: 0, scrollY: 0 },
+          pagebreak: { mode: ['css','legacy'] },
+          jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' }
         };
 
         const pdfWorker = html2pdf().set(opt).from(element);
@@ -2057,7 +2060,7 @@
         const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
 
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({ files: [pdfFile], title: filename, text: titleText });
+          try { await navigator.share({ files: [pdfFile], title: filename, text: titleText }); } catch(e){ if(e.name!=='AbortError') throw e; return; }
         } else {
           pdfWorker.save();
         }
