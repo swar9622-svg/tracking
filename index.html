@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -10,7 +11,7 @@
   <!-- مكتبة تحويل HTML إلى PDF -->
   <script src="./html2pdf.bundle.min.js"></script>
 
-  <title>نظام متابعة الطلاب المدرسي 4.0</title>
+  <title>نظام متابعة الطلاب المدرسي 4.1</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -40,12 +41,8 @@
       padding-bottom: 120px;
     }
 
-    .screen {
-      display: none;
-    }
-    .screen.active-screen {
-      display: block;
-    }
+    .screen { display: none; }
+    .screen.active-screen { display: block; }
 
     header {
       background-color: var(--card-bg);
@@ -66,9 +63,7 @@
       box-shadow: 0 2px 6px rgba(0,122,255,0.3);
       transition: opacity 0.15s ease;
     }
-    .header-title-box:active {
-      opacity: 0.85;
-    }
+    .header-title-box:active { opacity: 0.85; }
 
     .controls-bar {
       display: flex;
@@ -228,7 +223,6 @@
       flex-shrink: 0;
     }
 
-    /* شريط الأزرار العلوي الجديد (الفترة وإدارة الوحدات) */
     .top-action-bar {
       display: flex;
       gap: 8px;
@@ -256,7 +250,6 @@
       background-color: #27ae60;
     }
 
-    /* زر تصدير الفترة أسفل الجدول */
     .period-export-container {
       margin: 10px 15px;
       text-align: center;
@@ -478,13 +471,12 @@
 </head>
 <body>
 
-  <!-- ================= الشاشة الأولى: كشف الغياب والمخالفات ================= -->
+  <!-- ================= الشاشة الأولى ================= -->
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
         كشف الغياب والمخالفات (4.1)
       </div>
-
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
         <input type="date" id="dateSelect" onchange="renderStudents()">
@@ -504,9 +496,7 @@
         </div>
       </div>
     </header>
-
     <main class="student-list" id="studentList"></main>
-
     <div class="bottom-controls">
       <button class="btn-action btn-report" onclick="openReportModal()">📈 التقارير الشاملة</button>
       <button class="btn-action btn-data" onclick="openDataMenuModal()">📂 النسخ الاحتياطي والتقارير</button>
@@ -515,119 +505,88 @@
     </div>
   </div>
 
-
-  <!-- ================= الشاشة الثانية: كشوف المتابعة وتقسيم الوحدات والفترات ================= -->
+  <!-- ================= الشاشة الثانية ================= -->
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
         كشوف المتابعة و الدرجات (4.1)    
       </div>
     </header>
-
-    <!-- شريط أزرار العلوي: زر الفترة وزر إدارة الوحدات -->
     <div class="top-action-bar">
       <button class="btn-period-main" id="btnPeriodMain" onclick="openPeriodSummaryModal()">📌 الفترة</button>
       <button class="btn-manage-units" onclick="openUnitsManageModal()">⚙️ إدارة الوحدات</button>
     </div>
-
-    <!-- أزرار اختيار الفصل والوحدة فقط في الأسفل -->
     <div class="units-wrapper">
-      <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)">
-        <!-- يعبأ ديناميكياً -->
-      </select>
-      <select id="unitDropdownSelect" class="unit-dropdown-select" onchange="onUnitDropdownChange(this.value)">
-        <!-- يعبأ ديناميكياً -->
-      </select>
+      <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)"></select>
+      <select id="unitDropdownSelect" class="unit-dropdown-select" onchange="onUnitDropdownChange(this.value)"></select>
     </div>
-
-    <!-- جدول كشوف المتابعة -->
     <div class="followup-table-container">
       <table class="followup-table" id="followupTable">
         <thead id="followupTableHead"></thead>
         <tbody id="followupTableBody"></tbody>
       </table>
     </div>
-
-    <!-- زر تصدير كشف الفترة PDF تحت الجدول مباشرة -->
     <div class="period-export-container">
       <button class="btn-export-period" onclick="exportPeriodPDF()">📄 تصدير كشف الفترة الحالية PDF</button>
     </div>
-
-    <!-- شريط ثابت بالأسفل -->
     <div class="bottom-controls">
       <button class="btn-action btn-report" onclick="openFollowupReportModal()">📈 تقارير كشوف المتابعة</button>
       <button class="btn-action btn-data" onclick="openFollowupExportModal()">📂 تصدير كشوف المتابعة (PDF / CSV)</button>
     </div>
   </div>
 
-
-  <!-- ================= نافذة خلاصة الفترة والدرجات الموزونة ================= -->
+  <!-- ================= نافذة خلاصة الفترة ================= -->
   <div class="modal" id="periodSummaryModal">
     <div class="modal-content" style="max-width: 650px; width: 95%;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <div class="modal-title" style="margin:0;">📌 خلاصة الفترة والدرجات الموزونة</div>
         <button class="btn-close-circle" onclick="closePeriodSummaryModal()">✕</button>
       </div>
-
       <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; font-weight: 700; text-align: center;">
         اختر الوحدات (الافتراضي: الجميع). يتم حساب الدرجات الموزونة وتحديث الجدول أدناه تلقائياً:
       </div>
-
-      <!-- أزرار الوحدات جنب بعض للاختيار -->
       <div id="periodUnitsToggleBar" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; justify-content: center;"></div>
-
-      <!-- جدول خلاصة النتائج (الواجبات، الأنشطة، المشاركة، الاختبار، المجموع) -->
       <div class="followup-table-container" style="max-height: 45vh; overflow-y: auto; margin: 0 0 12px 0;">
         <table class="followup-table" id="periodSummaryTable">
           <thead id="periodSummaryTableHead"></thead>
           <tbody id="periodSummaryTableBody"></tbody>
         </table>
       </div>
-      
-      <!-- زر تصدير PDF أسفل الجدول -->
       <div style="text-align: center;">
         <button class="btn-export-period" id="btnExportPeriodSummaryPDF" onclick="exportPeriodSummaryPDF()" style="background-color: var(--accent);">📄 تصدير التقرير PDF</button>
       </div>
     </div>
   </div>
 
-
-  <!-- ================= نافذة إدارة الوحدات والدروس ================= -->
+  <!-- ================= نافذة إدارة الوحدات ================= -->
   <div class="modal" id="unitsManageModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <div class="modal-title" style="margin:0;">⚙️ إدارة الوحدات والدروس</div>
         <button class="btn-close-circle" onclick="closeUnitsManageModal()">✕</button>
       </div>
-
       <span class="field-label">اختر الوحدة للتعديل أو الحذف:</span>
       <select id="modalUnitSelect" class="select-class-full" onchange="loadUnitDetailsToModal()"></select>
-
       <div class="class-manage-btns">
         <button type="button" class="btn-add-cls-btn" onclick="toggleAddUnitBox()">➕ إضافة وحدة</button>
         <button type="button" class="btn-del-cls-btn" onclick="promptDeleteUnit()">🗑️ حذف الوحدة</button>
       </div>
-
       <div class="inline-add-box" id="inlineAddUnitBox">
         <input type="text" id="newUnitNameInput" placeholder="اسم الوحدة الجديدة (مثال: الوحدة الخامسة)...">
         <button class="btn-confirm-add" onclick="saveNewUnit()">حفظ</button>
       </div>
-
       <div style="margin-top: 10px;">
         <span class="field-label">عدد دروس هذه الوحدة:</span>
         <input type="number" id="unitLessonsCountInput" min="1" max="10" value="3" style="width: 100%; text-align: center; margin-bottom: 10px;" onchange="generateLessonNameInputs()">
       </div>
-
       <span class="field-label">أسماء الدروس بالتسلسل:</span>
       <div id="lessonNamesInputsContainer" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;"></div>
-
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closeUnitsManageModal()">إلغاء</button>
         <button class="btn-modal-save" onclick="saveUnitConfig()">حفظ التعديلات</button>
       </div>
     </div>
   </div>
-
 
   <!-- ================= نافذة المخالفات ================= -->
   <div class="modal" id="violationModal">
@@ -636,27 +595,23 @@
         <div class="modal-title" id="violationModalTitle" style="margin:0;">تسجيل مخالفة</div>
         <button class="btn-close-circle" onclick="closeViolationModal()">✕</button>
       </div>
-
       <div class="violations-list-container" id="violationsContainer"></div>
       <button class="btn-done-full" onclick="closeViolationModal()">تم</button>
     </div>
   </div>
 
-  <!-- ================= نافذة التقارير الشاملة (للغياب والمخالفات) ================= -->
+  <!-- ================= نافذة التقارير الشاملة ================= -->
   <div class="modal" id="reportModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <div class="modal-title" id="reportModalTitle" style="margin:0;">📈 تقارير الفصل</div>
         <button class="btn-close-circle" onclick="closeReportModal()">✕</button>
       </div>
-
       <div class="report-tabs">
         <button class="report-tab-btn active" id="tabSummaryBtn" onclick="switchReportTab('summary')">📋 تقرير شامل</button>
         <button class="report-tab-btn" id="tabViolationsBtn" onclick="switchReportTab('violations')">⚠️ تقرير بالمخالفات</button>
       </div>
-
       <div id="reportContent"></div>
-
       <div style="margin-top: 14px;">
         <button id="pdfExportBtn" class="btn-menu-option" style="background-color: var(--accent);" onclick="generatePDF()">📄 تصدير ملف PDF</button>
       </div>
@@ -671,21 +626,19 @@
         <button class="btn-close-circle" onclick="closeFollowupReportModal()">✕</button>
       </div>
       <div id="followupReportContent"></div>
-      
       <div style="margin-top: 14px;">
         <button id="btnExportFollowupReportPDF" class="btn-menu-option" style="background-color: var(--accent);" onclick="exportFollowupReportModalPDF()">📄 تصدير التقرير الحالي PDF</button>
       </div>
     </div>
   </div>
 
-  <!-- ================= نافذة تصدير كشوف المتابعة (PDF و CSV) ================= -->
+  <!-- ================= نافذة تصدير كشوف المتابعة ================= -->
   <div class="modal" id="followupExportModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
         <div class="modal-title" style="margin:0;">📂 تصدير كشوف المتابعة</div>
         <button class="btn-close-circle" onclick="closeFollowupExportModal()">✕</button>
       </div>
-
       <div class="data-box-section">
         <div class="data-box-title" id="followupExportTitle">خيارات التصدير للوحدة والفصل الحالي</div>
         <button class="btn-menu-option" style="background-color: var(--accent);" onclick="exportFollowupPDF()">📄 تصدير كشف المتابعة PDF</button>
@@ -701,14 +654,12 @@
         <div class="modal-title" style="margin:0;">📂 النسخ الاحتياطي والتقارير</div>
         <button class="btn-close-circle" onclick="closeDataMenuModal()">✕</button>
       </div>
-
       <div class="data-box-section">
         <div class="data-box-title">🔄 النسخ الاحتياطي الشامل</div>
         <button class="btn-menu-option" style="background-color: var(--green);" onclick="exportFullBackupJSON()">💾 تصدير نسخة احتياطية (Backup)</button>
         <button class="btn-menu-option" style="background-color: var(--accent);" onclick="triggerFileInput()">📥 استعادة من ملف نسخة احتياطية (Restore)</button>
         <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="importFullBackupJSON(event)">
       </div>
-
       <div class="data-box-section">
         <div class="data-box-title" id="csvSectionTitle">📊 تقارير الفصل الحالي (CSV)</div>
         <button class="btn-menu-option" style="background-color: #5856D6;" onclick="exportClassRecordsCSV()">📋 تصدير سجل السلوك والغياب</button>
@@ -724,27 +675,21 @@
         <div class="modal-title" style="margin:0;">⚙️ إدارة الأسماء والصفوف</div>
         <button class="btn-close-circle" onclick="closeManageModal()">✕</button>
       </div>
-      
       <div style="display:flex; gap:6px; margin-bottom:10px;">
         <button type="button" class="btn-action" style="background-color:var(--accent); flex:1; font-size:12px; min-height:36px;" onclick="openPenaltyConfigModal()">⚙️ إدارة درجات المخالفات</button>
       </div>
-
       <span class="field-label">اختر الصف للتعديل:</span>
       <select id="modalClassSelect" class="select-class-full" onchange="loadClassTextarea()"></select>
-
       <div class="class-manage-btns">
         <button type="button" class="btn-add-cls-btn" onclick="toggleAddClassBox()">➕ إضافة فصل</button>
         <button type="button" class="btn-del-cls-btn" onclick="promptDeleteClass()">🗑️ حذف الفصل</button>
       </div>
-
       <div class="inline-add-box" id="inlineAddBox">
         <input type="text" id="newClassInput" placeholder="اسم الفصل الجديد...">
         <button class="btn-confirm-add" onclick="saveNewClass()">حفظ</button>
       </div>
-
       <span class="field-label">أسماء الطلاب (كل اسم في سطر):</span>
       <textarea id="studentNamesTextarea" placeholder="أدخل أسماء الطلاب..."></textarea>
-      
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closeManageModal()">إلغاء</button>
         <button class="btn-modal-save" onclick="saveStudentsFromTextarea()">حفظ الأسماء</button>
@@ -759,13 +704,10 @@
         <div class="modal-title" style="margin:0;">⚙️ إدارة درجات المخالفات</div>
         <button class="btn-close-circle" onclick="closePenaltyConfigModal()">✕</button>
       </div>
-
       <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; font-weight: 700; text-align: center;">
         حدد قيمة الدرجة التي ستُحسم مباشرة من خانة المشاركة لكل مخالفة أو غياب أو تأخر:
       </div>
-
       <div id="penaltiesInputsContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; max-height: 50vh; overflow-y: auto; padding: 2px;"></div>
-
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closePenaltyConfigModal()">إلغاء</button>
         <button class="btn-modal-save" onclick="savePenaltyConfig()">حفظ الحسم</button>
@@ -785,7 +727,7 @@
     </div>
   </div>
 
-  <!-- ================= سكربت التطبيق البرمجي 4.0 ================= -->
+  <!-- ================= سكربت التطبيق ================= -->
   <script>
     const VIOLATIONS_LIST = [
       "النوم اثناء الشرح", "الحديث أثناء الشرح", "الاكل اثناء الشرح",
@@ -817,8 +759,6 @@
     let unitsData = JSON.parse(localStorage.getItem('attendance_units_data')) || defaultUnits;
     let followupData = JSON.parse(localStorage.getItem('attendance_followup_data')) || {};
     let penaltiesData = JSON.parse(localStorage.getItem('attendance_penalties_data')) || defaultPenalties;
-    
-    // تخزين الوحدات المختارة لزر الفترة
     let periodSelectedUnits = JSON.parse(localStorage.getItem('attendance_period_selected_units')) || [];
 
     let currentStudentForViolation = '';
@@ -1461,6 +1401,368 @@
       return finalScore < 0 ? 0 : finalScore;
     }
 
+    /* ================= دوال التصدير المحسنة ================= */
+
+    // دالة مساعدة موحدة لتصدير PDF مع المشاركة أو التحميل
+    async function exportPdf(element, filename, opt) {
+      try {
+        // ضبط خيارات افتراضية آمنة
+        const defaultOpt = {
+          margin: [8, 8, 8, 8],
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, logging: false },
+          pagebreak: { mode: ['css', 'legacy'] },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        // دمج مع الخيارات الممررة
+        const options = { ...defaultOpt, ...opt };
+        if (opt.margin && typeof opt.margin === 'number') {
+          options.margin = [opt.margin, opt.margin, opt.margin, opt.margin];
+        }
+
+        // إنشاء PDF باستخدام html2pdf
+        const pdf = await html2pdf().set(options).from(element).outputPdf('blob');
+        const file = new File([pdf], filename, { type: 'application/pdf' });
+
+        // محاولة المشاركة
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: filename, text: 'تقرير نظام المتابعة' });
+            return;
+          } catch (shareErr) {
+            if (shareErr.name === 'AbortError') return;
+            // تابع للتحميل إذا فشلت المشاركة
+          }
+        }
+
+        // التحميل المباشر
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(pdf);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+      } catch (err) {
+        console.error('Error exporting PDF:', err);
+        alert('حدث خطأ أثناء تصدير PDF. حاول مرة أخرى.');
+        throw err;
+      }
+    }
+
+    // دالة لإنشاء عنصر HTML للجدول مع هيكل مناسب للطباعة
+    function buildPdfElement(htmlContent, title, subtitle, footer = '') {
+      const div = document.createElement('div');
+      div.style.padding = '6px';
+      div.style.direction = 'rtl';
+      div.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
+      div.style.backgroundColor = '#ffffff';
+      div.style.width = '100%';
+      div.style.maxWidth = '100%';
+      div.style.overflow = 'hidden';
+      div.innerHTML = `
+        <div style="text-align: center; border-bottom: 2px solid #007AFF; padding-bottom: 6px; margin-bottom: 8px;">
+          <h1 style="margin: 0; font-size: 16px; color: #007AFF; font-weight: 900;">${title}</h1>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
+          ${subtitle}
+        </div>
+        ${htmlContent}
+      `;
+      return div;
+    }
+
+    // 1. تصدير تقرير الغياب (generatePDF)
+    async function generatePDF() {
+      const currentClass = document.getElementById('classSelect').value;
+      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
+
+      const btn = document.getElementById('pdfExportBtn');
+      const originalText = btn.innerText;
+      btn.innerText = "⏳ جاري التصدير...";
+      btn.disabled = true;
+
+      try {
+        const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+        const todayDate = new Date().toLocaleDateString('ar-SA');
+
+        let tableHtml = '';
+        if (currentReportTab === 'summary') {
+          let studentStats = {};
+          classStudents.forEach(st => { studentStats[st] = { absent: 0, late: 0, violations: 0 }; });
+
+          for (let date in records) {
+            if (records[date] && records[date][currentClass]) {
+              const dayData = records[date][currentClass];
+              for (let st in dayData) {
+                if (studentStats[st]) {
+                  const rec = getStudentDayRecord(date, currentClass, st);
+                  if (rec.status === 'غائب') studentStats[st].absent++;
+                  if (rec.status === 'متأخر') studentStats[st].late++;
+                  studentStats[st].violations += rec.violations.length;
+                }
+              }
+            }
+          }
+
+          tableHtml = `
+            <table style="width:100%; border-collapse:collapse; font-size:11px;">
+              <thead>
+                <tr style="background-color:#007AFF; color:white;">
+                  <th style="border:1px solid #007AFF; padding:4px; text-align:center;">#</th>
+                  <th style="border:1px solid #007AFF; padding:4px; text-align:right;">اسم الطالب</th>
+                  <th style="border:1px solid #007AFF; padding:4px; text-align:center;">الغياب</th>
+                  <th style="border:1px solid #007AFF; padding:4px; text-align:center;">التأخر</th>
+                  <th style="border:1px solid #007AFF; padding:4px; text-align:center;">مخالفات</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          classStudents.forEach((st, idx) => {
+            tableHtml += `
+              <tr>
+                <td style="border:1px solid #D1D1D6; padding:4px; text-align:center;">${idx+1}</td>
+                <td style="border:1px solid #D1D1D6; padding:4px; text-align:right; font-weight:bold;">${st}</td>
+                <td style="border:1px solid #D1D1D6; padding:4px; text-align:center; color:#FF3B30; font-weight:900;">${studentStats[st].absent}</td>
+                <td style="border:1px solid #D1D1D6; padding:4px; text-align:center; color:#FF9500; font-weight:900;">${studentStats[st].late}</td>
+                <td style="border:1px solid #D1D1D6; padding:4px; text-align:center; color:#AF52DE; font-weight:900;">${studentStats[st].violations}</td>
+              </tr>
+            `;
+          });
+          tableHtml += `</tbody></table>`;
+        } else {
+          // تقرير المخالفات
+          let studentVioCounts = {};
+          classStudents.forEach(st => {
+            studentVioCounts[st] = {};
+            VIOLATIONS_LIST.forEach(v => studentVioCounts[st][v] = 0);
+          });
+
+          for (let date in records) {
+            if (records[date] && records[date][currentClass]) {
+              const dayData = records[date][currentClass];
+              for (let st in dayData) {
+                if (studentVioCounts[st]) {
+                  const rec = getStudentDayRecord(date, currentClass, st);
+                  rec.violations.forEach(vName => {
+                    if (studentVioCounts[st][vName] !== undefined) studentVioCounts[st][vName]++;
+                  });
+                }
+              }
+            }
+          }
+
+          tableHtml = `
+            <table style="width:100%; border-collapse:collapse; font-size:9px;">
+              <thead>
+                <tr style="background-color:#007AFF; color:white;">
+                  <th style="border:1px solid #007AFF; padding:3px 2px; text-align:center;">#</th>
+                  <th style="border:1px solid #007AFF; padding:3px 6px; text-align:right;">اسم الطالب</th>
+          `;
+          VIOLATIONS_LIST.forEach(vText => {
+            tableHtml += `<th style="border:1px solid #007AFF; padding:3px 2px; text-align:center; vertical-align:middle; font-weight:bold; line-height:1.1;">${vText}</th>`;
+          });
+          tableHtml += `<th style="border:1px solid #007AFF; padding:3px 2px; text-align:center; background-color:#6A1B9A;">الإجمالي</th></tr></thead><tbody>`;
+
+          classStudents.forEach((st, idx) => {
+            let totalStVio = 0;
+            tableHtml += `<tr><td style="border:1px solid #D1D1D6; padding:3px 2px; text-align:center;">${idx+1}</td><td style="border:1px solid #D1D1D6; padding:3px 6px; text-align:right; font-weight:bold;">${st}</td>`;
+            VIOLATIONS_LIST.forEach(vText => {
+              const cnt = studentVioCounts[st][vText] || 0;
+              totalStVio += cnt;
+              tableHtml += `<td style="border:1px solid #D1D1D6; padding:3px 2px; text-align:center; font-weight:${cnt>0?'900':'normal'}; color:${cnt>0?'#AF52DE':'#888'};">${cnt>0?cnt:'-'}</td>`;
+            });
+            tableHtml += `<td style="border:1px solid #D1D1D6; padding:3px 2px; text-align:center; color:#AF52DE; font-weight:900;">${totalStVio}</td></tr>`;
+          });
+          tableHtml += `</tbody></table>`;
+        }
+
+        const title = currentReportTab === 'summary' ? 'التقرير الشامل للغياب والتأخر والمخالفات' : 'التقرير التفصيلي لسجل المخالفات السلوكية';
+        const subtitle = `<span>الفصل: ${currentClass}</span><span>التاريخ: ${todayDate}</span><span>إجمالي الطلاب: ${classStudents.length}</span>`;
+
+        const element = buildPdfElement(tableHtml, title, subtitle);
+        const filename = `تقرير_${currentReportTab === 'summary' ? 'شامل' : 'المخالفات'}_${currentClass}.pdf`;
+
+        // اختيار الحجم بناءً على عدد الأعمدة
+        const isViolations = currentReportTab === 'violations';
+        const format = isViolations ? 'a4' : 'a4';
+        const orientation = isViolations ? 'landscape' : 'portrait';
+        await exportPdf(element, filename, {
+          jsPDF: { unit: 'mm', format: format, orientation: orientation },
+          html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, logging: false },
+          margin: 6
+        });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    // 2. تصدير كشف الفترة الحالية (exportPeriodPDF) المستخدم في الزر السفلي
+    async function exportPeriodPDF() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
+      // نستخدم نفس دالة generatePeriodOrUnitPDF مع الوحدة الحالية
+      await generatePeriodOrUnitPDF(currentActiveUnit, `كشف_متابعة_${currentClass}_${currentActiveUnit}.pdf`, `كشف المتابعة - ${currentActiveUnit}`);
+    }
+
+    // 3. تصدير كشف متابعة مع الدرجات الموزونة (generatePeriodOrUnitPDF)
+    async function generatePeriodOrUnitPDF(unitName, filename, titleText) {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
+
+      try {
+        const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+        const unitObj = unitsData[unitName] || { lessons: ["درس 1"] };
+        const lessons = unitObj.lessons;
+        const clsKey = `${currentClass}_${unitName}`;
+        const fData = followupData[clsKey] || {};
+        const todayDate = new Date().toLocaleDateString('ar-SA');
+        if (periodSelectedUnits.length === 0) periodSelectedUnits = Object.keys(unitsData);
+
+        // بناء الجدول
+        let tableHtml = `
+          <table style="width:100%; border-collapse:collapse; font-size:8px; table-layout:fixed;">
+            <thead>
+              <tr style="background-color:#2980b9; color:white; font-size:8px;">
+                <th rowspan="2" style="border:1px solid #ddd; padding:3px; text-align:center; vertical-align:middle; width:18px;">#</th>
+                <th rowspan="2" style="border:1px solid #ddd; padding:3px; text-align:right; vertical-align:middle; width:70px;">اسم الطالب</th>
+                <th colspan="${lessons.length}" style="border:1px solid #ddd; padding:3px; text-align:center; background-color:#d4efdf; color:#2c3e50;">الواجبات</th>
+                <th colspan="${lessons.length}" style="border:1px solid #ddd; padding:3px; text-align:center; background-color:#fcf3cf; color:#2c3e50;">الأنشطة</th>
+                <th rowspan="2" style="border:1px solid #ddd; padding:3px; text-align:center; background-color:#ebdef0; color:#2c3e50; vertical-align:middle;">المشاركة</th>
+                <th colspan="2" style="border:1px solid #ddd; padding:3px; text-align:center; background-color:#fadbd8; color:#2c3e50;">الاختبارات والمشاريع</th>
+                <th colspan="5" style="border:1px solid #ddd; padding:3px; text-align:center; background-color:#d5f5e3; color:#1e8449;">الدرجات الموزونة (مقسمة عـ ${periodSelectedUnits.length} وحدات)</th>
+              </tr>
+              <tr style="background-color:#f8f9fa; color:#2c3e50; font-size:8px;">
+                ${lessons.map(l => `<th style="border:1px solid #ddd; padding:3px; background-color:#d4efdf;">${l}</th>`).join('')}
+                ${lessons.map(l => `<th style="border:1px solid #ddd; padding:3px; background-color:#fcf3cf;">${l}</th>`).join('')}
+                <th style="border:1px solid #ddd; padding:3px; background-color:#fadbd8;">اختبار الوحدة</th>
+                <th style="border:1px solid #ddd; padding:3px; background-color:#fadbd8;">المشروع</th>
+                <th style="border:1px solid #ddd; padding:3px; background-color:#d5f5e3;">واجبات</th>
+                <th style="border:1px solid #ddd; padding:3px; background-color:#d5f5e3;">أنشطة</th>
+                <th style="border:1px solid #ddd; padding:3px; background-color:#d5f5e3;">مشاركة</th>
+                <th style="border:1px solid #ddd; padding:3px; background-color:#d5f5e3;">اختبار</th>
+                <th style="border:1px solid #ddd; padding:3px; background-color:#d5f5e3;">مجموع</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        classStudents.forEach((student, idx) => {
+          const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
+          tableHtml += `
+            <tr style="font-size:8px;">
+              <td style="border:1px solid #ddd; padding:3px; text-align:center;">${idx + 1}</td>
+              <td style="border:1px solid #ddd; padding:3px; text-align:right; font-weight:bold; width:70px;">${student}</td>
+          `;
+          
+          lessons.forEach(l => {
+            let val = (stData.hw && stData.hw[l] !== undefined) ? stData.hw[l] : '';
+            tableHtml += `<td style="border:1px solid #ddd; padding:3px; text-align:center;">${val}</td>`;
+          });
+          lessons.forEach(l => {
+            let val = (stData.act && stData.act[l] !== undefined) ? stData.act[l] : '';
+            tableHtml += `<td style="border:1px solid #ddd; padding:3px; text-align:center;">${val}</td>`;
+          });
+
+          let weighted = calculatePeriodWeightedTotals(currentClass, student);
+          tableHtml += `<td style="border:1px solid #ddd; padding:3px; text-align:center; font-weight:bold; background-color:#ebdef0;">${weighted.partScore}</td>`;
+          tableHtml += `<td style="border:1px solid #ddd; padding:3px; text-align:center;">${stData.test1 !== undefined ? stData.test1 : ''}</td>`;
+          tableHtml += `<td style="border:1px solid #ddd; padding:3px; text-align:center;">${stData.test2 !== undefined ? stData.test2 : ''}</td>`;
+
+          tableHtml += `
+            <td style="border:1px solid #ddd; padding:3px; text-align:center; font-weight:bold; background-color:#f9f9f9;">${weighted.hwAvg}</td>
+            <td style="border:1px solid #ddd; padding:3px; text-align:center; font-weight:bold; background-color:#f9f9f9;">${weighted.actAvg}</td>
+            <td style="border:1px solid #ddd; padding:3px; text-align:center; font-weight:bold; background-color:#f9f9f9;">${weighted.partScore}</td>
+            <td style="border:1px solid #ddd; padding:3px; text-align:center; font-weight:bold; background-color:#f9f9f9;">${weighted.testTotal}</td>
+            <td style="border:1px solid #ddd; padding:3px; text-align:center; font-weight:bold; color:#1e8449; background-color:#d5f5e3;">${weighted.totalSum}</td>
+          </tr>`;
+        });
+
+        tableHtml += `</tbody></table>`;
+
+        const subtitle = `<span>الفصل: ${currentClass}</span><span>التاريخ: ${todayDate}</span><span>(مقسمة على ${periodSelectedUnits.length} وحدات مختارة)</span>`;
+        const element = buildPdfElement(tableHtml, titleText, subtitle);
+        // اختيار حجم a3 أفقي للجداول العريضة
+        await exportPdf(element, filename, {
+          jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' },
+          margin: 6,
+          html2canvas: { scale: 1.8, useCORS: true, scrollX: 0, scrollY: 0, logging: false }
+        });
+      } catch (err) {
+        console.error(err);
+        alert('حدث خطأ أثناء تصدير كشف المتابعة.');
+      }
+    }
+
+    // 4. تصدير خلاصة الفترة (exportPeriodSummaryPDF)
+    async function exportPeriodSummaryPDF() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
+
+      const btn = document.getElementById('btnExportPeriodSummaryPDF');
+      const originalText = btn.innerText;
+      btn.innerText = "⏳ جاري التصدير...";
+      btn.disabled = true;
+
+      try {
+        const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+        let unitsCount = periodSelectedUnits.length > 0 ? periodSelectedUnits.length : 1;
+        const todayDate = new Date().toLocaleDateString('ar-SA');
+
+        let tableHtml = `
+          <table style="width:100%; border-collapse:collapse; font-size:11px;">
+            <thead>
+              <tr style="background-color:#27ae60; color:white;">
+                <th style="border:1px solid #ddd; padding:4px; text-align:center;">#</th>
+                <th style="border:1px solid #ddd; padding:4px; text-align:right;">اسم الطالب</th>
+                <th style="border:1px solid #ddd; padding:4px; text-align:center;">الواجبات (موزونة)</th>
+                <th style="border:1px solid #ddd; padding:4px; text-align:center;">الأنشطة (موزونة)</th>
+                <th style="border:1px solid #ddd; padding:4px; text-align:center;">المشاركة</th>
+                <th style="border:1px solid #ddd; padding:4px; text-align:center;">الاختبار/المشروع</th>
+                <th style="border:1px solid #ddd; padding:4px; text-align:center; background-color:#1e8449;">المجموع الكلي</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        classStudents.forEach((student, idx) => {
+          let weighted = calculatePeriodWeightedTotals(currentClass, student);
+          tableHtml += `
+            <tr>
+              <td style="border:1px solid #ddd; padding:4px; text-align:center;">${idx + 1}</td>
+              <td style="border:1px solid #ddd; padding:4px; text-align:right; font-weight:bold;">${student}</td>
+              <td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold;">${weighted.hwAvg}</td>
+              <td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold;">${weighted.actAvg}</td>
+              <td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold; background-color:#ebdef0;">${weighted.partScore}</td>
+              <td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold;">${weighted.testTotal}</td>
+              <td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold; color:#1e8449; background-color:#d5f5e3;">${weighted.totalSum}</td>
+            </tr>
+          `;
+        });
+
+        tableHtml += `</tbody></table>`;
+
+        const title = `خلاصة درجات الفترة - ${currentClass}`;
+        const subtitle = `<span>الفصل: ${currentClass}</span><span>التاريخ: ${todayDate}</span><span>الوحدات المشمولة (${unitsCount}): ${periodSelectedUnits.join(', ')}</span>`;
+
+        const element = buildPdfElement(tableHtml, title, subtitle);
+        await exportPdf(element, `خلاصة_الفترة_${currentClass}.pdf`, {
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          margin: 8
+        });
+      } catch (err) {
+        console.error(err);
+        alert('حدث خطأ أثناء تصدير خلاصة الفترة.');
+      } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    // 5. تصدير تقرير المتابعة من النافذة المنبثقة (exportFollowupReportModalPDF)
     async function exportFollowupReportModalPDF() {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
@@ -1478,27 +1780,22 @@
         const fData = followupData[clsKey] || {};
         const todayDate = new Date().toLocaleDateString('ar-SA');
 
-        const element = document.createElement('div');
-        element.style.padding = '12px';
-        element.style.direction = 'rtl';
-        element.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
-        element.style.backgroundColor = '#ffffff';
-        element.style.width='fit-content';
-        element.style.minWidth='1400px';
-
-        let tableHeader = `
-          <tr style="background-color: #007AFF; color: white; font-size: 11px;">
-            <th style="border: 1px solid #007AFF; padding: 6px; width: 30px; text-align: center;">#</th>
-            <th style="border: 1px solid #007AFF; padding: 6px 10px; text-align: right; width: 35%;">اسم الطالب</th>
-            <th style="border: 1px solid #007AFF; padding: 6px; text-align: center;">معدل الواجبات</th>
-            <th style="border: 1px solid #007AFF; padding: 6px; text-align: center;">معدل الأنشطة</th>
-            <th style="border: 1px solid #007AFF; padding: 6px; text-align: center;">المشاركة</th>
-            <th style="border: 1px solid #007AFF; padding: 6px; text-align: center;">الاختبار/المشروع</th>
-            <th style="border: 1px solid #007AFF; padding: 6px; text-align: center; background-color: #1e8449;">المجموع الكلي</th>
-          </tr>
+        let tableHtml = `
+          <table style="width:100%; border-collapse:collapse; font-size:10px;">
+            <thead>
+              <tr style="background-color:#007AFF; color:white;">
+                <th style="border:1px solid #007AFF; padding:4px; text-align:center;">#</th>
+                <th style="border:1px solid #007AFF; padding:4px; text-align:right;">اسم الطالب</th>
+                <th style="border:1px solid #007AFF; padding:4px; text-align:center;">معدل الواجبات</th>
+                <th style="border:1px solid #007AFF; padding:4px; text-align:center;">معدل الأنشطة</th>
+                <th style="border:1px solid #007AFF; padding:4px; text-align:center;">المشاركة</th>
+                <th style="border:1px solid #007AFF; padding:4px; text-align:center;">الاختبار/المشروع</th>
+                <th style="border:1px solid #007AFF; padding:4px; text-align:center; background-color:#1e8449;">المجموع الكلي</th>
+              </tr>
+            </thead>
+            <tbody>
         `;
 
-        let tableRows = '';
         classStudents.forEach((student, idx) => {
           const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
 
@@ -1522,385 +1819,39 @@
             totalSumVal = ((parseFloat(hwAvg)||0) + (parseFloat(actAvg)||0) + partScore + (parseFloat(testTotal)||0)).toFixed(2);
           }
 
-          tableRows += `
-            <tr style="font-size: 11px;">
-              <td style="border: 1px solid #D1D1D6; padding: 6px; text-align: center; color: #8E8E93; font-weight: bold;">${idx + 1}</td>
-              <td style="border: 1px solid #D1D1D6; padding: 6px 10px; text-align: right; font-weight: bold; color: #1C1C1E;">${student}</td>
-              <td style="border: 1px solid #D1D1D6; padding: 6px; text-align: center; font-weight: bold;">${hwAvg}</td>
-              <td style="border: 1px solid #D1D1D6; padding: 6px; text-align: center; font-weight: bold;">${actAvg}</td>
-              <td style="border: 1px solid #D1D1D6; padding: 6px; text-align: center; font-weight: bold;">${partVal}</td>
-              <td style="border: 1px solid #D1D1D6; padding: 6px; text-align: center; font-weight: bold;">${testTotal}</td>
-              <td style="border: 1px solid #D1D1D6; padding: 6px; text-align: center; font-weight: 900; color: #1e8449; background-color: #d5f5e3;">${totalSumVal}</td>
+          tableHtml += `
+            <tr>
+              <td style="border:1px solid #D1D1D6; padding:4px; text-align:center;">${idx + 1}</td>
+              <td style="border:1px solid #D1D1D6; padding:4px; text-align:right; font-weight:bold;">${student}</td>
+              <td style="border:1px solid #D1D1D6; padding:4px; text-align:center; font-weight:bold;">${hwAvg}</td>
+              <td style="border:1px solid #D1D1D6; padding:4px; text-align:center; font-weight:bold;">${actAvg}</td>
+              <td style="border:1px solid #D1D1D6; padding:4px; text-align:center; font-weight:bold; background-color:#ebdef0;">${partVal}</td>
+              <td style="border:1px solid #D1D1D6; padding:4px; text-align:center; font-weight:bold;">${testTotal}</td>
+              <td style="border:1px solid #D1D1D6; padding:4px; text-align:center; font-weight:bold; color:#1e8449; background-color:#d5f5e3;">${totalSumVal}</td>
             </tr>
           `;
         });
 
-        element.innerHTML = `
-          <div style="text-align: center; border-bottom: 2px solid #007AFF; padding-bottom: 6px; margin-bottom: 8px;">
-            <h1 style="margin: 0; font-size: 15px; color: #007AFF; font-weight: 900;">تقرير المتابعة - ${currentClass} (${currentActiveUnit})</h1>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
-            <span>الفصل: ${currentClass}</span>
-            <span>التاريخ: ${todayDate}</span>
-            <span>إجمالي الطلاب: ${classStudents.length}</span>
-          </div>
-          <table style="border-collapse: collapse; width:auto; min-width:1400px; table-layout:auto;">
-            <thead>${tableHeader}</thead>
-            <tbody>${tableRows}</tbody>
-          </table>
-        `;
+        tableHtml += `</tbody></table>`;
 
-        const filename = `تقرير_المتابعة_${currentClass}_${currentActiveUnit}.pdf`;
-        const opt = {
-          margin: 6, filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+        const title = `تقرير المتابعة - ${currentClass} (${currentActiveUnit})`;
+        const subtitle = `<span>الفصل: ${currentClass}</span><span>التاريخ: ${todayDate}</span><span>إجمالي الطلاب: ${classStudents.length}</span>`;
 
-        const pdfWorker = html2pdf().set(opt).from(element);
-        const pdfBlob = await pdfWorker.output('blob');
-        const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
-
-        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({ files: [pdfFile], title: filename, text: `تقرير المتابعة - ${currentClass}` });
-        } else {
-          pdfWorker.save();
-        }
+        const element = buildPdfElement(tableHtml, title, subtitle);
+        await exportPdf(element, `تقرير_المتابعة_${currentClass}_${currentActiveUnit}.pdf`, {
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          margin: 6
+        });
       } catch (err) {
         console.error(err);
-        alert("حدث خطأ أثناء استخراج PDF");
+        alert('حدث خطأ أثناء تصدير تقرير المتابعة.');
       } finally {
         btn.innerText = originalText;
         btn.disabled = false;
       }
     }
 
-    function openFollowupExportModal() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      document.getElementById('followupExportTitle').innerText = `تصدير بيانات: ${currentClass} - ${currentActiveUnit}`;
-      document.getElementById('followupExportModal').style.display = 'flex';
-    }
-
-    function closeFollowupExportModal() {
-      document.getElementById('followupExportModal').style.display = 'none';
-    }
-
-    async function exportFollowupPDF() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
-      generatePeriodOrUnitPDF(currentActiveUnit, `كشف_متابعة_شامل_${currentClass}_${currentActiveUnit}.pdf`, `كشف المتابعة الشامل - ${currentActiveUnit}`);
-    }
-
-    function exportFollowupCSV() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
-
-      const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-      const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
-      const lessons = unitObj.lessons;
-      const clsKey = `${currentClass}_${currentActiveUnit}`;
-      const fData = followupData[clsKey] || {};
-
-      let csv = "\uFEFFاسم الطالب,";
-      lessons.forEach(l => csv += `واجب_${l},`);
-      lessons.forEach(l => csv += `نشاط_${l},`);
-      csv += "المشاركة,اختبار_الوحدة,المشروع,معدل_واجبات,معدل_أنشطة,مجموع_الاختبار,المجموع_الكلي\n";
-
-      classStudents.forEach(student => {
-        const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
-        csv += `${student},`;
-        lessons.forEach(l => csv += `${stData.hw[l] !== undefined ? stData.hw[l] : ''},`);
-        lessons.forEach(l => csv += `${stData.act[l] !== undefined ? stData.act[l] : ''},`);
-
-        let partScore = calculateStudentParticipationScore(currentClass, student);
-        csv += `${partScore.toFixed(2)},${stData.test1 || ''},${stData.test2 || ''},`;
-
-        let hwSum=0, hwC=0, actSum=0, actC=0;
-        lessons.forEach(l => { let v=parseFloat(stData.hw[l]); if(!isNaN(v)){hwSum+=v;hwC++;} });
-        lessons.forEach(l => { let v=parseFloat(stData.act[l]); if(!isNaN(v)){actSum+=v;actC++;} });
-        let hwAvg = hwC>0 ? (hwSum/hwC).toFixed(2) : 0;
-        let actAvg = actC>0 ? (actSum/actC).toFixed(2) : 0;
-        let t1 = parseFloat(stData.test1)||0;
-        let t2 = parseFloat(stData.test2)||0;
-        let testTot = (t1 + t2).toFixed(2);
-        let tot = ((parseFloat(hwAvg)||0) + (parseFloat(actAvg)||0) + partScore + (parseFloat(testTot)||0)).toFixed(2);
-
-        csv += `${hwAvg},${actAvg},${testTot},${tot}\n`;
-      });
-
-      downloadFile(csv, `كشف_متابعة_${currentClass}_${currentActiveUnit}.csv`, 'text/csv;charset=utf-8;');
-      closeFollowupExportModal();
-    }
-
-    /* ================= نافذة زر الفترة (خلاصة النتائج والدرجات الموزونة) ================= */
-    function openPeriodSummaryModal() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
-
-      // الافتراضية: إذا لم يتم تحديد وحدات مسبقاً، نحدد الجميع تلقائياً
-      const allUnitNames = Object.keys(unitsData);
-      if (periodSelectedUnits.length === 0) {
-        periodSelectedUnits = [...allUnitNames];
-      }
-
-      const bar = document.getElementById('periodUnitsToggleBar');
-      bar.innerHTML = '';
-
-      allUnitNames.forEach(uName => {
-        const isSelected = periodSelectedUnits.includes(uName);
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = `btn-status ${isSelected ? 'active-violation' : ''}`;
-        btn.style.padding = '8px 12px';
-        btn.style.fontSize = '12px';
-        btn.style.fontWeight = 'bold';
-        btn.style.borderRadius = '8px';
-        btn.style.minWidth = 'auto';
-        btn.style.height = 'auto';
-        btn.style.backgroundColor = isSelected ? '#27ae60' : '#E5E5EA';
-        btn.style.color = isSelected ? '#FFFFFF' : '#333';
-        btn.innerText = uName;
-        btn.onclick = function() {
-          togglePeriodUnitSelection(uName);
-        };
-        bar.appendChild(btn);
-      });
-
-      renderPeriodSummaryTable();
-      document.getElementById('periodSummaryModal').style.display = 'flex';
-    }
-
-    function togglePeriodUnitSelection(uName) {
-      if (periodSelectedUnits.includes(uName)) {
-        // لا نقبل إلغاء الكل لتجنب القسمة على صفر
-        if (periodSelectedUnits.length === 1) {
-          alert("يجب اختيار وحدة واحدة على الأقل!");
-          return;
-        }
-        periodSelectedUnits = periodSelectedUnits.filter(u => u !== uName);
-      } else {
-        periodSelectedUnits.push(uName);
-      }
-      saveData();
-      openPeriodSummaryModal(); // تحديث الأزرار والجدول فوراً
-    }
-
-    function closePeriodSummaryModal() {
-      document.getElementById('periodSummaryModal').style.display = 'none';
-      renderFollowupTable(currentActiveUnit); // تحديث الجدول الأساسي عند الإغلاق
-    }
-
-    function renderPeriodSummaryTable() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      const thead = document.getElementById('periodSummaryTableHead');
-      const tbody = document.getElementById('periodSummaryTableBody');
-      
-      thead.innerHTML = '';
-      tbody.innerHTML = '';
-
-      if (!currentClass || !appData[currentClass]) return;
-
-      let unitsCount = periodSelectedUnits.length;
-      if (unitsCount === 0) unitsCount = 1;
-
-      thead.innerHTML = `
-        <tr>
-          <th>#</th>
-          <th style="text-align:right;">اسم الطالب</th>
-          <th class="th-weighted">الواجبات (موزونة)</th>
-          <th class="th-weighted">الأنشطة (موزونة)</th>
-          <th class="th-part">المشاركة</th>
-          <th class="th-test">الاختبار/المشروع</th>
-          <th class="th-weighted" style="background-color: #1e8449; color: white;">المجموع الكلي</th>
-        </tr>
-      `;
-
-      const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-
-      classStudents.forEach((student, idx) => {
-        let sumHw = 0, countHw = 0;
-        let sumAct = 0, countAct = 0;
-        let sumTest = 0, countTest = 0;
-
-        periodSelectedUnits.forEach(uName => {
-          const clsKey = `${currentClass}_${uName}`;
-          const stData = (followupData[clsKey] && followupData[clsKey][student]) ? followupData[clsKey][student] : { hw: {}, act: {}, test1: '', test2: '' };
-          
-          const unitObj = unitsData[uName] || { lessons: ["درس 1"] };
-          const lessons = unitObj.lessons;
-
-          let hSum = 0, hC = 0;
-          lessons.forEach(l => { let v = parseFloat(stData.hw[l]); if (!isNaN(v)) { hSum += v; hC++; } });
-          if (hC > 0) { sumHw += (hSum / hC); countHw++; }
-
-          let aSum = 0, aC = 0;
-          lessons.forEach(l => { let v = parseFloat(stData.act[l]); if (!isNaN(v)) { aSum += v; aC++; } });
-          if (aC > 0) { sumAct += (aSum / aC); countAct++; }
-
-          let t1 = parseFloat(stData.test1) || 0;
-          let t2 = parseFloat(stData.test2) || 0;
-          if (stData.test1 !== '' || stData.test2 !== '') {
-            sumTest += (t1 + t2);
-            countTest++;
-          }
-        });
-
-        let weightedHw = countHw > 0 ? (sumHw / unitsCount).toFixed(2) : '-';
-        let weightedAct = countAct > 0 ? (sumAct / unitsCount).toFixed(2) : '-';
-        let weightedTest = countTest > 0 ? (sumTest / unitsCount).toFixed(2) : '-';
-        let partScore = calculateStudentParticipationScore(currentClass, student);
-
-        let totalSumVal = '-';
-        if (weightedHw !== '-' || weightedAct !== '-' || weightedTest !== '-') {
-          let hNum = parseFloat(weightedHw) || 0;
-          let aNum = parseFloat(weightedAct) || 0;
-          let ttNum = parseFloat(weightedTest) || 0;
-          totalSumVal = (hNum + aNum + partScore + ttNum).toFixed(2);
-        }
-
-        tbody.innerHTML += `
-          <tr>
-            <td>${idx + 1}</td>
-            <td style="text-align: right; font-weight: bold;">${student}</td>
-            <td><b>${weightedHw}</b></td>
-            <td><b>${weightedAct}</b></td>
-            <td class="th-part"><b>${partScore.toFixed(2)}</b></td>
-            <td class="th-test"><b>${weightedTest}</b></td>
-            <td class="th-weighted" style="background-color: #d5f5e3; color: #1e8449; font-weight: 900;">${totalSumVal}</td>
-          </tr>
-        `;
-      });
-    }
-
-    async function exportPeriodSummaryPDF() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
-
-      const btn = document.getElementById('btnExportPeriodSummaryPDF');
-      const originalText = btn.innerText;
-      btn.innerText = "⏳ جاري التصدير...";
-      btn.disabled = true;
-
-      try {
-        const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-        let unitsCount = periodSelectedUnits.length > 0 ? periodSelectedUnits.length : 1;
-        const todayDate = new Date().toLocaleDateString('ar-SA');
-
-        const element = document.createElement('div');
-        element.style.padding = '12px';
-        element.style.direction = 'rtl';
-        element.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
-        element.style.backgroundColor = '#ffffff';
-
-        let tableHeader = `
-          <tr style="background-color: #27ae60; color: white; font-size: 11px;">
-            <th style="border: 1px solid #ddd; padding: 6px; width: 30px; text-align: center;">#</th>
-            <th style="border: 1px solid #ddd; padding: 6px 10px; text-align: right; width: 35%;">اسم الطالب</th>
-            <th style="border: 1px solid #ddd; padding: 6px; text-align: center;">الواجبات (موزونة)</th>
-            <th style="border: 1px solid #ddd; padding: 6px; text-align: center;">الأنشطة (موزونة)</th>
-            <th style="border: 1px solid #ddd; padding: 6px; text-align: center;">المشاركة</th>
-            <th style="border: 1px solid #ddd; padding: 6px; text-align: center;">الاختبار/المشروع</th>
-            <th style="border: 1px solid #ddd; padding: 6px; text-align: center; background-color: #1e8449;">المجموع الكلي</th>
-          </tr>
-        `;
-
-        let tableRows = '';
-        classStudents.forEach((student, idx) => {
-          let sumHw = 0, countHw = 0;
-          let sumAct = 0, countAct = 0;
-          let sumTest = 0, countTest = 0;
-
-          periodSelectedUnits.forEach(uName => {
-            const clsKey = `${currentClass}_${uName}`;
-            const stData = (followupData[clsKey] && followupData[clsKey][student]) ? followupData[clsKey][student] : { hw: {}, act: {}, test1: '', test2: '' };
-            const unitObj = unitsData[uName] || { lessons: ["درس 1"] };
-            const lessons = unitObj.lessons;
-
-            let hSum = 0, hC = 0;
-            lessons.forEach(l => { let v = parseFloat(stData.hw[l]); if (!isNaN(v)) { hSum += v; hC++; } });
-            if (hC > 0) { sumHw += (hSum / hC); countHw++; }
-
-            let aSum = 0, aC = 0;
-            lessons.forEach(l => { let v = parseFloat(stData.act[l]); if (!isNaN(v)) { aSum += v; aC++; } });
-            if (aC > 0) { sumAct += (aSum / aC); countAct++; }
-
-            let t1 = parseFloat(stData.test1) || 0;
-            let t2 = parseFloat(stData.test2) || 0;
-            if (stData.test1 !== '' || stData.test2 !== '') {
-              sumTest += (t1 + t2);
-              countTest++;
-            }
-          });
-
-          let weightedHw = countHw > 0 ? (sumHw / unitsCount).toFixed(2) : '-';
-          let weightedAct = countAct > 0 ? (sumAct / unitsCount).toFixed(2) : '-';
-          let weightedTest = countTest > 0 ? (sumTest / unitsCount).toFixed(2) : '-';
-          let partScore = calculateStudentParticipationScore(currentClass, student);
-
-          let totalSumVal = '-';
-          if (weightedHw !== '-' || weightedAct !== '-' || weightedTest !== '-') {
-            let hNum = parseFloat(weightedHw) || 0;
-            let aNum = parseFloat(weightedAct) || 0;
-            let ttNum = parseFloat(weightedTest) || 0;
-            totalSumVal = (hNum + aNum + partScore + ttNum).toFixed(2);
-          }
-
-          tableRows += `
-            <tr style="font-size: 11px;">
-              <td style="border: 1px solid #ddd; padding: 6px; text-align: center; color: #8E8E93; font-weight: bold;">${idx + 1}</td>
-              <td style="border: 1px solid #ddd; padding: 6px 10px; text-align: right; font-weight: bold; color: #1C1C1E;">${student}</td>
-              <td style="border: 1px solid #ddd; padding: 6px; text-align: center; font-weight: bold;">${weightedHw}</td>
-              <td style="border: 1px solid #ddd; padding: 6px; text-align: center; font-weight: bold;">${weightedAct}</td>
-              <td style="border: 1px solid #ddd; padding: 6px; text-align: center; font-weight: bold;">${partScore.toFixed(2)}</td>
-              <td style="border: 1px solid #ddd; padding: 6px; text-align: center; font-weight: bold;">${weightedTest}</td>
-              <td style="border: 1px solid #ddd; padding: 6px; text-align: center; font-weight: 900; color: #1e8449; background-color: #d5f5e3;">${totalSumVal}</td>
-            </tr>
-          `;
-        });
-
-        element.innerHTML = `
-          <div style="text-align: center; border-bottom: 2px solid #27ae60; padding-bottom: 6px; margin-bottom: 8px;">
-            <h1 style="margin: 0; font-size: 15px; color: #27ae60; font-weight: 900;">خلاصة درجات الفترة - ${currentClass}</h1>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
-            <span>الفصل: ${currentClass}</span>
-            <span>التاريخ: ${todayDate}</span>
-            <span>الوحدات المشمولة (${unitsCount}): ${periodSelectedUnits.join(', ')}</span>
-          </div>
-          <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-            <thead>${tableHeader}</thead>
-            <tbody>${tableRows}</tbody>
-          </table>
-        `;
-
-        const filename = `خلاصة_الفترة_${currentClass}.pdf`;
-        const opt = {
-          margin: 6, filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        const pdfWorker = html2pdf().set(opt).from(element);
-        const pdfBlob = await pdfWorker.output('blob');
-        const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
-
-        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({ files: [pdfFile], title: filename, text: `خلاصة الفترة - ${currentClass}` });
-        } else {
-          pdfWorker.save();
-        }
-      } catch (err) {
-        console.error(err);
-        alert("حدث خطأ أثناء استخراج PDF");
-      } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-      }
-    }
-
-    /* الحسابات الموزونة للوحدة الحالية */
+    // دالة مساعدة لحساب المتوسطات الموزونة (تستخدم في الجداول)
     function calculatePeriodWeightedTotals(className, student) {
       if (periodSelectedUnits.length === 0) periodSelectedUnits = Object.keys(unitsData);
       let divisor = periodSelectedUnits.length;
@@ -1953,394 +1904,63 @@
       };
     }
 
-    async function exportPeriodPDF() {
+    /* ================= باقي دوال النظام ================= */
+
+    function openFollowupExportModal() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      document.getElementById('followupExportTitle').innerText = `تصدير بيانات: ${currentClass} - ${currentActiveUnit}`;
+      document.getElementById('followupExportModal').style.display = 'flex';
+    }
+
+    function closeFollowupExportModal() {
+      document.getElementById('followupExportModal').style.display = 'none';
+    }
+
+    async function exportFollowupPDF() {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
-      generatePeriodOrUnitPDF(currentActiveUnit, `كشف_متابعة_فترة_${currentClass}_${currentActiveUnit}.pdf`, `كشف المتابعة الموزون - ${currentActiveUnit}`);
+      await generatePeriodOrUnitPDF(currentActiveUnit, `كشف_متابعة_${currentClass}_${currentActiveUnit}.pdf`, `كشف المتابعة الشامل - ${currentActiveUnit}`);
     }
 
-    async function generatePeriodOrUnitPDF(unitName, filename, titleText) {
+    function exportFollowupCSV() {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      try {
-        const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-        const unitObj = unitsData[unitName] || { lessons: ["درس 1"] };
-        const lessons = unitObj.lessons;
-        const clsKey = `${currentClass}_${unitName}`;
-        const fData = followupData[clsKey] || {};
-        const todayDate = new Date().toLocaleDateString('ar-SA');
-        if (periodSelectedUnits.length === 0) periodSelectedUnits = Object.keys(unitsData);
-
-        const element = document.createElement('div');
-        element.style.padding = '8px';
-        element.style.direction = 'rtl';
-        element.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
-        element.style.backgroundColor = '#ffffff';
-
-        let tableHeader = `
-          <tr style="background-color: #2980b9; color: white; font-size: 8px;">
-            <th rowspan="2" style="border: 1px solid #ddd; padding: 4px; text-align: center; vertical-align: middle; width: 20px;">#</th>
-            <th rowspan="2" style="border: 1px solid #ddd; padding: 4px; text-align: right; width: 110px; vertical-align: middle;">اسم الطالب</th>
-            <th colspan="${lessons.length}" style="border: 1px solid #ddd; padding: 4px; text-align: center; background-color: #d4efdf; color: #2c3e50;">الواجبات</th>
-            <th colspan="${lessons.length}" style="border: 1px solid #ddd; padding: 4px; text-align: center; background-color: #fcf3cf; color: #2c3e50;">الأنشطة</th>
-            <th rowspan="2" style="border: 1px solid #ddd; padding: 4px; text-align: center; background-color: #ebdef0; color: #2c3e50; vertical-align: middle;">المشاركة</th>
-            <th colspan="2" style="border: 1px solid #ddd; padding: 4px; text-align: center; background-color: #fadbd8; color: #2c3e50;">الاختبارات والمشاريع</th>
-            <th colspan="5" style="border: 1px solid #ddd; padding: 4px; text-align: center; background-color: #d5f5e3; color: #1e8449;">الدرجات الموزونة (مقسمة عـ ${periodSelectedUnits.length} وحدات)</th>
-          </tr>
-          <tr style="background-color: #f8f9fa; color: #2c3e50; font-size: 8px;">
-            ${lessons.map(l => `<th style="border: 1px solid #ddd; padding: 4px; background-color: #d4efdf;">${l}</th>`).join('')}
-            ${lessons.map(l => `<th style="border: 1px solid #ddd; padding: 4px; background-color: #fcf3cf;">${l}</th>`).join('')}
-            <th style="border: 1px solid #ddd; padding: 4px; background-color: #fadbd8;">اختبار الوحدة</th>
-            <th style="border: 1px solid #ddd; padding: 4px; background-color: #fadbd8;">المشروع</th>
-            <th style="border: 1px solid #ddd; padding: 4px; background-color: #d5f5e3;">واجبات</th>
-            <th style="border: 1px solid #ddd; padding: 4px; background-color: #d5f5e3;">أنشطة</th>
-            <th style="border: 1px solid #ddd; padding: 4px; background-color: #d5f5e3;">مشاركة</th>
-            <th style="border: 1px solid #ddd; padding: 4px; background-color: #d5f5e3;">اختبار</th>
-            <th style="border: 1px solid #ddd; padding: 4px; background-color: #d5f5e3;">مجموع</th>
-          </tr>
-        `;
-
-        let tableRows = '';
-        classStudents.forEach((student, idx) => {
-          const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
-          tableRows += `
-            <tr style="font-size: 8px;">
-              <td style="border:1px solid #ddd; padding:4px; text-align:center;">${idx + 1}</td>
-              <td style="border:1px solid #ddd; padding:4px; text-align:right; font-weight:bold; width: 110px;">${student}</td>
-          `;
-          
-          lessons.forEach(l => {
-            let val = (stData.hw && stData.hw[l] !== undefined) ? stData.hw[l] : '';
-            tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${val}</td>`;
-          });
-          lessons.forEach(l => {
-            let val = (stData.act && stData.act[l] !== undefined) ? stData.act[l] : '';
-            tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${val}</td>`;
-          });
-
-          let weighted = calculatePeriodWeightedTotals(currentClass, student);
-
-          tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold; background-color:#ebdef0;">${weighted.partScore}</td>`;
-          tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${stData.test1 !== undefined ? stData.test1 : ''}</td>`;
-          tableRows += `<td style="border:1px solid #ddd; padding:4px; text-align:center;">${stData.test2 !== undefined ? stData.test2 : ''}</td>`;
-
-          tableRows += `
-            <td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold; background-color:#f9f9f9;">${weighted.hwAvg}</td>
-            <td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold; background-color:#f9f9f9;">${weighted.actAvg}</td>
-            <td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold; background-color:#f9f9f9;">${weighted.partScore}</td>
-            <td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold; background-color:#f9f9f9;">${weighted.testTotal}</td>
-            <td style="border:1px solid #ddd; padding:4px; text-align:center; font-weight:bold; color:#1e8449; background-color:#d5f5e3;">${weighted.totalSum}</td>
-          </tr>`;
-        });
-
-        element.innerHTML = `
-          <div style="text-align: center; border-bottom: 2px solid #2980b9; padding-bottom: 6px; margin-bottom: 8px;">
-            <h1 style="margin: 0; font-size: 13px; color: #2980b9; font-weight: 900;">${titleText}</h1>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
-            <span>الفصل: ${currentClass}</span>
-            <span>التاريخ: ${todayDate}</span>
-            <span>(مقسمة على ${periodSelectedUnits.length} وحدات مختارة)</span>
-          </div>
-          <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-            <thead>${tableHeader}</thead>
-            <tbody>${tableRows}</tbody>
-          </table>
-        `;
-
-        const opt = {
-          margin: 4, filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 1.5, useCORS: true, scrollX: 0, scrollY: 0 },
-          pagebreak: { mode: ['css','legacy'] },
-          jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' }
-        };
-
-        const pdfWorker = html2pdf().set(opt).from(element);
-        const pdfBlob = await pdfWorker.output('blob');
-        const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
-
-        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          try { await navigator.share({ files: [pdfFile], title: filename, text: titleText }); } catch(e){ if(e.name!=='AbortError') throw e; return; }
-        } else {
-          pdfWorker.save();
-        }
-      } catch (err) {
-        console.error(err);
-        alert("حدث خطأ أثناء تصدير PDF");
-      }
-    }
-
-    function openDataMenuModal() {
-      const currentClass = document.getElementById('classSelect').value || '';
-      document.getElementById('csvSectionTitle').innerText = `📊 تقارير الفصل الحالي (${currentClass})`;
-      document.getElementById('dataMenuModal').style.display = 'flex';
-    }
-
-    function closeDataMenuModal() {
-      document.getElementById('dataMenuModal').style.display = 'none';
-    }
-
-    function exportFullBackupJSON() {
-      const backupObj = {
-        appData: appData,
-        records: records,
-        unitsData: unitsData,
-        followupData: followupData,
-        penaltiesData: penaltiesData,
-        periodSelectedUnits: periodSelectedUnits,
-        exportDate: new Date().toISOString()
-      };
-      const jsonStr = JSON.stringify(backupObj, null, 2);
-      const dateStr = new Date().toISOString().split('T')[0];
-      downloadFile(jsonStr, `Backup_v4.0_${dateStr}.json`, 'application/json');
-    }
-
-    function triggerFileInput() {
-      const fileInput = document.getElementById('jsonFileInput');
-      fileInput.value = '';
-      fileInput.click();
-    }
-
-    function importFullBackupJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          let importedAppData = parsed.appData || (parsed["ثالث 1"] ? parsed : null);
-          let importedRecords = parsed.records || {};
-          let importedUnits = parsed.unitsData || null;
-          let importedFollowup = parsed.followupData || {};
-          let importedPenalties = parsed.penaltiesData || null;
-          let importedPeriodUnits = parsed.periodSelectedUnits || null;
-
-          if (importedAppData) {
-            appData = importedAppData;
-            if (parsed.records) records = importedRecords;
-            if (importedUnits) unitsData = importedUnits;
-            if (importedFollowup) followupData = importedFollowup;
-            if (importedPenalties) penaltiesData = importedPenalties;
-            if (importedPeriodUnits) periodSelectedUnits = importedPeriodUnits;
-            
-            saveData();
-            initClassSelects();
-            renderStudents();
-            alert("✅ تم استعادة جميع بيانات الإصدار 4.0 بنجاح!");
-            closeDataMenuModal();
-          } else {
-            alert("⚠️ الملف المختار لا يحتوي على تنسيق صحيح.");
-          }
-        } catch (err) {
-          alert("❌ تعذر قراءة الملف.");
-        }
-      };
-      reader.readAsText(file, 'UTF-8');
-    }
-
-    function exportClassRecordsCSV() {
-      const currentClass = document.getElementById('classSelect').value;
-      if (!currentClass) return alert("يرجى اختيار فصل أولاً!");
-
-      let csv = "\uFEFFالتاريخ,اسم الطالب,الحالة,المخالفات المسجلة\n";
-      const dates = Object.keys(records).sort();
-      let hasData = false;
-
-      dates.forEach(date => {
-        if (records[date] && records[date][currentClass]) {
-          const dayRecords = records[date][currentClass];
-          for (let student in dayRecords) {
-            const rec = getStudentDayRecord(date, currentClass, student);
-            const vText = rec.violations.join(' | ');
-            csv += `${date},${student},${rec.status || 'حاضر'},"${vText}"\n`;
-            hasData = true;
-          }
-        }
-      });
-
-      if (!hasData) return alert("لا توجد سجلات مسجلة لهذا الفصل.");
-      downloadFile(csv, `سجل_السلوك_والغياب_${currentClass}.csv`, 'text/csv;charset=utf-8;');
-    }
-
-    function exportClassSummaryCSV() {
-      const currentClass = document.getElementById('classSelect').value;
       if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
 
       const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-      let studentStats = {};
-      classStudents.forEach(st => { studentStats[st] = { absent: 0, late: 0, violations: 0 }; });
+      const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
+      const lessons = unitObj.lessons;
+      const clsKey = `${currentClass}_${currentActiveUnit}`;
+      const fData = followupData[clsKey] || {};
 
-      for (let date in records) {
-        if (records[date] && records[date][currentClass]) {
-          const dayData = records[date][currentClass];
-          for (let st in dayData) {
-            if (studentStats[st]) {
-              const rec = getStudentDayRecord(date, currentClass, st);
-              if (rec.status === 'غائب') studentStats[st].absent++;
-              if (rec.status === 'متأخر') studentStats[st].late++;
-              studentStats[st].violations += rec.violations.length;
-            }
-          }
-        }
-      }
+      let csv = "\uFEFFاسم الطالب,";
+      lessons.forEach(l => csv += `واجب_${l},`);
+      lessons.forEach(l => csv += `نشاط_${l},`);
+      csv += "المشاركة,اختبار_الوحدة,المشروع,معدل_واجبات,معدل_أنشطة,مجموع_الاختبار,المجموع_الكلي\n";
 
-      let csv = "\uFEFFاسم الطالب,إجمالي أيام الغياب,إجمالي أيام التأخر,إجمالي المخالفات\n";
-      classStudents.forEach(st => {
-        csv += `${st},${studentStats[st].absent},${studentStats[st].late},${studentStats[st].violations}\n`;
+      classStudents.forEach(student => {
+        const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
+        csv += `${student},`;
+        lessons.forEach(l => csv += `${stData.hw[l] !== undefined ? stData.hw[l] : ''},`);
+        lessons.forEach(l => csv += `${stData.act[l] !== undefined ? stData.act[l] : ''},`);
+
+        let partScore = calculateStudentParticipationScore(currentClass, student);
+        csv += `${partScore.toFixed(2)},${stData.test1 || ''},${stData.test2 || ''},`;
+
+        let hwSum=0, hwC=0, actSum=0, actC=0;
+        lessons.forEach(l => { let v=parseFloat(stData.hw[l]); if(!isNaN(v)){hwSum+=v;hwC++;} });
+        lessons.forEach(l => { let v=parseFloat(stData.act[l]); if(!isNaN(v)){actSum+=v;actC++;} });
+        let hwAvg = hwC>0 ? (hwSum/hwC).toFixed(2) : 0;
+        let actAvg = actC>0 ? (actSum/actC).toFixed(2) : 0;
+        let t1 = parseFloat(stData.test1)||0;
+        let t2 = parseFloat(stData.test2)||0;
+        let testTot = (t1 + t2).toFixed(2);
+        let tot = ((parseFloat(hwAvg)||0) + (parseFloat(actAvg)||0) + partScore + (parseFloat(testTot)||0)).toFixed(2);
+
+        csv += `${hwAvg},${actAvg},${testTot},${tot}\n`;
       });
-      downloadFile(csv, `تقرير_إحصائي_${currentClass}.csv`, 'text/csv;charset=utf-8;');
-    }
 
-    async function generatePDF() {
-      const currentClass = document.getElementById('classSelect').value;
-      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
-
-      const btn = document.getElementById('pdfExportBtn');
-      const originalText = btn.innerText;
-      btn.innerText = "⏳ جاري إنشاء ملف PDF...";
-      btn.disabled = true;
-
-      try {
-        const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-        const todayDate = new Date().toLocaleDateString('ar-SA');
-        const element = document.createElement('div');
-        element.style.padding = '8px';
-        element.style.direction = 'rtl';
-        element.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
-        element.style.backgroundColor = '#ffffff';
-
-        let reportTitleText = currentReportTab === 'summary' ? "التقرير الشامل للغياب والتأخر والمخالفات" : "التقرير التفصيلي لسجل المخالفات السلوكية";
-        let tableHeaderHtml = '';
-        let tableRowsHtml = '';
-
-        if (currentReportTab === 'summary') {
-          let studentStats = {};
-          classStudents.forEach(st => { studentStats[st] = { absent: 0, late: 0, violations: 0 }; });
-
-          for (let date in records) {
-            if (records[date] && records[date][currentClass]) {
-              const dayData = records[date][currentClass];
-              for (let st in dayData) {
-                if (studentStats[st]) {
-                  const rec = getStudentDayRecord(date, currentClass, st);
-                  if (rec.status === 'غائب') studentStats[st].absent++;
-                  if (rec.status === 'متأخر') studentStats[st].late++;
-                  studentStats[st].violations += rec.violations.length;
-                }
-              }
-            }
-          }
-
-          tableHeaderHtml = `
-            <tr style="background-color: #007AFF; color: white; font-size: 11px;">
-              <th style="border: 1px solid #007AFF; padding: 6px; width: 30px; text-align: center;">#</th>
-              <th style="border: 1px solid #007AFF; padding: 6px 10px; text-align: right; width: 55%;">اسم الطالب</th>
-              <th style="border: 1px solid #007AFF; padding: 6px; width: 15%; text-align: center;">الغياب</th>
-              <th style="border: 1px solid #007AFF; padding: 6px; width: 15%; text-align: center;">التأخر</th>
-              <th style="border: 1px solid #007AFF; padding: 6px; width: 15%; text-align: center;">مخالفات</th>
-            </tr>
-          `;
-
-          classStudents.forEach((st, idx) => {
-            tableRowsHtml += `
-              <tr style="font-size: 12px;">
-                <td style="border:1px solid #D1D1D6; padding: 6px; text-align: center; color: #8E8E93; font-weight: bold;">${idx + 1}</td>
-                <td style="border:1px solid #D1D1D6; padding: 6px 10px; text-align: right; font-weight: bold; color: #1C1C1E;">${st}</td>
-                <td style="border:1px solid #D1D1D6; padding: 6px; text-align: center; color: #FF3B30; font-weight: 900; font-size: 14px;">${studentStats[st].absent}</td>
-                <td style="border:1px solid #D1D1D6; padding: 6px; text-align: center; color: #FF9500; font-weight: 900; font-size: 14px;">${studentStats[st].late}</td>
-                <td style="border:1px solid #D1D1D6; padding: 6px; text-align: center; color: #AF52DE; font-weight: 900; font-size: 14px;">${studentStats[st].violations}</td>
-              </tr>
-            `;
-          });
-        } else {
-          let studentVioCounts = {};
-          classStudents.forEach(st => {
-            studentVioCounts[st] = {};
-            VIOLATIONS_LIST.forEach(v => studentVioCounts[st][v] = 0);
-          });
-
-          for (let date in records) {
-            if (records[date] && records[date][currentClass]) {
-              const dayData = records[date][currentClass];
-              for (let st in dayData) {
-                if (studentVioCounts[st]) {
-                  const rec = getStudentDayRecord(date, currentClass, st);
-                  rec.violations.forEach(vName => {
-                    if (studentVioCounts[st][vName] !== undefined) studentVioCounts[st][vName]++;
-                  });
-                }
-              }
-            }
-          }
-
-          tableHeaderHtml = `
-            <tr style="background-color: #007AFF; color: white; font-size: 8px;">
-              <th style="border: 1px solid #007AFF; padding: 4px 2px; width: 16px; text-align: center;">#</th>
-              <th style="border: 1px solid #007AFF; padding: 4px 6px; text-align: right; width: 85px;">اسم الطالب</th>
-          `;
-          VIOLATIONS_LIST.forEach(vText => {
-            const wordByWord = vText.split(' ').join('<br>');
-            tableHeaderHtml += `<th style="border: 1px solid #007AFF; padding: 4px 2px; text-align: center; vertical-align: middle; font-weight: bold; line-height: 1.1; width: 25px;">${wordByWord}</th>`;
-          });
-          tableHeaderHtml += `<th style="border: 1px solid #007AFF; padding: 4px 2px; width: 25px; text-align: center; background-color: #6A1B9A;">الإجمالي</th></tr>`;
-
-          classStudents.forEach((st, idx) => {
-            let totalStVio = 0;
-            tableRowsHtml += `
-              <tr style="font-size: 9px;">
-                <td style="border:1px solid #D1D1D6; padding: 4px 2px; text-align: center; color: #8E8E93; font-weight: bold;">${idx + 1}</td>
-                <td style="border:1px solid #D1D1D6; padding: 4px 6px; text-align: right; font-weight: bold; color: #1C1C1E; width: 85px;">${st}</td>
-            `;
-            VIOLATIONS_LIST.forEach(vText => {
-              const cnt = studentVioCounts[st][vText] || 0;
-              totalStVio += cnt;
-              const displayVal = cnt > 0 ? `<b style="color:#AF52DE; font-size: 11px; font-weight: 900;">${cnt}</b>` : '<span style="color:#D1D1D6;">-</span>';
-              tableRowsHtml += `<td style="border:1px solid #D1D1D6; padding: 4px 2px; text-align: center;">${displayVal}</td>`;
-            });
-            tableRowsHtml += `<td style="border:1px solid #D1D1D6; padding: 4px 2px; text-align: center; color: #AF52DE; font-weight: 900; font-size: 11px;">${totalStVio}</td></tr>`;
-          });
-        }
-
-        element.innerHTML = `
-          <div style="text-align: center; border-bottom: 2px solid #007AFF; padding-bottom: 6px; margin-bottom: 8px;">
-            <h1 style="margin: 0; font-size: 15px; color: #007AFF; font-weight: 900;">${reportTitleText}</h1>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
-            <span>الفصل: ${currentClass}</span>
-            <span>تاريخ التقرير: ${todayDate}</span>
-            <span>إجمالي الطلاب: ${classStudents.length}</span>
-          </div>
-          <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-            <thead>${tableHeaderHtml}</thead>
-            <tbody>${tableRowsHtml}</tbody>
-          </table>
-        `;
-
-        const filename = `تقرير_${currentReportTab === 'summary' ? 'شامل' : 'المخالفات'}_${currentClass}.pdf`;
-        const opt = {
-          margin: 6, filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        const pdfWorker = html2pdf().set(opt).from(element);
-        const pdfBlob = await pdfWorker.output('blob');
-        const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
-
-        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({ files: [pdfFile], title: filename, text: `تقرير الغياب والمخالفات - ${currentClass}` });
-        } else {
-          pdfWorker.save();
-        }
-      } catch (err) {
-        console.error(err);
-        alert("حدث خطأ أثناء استخراج ملف PDF");
-      } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-      }
+      downloadFile(csv, `كشف_متابعة_${currentClass}_${currentActiveUnit}.csv`, 'text/csv;charset=utf-8;');
+      closeFollowupExportModal();
     }
 
     async function downloadFile(content, fileName, mimeType) {
@@ -2364,7 +1984,109 @@
       document.body.removeChild(link);
     }
 
-    /* التنقل بين الشاشات والوحدات */
+    /* ================= دوال إدارة الوحدات ================= */
+
+    function openPeriodSummaryModal() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
+
+      const allUnitNames = Object.keys(unitsData);
+      if (periodSelectedUnits.length === 0) {
+        periodSelectedUnits = [...allUnitNames];
+      }
+
+      const bar = document.getElementById('periodUnitsToggleBar');
+      bar.innerHTML = '';
+
+      allUnitNames.forEach(uName => {
+        const isSelected = periodSelectedUnits.includes(uName);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `btn-status ${isSelected ? 'active-violation' : ''}`;
+        btn.style.padding = '8px 12px';
+        btn.style.fontSize = '12px';
+        btn.style.fontWeight = 'bold';
+        btn.style.borderRadius = '8px';
+        btn.style.minWidth = 'auto';
+        btn.style.height = 'auto';
+        btn.style.backgroundColor = isSelected ? '#27ae60' : '#E5E5EA';
+        btn.style.color = isSelected ? '#FFFFFF' : '#333';
+        btn.innerText = uName;
+        btn.onclick = function() {
+          togglePeriodUnitSelection(uName);
+        };
+        bar.appendChild(btn);
+      });
+
+      renderPeriodSummaryTable();
+      document.getElementById('periodSummaryModal').style.display = 'flex';
+    }
+
+    function togglePeriodUnitSelection(uName) {
+      if (periodSelectedUnits.includes(uName)) {
+        if (periodSelectedUnits.length === 1) {
+          alert("يجب اختيار وحدة واحدة على الأقل!");
+          return;
+        }
+        periodSelectedUnits = periodSelectedUnits.filter(u => u !== uName);
+      } else {
+        periodSelectedUnits.push(uName);
+      }
+      saveData();
+      openPeriodSummaryModal();
+    }
+
+    function closePeriodSummaryModal() {
+      document.getElementById('periodSummaryModal').style.display = 'none';
+      renderFollowupTable(currentActiveUnit);
+    }
+
+    function renderPeriodSummaryTable() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      const thead = document.getElementById('periodSummaryTableHead');
+      const tbody = document.getElementById('periodSummaryTableBody');
+      
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+
+      if (!currentClass || !appData[currentClass]) return;
+
+      let unitsCount = periodSelectedUnits.length;
+      if (unitsCount === 0) unitsCount = 1;
+
+      thead.innerHTML = `
+        <tr>
+          <th>#</th>
+          <th style="text-align:right;">اسم الطالب</th>
+          <th class="th-weighted">الواجبات (موزونة)</th>
+          <th class="th-weighted">الأنشطة (موزونة)</th>
+          <th class="th-part">المشاركة</th>
+          <th class="th-test">الاختبار/المشروع</th>
+          <th class="th-weighted" style="background-color: #1e8449; color: white;">المجموع الكلي</th>
+        </tr>
+      `;
+
+      const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+
+      classStudents.forEach((student, idx) => {
+        let weighted = calculatePeriodWeightedTotals(currentClass, student);
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${idx + 1}</td>
+            <td style="text-align: right; font-weight: bold;">${student}</td>
+            <td><b>${weighted.hwAvg}</b></td>
+            <td><b>${weighted.actAvg}</b></td>
+            <td class="th-part"><b>${weighted.partScore}</b></td>
+            <td class="th-test"><b>${weighted.testTotal}</b></td>
+            <td class="th-weighted" style="background-color: #d5f5e3; color: #1e8449; font-weight: 900;">${weighted.totalSum}</td>
+          </tr>
+        `;
+      });
+    }
+
+    /* ================= دوال التنقل بين الشاشات ================= */
+
     function switchToFollowupScreen() {
       document.getElementById('absenceScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.add('active-screen');
@@ -2654,6 +2376,128 @@
       alert("✅ تم حفظ تعديلات الوحدة بنجاح!");
     }
 
+    function openDataMenuModal() {
+      const currentClass = document.getElementById('classSelect').value || '';
+      document.getElementById('csvSectionTitle').innerText = `📊 تقارير الفصل الحالي (${currentClass})`;
+      document.getElementById('dataMenuModal').style.display = 'flex';
+    }
+
+    function closeDataMenuModal() {
+      document.getElementById('dataMenuModal').style.display = 'none';
+    }
+
+    function exportFullBackupJSON() {
+      const backupObj = {
+        appData: appData,
+        records: records,
+        unitsData: unitsData,
+        followupData: followupData,
+        penaltiesData: penaltiesData,
+        periodSelectedUnits: periodSelectedUnits,
+        exportDate: new Date().toISOString()
+      };
+      const jsonStr = JSON.stringify(backupObj, null, 2);
+      const dateStr = new Date().toISOString().split('T')[0];
+      downloadFile(jsonStr, `Backup_v4.0_${dateStr}.json`, 'application/json');
+    }
+
+    function triggerFileInput() {
+      const fileInput = document.getElementById('jsonFileInput');
+      fileInput.value = '';
+      fileInput.click();
+    }
+
+    function importFullBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          let importedAppData = parsed.appData || (parsed["ثالث 1"] ? parsed : null);
+          let importedRecords = parsed.records || {};
+          let importedUnits = parsed.unitsData || null;
+          let importedFollowup = parsed.followupData || {};
+          let importedPenalties = parsed.penaltiesData || null;
+          let importedPeriodUnits = parsed.periodSelectedUnits || null;
+
+          if (importedAppData) {
+            appData = importedAppData;
+            if (parsed.records) records = importedRecords;
+            if (importedUnits) unitsData = importedUnits;
+            if (importedFollowup) followupData = importedFollowup;
+            if (importedPenalties) penaltiesData = importedPenalties;
+            if (importedPeriodUnits) periodSelectedUnits = importedPeriodUnits;
+            
+            saveData();
+            initClassSelects();
+            renderStudents();
+            alert("✅ تم استعادة جميع بيانات الإصدار 4.0 بنجاح!");
+            closeDataMenuModal();
+          } else {
+            alert("⚠️ الملف المختار لا يحتوي على تنسيق صحيح.");
+          }
+        } catch (err) {
+          alert("❌ تعذر قراءة الملف.");
+        }
+      };
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    function exportClassRecordsCSV() {
+      const currentClass = document.getElementById('classSelect').value;
+      if (!currentClass) return alert("يرجى اختيار فصل أولاً!");
+
+      let csv = "\uFEFFالتاريخ,اسم الطالب,الحالة,المخالفات المسجلة\n";
+      const dates = Object.keys(records).sort();
+      let hasData = false;
+
+      dates.forEach(date => {
+        if (records[date] && records[date][currentClass]) {
+          const dayRecords = records[date][currentClass];
+          for (let student in dayRecords) {
+            const rec = getStudentDayRecord(date, currentClass, student);
+            const vText = rec.violations.join(' | ');
+            csv += `${date},${student},${rec.status || 'حاضر'},"${vText}"\n`;
+            hasData = true;
+          }
+        }
+      });
+
+      if (!hasData) return alert("لا توجد سجلات مسجلة لهذا الفصل.");
+      downloadFile(csv, `سجل_السلوك_والغياب_${currentClass}.csv`, 'text/csv;charset=utf-8;');
+    }
+
+    function exportClassSummaryCSV() {
+      const currentClass = document.getElementById('classSelect').value;
+      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
+
+      const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      let studentStats = {};
+      classStudents.forEach(st => { studentStats[st] = { absent: 0, late: 0, violations: 0 }; });
+
+      for (let date in records) {
+        if (records[date] && records[date][currentClass]) {
+          const dayData = records[date][currentClass];
+          for (let st in dayData) {
+            if (studentStats[st]) {
+              const rec = getStudentDayRecord(date, currentClass, st);
+              if (rec.status === 'غائب') studentStats[st].absent++;
+              if (rec.status === 'متأخر') studentStats[st].late++;
+              studentStats[st].violations += rec.violations.length;
+            }
+          }
+        }
+      }
+
+      let csv = "\uFEFFاسم الطالب,إجمالي أيام الغياب,إجمالي أيام التأخر,إجمالي المخالفات\n";
+      classStudents.forEach(st => {
+        csv += `${st},${studentStats[st].absent},${studentStats[st].late},${studentStats[st].violations}\n`;
+      });
+      downloadFile(csv, `تقرير_إحصائي_${currentClass}.csv`, 'text/csv;charset=utf-8;');
+    }
+
     window.onload = function() {
       initClassSelects();
       renderStudents();
@@ -2661,3 +2505,4 @@
   </script>
 </body>
 </html>
+```
