@@ -10,7 +10,7 @@
   <!-- مكتبة تحويل HTML إلى PDF -->
   <script src="./html2pdf.bundle.min.js"></script>
 
-  <title>نظام متابعة الطلاب المدرسي 4.4</title>
+  <title>نظام متابعة الطلاب المدرسي 4.5</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -61,6 +61,8 @@
       cursor: pointer;
       box-shadow: 0 2px 6px rgba(0,122,255,0.3);
       transition: opacity 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
     }
     .header-title-box:active { opacity: 0.85; }
 
@@ -155,7 +157,10 @@
       transition: all 0.15s ease;
       min-width: 36px;
       height: 32px;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    .btn-status:active { opacity: 0.7; }
 
     .btn-status.active-absent { background-color: var(--red); color: #FFFFFF; }
     .btn-status.active-late { background-color: var(--yellow); color: #FFFFFF; }
@@ -188,7 +193,10 @@
       justify-content: center;
       gap: 4px;
       min-height: 42px;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    .btn-action:active { opacity: 0.8; }
 
     .btn-report { background-color: #5856D6; }
     .btn-manage { background-color: var(--accent); }
@@ -229,7 +237,10 @@
       white-space: nowrap;
       font-size: 12px;
       flex-shrink: 0;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    .btn-manage-units:active { opacity: 0.8; }
 
     .top-action-bar {
       display: flex;
@@ -253,7 +264,10 @@
       gap: 6px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       transition: background 0.2s;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    .btn-period-main:active { opacity: 0.8; }
     .btn-period-main.active-period {
       background-color: #27ae60;
     }
@@ -274,7 +288,10 @@
       width: 100%;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       margin-bottom: 6px;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    .btn-export-period:active { opacity: 0.8; }
 
     .followup-table-container {
       margin: 0 15px;
@@ -300,9 +317,6 @@
       background-color: #f8f9fa;
       color: #2c3e50;
     }
-    .th-part { background-color: #ebdef0; }
-    .th-test { background-color: #fadbd8; }
-    .th-weighted { background-color: #d5f5e3; font-weight: bold; color: #1e8449; }
 
     .modal {
       display: none;
@@ -351,7 +365,10 @@
       font-weight: 800;
       color: var(--text-primary);
       width: 100%;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    .violation-item:active { background: #E5E5EA; }
 
     .violation-item.selected {
       background: #F3E5F5;
@@ -378,7 +395,10 @@
       font-weight: 900;
       font-size: 15px;
       cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    .btn-done-full:active { opacity: 0.8; }
 
     .report-tabs {
       display: flex;
@@ -400,6 +420,8 @@
       background: transparent;
       color: var(--text-secondary);
       transition: all 0.2s ease;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .report-tab-btn.active {
@@ -449,7 +471,10 @@
     .btn-close-circle {
       width: 30px; height: 30px; border-radius: 50%; background: #E5E5EA; color: #8E8E93;
       border: none; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    .btn-close-circle:active { opacity: 0.7; }
 
     .data-box-section { background: #F2F2F7; border-radius: 12px; padding: 12px; margin-bottom: 14px; }
     .data-box-title { font-size: 12px; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px; }
@@ -457,26 +482,40 @@
     .btn-menu-option {
       width: 100%; padding: 10px; border-radius: 10px; border: none; font-size: 13px;
       font-weight: 700; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; color: white;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    .btn-menu-option:active { opacity: 0.8; }
 
     .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
-    .btn-modal-save { flex: 1; background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; }
-    .btn-modal-cancel { flex: 1; background-color: #8E8E93; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; }
+    .btn-modal-save { flex: 1; background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-modal-save:active { opacity: 0.8; }
+    .btn-modal-cancel { flex: 1; background-color: #8E8E93; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-modal-cancel:active { opacity: 0.8; }
+    
     .field-label { font-size: 13px; font-weight: 700; color: #666; margin-bottom: 6px; display: block; }
     .select-class-full { width: 100%; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 14px; text-align: center; margin-bottom: 10px; }
     .class-manage-btns { display: flex; gap: 8px; margin-bottom: 12px; }
-    .btn-add-cls-btn { flex: 1; background-color: var(--green); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; }
-    .btn-del-cls-btn { flex: 1; background-color: var(--red); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; }
+    .btn-add-cls-btn { flex: 1; background-color: var(--green); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-add-cls-btn:active { opacity: 0.8; }
+    .btn-del-cls-btn { flex: 1; background-color: var(--red); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-del-cls-btn:active { opacity: 0.8; }
+    
     .inline-add-box { display: none; gap: 6px; margin-bottom: 10px; background: #F2F2F7; padding: 8px; border-radius: 10px; }
     .inline-add-box input { flex: 1; }
-    .btn-confirm-add { background: var(--accent); color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: 700; }
+    .btn-confirm-add { background: var(--accent); color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-confirm-add:active { opacity: 0.8; }
+    
     textarea { width: 100%; height: 200px; border-radius: 12px; border: 1px solid #D1D1D6; padding: 12px; font-size: 14px; font-weight: 600; line-height: 1.6; margin-bottom: 16px; resize: vertical; outline: none; }
+    
     .confirm-modal-content { background: white; border-radius: 18px; padding: 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
     .confirm-modal-title { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
     .confirm-modal-desc { font-size: 13px; color: #666; margin-bottom: 18px; line-height: 1.4; }
     .confirm-modal-actions { display: flex; gap: 8px; }
-    .btn-confirm-delete { flex: 1; background-color: var(--red); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer; }
-    .btn-confirm-cancel { flex: 1; background-color: var(--gray-btn); color: var(--text-primary); border: none; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+    .btn-confirm-delete { flex: 1; background-color: var(--red); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-confirm-delete:active { opacity: 0.8; }
+    .btn-confirm-cancel { flex: 1; background-color: var(--gray-btn); color: var(--text-primary); border: none; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-confirm-cancel:active { opacity: 0.8; }
   </style>
 </head>
 <body>
@@ -485,7 +524,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (4.5)
+        كشف الغياب والمخالفات (4.6)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -523,7 +562,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (4.5)    
+        كشوف المتابعة و الدرجات (4.6)    
       </div>
     </header>
     <div class="top-action-bar">
@@ -920,9 +959,9 @@
         card.innerHTML = `
           <div class="student-name">${student}</div>
           <div class="attendance-buttons">
-            <button class="btn-status ${status === 'غائب' ? 'active-absent' : ''}" onclick="setStatus('${student}', 'غائب')">غائب</button>
-            <button class="btn-status ${status === 'متأخر' ? 'active-late' : ''}" onclick="setStatus('${student}', 'متأخر')">متأخر</button>
-            <button class="btn-status ${vBtnClass} ${disabledClass}" onclick="openViolationModal('${student}')">${vBtnText}</button>
+            <button class="btn-status ${status === 'غائب' ? 'active-absent' : ''}" onclick="setStatus('${CSS.escape(student)}', 'غائب')">غائب</button>
+            <button class="btn-status ${status === 'متأخر' ? 'active-late' : ''}" onclick="setStatus('${CSS.escape(student)}', 'متأخر')">متأخر</button>
+            <button class="btn-status ${vBtnClass} ${disabledClass}" onclick="openViolationModal('${CSS.escape(student)}')">${vBtnText}</button>
           </div>
         `;
         listContainer.appendChild(card);
@@ -931,6 +970,174 @@
       document.getElementById('absentCount').innerText = absentCount;
       document.getElementById('lateCount').innerText = lateCount;
       document.getElementById('violationCount').innerText = totalViolationsToday;
+    }
+
+    function switchToFollowupScreen() {
+      document.getElementById('absenceScreen').classList.remove('active-screen');
+      document.getElementById('followupScreen').classList.add('active-screen');
+      initClassSelects();
+      renderUnitsDropdown();
+      renderFollowupTable(currentActiveUnit);
+    }
+
+    function switchToAbsenceScreen() {
+      document.getElementById('followupScreen').classList.remove('active-screen');
+      document.getElementById('absenceScreen').classList.add('active-screen');
+      initClassSelects();
+      renderStudents();
+    }
+
+    function renderFollowupTable(unitName) {
+      const currentClass = document.getElementById('followupClassSelect').value;
+      if (!currentClass || !appData[currentClass]) return;
+
+      const unitObj = unitsData[unitName] || { lessons: ["درس 1"] };
+      const lessons = unitObj.lessons;
+      const clsKey = `${currentClass}_${unitName}`;
+      if (!followupData[clsKey]) followupData[clsKey] = {};
+
+      const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+
+      const thead = document.getElementById('followupTableHead');
+      let headHtml = `
+        <tr>
+          <th rowspan="2" style="background-color: #f8f9fa; color: #2c3e50; vertical-align: middle;">#</th>
+          <th rowspan="2" style="background-color: #f8f9fa; color: #2c3e50; vertical-align: middle; text-align: right; min-width: 120px;">اسم الطالب</th>
+          <th colspan="${lessons.length}" style="background-color: #D4EFDF; color: #117A65; text-align: center;">الواجبات</th>
+          <th colspan="${lessons.length}" style="background-color: #FCF3CF; color: #7D6608; text-align: center;">الأنشطة</th>
+          <th rowspan="2" style="background-color: #EBDEF0; color: #512E5F; vertical-align: middle; text-align: center;">المشاركة</th>
+          <th colspan="2" style="background-color: #FADBD8; color: #78281F; text-align: center;">الاختبارات والمشاريع</th>
+          <th rowspan="2" style="background-color: #D5F5E3; color: #1E8449; vertical-align: middle; text-align: center; min-width: 80px;">المجموع الكلي</th>
+        </tr>
+        <tr>
+      `;
+      lessons.forEach(l => {
+        headHtml += `<th style="background-color: #EAFAF1; color: #117A65; font-size: 11px;">${l}</th>`;
+      });
+      lessons.forEach(l => {
+        headHtml += `<th style="background-color: #FEF9E7; color: #7D6608; font-size: 11px;">${l}</th>`;
+      });
+      headHtml += `
+          <th style="background-color: #FDEDEC; color: #78281F; font-size: 11px;">اختبار الوحدة</th>
+          <th style="background-color: #FDEDEC; color: #78281F; font-size: 11px;">المشروع</th>
+        </tr>
+      `;
+      thead.innerHTML = headHtml;
+
+      const tbody = document.getElementById('followupTableBody');
+      tbody.innerHTML = '';
+
+      classStudents.forEach((student, idx) => {
+        if (!followupData[clsKey][student]) {
+          followupData[clsKey][student] = { hw: {}, act: {}, test1: '', test2: '' };
+        }
+        const stData = followupData[clsKey][student];
+
+        let row = document.createElement('tr');
+        let rowHtml = `
+          <td style="font-weight: bold; color: var(--text-secondary);">${idx + 1}</td>
+          <td class="student-name-td" style="font-weight: 900; font-size: 14px; text-align: right;">${student}</td>
+        `;
+
+        lessons.forEach(l => {
+          let val = (stData.hw && stData.hw[l] !== undefined) ? stData.hw[l] : '';
+          rowHtml += `
+            <td style="background-color: #EAFAF1; padding: 4px;">
+              <input type="number" step="0.5" min="0" max="10" value="${val}" style="width: 50px; text-align: center; padding: 4px; background: white;" onchange="updateFollowupValue('${CSS.escape(currentClass)}', '${CSS.escape(unitName)}', '${CSS.escape(student)}', 'hw', '${CSS.escape(l)}', this.value)">
+            </td>
+          `;
+        });
+
+        lessons.forEach(l => {
+          let val = (stData.act && stData.act[l] !== undefined) ? stData.act[l] : '';
+          rowHtml += `
+            <td style="background-color: #FEF9E7; padding: 4px;">
+              <input type="number" step="0.5" min="0" max="10" value="${val}" style="width: 50px; text-align: center; padding: 4px; background: white;" onchange="updateFollowupValue('${CSS.escape(currentClass)}', '${CSS.escape(unitName)}', '${CSS.escape(student)}', 'act', '${CSS.escape(l)}', this.value)">
+            </td>
+          `;
+        });
+
+        let partScore = calculateStudentParticipationScore(currentClass, student);
+        rowHtml += `
+          <td style="background-color: #F5EEF8; font-weight: bold; color: #512E5F; text-align: center;">
+            ${partScore.toFixed(2)}
+          </td>
+        `;
+
+        let t1 = stData.test1 !== undefined ? stData.test1 : '';
+        let t2 = stData.test2 !== undefined ? stData.test2 : '';
+        rowHtml += `
+          <td style="background-color: #FDEDEC; padding: 4px;">
+            <input type="number" step="0.5" min="0" max="10" value="${t1}" style="width: 50px; text-align: center; padding: 4px; background: white;" onchange="updateFollowupValue('${CSS.escape(currentClass)}', '${CSS.escape(unitName)}', '${CSS.escape(student)}', 'test1', '', this.value)">
+          </td>
+          <td style="background-color: #FDEDEC; padding: 4px;">
+            <input type="number" step="0.5" min="0" max="10" value="${t2}" style="width: 50px; text-align: center; padding: 4px; background: white;" onchange="updateFollowupValue('${CSS.escape(currentClass)}', '${CSS.escape(unitName)}', '${CSS.escape(student)}', 'test2', '', this.value)">
+          </td>
+        `;
+
+        let hwSum = 0, hwCount = 0;
+        lessons.forEach(l => { let v = parseFloat(stData.hw[l]); if (!isNaN(v)) { hwSum += v; hwCount++; } });
+        let hwAvg = hwCount > 0 ? (hwSum / hwCount) : 0;
+
+        let actSum = 0, actCount = 0;
+        lessons.forEach(l => { let v = parseFloat(stData.act[l]); if (!isNaN(v)) { actSum += v; actCount++; } });
+        let actAvg = actCount > 0 ? (actSum / actCount) : 0;
+
+        let test1Val = parseFloat(stData.test1) || 0;
+        let test2Val = parseFloat(stData.test2) || 0;
+        let testTotal = (stData.test1 !== '' || stData.test2 !== '') ? (test1Val + test2Val) : 0;
+
+        let totalSumVal = '-';
+        if (hwCount > 0 || actCount > 0 || stData.test1 !== '' || stData.test2 !== '') {
+          totalSumVal = (hwAvg + actAvg + partScore + testTotal).toFixed(2);
+        }
+
+        rowHtml += `
+          <td style="background-color: #D5F5E3; font-weight: bold; color: #1E8449; text-align: center;">
+            ${totalSumVal}
+          </td>
+        `;
+
+        row.innerHTML = rowHtml;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateFollowupValue(className, unitName, studentName, type, lessonName, value) {
+      const clsKey = `${className}_${unitName}`;
+      if (!followupData[clsKey]) followupData[clsKey] = {};
+      if (!followupData[clsKey][studentName]) {
+        followupData[clsKey][studentName] = { hw: {}, act: {}, test1: '', test2: '' };
+      }
+      
+      if (type === 'hw') {
+        followupData[clsKey][studentName].hw[lessonName] = value;
+      } else if (type === 'act') {
+        followupData[clsKey][studentName].act[lessonName] = value;
+      } else if (type === 'test1') {
+        followupData[clsKey][studentName].test1 = value;
+      } else if (type === 'test2') {
+        followupData[clsKey][studentName].test2 = value;
+      }
+      saveData();
+      renderFollowupTable(currentActiveUnit);
+    }
+
+    function onFollowupClassChange(cls) {
+      renderFollowupTable(currentActiveUnit);
+    }
+
+    function onUnitDropdownChange(unit) {
+      currentActiveUnit = unit;
+      renderFollowupTable(unit);
+    }
+
+    function renderUnitsDropdown() {
+      const select = document.getElementById('unitDropdownSelect');
+      select.innerHTML = '';
+      Object.keys(unitsData).forEach(uName => {
+        select.innerHTML += `<option value="${uName}" ${uName === currentActiveUnit ? 'selected' : ''}>${uName}</option>`;
+      });
     }
 
     function openStudentReportSelectModal() {
@@ -946,7 +1153,7 @@
 
       classStudents.forEach((student, idx) => {
         tbody.innerHTML += `
-          <tr onclick="selectStudentForReportAction('${student}')" style="cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='#F2F2F7'" onmouseout="this.style.background='transparent'">
+          <tr onclick="selectStudentForReportAction('${CSS.escape(student)}')" style="cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='#F2F2F7'" onmouseout="this.style.background='transparent'">
             <td style="color:var(--text-secondary); font-weight:bold;">${idx + 1}</td>
             <td class="student-name-td" style="font-size: 15px; font-weight: 900; padding: 10px 8px; white-space: normal; word-break: break-word;">${student}</td>
           </tr>
@@ -968,7 +1175,6 @@
 
     function openStudentReportDetailModal() {
       const currentClass = document.getElementById('classSelect').value;
-      // تعديل عرض اسم الفصل ليصبح تحت الاسم
       document.getElementById('studentReportStudentNameHeader').innerHTML = `الطالب: ${selectedStudentForReport}<br><span style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">الفصل: ${currentClass}</span>`;
       
       const tbody = document.getElementById('studentReportDetailTableBody');
@@ -1096,7 +1302,7 @@
       if (!records[currentDate]) records[currentDate] = {};
       if (!records[currentDate][currentClass]) records[currentDate][currentClass] = {};
 
-      const currentRec = getStudentDayRecord(currentDate, currentClass, student);
+      const currentRec = getStudentDayRecord(date = currentDate, cls = currentClass, student = student);
 
       if (currentRec.status === newStatus) {
         currentRec.status = '';
@@ -1120,7 +1326,7 @@
     function openViolationModal(studentName) {
       const currentClass = document.getElementById('classSelect').value;
       const currentDate = document.getElementById('dateSelect').value;
-      const rec = getStudentDayRecord(currentDate, currentClass, studentName);
+      const rec = getStudentDayRecord(date = currentDate, cls = currentClass, student = studentName);
 
       if (rec.status === 'غائب') {
         alert('⚠️ الطالب مسجل كـ "غائب"، لا يمكن إضافة مخالفات له.');
@@ -1173,7 +1379,7 @@
       if (!records[currentDate]) records[currentDate] = {};
       if (!records[currentDate][currentClass]) records[currentDate][currentClass] = {};
 
-      let currentRec = getStudentDayRecord(currentDate, currentClass, currentStudentForViolation);
+      let currentRec = getStudentDayRecord(date = currentDate, cls = currentClass, student = currentStudentForViolation);
       currentRec.violations = selectedViolations;
 
       if (!currentRec.status && currentRec.violations.length === 0) {
@@ -1214,7 +1420,6 @@
       document.getElementById('inlineAddBox').style.display = 'none';
     }
 
-    // دوال نافذة النسخ الاحتياطي (تم إصلاحها لكي تستجيب)
     function openDataMenuModal() {
       document.getElementById('dataMenuModal').style.display = 'flex';
     }
@@ -2188,275 +2393,109 @@
         }
       });
 
-      let weightedHw = countHw > 0 ? (totalHwSum / divisor).toFixed(2) : '-';
-      let weightedAct = countAct > 0 ? (totalActSum / divisor).toFixed(2) : '-';
-      let weightedTest = countTest > 0 ? (totalTestSum / divisor).toFixed(2) : '-';
+      let weightedHw = countHw > 0 ? (totalHwSum / divisor).toFixed(2) : '0';
+      let weightedAct = countAct > 0 ? (totalActSum / divisor).toFixed(2) : '0';
+      let weightedTest = countTest > 0 ? (totalTestSum / divisor).toFixed(2) : '0';
 
-      let totalSumVal = '-';
-      if (weightedHw !== '-' || weightedAct !== '-' || weightedTest !== '-') {
-        let hNum = parseFloat(weightedHw) || 0;
-        let aNum = parseFloat(weightedAct) || 0;
-        let ttNum = parseFloat(weightedTest) || 0;
-        totalSumVal = (hNum + aNum + partScore + ttNum).toFixed(2);
-      }
+      let totalSum = (parseFloat(weightedHw) + parseFloat(weightedAct) + partScore + parseFloat(weightedTest)).toFixed(2);
 
       return {
         hwAvg: weightedHw,
         actAvg: weightedAct,
         partScore: partScore.toFixed(2),
         testTotal: weightedTest,
-        totalSum: totalSumVal,
-        divisor: divisor
+        totalSum: totalSum
       };
     }
 
-    function triggerFileInput() {
-      document.getElementById('jsonFileInput').click();
-    }
-
-    function exportFullBackupJSON() {
-      const backup = {
-        appData,
-        records,
-        unitsData,
-        followupData,
-        penaltiesData,
-        periodSelectedUnits
-      };
-      const jsonStr = JSON.stringify(backup, null, 2);
-      downloadFile(jsonStr, `backup_${new Date().toISOString().slice(0,10)}.json`, 'application/json');
-    }
-
-    function importFullBackupJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const data = JSON.parse(e.target.result);
-          if (data.appData) appData = data.appData;
-          if (data.records) records = data.records;
-          if (data.unitsData) unitsData = data.unitsData;
-          if (data.followupData) followupData = data.followupData;
-          if (data.penaltiesData) penaltiesData = data.penaltiesData;
-          if (data.periodSelectedUnits) periodSelectedUnits = data.periodSelectedUnits;
-          saveData();
-          initClassSelects();
-          renderStudents();
-          alert("✅ تم استعادة النسخة الاحتياطية بنجاح!");
-        } catch (err) {
-          alert("❌ ملف النسخة الاحتياطية غير صالح!");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function exportClassRecordsCSV() {
-      exportComprehensiveCSV();
-    }
-
-    function exportClassSummaryCSV() {
-      exportComprehensiveCSV();
-    }
-
-    function openFollowupExportModal() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      document.getElementById('followupExportTitle').innerText = `تصدير بيانات: ${currentClass} - ${currentActiveUnit}`;
-      document.getElementById('followupExportModal').style.display = 'flex';
-    }
-
-    function closeFollowupExportModal() {
-      document.getElementById('followupExportModal').style.display = 'none';
-    }
-
-    async function exportFollowupPDF() {
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
-      await generatePeriodOrUnitPDF(currentActiveUnit, `كشف_متابعة_${currentClass}_${currentActiveUnit}.pdf`, `كشف المتابعة الشامل - ${currentActiveUnit}`);
-    }
-
-    function exportFollowupCSV() {
+    function openPeriodSummaryModal() {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
 
-      const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-      const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
-      const lessons = unitObj.lessons;
-      const clsKey = `${currentClass}_${currentActiveUnit}`;
-      const fData = followupData[clsKey] || {};
-
-      let csv = "\uFEFFاسم الطالب,";
-      lessons.forEach(l => csv += `واجب_${l},`);
-      lessons.forEach(l => csv += `نشاط_${l},`);
-      csv += "المشاركة,اختبار_الوحدة,المشروع,معدل_واجبات,معدل_أنشطة,مجموع_الاختبار,المجموع_الكلي\n";
-
-      classStudents.forEach(student => {
-        const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
-        csv += `${student},`;
-        lessons.forEach(l => csv += `${stData.hw[l] !== undefined ? stData.hw[l] : ''},`);
-        lessons.forEach(l => csv += `${stData.act[l] !== undefined ? stData.act[l] : ''},`);
-
-        let partScore = calculateStudentParticipationScore(currentClass, student);
-        csv += `${partScore.toFixed(2)},${stData.test1 || ''},${stData.test2 || ''},`;
-
-        let hwSum = 0, hwC = 0, actSum = 0, actC = 0;
-        lessons.forEach(l => { let v = parseFloat(stData.hw[l]); if(!isNaN(v)){hwSum+=v;hwC++;} });
-        lessons.forEach(l => { let v = parseFloat(stData.act[l]); if(!isNaN(v)){actSum+=v;actC++;} });
-        let hwAvg = hwC > 0 ? (hwSum/hwC).toFixed(2) : 0;
-        let actAvg = actC > 0 ? (actSum/actC).toFixed(2) : 0;
-        let t1 = parseFloat(stData.test1) || 0;
-        let t2 = parseFloat(stData.test2) || 0;
-        let testTotal = t1 + t2;
-        let totalSum = (parseFloat(hwAvg) + parseFloat(actAvg) + partScore + testTotal).toFixed(2);
-
-        csv += `${hwAvg},${actAvg},${testTotal},${totalSum}\n`;
-      });
-
-      downloadFile(csv, `كشف_متابعة_${currentClass}_${currentActiveUnit}.csv`, 'text/csv;charset=utf-8;');
-    }
-
-    function downloadFile(content, filename, contentType) {
-      const blob = new Blob([content], { type: contentType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
-    // التنقل بين الشاشات
-    function switchToFollowupScreen() {
-      document.getElementById('absenceScreen').classList.remove('active-screen');
-      document.getElementById('followupScreen').classList.add('active-screen');
-      initClassSelects();
-      renderUnitsDropdown();
-      renderFollowupTable(currentActiveUnit);
-    }
-
-    function switchToAbsenceScreen() {
-      document.getElementById('followupScreen').classList.remove('active-screen');
-      document.getElementById('absenceScreen').classList.add('active-screen');
-      renderStudents();
-    }
-
-    function renderUnitsDropdown() {
-      const select = document.getElementById('unitDropdownSelect');
-      if (!select) return;
-      const currentVal = select.value;
-      select.innerHTML = '';
-      Object.keys(unitsData).forEach(uName => {
-        select.innerHTML += `<option value="${uName}">${uName}</option>`;
-      });
-      if (unitsData[currentVal]) select.value = currentVal;
-      else if (Object.keys(unitsData).length > 0) select.value = Object.keys(unitsData)[0];
-    }
-
-    function onFollowupClassChange(val) {
-      renderFollowupTable(currentActiveUnit);
-    }
-
-    function onUnitDropdownChange(val) {
-      currentActiveUnit = val;
-      renderFollowupTable(val);
-    }
-
-    function renderFollowupTable(unitName) {
-      currentActiveUnit = unitName;
-      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      if (!currentClass || !appData[currentClass]) return;
-
-      const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-      const unitObj = unitsData[unitName] || { lessons: ["درس 1"] };
-      const lessons = unitObj.lessons;
-      const clsKey = `${currentClass}_${unitName}`;
-      if (!followupData[clsKey]) followupData[clsKey] = {};
-
-      const thead = document.getElementById('followupTableHead');
-      const tbody = document.getElementById('followupTableBody');
-
-      let headHtml = `
-        <tr>
-          <th rowspan="2">#</th>
-          <th rowspan="2" style="text-align:right;">اسم الطالب</th>
-          <th colspan="${lessons.length}" class="th-part">الواجبات</th>
-          <th colspan="${lessons.length}" class="th-test">الأنشطة</th>
-          <th rowspan="2" class="th-part">المشاركة</th>
-          <th colspan="2" class="th-test">الاختبارات والمشاريع</th>
-          <th rowspan="2" class="th-weighted">المجموع</th>
-        </tr>
-        <tr>
-      `;
-      lessons.forEach(l => headHtml += `<th class="th-part">${l}</th>`);
-      lessons.forEach(l => headHtml += `<th class="th-test">${l}</th>`);
-      headHtml += `<th class="th-test">اختبار الوحدة</th><th class="th-test">المشروع</th></tr>`;
-      thead.innerHTML = headHtml;
-
-      let bodyHtml = '';
-      classStudents.forEach((student, idx) => {
-        if (!followupData[clsKey][student]) {
-          followupData[clsKey][student] = { hw: {}, act: {}, test1: '', test2: '' };
-        }
-        const stData = followupData[clsKey][student];
-
-        bodyHtml += `
-          <tr>
-            <td style="font-weight:bold; color:var(--text-secondary);">${idx + 1}</td>
-            <td class="student-name-td" style="font-size:14px; font-weight:900;">${student}</td>
-        `;
-
-        lessons.forEach(l => {
-          let val = stData.hw[l] !== undefined ? stData.hw[l] : '';
-          bodyHtml += `<td><input type="number" step="0.5" min="0" max="10" value="${val}" style="width:50px; text-align:center;" onchange="updateFollowupVal('${currentClass}', '${unitName}', '${student}', 'hw', '${l}', this.value)"></td>`;
-        });
-
-        lessons.forEach(l => {
-          let val = stData.act[l] !== undefined ? stData.act[l] : '';
-          bodyHtml += `<td><input type="number" step="0.5" min="0" max="10" value="${val}" style="width:50px; text-align:center;" onchange="updateFollowupVal('${currentClass}', '${unitName}', '${student}', 'act', '${l}', this.value)"></td>`;
-        });
-
-        let partScore = calculateStudentParticipationScore(currentClass, student);
-        bodyHtml += `<td style="font-weight:bold; background:#ebdef0;">${partScore.toFixed(2)}</td>`;
-
-        bodyHtml += `<td><input type="number" step="0.5" min="0" max="20" value="${stData.test1}" style="width:60px; text-align:center;" onchange="updateFollowupVal('${currentClass}', '${unitName}', '${student}', 'test1', '', this.value)"></td>`;
-        bodyHtml += `<td><input type="number" step="0.5" min="0" max="20" value="${stData.test2}" style="width:60px; text-align:center;" onchange="updateFollowupVal('${currentClass}', '${unitName}', '${student}', 'test2', '', this.value)"></td>`;
-
-        let hwSum = 0, hwC = 0, actSum = 0, actC = 0;
-        lessons.forEach(l => { let v = parseFloat(stData.hw[l]); if(!isNaN(v)){hwSum+=v;hwC++;} });
-        lessons.forEach(l => { let v = parseFloat(stData.act[l]); if(!isNaN(v)){actSum+=v;actC++;} });
-        let hwAvg = hwC > 0 ? (hwSum/hwC) : 0;
-        let actAvg = actC > 0 ? (actSum/actC) : 0;
-        let t1 = parseFloat(stData.test1) || 0;
-        let t2 = parseFloat(stData.test2) || 0;
-        let totalSum = (hwAvg + actAvg + partScore + t1 + t2).toFixed(2);
-
-        bodyHtml += `<td class="th-weighted"><span class="badge-num" style="background:#d5f5e3; color:#1e8449; font-size:12px;">${totalSum}</span></td>`;
-        bodyHtml += `</tr>`;
-      });
-
-      tbody.innerHTML = bodyHtml;
-    }
-
-    function updateFollowupVal(cls, unit, student, type, subType, val) {
-      const clsKey = `${cls}_${unit}`;
-      if (!followupData[clsKey]) followupData[clsKey] = {};
-      if (!followupData[clsKey][student]) followupData[clsKey][student] = { hw: {}, act: {}, test1: '', test2: '' };
-
-      if (type === 'hw' || type === 'act') {
-        followupData[clsKey][student][type][subType] = val;
-      } else {
-        followupData[clsKey][student][type] = val;
+      if (periodSelectedUnits.length === 0) {
+        periodSelectedUnits = Object.keys(unitsData);
       }
-      saveData();
-      renderFollowupTable(unit);
+
+      renderPeriodUnitsToggleBar();
+      renderPeriodSummaryTable();
+      document.getElementById('periodSummaryModal').style.display = 'flex';
+    }
+
+    function closePeriodSummaryModal() {
+      document.getElementById('periodSummaryModal').style.display = 'none';
+    }
+
+    function renderPeriodUnitsToggleBar() {
+      const bar = document.getElementById('periodUnitsToggleBar');
+      bar.innerHTML = '';
+
+      Object.keys(unitsData).forEach(uName => {
+        const isSelected = periodSelectedUnits.includes(uName);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.style.cssText = `
+          padding: 5px 10px; border-radius: 8px; border: 1.5px solid ${isSelected ? 'var(--accent)' : '#D1D1D6'};
+          background: ${isSelected ? '#EBF3FF' : '#F9F9FB'}; color: ${isSelected ? 'var(--accent)' : 'var(--text-secondary)'};
+          font-size: 11px; font-weight: 800; cursor: pointer; user-select: none;
+        `;
+        btn.innerText = uName;
+        btn.onclick = () => {
+          if (isSelected) {
+            if (periodSelectedUnits.length <= 1) {
+              alert("يجب اختيار وحدة واحدة على الأقل!");
+              return;
+            }
+            periodSelectedUnits = periodSelectedUnits.filter(u => u !== uName);
+          } else {
+            periodSelectedUnits.push(uName);
+          }
+          saveData();
+          renderPeriodUnitsToggleBar();
+          renderPeriodSummaryTable();
+        };
+        bar.appendChild(btn);
+      });
+    }
+
+    function renderPeriodSummaryTable() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      const thead = document.getElementById('periodSummaryTableHead');
+      const tbody = document.getElementById('periodSummaryTableBody');
+
+      thead.innerHTML = `
+        <tr>
+          <th>#</th>
+          <th style="text-align: right;">اسم الطالب</th>
+          <th>الواجبات (موزونة)</th>
+          <th>الأنشطة (موزونة)</th>
+          <th>المشاركة</th>
+          <th>الاختبار/المشروع</th>
+          <th style="background-color: #d5f5e3; color: #1e8449;">المجموع الكلي</th>
+        </tr>
+      `;
+      tbody.innerHTML = '';
+
+      const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      classStudents.forEach((student, idx) => {
+        let weighted = calculatePeriodWeightedTotals(currentClass, student);
+        tbody.innerHTML += `
+          <tr>
+            <td style="color:var(--text-secondary); font-weight:bold;">${idx + 1}</td>
+            <td class="student-name-td" style="font-weight: 900; font-size: 14px;">${student}</td>
+            <td><b>${weighted.hwAvg}</b></td>
+            <td><b>${weighted.actAvg}</b></td>
+            <td><b style="color:#512E5F;">${weighted.partScore}</b></td>
+            <td><b>${weighted.testTotal}</b></td>
+            <td><span class="badge-num" style="background-color: #d5f5e3; color: #1e8449; font-size:12px;">${weighted.totalSum}</span></td>
+          </tr>
+        `;
+      });
     }
 
     function openUnitsManageModal() {
       initUnitsModalSelect();
-      document.getElementById('unitsManageModal').style.display = 'flex';
       loadUnitDetailsToModal();
+      document.getElementById('unitsManageModal').style.display = 'flex';
     }
 
     function closeUnitsManageModal() {
@@ -2465,36 +2504,33 @@
     }
 
     function initUnitsModalSelect() {
-      const sel = document.getElementById('modalUnitSelect');
-      if (!sel) return;
-      const current = sel.value;
-      sel.innerHTML = '';
-      Object.keys(unitsData).forEach(u => {
-        sel.innerHTML += `<option value="${u}">${u}</option>`;
+      const select = document.getElementById('modalUnitSelect');
+      const selected = select.value;
+      select.innerHTML = '';
+      Object.keys(unitsData).forEach(uName => {
+        select.innerHTML += `<option value="${uName}">${uName}</option>`;
       });
-      if (unitsData[current]) sel.value = current;
+      if (unitsData[selected]) select.value = selected;
     }
 
     function loadUnitDetailsToModal() {
-      const uName = document.getElementById('modalUnitSelect').value;
-      if (!uName || !unitsData[uName]) return;
-      const unitObj = unitsData[uName];
-      const lessons = unitObj.lessons || [];
+      const selectedUnit = document.getElementById('modalUnitSelect').value;
+      if (!selectedUnit || !unitsData[selectedUnit]) return;
+
+      const lessons = unitsData[selectedUnit].lessons || ["درس 1"];
       document.getElementById('unitLessonsCountInput').value = lessons.length;
-      generateLessonNameInputs();
-      lessons.forEach((lName, idx) => {
-        const inp = document.getElementById(`lesson_name_input_${idx}`);
-        if (inp) inp.value = lName;
-      });
+      generateLessonNameInputs(lessons);
     }
 
-    function generateLessonNameInputs() {
+    function generateLessonNameInputs(existingLessons = null) {
       const count = parseInt(document.getElementById('unitLessonsCountInput').value) || 3;
       const container = document.getElementById('lessonNamesInputsContainer');
       container.innerHTML = '';
+
       for (let i = 0; i < count; i++) {
+        let defaultVal = existingLessons && existingLessons[i] ? existingLessons[i] : `درس ${i + 1}`;
         container.innerHTML += `
-          <input type="text" id="lesson_name_input_${i}" placeholder="اسم الدرس ${i + 1}..." style="width: 100%;">
+          <input type="text" class="lesson-name-input" value="${defaultVal}" placeholder="اسم الدرس ${i + 1}..." style="width: 100%; padding: 6px 10px; font-size: 13px;">
         `;
       }
     }
@@ -2506,121 +2542,206 @@
     }
 
     function saveNewUnit() {
-      const inp = document.getElementById('newUnitNameInput');
-      const uName = inp.value.trim();
-      if (!uName) return;
-      if (unitsData[uName]) {
+      const input = document.getElementById('newUnitNameInput');
+      const newName = input.value.trim();
+      if (!newName) return;
+
+      if (unitsData[newName]) {
         alert("هذه الوحدة موجودة بالفعل!");
         return;
       }
-      unitsData[uName] = { lessons: ["درس 1", "درس 2", "درس 3"] };
+
+      unitsData[newName] = { lessons: ["درس 1", "درس 2", "درس 3"] };
       saveData();
       initUnitsModalSelect();
-      document.getElementById('modalUnitSelect').value = uName;
-      inp.value = '';
+      document.getElementById('modalUnitSelect').value = newName;
+      currentActiveUnit = newName;
+      
+      input.value = '';
       document.getElementById('inlineAddUnitBox').style.display = 'none';
       loadUnitDetailsToModal();
       renderUnitsDropdown();
+      renderFollowupTable(currentActiveUnit);
     }
 
     function saveUnitConfig() {
-      const uName = document.getElementById('modalUnitSelect').value;
-      if (!uName || !unitsData[uName]) return;
-      const count = parseInt(document.getElementById('unitLessonsCountInput').value) || 3;
+      const selectedUnit = document.getElementById('modalUnitSelect').value;
+      if (!selectedUnit) return;
+
+      const inputs = document.querySelectorAll('.lesson-name-input');
       let lessons = [];
-      for (let i = 0; i < count; i++) {
-        const inp = document.getElementById(`lesson_name_input_${i}`);
-        lessons.push(inp ? (inp.value.trim() || `درس ${i+1}`) : `درس ${i+1}`);
-      }
-      unitsData[uName].lessons = lessons;
+      inputs.forEach(inp => {
+        let val = inp.value.trim();
+        if (val) lessons.push(val);
+      });
+
+      if (lessons.length === 0) lessons = ["درس 1"];
+      unitsData[selectedUnit].lessons = lessons;
       saveData();
-      closeUnitsManageModal();
       renderUnitsDropdown();
       renderFollowupTable(currentActiveUnit);
+      closeUnitsManageModal();
       alert("✅ تم حفظ تعديلات الوحدة بنجاح!");
     }
 
-    function openPeriodSummaryModal() {
-      renderPeriodSummaryModalContent();
-      document.getElementById('periodSummaryModal').style.display = 'flex';
-    }
-
-    function closePeriodSummaryModal() {
-      document.getElementById('periodSummaryModal').style.display = 'none';
-    }
-
-    function renderPeriodSummaryModalContent() {
-      const bar = document.getElementById('periodUnitsToggleBar');
-      bar.innerHTML = '';
-      const allUnits = Object.keys(unitsData);
-      if (periodSelectedUnits.length === 0) periodSelectedUnits = [...allUnits];
-
-      allUnits.forEach(uName => {
-        const isChecked = periodSelectedUnits.includes(uName);
-        bar.innerHTML += `
-          <label style="background: ${isChecked ? '#e8f8f5' : '#f2f2f7'}; border: 1.5px solid ${isChecked ? '#27ae60' : '#ddd'}; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="togglePeriodUnitSelection('${uName}')" style="accent-color: #27ae60;">
-            ${uName}
-          </label>
-        `;
-      });
-
+    function openFollowupExportModal() {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
-      const classStudents = appData[currentClass] ? [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar')) : [];
+      document.getElementById('followupExportTitle').innerText = `خيارات التصدير لفصل ${currentClass} (${currentActiveUnit})`;
+      document.getElementById('followupExportModal').style.display = 'flex';
+    }
 
-      const thead = document.getElementById('periodSummaryTableHead');
-      const tbody = document.getElementById('periodSummaryTableBody');
+    function closeFollowupExportModal() {
+      document.getElementById('followupExportModal').style.display = 'none';
+    }
 
-      thead.innerHTML = `
-        <tr>
-          <th>#</th>
-          <th style="text-align:right;">اسم الطالب</th>
-          <th>الواجبات (موزونة)</th>
-          <th>الأنشطة (موزونة)</th>
-          <th>المشاركة</th>
-          <th>الاختبار/المشروع</th>
-          <th style="background-color: #1e8449; color:white;">المجموع الكلي</th>
-        </tr>
-      `;
+    async function exportFollowupPDF() {
+      closeFollowupExportModal();
+      await exportPeriodPDF();
+    }
 
-      let tbodyHtml = '';
+    function exportFollowupCSV() {
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
+
+      const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
+      const lessons = unitObj.lessons;
+      const clsKey = `${currentClass}_${currentActiveUnit}`;
+      const fData = followupData[clsKey] || {};
+      const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+
+      let csv = "\uFEFFم,اسم الطالب,";
+      lessons.forEach(l => csv += `واجب_${l},`);
+      lessons.forEach(l => csv += `نشاط_${l},`);
+      csv += "المشاركة,اختبار الوحدة,المشروع,المجموع الكلي\n";
+
       classStudents.forEach((student, idx) => {
-        let weighted = calculatePeriodWeightedTotals(currentClass, student);
-        tbodyHtml += `
-          <tr>
-            <td>${idx + 1}</td>
-            <td class="student-name-td" style="font-weight:900; font-size:14px;">${student}</td>
-            <td style="font-weight:bold;">${weighted.hwAvg}</td>
-            <td style="font-weight:bold;">${weighted.actAvg}</td>
-            <td style="font-weight:bold; background:#ebdef0;">${weighted.partScore}</td>
-            <td style="font-weight:bold;">${weighted.testTotal}</td>
-            <td style="font-weight:bold; color:#1e8449; background:#d5f5e3;">${weighted.totalSum}</td>
-          </tr>
-        `;
-      });
-      tbody.innerHTML = tbodyHtml;
-    }
+        const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
+        csv += `${idx + 1},${student},`;
 
-    function togglePeriodUnitSelection(uName) {
-      const idx = periodSelectedUnits.indexOf(uName);
-      if (idx > -1) {
-        if (periodSelectedUnits.length <= 1) {
-          alert("يجب اختيار وحدة واحدة على الأقل!");
-          renderPeriodSummaryModalContent();
-          return;
+        lessons.forEach(l => {
+          let val = (stData.hw && stData.hw[l] !== undefined) ? stData.hw[l] : '';
+          csv += `${val},`;
+        });
+        lessons.forEach(l => {
+          let val = (stData.act && stData.act[l] !== undefined) ? stData.act[l] : '';
+          csv += `${val},`;
+        });
+
+        let partScore = calculateStudentParticipationScore(currentClass, student);
+        let t1 = stData.test1 !== undefined ? stData.test1 : '';
+        let t2 = stData.test2 !== undefined ? stData.test2 : '';
+
+        let hwSum = 0, hwCount = 0;
+        lessons.forEach(l => { let v = parseFloat(stData.hw[l]); if (!isNaN(v)) { hwSum += v; hwCount++; } });
+        let hwAvg = hwCount > 0 ? (hwSum / hwCount) : 0;
+
+        let actSum = 0, actCount = 0;
+        lessons.forEach(l => { let v = parseFloat(stData.act[l]); if (!isNaN(v)) { actSum += v; actCount++; } });
+        let actAvg = actCount > 0 ? (actSum / actCount) : 0;
+
+        let test1Val = parseFloat(stData.test1) || 0;
+        let test2Val = parseFloat(stData.test2) || 0;
+        let testTotal = (stData.test1 !== '' || stData.test2 !== '') ? (test1Val + test2Val) : 0;
+
+        let totalSumVal = '';
+        if (hwCount > 0 || actCount > 0 || stData.test1 !== '' || stData.test2 !== '') {
+          totalSumVal = (hwAvg + actAvg + partScore + testTotal).toFixed(2);
         }
-        periodSelectedUnits.splice(idx, 1);
-      } else {
-        periodSelectedUnits.push(uName);
-      }
-      saveData();
-      renderPeriodSummaryModalContent();
+
+        csv += `${partScore.toFixed(2)},${t1},${t2},${totalSumVal}\n`;
+      });
+
+      downloadFile(csv, `كشف_متابعة_${currentClass}_${currentActiveUnit}.csv`, 'text/csv;charset=utf-8;');
+      closeFollowupExportModal();
     }
 
-    // التهيئة الأولية عند تحميل الصفحة
+    function exportClassRecordsCSV() {
+      const currentClass = document.getElementById('classSelect').value;
+      if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
+
+      let csv = "\uFEFFالتاريخ,اسم الطالب,الحالة,المخالفات\n";
+      let allDates = Object.keys(records).sort();
+
+      allDates.forEach(date => {
+        if (records[date] && records[date][currentClass]) {
+          const dayData = records[date][currentClass];
+          for (let st in dayData) {
+            const rec = getStudentDayRecord(date, currentClass, st);
+            if (rec.status || (rec.violations && rec.violations.length > 0)) {
+              csv += `${date},${st},${rec.status || ''},"${rec.violations.join(' - ')}"\n`;
+            }
+          }
+        }
+      });
+
+      downloadFile(csv, `سجل_السلوك_والغياب_${currentClass}.csv`, 'text/csv;charset=utf-8;');
+    }
+
+    function exportClassSummaryCSV() {
+      exportComprehensiveCSV();
+    }
+
+    function exportFullBackupJSON() {
+      const backupObj = {
+        appData,
+        records,
+        unitsData,
+        followupData,
+        penaltiesData,
+        periodSelectedUnits
+      };
+      const jsonStr = JSON.stringify(backupObj, null, 2);
+      downloadFile(jsonStr, `نسخة_احتياطية_نظام_المتابعة_${new Date().toISOString().slice(0,10)}.json`, 'application/json;charset=utf-8;');
+    }
+
+    function triggerFileInput() {
+      document.getElementById('jsonFileInput').click();
+    }
+
+    function importFullBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.appData) appData = data.appData;
+          if (data.records) records = data.records;
+          if (data.unitsData) unitsData = data.unitsData;
+          if (data.followupData) followupData = data.followupData;
+          if (data.penaltiesData) penaltiesData = data.penaltiesData;
+          if (data.periodSelectedUnits) periodSelectedUnits = data.periodSelectedUnits;
+
+          saveData();
+          initClassSelects();
+          renderUnitsDropdown();
+          renderStudents();
+          alert("✅ تم استعادة النسخة الاحتياطية بنجاح!");
+          closeDataMenuModal();
+        } catch (err) {
+          alert("❌ ملف النسخة الاحتياطية غير صالح أو تالف.");
+          console.error(err);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function downloadFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+
+    // تهيئة التطبيق عند التحميل
     initClassSelects();
     renderStudents();
-    renderUnitsDropdown();
   </script>
 </body>
 </html>
