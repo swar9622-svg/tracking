@@ -756,10 +756,47 @@
         <button class="btn-menu-option" style="background-color: var(--accent);" onclick="triggerFileInput()">📥 استعادة من ملف نسخة احتياطية (Restore)</button>
         <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="importFullBackupJSON(event)">
       </div>
+      
+      <!-- تم إزالة قسم تقارير الفصل الحالي واستبداله بإعدادات الخط -->
       <div class="data-box-section">
-        <div class="data-box-title" id="csvSectionTitle">📊 تقارير الفصل الحالي (CSV)</div>
-        <button class="btn-menu-option" style="background-color: #5856D6;" onclick="exportClassRecordsCSV()">📋 تصدير سجل السلوك والغياب</button>
-        <button class="btn-menu-option" style="background-color: #FF9500;" onclick="exportClassSummaryCSV()">📈 تصدير التقرير الإحصائي</button>
+        <div class="data-box-title">⚙️ إعدادات العرض والخطوط</div>
+        <button class="btn-menu-option" style="background-color: #8E44AD;" onclick="openFontSettingsModal()">⚙️ إعدادات الخط (جميع الخطوط)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= نافذة إعدادات الخط (جديد) ================= -->
+  <div class="modal" id="fontSettingsModal" style="z-index: 115;">
+    <div class="modal-content" style="max-width: 400px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div class="modal-title" style="margin:0;">⚙️ إعدادات الخط</div>
+        <button class="btn-close-circle" onclick="closeFontSettingsModal()">✕</button>
+      </div>
+      <div style="margin-bottom: 12px;">
+        <span class="field-label">نوع الخط:</span>
+        <select id="fontFamilySelect" class="select-class-full"></select>
+      </div>
+      <div style="margin-bottom: 12px;">
+        <span class="field-label">حجم الخط:</span>
+        <select id="fontSizeSelect" class="select-class-full">
+          <option value="12px">صغير (12px)</option>
+          <option value="14px">متوسط (14px)</option>
+          <option value="16px">كبير (16px)</option>
+          <option value="18px">كبير جداً (18px)</option>
+        </select>
+      </div>
+      <div style="margin-bottom: 12px;">
+        <span class="field-label">سماكة الخط:</span>
+        <select id="fontWeightSelect" class="select-class-full">
+          <option value="400">عادي</option>
+          <option value="600">سميك</option>
+          <option value="700">سميك جداً</option>
+          <option value="800">أسود (ثقيل)</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeFontSettingsModal()">إلغاء</button>
+        <button class="btn-modal-save" onclick="saveFontSettings()">حفظ الإعدادات</button>
       </div>
     </div>
   </div>
@@ -869,6 +906,143 @@
     let deleteTargetType = ''; 
 
     document.getElementById('dateSelect').valueAsDate = new Date();
+
+    // ================== إعدادات الخطوط الديناميكية ==================
+    // تمت إضافة خط "الافتراضي (خط الآيفون)" كأول خيار، بالإضافة إلى جميع الخطوط الممكنة
+    const AVAILABLE_FONTS = [
+      { name: "الافتراضي (خط الآيفون)", value: "system" },
+      { name: "Almarai (المراي)", value: "Almarai" },
+      { name: "Cairo (القاهرة)", value: "Cairo" },
+      { name: "Tajawal (تاجوال)", value: "Tajawal" },
+      { name: "Amiri (أميري)", value: "Amiri" },
+      { name: "Noto Kufi Arabic", value: "Noto+Kufi+Arabic" },
+      { name: "Noto Naskh Arabic", value: "Noto+Naskh+Arabic" },
+      { name: "Mada (مادة)", value: "Mada" },
+      { name: "Changa (تشانغا)", value: "Changa" },
+      { name: "Reem Kufi", value: "Reem+Kufi" },
+      { name: "Rakkas", value: "Rakkas" },
+      { name: "Lalezar", value: "Lalezar" },
+      { name: "Scheherazade New", value: "Scheherazade+New" },
+      { name: "El Messiri", value: "El+Messiri" },
+      { name: "Markazi Text", value: "Markazi+Text" },
+      { name: "IBM Plex Sans Arabic", value: "IBM+Plex+Sans+Arabic" },
+      { name: "Baloo Bhaijaan 2", value: "Baloo+Bhaijaan+2" },
+      { name: "Harmattan", value: "Harmattan" },
+      { name: "Lateef", value: "Lateef" },
+      { name: "Mirza", value: "Mirza" },
+      { name: "Kufam", value: "Kufam" },
+      { name: "Titillium Web", value: "Titillium+Web" },
+      { name: "Alkalami", value: "Alkalami" },
+      { name: "Aref Ruqaa", value: "Aref+Ruqaa" },
+      { name: "Mukta", value: "Mukta" },
+      { name: "Lemonada", value: "Lemonada" },
+      { name: "Katibeh", value: "Katibeh" },
+      { name: "Karima", value: "Karima" }
+    ];
+
+    // الإعدادات الافتراضية (ستكون "system" لتعمل كخط الآيفون الأصلي فوراً)
+    let fontSettings = JSON.parse(localStorage.getItem('attendance_font_settings')) || {
+      family: 'system',
+      size: '14px',
+      weight: '700'
+    };
+
+    // تطبيق إعدادات الخط على الواجهة
+    function applyFontSettings() {
+      const displayFamily = fontSettings.family.replace(/\+/g, ' ');
+      
+      // إدارة استيراد الخط من Google Fonts
+      let fontLink = document.getElementById('dynamic-font-import');
+      if (fontSettings.family === 'system') {
+        // إذا كان الخيار "الافتراضي"، نقوم بإزالة أي استيراد خارجي
+        if (fontLink) fontLink.remove();
+      } else {
+        // إذا كان خطاً خارجياً، نقوم بإنشاء أو تحديث رابط الاستيراد
+        if (!fontLink) {
+          fontLink = document.createElement('link');
+          fontLink.id = 'dynamic-font-import';
+          fontLink.rel = 'stylesheet';
+          document.head.appendChild(fontLink);
+        }
+        fontLink.href = `https://fonts.googleapis.com/css2?family=${fontSettings.family}:wght@400;600;700;800&display=swap`;
+      }
+
+      // حقن كود CSS
+      const systemFontStack = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+      let css = '';
+      if (fontSettings.family === 'system') {
+        css = `
+          * {
+            font-family: ${systemFontStack} !important;
+            font-size: ${fontSettings.size} !important;
+            font-weight: ${fontSettings.weight} !important;
+          }
+          input, select, button, textarea {
+            font-family: inherit !important;
+            font-size: inherit !important;
+            font-weight: inherit !important;
+          }
+        `;
+      } else {
+        css = `
+          * {
+            font-family: '${displayFamily}', 'Segoe UI', Tahoma, sans-serif !important;
+            font-size: ${fontSettings.size} !important;
+            font-weight: ${fontSettings.weight} !important;
+          }
+          input, select, button, textarea {
+            font-family: inherit !important;
+            font-size: inherit !important;
+            font-weight: inherit !important;
+          }
+        `;
+      }
+
+      let styleTag = document.getElementById('dynamic-font-style');
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'dynamic-font-style';
+        document.head.appendChild(styleTag);
+      }
+      styleTag.innerHTML = css;
+
+      // تخزين المتغير لاستخدامه داخل دالة تصدير PDF
+      window.CURRENT_FONT_FAMILY = (fontSettings.family === 'system') ? systemFontStack : `'${displayFamily}', sans-serif`;
+    }
+
+    // فتح نافذة إعدادات الخط
+    function openFontSettingsModal() {
+      initFontSelects();
+      document.getElementById('fontSettingsModal').style.display = 'flex';
+    }
+
+    // إغلاق نافذة إعدادات الخط
+    function closeFontSettingsModal() {
+      document.getElementById('fontSettingsModal').style.display = 'none';
+    }
+
+    // تعبئة قائمة الخطوط في النافذة المنبثقة
+    function initFontSelects() {
+      const select = document.getElementById('fontFamilySelect');
+      select.innerHTML = '';
+      AVAILABLE_FONTS.forEach(f => {
+        select.innerHTML += `<option value="${f.value}" ${fontSettings.family === f.value ? 'selected' : ''}>${f.name}</option>`;
+      });
+      document.getElementById('fontSizeSelect').value = fontSettings.size;
+      document.getElementById('fontWeightSelect').value = fontSettings.weight;
+    }
+
+    // حفظ إعدادات الخط
+    function saveFontSettings() {
+      fontSettings.family = document.getElementById('fontFamilySelect').value;
+      fontSettings.size = document.getElementById('fontSizeSelect').value;
+      fontSettings.weight = document.getElementById('fontWeightSelect').value;
+      localStorage.setItem('attendance_font_settings', JSON.stringify(fontSettings));
+      applyFontSettings();
+      closeFontSettingsModal();
+      alert("✅ تم حفظ إعدادات الخط بنجاح!");
+    }
+    // ================================================================
 
     function saveData() {
       localStorage.setItem('attendance_app_data', JSON.stringify(appData));
@@ -2147,24 +2321,51 @@
       }
     }
 
+    // تعديل دالة بناء عنصر التقرير لتدعم إعدادات الخط المختارة من قبل المستخدم (بما فيها خط الآيفون الافتراضي)
     function buildPdfElement(htmlContent, title, subtitle, footer = '') {
+      const rawFamily = fontSettings.family;
+      const displayFamily = rawFamily.replace(/\+/g, ' ');
+      const size = fontSettings.size;
+      const weight = fontSettings.weight;
+      const systemFontStack = "-apple-system, BlinkMacSystemFont, Roboto, sans-serif";
+
       const div = document.createElement('div');
       div.style.padding = '6px';
       div.style.direction = 'rtl';
-      div.style.fontFamily = '-apple-system, BlinkMacSystemFont, Roboto, sans-serif';
       div.style.backgroundColor = '#ffffff';
       div.style.width = '100%';
       div.style.maxWidth = '100%';
       div.style.overflow = 'hidden';
-      div.innerHTML = `
-        <div style="text-align: center; border-bottom: 2px solid #007AFF; padding-bottom: 6px; margin-bottom: 8px;">
-          <h1 style="margin: 0; font-size: 16px; color: #007AFF; font-weight: 900;">${title}</h1>
-        </div>
-        <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
-          ${subtitle}
-        </div>
-        ${htmlContent}
-      `;
+      
+      let innerHtml = '';
+      if (rawFamily === 'system') {
+        div.style.fontFamily = systemFontStack;
+        innerHtml = `
+          <div style="text-align: center; border-bottom: 2px solid #007AFF; padding-bottom: 6px; margin-bottom: 8px;">
+            <h1 style="margin: 0; font-size: 16px; color: #007AFF; font-weight: 900; font-family: inherit;">${title}</h1>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C; font-family: inherit;">
+            ${subtitle}
+          </div>
+          <div style="font-family: inherit; font-size: inherit;">${htmlContent}</div>
+        `;
+      } else {
+        div.style.fontFamily = `'${displayFamily}', sans-serif`;
+        innerHtml = `
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=${rawFamily}:wght@400;600;700;800&display=swap');
+            * { font-family: '${displayFamily}', sans-serif !important; font-size: ${size}; font-weight: ${weight}; }
+          </style>
+          <div style="text-align: center; border-bottom: 2px solid #007AFF; padding-bottom: 6px; margin-bottom: 8px;">
+            <h1 style="margin: 0; font-size: 16px; color: #007AFF; font-weight: 900;">${title}</h1>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
+            ${subtitle}
+          </div>
+          ${htmlContent}
+        `;
+      }
+      div.innerHTML = innerHtml;
       return div;
     }
 
@@ -2793,6 +2994,8 @@
     initClassSelects();
     renderStudents();
     renderUnitsDropdown();
+    // تطبيق إعدادات الخط المحفوظة عند تشغيل التطبيق
+    applyFontSettings();
   </script>
 </body>
 </html>
