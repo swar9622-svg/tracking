@@ -10,7 +10,7 @@
   <!-- مكتبة تحويل HTML إلى PDF -->
   <script src="./html2pdf.bundle.min.js"></script>
 
-  <title>نظام متابعة الطلاب المدرسي 4.8</title>
+  <title>نظام متابعة الطلاب المدرسي 4.7</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -26,6 +26,11 @@
       --gray-btn-text: #636366;
     }
 
+    html {
+      /* سيتم التحكم بهذا الحجم ديناميكياً عبر السكربت. القيمة الافتراضية هي 1rem (16px) */
+      font-size: 16px;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -37,7 +42,7 @@
     body {
       background-color: var(--bg-color);
       color: var(--text-primary);
-      padding-bottom: 120px;
+      padding-bottom: 7.5rem; /* 120px */
     }
 
     .screen { display: none; }
@@ -45,19 +50,19 @@
 
     header {
       background-color: var(--card-bg);
-      padding: 14px 16px;
+      padding: 0.875rem 1rem; /* 14px 16px */
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .header-title-box {
       background-color: var(--accent);
       color: white;
-      font-size: 14px;
+      font-size: 0.875rem; /* 14px */
       font-weight: 800;
       text-align: center;
-      padding: 12px 16px;
-      border-radius: 12px;
-      margin-bottom: 12px;
+      padding: 0.75rem 1rem; /* 12px 16px */
+      border-radius: 0.75rem; /* 12px */
+      margin-bottom: 0.75rem; /* 12px */
       cursor: pointer;
       box-shadow: 0 2px 6px rgba(0,122,255,0.3);
       transition: opacity 0.15s ease;
@@ -68,16 +73,16 @@
 
     .controls-bar {
       display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 0.625rem; /* 10px */
+      margin-bottom: 0.75rem; /* 12px */
     }
 
     select, input[type="date"], input[type="text"], input[type="number"] {
-      padding: 8px 12px;
-      border-radius: 10px;
+      padding: 0.5rem 0.75rem; /* 8px 12px */
+      border-radius: 0.625rem; /* 10px */
       border: 1px solid #D1D1D6;
       background: #F9F9FB;
-      font-size: 14px;
+      font-size: 0.875rem; /* 14px */
       font-weight: 700;
       color: var(--text-primary);
       outline: none;
@@ -90,14 +95,14 @@
 
     .stats-container {
       display: flex;
-      gap: 6px;
+      gap: 0.375rem; /* 6px */
     }
 
     .stat-card {
       flex: 1;
       background: #F9F9FB;
-      border-radius: 10px;
-      padding: 8px 2px;
+      border-radius: 0.625rem; /* 10px */
+      padding: 0.5rem 0.125rem; /* 8px 2px */
       text-align: center;
       border: 1px solid #E5E5EA;
       cursor: default;
@@ -110,53 +115,53 @@
       background: #E5E5EA;
     }
 
-    .stat-number { font-size: 16px; font-weight: 800; }
+    .stat-number { font-size: 1rem; /* 16px */ font-weight: 800; }
     .stat-card.absent .stat-number { color: var(--red); }
     .stat-card.late .stat-number { color: var(--yellow); }
     .stat-card.violation .stat-number { color: var(--purple); }
-    .stat-card.student-report .stat-number { color: var(--accent); font-size: 13px; padding-top: 2px; }
-    .stat-label { font-size: 9.5px; color: var(--text-secondary); font-weight: 700; }
+    .stat-card.student-report .stat-number { color: var(--accent); font-size: 0.8125rem; /* 13px */ padding-top: 0.125rem; /* 2px */ }
+    .stat-label { font-size: 0.59375rem; /* 9.5px */ color: var(--text-secondary); font-weight: 700; }
 
     .student-list {
-      padding: 12px 14px;
+      padding: 0.75rem 0.875rem; /* 12px 14px */
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 0.5rem; /* 8px */
     }
 
     .student-card {
       background-color: var(--card-bg);
-      border-radius: 12px;
-      padding: 10px 12px;
+      border-radius: 0.75rem; /* 12px */
+      padding: 0.625rem 0.75rem; /* 10px 12px */
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 0.5rem; /* 8px */
       box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     }
 
     .student-name {
-      font-size: 14px;
+      font-size: 0.875rem; /* 14px */
       font-weight: 700;
       color: var(--text-primary);
       flex: 1;
       word-break: break-word;
     }
 
-    .attendance-buttons { display: flex; gap: 4px; flex-shrink: 0; }
+    .attendance-buttons { display: flex; gap: 0.25rem; /* 4px */ flex-shrink: 0; }
 
     .btn-status {
-      padding: 4px 6px;
-      border-radius: 8px;
+      padding: 0.25rem 0.375rem; /* 4px 6px */
+      border-radius: 0.5rem; /* 8px */
       border: none;
-      font-size: 11px;
+      font-size: 0.6875rem; /* 11px */
       font-weight: 700;
       cursor: pointer;
       background-color: var(--gray-btn);
       color: var(--gray-btn-text);
       transition: all 0.15s ease;
-      min-width: 36px;
-      height: 32px;
+      min-width: 2.25rem; /* 36px */
+      height: 2rem; /* 32px */
       user-select: none;
       -webkit-user-select: none;
     }
@@ -164,7 +169,7 @@
 
     .btn-status.active-absent { background-color: var(--red); color: #FFFFFF; }
     .btn-status.active-late { background-color: var(--yellow); color: #FFFFFF; }
-    .btn-status.active-violation { background-color: var(--purple); color: #FFFFFF; font-size: 11px; font-weight: 800; }
+    .btn-status.active-violation { background-color: var(--purple); color: #FFFFFF; font-size: 0.6875rem; font-weight: 800; }
     .btn-status.disabled-btn { opacity: 0.4; cursor: not-allowed; }
 
     .bottom-controls {
@@ -172,27 +177,27 @@
       bottom: 0; left: 0; right: 0;
       background-color: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      padding: 10px 14px 20px 14px;
+      padding: 0.625rem 0.875rem 1.25rem 0.875rem; /* 10px 14px 20px 14px */
       box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 0.5rem; /* 8px */
       z-index: 20;
     }
 
     .btn-action {
-      padding: 8px 6px;
-      border-radius: 10px;
+      padding: 0.5rem 0.375rem; /* 8px 6px */
+      border-radius: 0.625rem; /* 10px */
       border: none;
-      font-size: 12px;
+      font-size: 0.75rem; /* 12px */
       font-weight: 700;
       color: white;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      min-height: 42px;
+      gap: 0.25rem; /* 4px */
+      min-height: 2.625rem; /* 42px */
       user-select: none;
       -webkit-user-select: none;
     }
@@ -207,20 +212,20 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      margin: 6px 12px 10px 12px;
+      gap: 0.5rem; /* 8px */
+      margin: 0.375rem 0.75rem 0.625rem 0.75rem; /* 6px 12px 10px 12px */
       background: #eef2f3;
-      padding: 8px;
-      border-radius: 8px;
+      padding: 0.5rem; /* 8px */
+      border-radius: 0.5rem; /* 8px */
     }
 
     .unit-dropdown-select {
       flex: 1;
-      padding: 8px 12px;
-      border-radius: 6px;
+      padding: 0.5rem 0.75rem; /* 8px 12px */
+      border-radius: 0.375rem; /* 6px */
       border: 1px solid #bdc3c7;
       background-color: #ffffff;
-      font-size: 13px;
+      font-size: 0.8125rem; /* 13px */
       font-weight: bold;
       color: #2c3e50;
       outline: none;
@@ -230,12 +235,12 @@
       background-color: #8e44ad;
       color: white;
       border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
+      padding: 0.5rem 0.75rem; /* 8px 12px */
+      border-radius: 0.375rem; /* 6px */
       font-weight: bold;
       cursor: pointer;
       white-space: nowrap;
-      font-size: 12px;
+      font-size: 0.75rem; /* 12px */
       flex-shrink: 0;
       user-select: none;
       -webkit-user-select: none;
@@ -244,8 +249,8 @@
 
     .top-action-bar {
       display: flex;
-      gap: 8px;
-      margin: 10px 12px 6px 12px;
+      gap: 0.5rem; /* 8px */
+      margin: 0.625rem 0.75rem 0.375rem 0.75rem; /* 10px 12px 6px 12px */
     }
 
     .btn-period-main {
@@ -253,15 +258,15 @@
       background-color: #2c3e50;
       color: white;
       border: none;
-      padding: 9px;
-      border-radius: 8px;
-      font-size: 13px;
+      padding: 0.5625rem; /* 9px */
+      border-radius: 0.5rem; /* 8px */
+      font-size: 0.8125rem; /* 13px */
       font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 0.375rem; /* 6px */
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       transition: background 0.2s;
       user-select: none;
@@ -273,32 +278,32 @@
     }
 
     .period-export-container {
-      margin: 10px 15px;
+      margin: 0.625rem 0.9375rem; /* 10px 15px */
       text-align: center;
     }
     .btn-export-period {
       background-color: #e67e22;
       color: white;
       border: none;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 13px;
+      padding: 0.625rem 1rem; /* 10px 16px */
+      border-radius: 0.5rem; /* 8px */
+      font-size: 0.8125rem; /* 13px */
       font-weight: 900;
       cursor: pointer;
       width: 100%;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 6px;
+      margin-bottom: 0.375rem; /* 6px */
       user-select: none;
       -webkit-user-select: none;
     }
     .btn-export-period:active { opacity: 0.8; }
 
     .followup-table-container {
-      margin: 0 15px;
+      margin: 0 0.9375rem; /* 0 15px */
       background: white;
-      border-radius: 6px;
+      border-radius: 0.375rem; /* 6px */
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 10px;
+      padding: 0.625rem; /* 10px */
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
@@ -306,11 +311,11 @@
       width: 100%;
       border-collapse: collapse;
       text-align: center;
-      font-size: 13px;
+      font-size: 0.8125rem; /* 13px */
     }
     .followup-table th, .followup-table td {
       border: 1px solid #ddd;
-      padding: 8px 6px;
+      padding: 0.5rem 0.375rem; /* 8px 6px */
       white-space: nowrap;
     }
     .followup-table th {
@@ -326,28 +331,28 @@
       z-index: 100;
       align-items: center;
       justify-content: center;
-      padding: 12px;
+      padding: 0.75rem; /* 12px */
     }
 
     .modal-content {
       background: white;
-      border-radius: 24px;
-      padding: 14px 12px;
+      border-radius: 1.5rem; /* 24px */
+      padding: 0.875rem 0.75rem; /* 14px 12px */
       width: 92%;
-      max-width: 380px;
+      max-width: 23.75rem; /* 380px */
       max-height: 96vh;
       overflow-y: auto;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
 
-    .modal-title { font-size: 17px; font-weight: 900; text-align: center; margin-bottom: 12px; }
+    .modal-title { font-size: 1.0625rem; /* 17px */ font-weight: 900; text-align: center; margin-bottom: 0.75rem; /* 12px */ }
 
     .violations-list-container {
       display: flex;
       flex-direction: column;
-      gap: 5px; 
-      margin-top: 8px;
-      margin-bottom: 10px;
+      gap: 0.3125rem; /* 5px */ 
+      margin-top: 0.5rem; /* 8px */
+      margin-bottom: 0.625rem; /* 10px */
       width: 100%;
     }
 
@@ -355,13 +360,13 @@
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      gap: 10px;
-      padding: 7px 12px;
-      border-radius: 14px;
+      gap: 0.625rem; /* 10px */
+      padding: 0.4375rem 0.75rem; /* 7px 12px */
+      border-radius: 0.875rem; /* 14px */
       background: #F9F9FB;
       border: 1.5px solid #E5E5EA;
       cursor: pointer;
-      font-size: 13.5px;
+      font-size: 0.84375rem; /* 13.5px */
       font-weight: 800;
       color: var(--text-primary);
       width: 100%;
@@ -377,10 +382,10 @@
     }
 
     .violation-checkbox {
-      width: 19px;
-      height: 19px;
+      width: 1.1875rem; /* 19px */
+      height: 1.1875rem; /* 19px */
       accent-color: var(--purple);
-      border-radius: 4px;
+      border-radius: 0.25rem; /* 4px */
       cursor: pointer;
       flex-shrink: 0;
     }
@@ -390,10 +395,10 @@
       background-color: var(--purple);
       color: white;
       border: none;
-      padding: 11px;
-      border-radius: 14px;
+      padding: 0.6875rem; /* 11px */
+      border-radius: 0.875rem; /* 14px */
       font-weight: 900;
-      font-size: 15px;
+      font-size: 0.9375rem; /* 15px */
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
@@ -402,19 +407,19 @@
 
     .report-tabs {
       display: flex;
-      gap: 6px;
-      margin-bottom: 14px;
+      gap: 0.375rem; /* 6px */
+      margin-bottom: 0.875rem; /* 14px */
       background: #E5E5EA;
-      padding: 4px;
-      border-radius: 12px;
+      padding: 0.25rem; /* 4px */
+      border-radius: 0.75rem; /* 12px */
     }
 
     .report-tab-btn {
       flex: 1;
-      padding: 10px 6px;
-      border-radius: 9px;
+      padding: 0.625rem 0.375rem; /* 10px 6px */
+      border-radius: 0.5625rem; /* 9px */
       border: none;
-      font-size: 12px;
+      font-size: 0.75rem; /* 12px */
       font-weight: 800;
       cursor: pointer;
       background: transparent;
@@ -432,89 +437,89 @@
 
     .table-responsive-wrapper {
       width: 100%;
-      border-radius: 10px;
+      border-radius: 0.625rem; /* 10px */
       border: 1px solid #E5E5EA;
       overflow-x: auto;
     }
 
     .report-table { width: 100%; border-collapse: collapse; }
     .report-table th, .report-table td { 
-      padding: 6px 4px; 
+      padding: 0.375rem 0.25rem; /* 6px 4px */ 
       text-align: center; 
       border: 1px solid #E5E5EA; 
-      font-size: 11px; 
+      font-size: 0.6875rem; /* 11px */ 
     }
     .report-table th { color: #FFFFFF; font-weight: 800; background: var(--accent); }
     
     .report-table td.student-name-td { 
       text-align: right; 
       font-weight: 900; 
-      font-size: 15px;
+      font-size: 0.9375rem; /* 15px */
       color: var(--text-primary);
-      padding-right: 8px;
+      padding-right: 0.5rem; /* 8px */
     }
 
     .th-mobile-normal {
-      min-width: 65px;
-      font-size: 10px !important;
+      min-width: 4.0625rem; /* 65px */
+      font-size: 0.625rem !important; /* 10px */
       line-height: 1.2;
       vertical-align: middle;
-      padding: 6px 2px !important;
+      padding: 0.375rem 0.125rem !important; /* 6px 2px */
       white-space: normal;
     }
     
-    .badge-num { display: inline-block; min-width: 20px; height: 20px; line-height: 20px; border-radius: 10px; font-weight: 800; font-size: 11px; padding: 0 4px; }
+    .badge-num { display: inline-block; min-width: 1.25rem; /* 20px */ height: 1.25rem; /* 20px */ line-height: 1.25rem; border-radius: 0.625rem; /* 10px */ font-weight: 800; font-size: 0.6875rem; /* 11px */ padding: 0 0.25rem; /* 0 4px */ }
     .badge-absent { background-color: #FFE5E5; color: var(--red); }
     .badge-late { background-color: #FFF3D6; color: var(--yellow); }
     .badge-violation { background-color: #F3E5F5; color: var(--purple); }
 
     .btn-close-circle {
-      width: 30px; height: 30px; border-radius: 50%; background: #E5E5EA; color: #8E8E93;
-      border: none; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      width: 1.875rem; /* 30px */ height: 1.875rem; /* 30px */ border-radius: 50%; background: #E5E5EA; color: #8E8E93;
+      border: none; font-size: 0.9375rem; /* 15px */ font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;
       user-select: none;
       -webkit-user-select: none;
     }
     .btn-close-circle:active { opacity: 0.7; }
 
-    .data-box-section { background: #F2F2F7; border-radius: 12px; padding: 12px; margin-bottom: 14px; }
-    .data-box-title { font-size: 12px; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px; }
+    .data-box-section { background: #F2F2F7; border-radius: 0.75rem; /* 12px */ padding: 0.75rem; /* 12px */ margin-bottom: 0.875rem; /* 14px */ }
+    .data-box-title { font-size: 0.75rem; /* 12px */ font-weight: 800; color: var(--text-secondary); margin-bottom: 0.5rem; /* 8px */ }
 
     .btn-menu-option {
-      width: 100%; padding: 10px; border-radius: 10px; border: none; font-size: 13px;
-      font-weight: 700; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; color: white;
+      width: 100%; padding: 0.625rem; /* 10px */ border-radius: 0.625rem; /* 10px */ border: none; font-size: 0.8125rem; /* 13px */
+      font-weight: 700; cursor: pointer; margin-bottom: 0.375rem; /* 6px */ display: flex; align-items: center; justify-content: center; gap: 0.375rem; /* 6px */ color: white;
       user-select: none;
       -webkit-user-select: none;
     }
     .btn-menu-option:active { opacity: 0.8; }
 
-    .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
-    .btn-modal-save { flex: 1; background-color: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .modal-actions { display: flex; gap: 0.625rem; /* 10px */ margin-top: 0.625rem; /* 10px */ }
+    .btn-modal-save { flex: 1; background-color: var(--accent); color: white; border: none; padding: 0.75rem; /* 12px */ border-radius: 0.625rem; /* 10px */ font-weight: 800; font-size: 0.875rem; /* 14px */ cursor: pointer; user-select: none; -webkit-user-select: none; }
     .btn-modal-save:active { opacity: 0.8; }
-    .btn-modal-cancel { flex: 1; background-color: #8E8E93; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-modal-cancel { flex: 1; background-color: #8E8E93; color: white; border: none; padding: 0.75rem; /* 12px */ border-radius: 0.625rem; /* 10px */ font-weight: 800; font-size: 0.875rem; /* 14px */ cursor: pointer; user-select: none; -webkit-user-select: none; }
     .btn-modal-cancel:active { opacity: 0.8; }
     
-    .field-label { font-size: 13px; font-weight: 700; color: #666; margin-bottom: 6px; display: block; }
-    .select-class-full { width: 100%; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 14px; text-align: center; margin-bottom: 10px; }
-    .class-manage-btns { display: flex; gap: 8px; margin-bottom: 12px; }
-    .btn-add-cls-btn { flex: 1; background-color: var(--green); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .field-label { font-size: 0.8125rem; /* 13px */ font-weight: 700; color: #666; margin-bottom: 0.375rem; /* 6px */ display: block; }
+    .select-class-full { width: 100%; padding: 0.625rem; /* 10px */ border-radius: 0.625rem; /* 10px */ font-weight: 700; font-size: 0.875rem; /* 14px */ text-align: center; margin-bottom: 0.625rem; /* 10px */ }
+    .class-manage-btns { display: flex; gap: 0.5rem; /* 8px */ margin-bottom: 0.75rem; /* 12px */ }
+    .btn-add-cls-btn { flex: 1; background-color: var(--green); color: white; border: none; padding: 0.625rem; /* 10px */ border-radius: 0.625rem; /* 10px */ font-weight: 800; font-size: 0.8125rem; /* 13px */ cursor: pointer; user-select: none; -webkit-user-select: none; }
     .btn-add-cls-btn:active { opacity: 0.8; }
-    .btn-del-cls-btn { flex: 1; background-color: var(--red); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-del-cls-btn { flex: 1; background-color: var(--red); color: white; border: none; padding: 0.625rem; /* 10px */ border-radius: 0.625rem; /* 10px */ font-weight: 800; font-size: 0.8125rem; /* 13px */ cursor: pointer; user-select: none; -webkit-user-select: none; }
     .btn-del-cls-btn:active { opacity: 0.8; }
     
-    .inline-add-box { display: none; gap: 6px; margin-bottom: 10px; background: #F2F2F7; padding: 8px; border-radius: 10px; }
+    .inline-add-box { display: none; gap: 0.375rem; /* 6px */ margin-bottom: 0.625rem; /* 10px */ background: #F2F2F7; padding: 0.5rem; /* 8px */ border-radius: 0.625rem; /* 10px */ }
     .inline-add-box input { flex: 1; }
-    .btn-confirm-add { background: var(--accent); color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-confirm-add { background: var(--accent); color: white; border: none; padding: 0 0.75rem; /* 0 12px */ border-radius: 0.5rem; /* 8px */ font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; }
     .btn-confirm-add:active { opacity: 0.8; }
     
-    textarea { width: 100%; height: 200px; border-radius: 12px; border: 1px solid #D1D1D6; padding: 12px; font-size: 14px; font-weight: 600; line-height: 1.6; margin-bottom: 16px; resize: vertical; outline: none; }
+    textarea { width: 100%; height: 12.5rem; /* 200px */ border-radius: 0.75rem; /* 12px */ border: 1px solid #D1D1D6; padding: 0.75rem; /* 12px */ font-size: 0.875rem; /* 14px */ font-weight: 600; line-height: 1.6; margin-bottom: 1rem; /* 16px */ resize: vertical; outline: none; }
     
-    .confirm-modal-content { background: white; border-radius: 18px; padding: 20px; width: 100%; max-width: 320px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-    .confirm-modal-title { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
-    .confirm-modal-desc { font-size: 13px; color: #666; margin-bottom: 18px; line-height: 1.4; }
-    .confirm-modal-actions { display: flex; gap: 8px; }
-    .btn-confirm-delete { flex: 1; background-color: var(--red); color: white; border: none; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .confirm-modal-content { background: white; border-radius: 1.125rem; /* 18px */ padding: 1.25rem; /* 20px */ width: 100%; max-width: 20rem; /* 320px */ text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+    .confirm-modal-title { font-size: 1.0625rem; /* 17px */ font-weight: 800; margin-bottom: 0.5rem; /* 8px */ }
+    .confirm-modal-desc { font-size: 0.8125rem; /* 13px */ color: #666; margin-bottom: 1.125rem; /* 18px */ line-height: 1.4; }
+    .confirm-modal-actions { display: flex; gap: 0.5rem; /* 8px */ }
+    .btn-confirm-delete { flex: 1; background-color: var(--red); color: white; border: none; padding: 0.625rem; /* 10px */ border-radius: 0.625rem; /* 10px */ font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; }
     .btn-confirm-delete:active { opacity: 0.8; }
-    .btn-confirm-cancel { flex: 1; background-color: var(--gray-btn); color: var(--text-primary); border: none; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .btn-confirm-cancel { flex: 1; background-color: var(--gray-btn); color: var(--text-primary); border: none; padding: 0.625rem; /* 10px */ border-radius: 0.625rem; /* 10px */ font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; }
     .btn-confirm-cancel:active { opacity: 0.8; }
   </style>
 </head>
@@ -524,7 +529,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (4.8)
+        كشف الغياب والمخالفات (4.7)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -552,9 +557,9 @@
     <main class="student-list" id="studentList"></main>
     <div class="bottom-controls">
       <button class="btn-action btn-report" onclick="openReportModal()">📈 التقارير الشاملة</button>
-      <button class="btn-action btn-data" onclick="openDataMenuModal()">📂 النسخ الاحتياطي</button>
+      <button class="btn-action btn-data" onclick="openDataMenuModal()">📂 النسخ الاحتياطي والتقارير</button>
       <button class="btn-action btn-reset" onclick="resetToday()">إعادة ضبط اليوم</button>
-      <button class="btn-action btn-manage" onclick="openManageModal()">⚙️ إدارة الأسماء</button>
+      <button class="btn-action btn-manage" onclick="openManageModal()">⚙️ إدارة الأسماء والصفوف</button>
     </div>
   </div>
 
@@ -562,7 +567,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (4.8)    
+        كشوف المتابعة و الدرجات (4.7)    
       </div>
     </header>
     <div class="top-action-bar">
@@ -584,7 +589,7 @@
       <button class="btn-export-period" onclick="exportPeriodCSV()" style="background-color: var(--green);">📊 تصدير كشف الوحدة الحالية CSV</button>
     </div>
     <div class="bottom-controls">
-      <button class="btn-action btn-report" onclick="openFollowupReportModal()">📈 تقارير كشوف</button>
+      <button class="btn-action btn-report" onclick="openFollowupReportModal()">📈 تقارير كشوف المتابعة</button>
       <button class="btn-action" style="background-color: #8e44ad;" onclick="openUnitsManageModal()">⚙️ إدارة الوحدات</button>
     </div>
   </div>
@@ -760,7 +765,7 @@
       <!-- تم إزالة قسم تقارير الفصل الحالي واستبداله بإعدادات الخط -->
       <div class="data-box-section">
         <div class="data-box-title">⚙️ إعدادات العرض والخطوط</div>
-        <button class="btn-menu-option" style="background-color: #8E44AD;" onclick="openFontSettingsModal()">⚙️ إعدادات الخط (جميع الخطوط)</button>
+        <button class="btn-menu-option" style="background-color: #8E44AD;" onclick="openFontSettingsModal()">⚙️ إعدادات الخط (الخطوط المختارة)</button>
       </div>
     </div>
   </div>
@@ -777,12 +782,13 @@
         <select id="fontFamilySelect" class="select-class-full"></select>
       </div>
       <div style="margin-bottom: 12px;">
-        <span class="field-label">حجم الخط:</span>
+        <span class="field-label">حجم الخط (نسبة مئوية من التصميم):</span>
         <select id="fontSizeSelect" class="select-class-full">
-          <option value="12px">صغير (12px)</option>
-          <option value="14px">متوسط (14px)</option>
-          <option value="16px">كبير (16px)</option>
-          <option value="18px">كبير جداً (18px)</option>
+          <option value="0.8rem">تصغير جداً (-20%)</option>
+          <option value="0.9rem">تصغير (-10%)</option>
+          <option value="1rem">وسط (افتراضي)</option>
+          <option value="1.1rem">تكبير (+10%)</option>
+          <option value="1.2rem">تكبير جداً (+20%)</option>
         </select>
       </div>
       <div style="margin-bottom: 12px;">
@@ -805,7 +811,7 @@
   <div class="modal" id="manageModal">
     <div class="modal-content" style="max-height: 90vh;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <div class="modal-title" style="margin:0;">⚙️إدارة الأسماء والصفوف </div>
+        <div class="modal-title" style="margin:0;">⚙️ إدارة الأسماء والصفوف</div>
         <button class="btn-close-circle" onclick="closeManageModal()">✕</button>
       </div>
       <div style="display:flex; gap:6px; margin-bottom:10px;">
@@ -908,11 +914,14 @@
     document.getElementById('dateSelect').valueAsDate = new Date();
 
     // ================== إعدادات الخطوط الديناميكية ==================
-    // تمت إضافة خط "الافتراضي (خط الآيفون)" كأول خيار، بالإضافة إلى جميع الخطوط الممكنة
+    // تم حذف جميع الخطوط غير المرغوب فيها والإبقاء على خط الآيفون والخطوط المطلوبة فقط
     const AVAILABLE_FONTS = [
       { name: "الافتراضي (خط الآيفون)", value: "system" },
       { name: "Almarai (المراي)", value: "Almarai" },
       { name: "Cairo (القاهرة)", value: "Cairo" },
+      { name: "IBM Plex Sans Arabic", value: "IBM+Plex+Sans+Arabic" },
+      { name: "Baloo Bhaijaan 2", value: "Baloo+Bhaijaan+2" },
+      // تمت إضافة مجموعة مختارة من أفضل الخطوط العربية كخيارات إضافية
       { name: "Tajawal (تاجوال)", value: "Tajawal" },
       { name: "Amiri (أميري)", value: "Amiri" },
       { name: "Noto Kufi Arabic", value: "Noto+Kufi+Arabic" },
@@ -920,36 +929,21 @@
       { name: "Mada (مادة)", value: "Mada" },
       { name: "Changa (تشانغا)", value: "Changa" },
       { name: "Reem Kufi", value: "Reem+Kufi" },
-      { name: "Rakkas", value: "Rakkas" },
-      { name: "Lalezar", value: "Lalezar" },
       { name: "Scheherazade New", value: "Scheherazade+New" },
-      { name: "El Messiri", value: "El+Messiri" },
-      { name: "Markazi Text", value: "Markazi+Text" },
-      { name: "IBM Plex Sans Arabic", value: "IBM+Plex+Sans+Arabic" },
-      { name: "Baloo Bhaijaan 2", value: "Baloo+Bhaijaan+2" },
-      { name: "Harmattan", value: "Harmattan" },
-      { name: "Lateef", value: "Lateef" },
-      { name: "Mirza", value: "Mirza" },
-      { name: "Kufam", value: "Kufam" },
-      { name: "Titillium Web", value: "Titillium+Web" },
-      { name: "Alkalami", value: "Alkalami" },
-      { name: "Aref Ruqaa", value: "Aref+Ruqaa" },
-      { name: "Mukta", value: "Mukta" },
-      { name: "Lemonada", value: "Lemonada" },
-      { name: "Katibeh", value: "Katibeh" },
-      { name: "Karima", value: "Karima" }
+      { name: "El Messiri", value: "El+Messiri" }
     ];
 
     // الإعدادات الافتراضية (ستكون "system" لتعمل كخط الآيفون الأصلي فوراً)
     let fontSettings = JSON.parse(localStorage.getItem('attendance_font_settings')) || {
       family: 'system',
-      size: '14px',
+      size: '1rem', // حجم افتراضي بالنسبة المئوية
       weight: '700'
     };
 
     // تطبيق إعدادات الخط على الواجهة
     function applyFontSettings() {
       const displayFamily = fontSettings.family.replace(/\+/g, ' ');
+      const size = fontSettings.size;
       
       // إدارة استيراد الخط من Google Fonts
       let fontLink = document.getElementById('dynamic-font-import');
@@ -967,32 +961,34 @@
         fontLink.href = `https://fonts.googleapis.com/css2?family=${fontSettings.family}:wght@400;600;700;800&display=swap`;
       }
 
-      // حقن كود CSS
+      // حقن كود CSS (نعتمد الان على تغيير حجم الجذر html فقط، وباقي التصميم معتمد على rem)
       const systemFontStack = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
       let css = '';
       if (fontSettings.family === 'system') {
         css = `
+          html {
+            font-size: ${size} !important;
+          }
           * {
             font-family: ${systemFontStack} !important;
-            font-size: ${fontSettings.size} !important;
             font-weight: ${fontSettings.weight} !important;
           }
           input, select, button, textarea {
             font-family: inherit !important;
-            font-size: inherit !important;
             font-weight: inherit !important;
           }
         `;
       } else {
         css = `
+          html {
+            font-size: ${size} !important;
+          }
           * {
             font-family: '${displayFamily}', 'Segoe UI', Tahoma, sans-serif !important;
-            font-size: ${fontSettings.size} !important;
             font-weight: ${fontSettings.weight} !important;
           }
           input, select, button, textarea {
             font-family: inherit !important;
-            font-size: inherit !important;
             font-weight: inherit !important;
           }
         `;
@@ -1005,9 +1001,6 @@
         document.head.appendChild(styleTag);
       }
       styleTag.innerHTML = css;
-
-      // تخزين المتغير لاستخدامه داخل دالة تصدير PDF
-      window.CURRENT_FONT_FAMILY = (fontSettings.family === 'system') ? systemFontStack : `'${displayFamily}', sans-serif`;
     }
 
     // فتح نافذة إعدادات الخط
@@ -2321,13 +2314,21 @@
       }
     }
 
-    // تعديل دالة بناء عنصر التقرير لتدعم إعدادات الخط المختارة من قبل المستخدم (بما فيها خط الآيفون الافتراضي)
+    // دالة بناء عنصر التقرير مع النسب المئوية للخطوط المختارة
     function buildPdfElement(htmlContent, title, subtitle, footer = '') {
       const rawFamily = fontSettings.family;
       const displayFamily = rawFamily.replace(/\+/g, ' ');
-      const size = fontSettings.size;
+      const sizeValue = fontSettings.size; // سيحتوي على قيمة مثل "1rem" أو "1.2rem"
       const weight = fontSettings.weight;
       const systemFontStack = "-apple-system, BlinkMacSystemFont, Roboto, sans-serif";
+
+      // تحويل حجم الـ rem إلى px لتطبيقه داخل ملف الـ PDF
+      let pxSize = 16;
+      if (sizeValue === '0.8rem') pxSize = 12.8;
+      else if (sizeValue === '0.9rem') pxSize = 14.4;
+      else if (sizeValue === '1rem') pxSize = 16;
+      else if (sizeValue === '1.1rem') pxSize = 17.6;
+      else if (sizeValue === '1.2rem') pxSize = 19.2;
 
       const div = document.createElement('div');
       div.style.padding = '6px';
@@ -2336,36 +2337,33 @@
       div.style.width = '100%';
       div.style.maxWidth = '100%';
       div.style.overflow = 'hidden';
-      
-      let innerHtml = '';
+
+      let fontUrl = '';
+      let fontFamilyCSS = '';
+
       if (rawFamily === 'system') {
-        div.style.fontFamily = systemFontStack;
-        innerHtml = `
-          <div style="text-align: center; border-bottom: 2px solid #007AFF; padding-bottom: 6px; margin-bottom: 8px;">
-            <h1 style="margin: 0; font-size: 16px; color: #007AFF; font-weight: 900; font-family: inherit;">${title}</h1>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C; font-family: inherit;">
-            ${subtitle}
-          </div>
-          <div style="font-family: inherit; font-size: inherit;">${htmlContent}</div>
-        `;
+        fontFamilyCSS = `* { font-family: ${systemFontStack} !important; font-weight: ${weight} !important; }`;
       } else {
-        div.style.fontFamily = `'${displayFamily}', sans-serif`;
-        innerHtml = `
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=${rawFamily}:wght@400;600;700;800&display=swap');
-            * { font-family: '${displayFamily}', sans-serif !important; font-size: ${size}; font-weight: ${weight}; }
-          </style>
-          <div style="text-align: center; border-bottom: 2px solid #007AFF; padding-bottom: 6px; margin-bottom: 8px;">
-            <h1 style="margin: 0; font-size: 16px; color: #007AFF; font-weight: 900;">${title}</h1>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
-            ${subtitle}
-          </div>
-          ${htmlContent}
-        `;
+        fontUrl = `@import url('https://fonts.googleapis.com/css2?family=${rawFamily}:wght@400;600;700;800&display=swap');`;
+        fontFamilyCSS = `* { font-family: '${displayFamily}', sans-serif !important; font-weight: ${weight} !important; }`;
       }
-      div.innerHTML = innerHtml;
+
+      div.innerHTML = `
+        <style>
+          ${fontUrl}
+          html {
+            font-size: ${pxSize}px !important;
+          }
+          ${fontFamilyCSS}
+        </style>
+        <div style="text-align: center; border-bottom: 2px solid #007AFF; padding-bottom: 6px; margin-bottom: 8px;">
+          <h1 style="margin: 0; font-size: 1rem; color: #007AFF; font-weight: 900;">${title}</h1>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.625rem; font-weight: 800; margin-bottom: 8px; background: #F2F2F7; padding: 5px 10px; border-radius: 6px; color: #3A3A3C;">
+          ${subtitle}
+        </div>
+        ${htmlContent}
+      `;
       return div;
     }
 
@@ -2980,14 +2978,6 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
-    // دوال فارغة للتصدير الإضافية (يمكنك تنفيذها لاحقاً)
-    function exportClassRecordsCSV() {
-      alert("سيتم تصدير سجل السلوك والغياب قريباً.");
-    }
-    function exportClassSummaryCSV() {
-      alert("سيتم تصدير التقرير الإحصائي قريباً.");
     }
 
     // تهيئة التطبيق
