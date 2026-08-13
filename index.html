@@ -3059,7 +3059,15 @@
 
         // إنشاء صفحة منفصلة لكل طالب
         const pageDiv = document.createElement('div');
+        pageDiv.style.pageBreakBefore = 'always';
         pageDiv.style.pageBreakAfter = 'always';
+        pageDiv.style.breakBefore = 'page';
+        pageDiv.style.breakAfter = 'page';
+        pageDiv.style.display = 'block';
+        pageDiv.style.height = '277mm';
+        pageDiv.style.maxHeight = '277mm';
+        pageDiv.style.overflow = 'hidden';
+        pageDiv.className = 'notification-pdf-page';
         pageDiv.style.padding = '2px 4px';
         pageDiv.style.overflow = 'hidden';
         pageDiv.style.width = '100%';
@@ -3112,12 +3120,14 @@
         @page { margin: 2mm 3mm; }
         body { margin: 0; padding: 0; background: white; }
         .page-footer { text-align: center; color: #999; border-top: 1px dashed #ddd; padding-top: 0.2rem; margin-top: 0.2rem; }
+        .notification-pdf-page{page-break-inside:avoid !important;break-inside:avoid !important;}
       `;
       mainContainer.prepend(styleEl);
 
       // تصدير PDF
       await exportPdf(mainContainer, `اشعارات_${currentClass}_${new Date().toISOString().slice(0,10)}.pdf`, {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css','legacy'], before: '.notification-pdf-page' },
         margin: [4, 4, 4, 4]
       });
 
