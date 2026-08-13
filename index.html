@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -13,7 +14,7 @@
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
 
-  <title>7.6</title>
+  <title>7.7</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -84,9 +85,19 @@
     .btn-period-main:active { opacity: 0.8; }
     .btn-period-main.active-period { background-color: #27ae60; }
 
-    .period-export-container { margin: 0.625rem 0.9375rem; text-align: center; }
-    .btn-export-period { background-color: #e67e22; color: white; border: none; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); margin-bottom: 0.375rem; user-select: none; -webkit-user-select: none; }
+    .period-export-container { margin: 0.625rem 0.9375rem; text-align: center; display: flex; flex-direction: column; gap: 0.375rem; }
+    .btn-export-period { background-color: #e67e22; color: white; border: none; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); user-select: none; -webkit-user-select: none; }
     .btn-export-period:active { opacity: 0.8; }
+
+    /* زر الدرجة الموزونة للوحدة – لون فاتح */
+    .btn-weighted-light { background-color: #D6EAF8; color: #1B4F72; border: 1px solid #A9CCE3; }
+    .btn-weighted-light:active { opacity: 0.8; }
+    .btn-weighted-light:hover { background-color: #C5E0F0; }
+
+    /* زر اشعارات الطلاب – لون فاتح */
+    .btn-notify-light { background-color: #E8DAEF; color: #6C3483; border: 1px solid #D2B4DE; }
+    .btn-notify-light:active { opacity: 0.8; }
+    .btn-notify-light:hover { background-color: #DDD0E8; }
 
     .followup-table-container { margin: 0 0.9375rem; background: white; border-radius: 0.375rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); padding: 0.625rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .followup-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.8125rem; }
@@ -171,8 +182,15 @@
     .notification-textarea:focus { border-color: var(--accent); }
     .notification-input { width: 100%; padding: 0.4rem 0.6rem; border-radius: 0.5rem; border: 1px solid #ccc; font-size: 0.875rem; font-weight: 700; text-align: center; background: #f9f9fb; }
 
+    /* الحفاظ على الأسطر الجديدة في النصوص العلوية والسفلية */
+    .preserve-newlines { white-space: pre-wrap; text-align: center; }
+
     /* --- تذييل الصفحة (للطباعة) --- */
     .page-footer { text-align: center; font-size: 0.6rem; color: #999; border-top: 1px dashed #ddd; padding-top: 0.3rem; margin-top: 0.3rem; }
+
+    /* حقل تعديل اسم الوحدة في إدارة الوحدات */
+    .unit-name-edit-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.625rem; }
+    .unit-name-edit-row input { flex: 1; }
 
     @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
   </style>
@@ -183,7 +201,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (7.6)
+        كشف الغياب والمخالفات (7.7)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -221,7 +239,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (7.6)
+        كشوف المتابعة و الدرجات (7.7)
       </div>
     </header>
     <div class="top-action-bar">
@@ -241,10 +259,12 @@
     <div class="period-export-container">
       <button class="btn-export-period" onclick="exportPeriodPDF()">📄 تصدير كشف الوحدة الحالية PDF</button>
       <button class="btn-export-period" onclick="exportPeriodCSV()" style="background-color: var(--green);">📊 تصدير كشف الوحدة الحالية CSV</button>
-      <button class="btn-export-period" onclick="openNotificationExportModal()" style="background-color: #6C3483; margin-top:0.25rem;">📄 تصدير اشعارات الطلاب PDF</button>
+      <!-- زر "الدرجة الموزونة للوحدة" – تم نقله من الأسفل ولون فاتح -->
+      <button class="btn-export-period btn-weighted-light" onclick="openFollowupReportModal()">📊 الدرجة الموزونة للوحدة</button>
     </div>
     <div class="bottom-controls">
-      <button class="btn-action btn-report" onclick="openFollowupReportModal()">📈 تقارير كشوف المتابعة</button>
+      <!-- زر "اشعارات الطلاب PDF" – تم نقله من الأعلى ولون فاتح -->
+      <button class="btn-action btn-notify-light" onclick="openNotificationExportModal()">📄 اشعارات الطلاب PDF</button>
       <button class="btn-action" style="background-color: #8e44ad;" onclick="openUnitsManageModal()">⚙️ إدارة الوحدات</button>
     </div>
   </div>
@@ -327,15 +347,24 @@
     </div>
   </div>
 
-  <!-- ================= نافذة إدارة الوحدات ================= -->
+  <!-- ================= نافذة إدارة الوحدات (معدلة: إضافة تعديل اسم الوحدة) ================= -->
   <div class="modal" id="unitsManageModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <div class="modal-title" style="margin:0;">⚙️ إدارة الوحدات والدروس</div>
         <button class="btn-close-circle" onclick="closeUnitsManageModal()">✕</button>
       </div>
+
+      <!-- حقل تعديل اسم الوحدة -->
+      <span class="field-label">اسم الوحدة:</span>
+      <div class="unit-name-edit-row">
+        <input type="text" id="unitNameEditInput" placeholder="أدخل اسم الوحدة الجديد..." style="flex:1; padding:0.5rem; border-radius:0.5rem; border:1px solid #ccc; font-size:0.875rem; font-weight:700;">
+        <button class="btn-confirm-add" onclick="updateUnitName()" style="white-space:nowrap;">تعديل الاسم</button>
+      </div>
+
       <span class="field-label">اختر الوحدة للتعديل أو الحذف:</span>
       <select id="modalUnitSelect" class="select-class-full" onchange="loadUnitDetailsToModal()"></select>
+
       <div class="class-manage-btns">
         <button type="button" class="btn-add-cls-btn" onclick="toggleAddUnitBox()">➕ إضافة وحدة</button>
         <button type="button" class="btn-del-cls-btn" onclick="promptDeleteUnit()">🗑️ حذف الوحدة</button>
@@ -388,7 +417,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة تقارير كشوف المتابعة ================= -->
+  <!-- ================= نافذة تقارير كشوف المتابعة (تبقت للاستخدام الداخلي) ================= -->
   <div class="modal" id="followupReportModal">
     <div class="modal-content" style="max-width: 600px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -547,16 +576,16 @@
       <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem; align-items:center; flex-wrap:wrap;">
         <span class="field-label" style="font-size:0.75rem; margin:0;">حجم خط النص (px):</span>
         <input type="number" id="notificationTextFontSize" class="notification-input" value="11" min="8" max="20" style="width:70px;">
-        <span style="font-size:0.65rem; color:#999;">(العنوان، اسم الطالب، النصوص)</span>
+        <span style="font-size:0.65rem; color:#999;">(العنوان، اسم الطالب، النصوص، التوقيع)</span>
       </div>
 
       <!-- النص العلوي -->
       <span class="field-label" style="font-size:0.75rem; margin-top:0.25rem;">📝 النص العلوي:</span>
-      <textarea id="notificationTopText" class="notification-textarea" placeholder="اكتب النص الذي يظهر أعلى الجدول (سطرين أو ثلاثة)..."></textarea>
+      <textarea id="notificationTopText" class="notification-textarea" placeholder="اكتب النص الذي يظهر أعلى الجدول (سطرين أو ثلاثة)..." style="white-space:pre-wrap;"></textarea>
 
       <!-- النص السفلي -->
       <span class="field-label" style="font-size:0.75rem;">📝 النص السفلي:</span>
-      <textarea id="notificationBottomText" class="notification-textarea" placeholder="اكتب النص الذي يظهر أسفل الجدول (سطرين أو ثلاثة)..."></textarea>
+      <textarea id="notificationBottomText" class="notification-textarea" placeholder="اكتب النص الذي يظهر أسفل الجدول (سطرين أو ثلاثة)..." style="white-space:pre-wrap;"></textarea>
 
       <div class="modal-actions" style="margin-top:0.25rem;">
         <button class="btn-modal-cancel" onclick="closeNotificationExportModal()">إلغاء</button>
@@ -564,7 +593,6 @@
       </div>
     </div>
   </div>
-
 
   <!-- ================= سكربت التطبيق ================= -->
   <script>
@@ -1469,11 +1497,74 @@
       document.getElementById('unitsManageModal').style.display = 'flex';
       initUnitsModalSelect();
       loadUnitDetailsToModal();
+      // تعبئة حقل اسم الوحدة
+      const select = document.getElementById('modalUnitSelect');
+      document.getElementById('unitNameEditInput').value = select.value || '';
     }
 
     function closeUnitsManageModal() {
       document.getElementById('unitsManageModal').style.display = 'none';
       document.getElementById('inlineAddUnitBox').style.display = 'none';
+    }
+
+    // ===== دالة تعديل اسم الوحدة =====
+    function updateUnitName() {
+      const select = document.getElementById('modalUnitSelect');
+      const oldName = select.value;
+      if (!oldName || !unitsData[oldName]) {
+        alert("يرجى اختيار وحدة أولاً!");
+        return;
+      }
+
+      const newName = document.getElementById('unitNameEditInput').value.trim();
+      if (!newName) {
+        alert("الرجاء إدخال اسم جديد للوحدة!");
+        return;
+      }
+
+      if (newName === oldName) {
+        alert("الاسم الجديد مطابق للاسم القديم.");
+        return;
+      }
+
+      if (unitsData[newName]) {
+        alert("هذا الاسم موجود مسبقاً لوحدة أخرى!");
+        return;
+      }
+
+      // نقل البيانات من الاسم القديم إلى الجديد
+      unitsData[newName] = unitsData[oldName];
+      delete unitsData[oldName];
+
+      // تحديث followupData
+      const newFollowupData = {};
+      for (let key in followupData) {
+        if (key.startsWith(oldName + '_')) {
+          const newKey = key.replace(oldName, newName);
+          newFollowupData[newKey] = followupData[key];
+        } else {
+          newFollowupData[key] = followupData[key];
+        }
+      }
+      followupData = newFollowupData;
+
+      // تحديث الفترات المختارة
+      period1SelectedUnits = period1SelectedUnits.map(u => u === oldName ? newName : u);
+      period2SelectedUnits = period2SelectedUnits.map(u => u === oldName ? newName : u);
+
+      // تحديث الوحدة الحالية
+      if (currentActiveUnit === oldName) {
+        currentActiveUnit = newName;
+      }
+
+      saveData();
+      initUnitsModalSelect();
+      document.getElementById('modalUnitSelect').value = newName;
+      document.getElementById('unitNameEditInput').value = newName;
+      loadUnitDetailsToModal();
+      renderUnitsDropdown();
+      renderFollowupTable(currentActiveUnit);
+      alert(`✅ تم تغيير اسم الوحدة من "${oldName}" إلى "${newName}" بنجاح!`);
     }
 
     function initUnitsModalSelect() {
@@ -1484,6 +1575,8 @@
         select.innerHTML += `<option value="${uName}">${uName}</option>`;
       });
       if (unitsData[selectedVal]) select.value = selectedVal;
+      // تحديث حقل اسم الوحدة
+      document.getElementById('unitNameEditInput').value = select.value || '';
     }
 
     function loadUnitDetailsToModal() {
@@ -1494,6 +1587,7 @@
       const lessons = unitsData[uName].lessons || [];
       document.getElementById('unitLessonsCountInput').value = lessons.length;
       renderLessonNameInputs(lessons);
+      document.getElementById('unitNameEditInput').value = uName;
     }
 
     function generateLessonNameInputs() {
@@ -2685,7 +2779,7 @@
     }
 
     // =========================
-    // دوال نافذة تصدير اشعارات الطلاب – نسخة محسنة (مأخوذة من 7.5)
+    // دوال نافذة تصدير اشعارات الطلاب – نسخة محسنة (مأخوذة من 7.5) مع دعم الأسطر الجديدة وحجم خط التوقيع
     // =========================
 
     const NOTIF_STORAGE_KEY = 'notification_export_settings';
@@ -2758,7 +2852,9 @@
     }
 
     // ================================================================
-    // الدالة الجديدة لتصدير الإشعارات (باستخدام html2canvas + jsPDF) – كما في 7.5
+    // الدالة الجديدة لتصدير الإشعارات (باستخدام html2canvas + jsPDF)
+    // مع دعم الأسطر الجديدة في النصوص العلوية والسفلية
+    // وحجم خط التوقيع يتغير مع تغير textFontSize
     // ================================================================
 
     async function exportNotificationsPDF() {
@@ -3038,15 +3134,17 @@
 
         let allTablesHtml = mainTableHtml + combinedTablesHtml + weightedHtml;
 
+        // دالة بناء الإشعار مع دعم الأسطر الجديدة في النصوص العلوية والسفلية
+        // وحجم خط التوقيع يتغير مع textFontSize
         function buildNotification(studentName, className, topTxt, bottomTxt, contentHtml, isBottom = false) {
           let extraHtml = '';
           if (isBottom) {
             extraHtml = `
-              <div style="margin-top:6px; border-top:1px solid #aaa; padding-top:4px; text-align:center; font-size:${textFontSize-1}px;">
-                <div style="font-weight:bold;">استلمت الأصل وأتعهد بتسليم ولي الأمر الإشعار</div>
-                <div style="margin-top:4px; font-size:${textFontSize-1}px; font-weight:bold; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+              <div style="margin-top:20px; border-top:1px solid #aaa; padding-top:10px; text-align:center; font-size:${textFontSize}px;">
+                <div style="font-weight:bold; font-size:${textFontSize}px;">استلمت الأصل وأتعهد بتسليم ولي الأمر الإشعار</div>
+                <div style="margin-top:6px; font-size:${textFontSize}px; font-weight:bold; display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
                   <span>اسم الطالب: ${studentName}</span>
-                  <span>التوقيع: ....................</span>
+                  <span>التوقيع: __________</span>
                 </div>
               </div>
             `;
@@ -3059,13 +3157,9 @@
               <div style="text-align:center; font-size:${textFontSize-1}px; font-weight:800; color:#333; margin-bottom:1px;">
                 عزيزي ولي أمر الطالب : <span style="color:#007AFF;">${studentName}</span> &nbsp;|&nbsp; الفصل ( <span style="color:#007AFF;">${className}</span> )
               </div>
-              <div style="font-size:${textFontSize-1}px; color:#555; text-align:center; padding:1px 6px; background:#f9f9fb; border-radius:4px; margin-bottom:1px; line-height:1.4;">
-                ${topTxt}
-              </div>
+              <div style="font-size:${textFontSize-1}px; color:#555; text-align:center; padding:1px 6px; background:#f9f9fb; border-radius:4px; margin-bottom:1px; line-height:1.6; white-space:pre-wrap; text-align:center;">${topTxt}</div>
               ${contentHtml}
-              <div style="font-size:${textFontSize-1}px; color:#555; text-align:center; padding:1px 6px; background:#f9f9fb; border-radius:4px; margin-top:1px; line-height:1.4;">
-                ${bottomTxt}
-              </div>
+              <div style="font-size:${textFontSize-1}px; color:#555; text-align:center; padding:1px 6px; background:#f9f9fb; border-radius:4px; margin-top:1px; line-height:1.6; white-space:pre-wrap; text-align:center; margin-bottom: 20px;">${bottomTxt}</div>
               ${extraHtml}
             </div>
           `;
