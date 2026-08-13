@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -15,7 +16,7 @@
   <!-- مكتبة قراءة ملفات الإكسل -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>7.9</title>
+  <title>8.1b</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -40,6 +41,29 @@
     header { background-color: var(--card-bg); padding: 0.875rem 1rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); }
     .header-title-box { background-color: var(--accent); color: white; font-size: 0.875rem; font-weight: 800; text-align: center; padding: 0.75rem 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 122, 255, 0.3); transition: opacity 0.15s ease; user-select: none; -webkit-user-select: none; }
     .header-title-box:active { opacity: 0.85; }
+
+    /* زر التاريخ الجديد */
+    .date-button-box {
+      background-color: #34C759;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 800;
+      text-align: center;
+      padding: 0.5rem 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(52, 199, 89, 0.3);
+      transition: opacity 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .date-button-box:active { opacity: 0.85; }
+    .date-button-box .date-icon { font-size: 1.2rem; }
 
     .controls-bar { display: flex; gap: 0.625rem; margin-bottom: 0.75rem; }
     select, input[type="date"], input[type="text"], input[type="number"] { padding: 0.5rem 0.75rem; border-radius: 0.625rem; border: 1px solid #D1D1D6; background: #F9F9FB; font-size: 0.875rem; font-weight: 700; color: var(--text-primary); outline: none; }
@@ -229,9 +253,14 @@
       <div class="header-title-box" onclick="switchToFollowupScreen()">
         كشف الغياب والمخالفات (8.1b)
       </div>
+      <!-- زر التاريخ الجديد -->
+      <div class="date-button-box" onclick="setTodayDate()">
+        <span class="date-icon">📅</span>
+        <span id="dateDisplay">اليوم والتاريخ</span>
+      </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
-        <input type="date" id="dateSelect" onchange="renderStudents()">
+        <input type="date" id="dateSelect" onchange="updateDateDisplay()" style="display: none;">
       </div>
       <div class="stats-container">
         <div class="stat-card absent">
@@ -265,7 +294,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (7.9)
+        كشوف المتابعة و الدرجات (8.1b)
       </div>
     </header>
     <div class="top-action-bar">
@@ -523,8 +552,13 @@
         🏷️ عنوان الكشف
       </button>
 
+      <!-- زر التاريخ الجديد -->
+      <button class="btn-menu-option" style="background-color: #34C759; color: white; margin-bottom: 6px;" onclick="promptSizeFor('dateButton')">
+        📅 زر التاريخ
+      </button>
+
       <button class="btn-menu-option" style="background-color: #F2F2F7; color: var(--text-primary); border: 1px solid #ccc; margin-bottom: 6px;" onclick="promptSizeFor('stats')">
-        📊 إحصائيات اليوم
+        📊 إحصائيات اليوم (الأرقام)
       </button>
 
       <button class="btn-menu-option" style="background-color: #EBF3FF; color: var(--accent); border: 1px solid #B3D7FF; margin-bottom: 6px;" onclick="promptSizeFor('studentReport')">
@@ -712,7 +746,31 @@
     let itemToDelete = '';
     let deleteTargetType = '';
 
+    // تعيين التاريخ الحالي
     document.getElementById('dateSelect').valueAsDate = new Date();
+    updateDateDisplay();
+
+    // دالة لتحديث عرض التاريخ
+    function updateDateDisplay() {
+      const dateInput = document.getElementById('dateSelect');
+      const dateDisplay = document.getElementById('dateDisplay');
+      if (dateInput.value) {
+        const parts = dateInput.value.split('-');
+        const dateObj = new Date(dateInput.value);
+        const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+        dateDisplay.textContent = dateObj.toLocaleDateString('ar-SA', options);
+      } else {
+        dateDisplay.textContent = 'اليوم والتاريخ';
+      }
+    }
+
+    // دالة لتعيين التاريخ إلى اليوم الحالي
+    function setTodayDate() {
+      const dateInput = document.getElementById('dateSelect');
+      dateInput.valueAsDate = new Date();
+      updateDateDisplay();
+      renderStudents();
+    }
 
     // ================== إعدادات الخطوط الديناميكية ==================
     const AVAILABLE_FONTS = [
@@ -817,6 +875,7 @@
 
     const defaultUISizes = {
       headerTitle: '1rem',
+      dateButton: '0.875rem',
       stats: '0.9rem',
       studentReport: '0.8rem',
       studentName: '0.9rem',
@@ -844,25 +903,36 @@
     function applyUISizes() {
       const sizes = loadUISizes();
 
+      // عنوان الكشف
       const headerTitle = document.querySelector('.header-title-box');
       if (headerTitle) headerTitle.style.fontSize = sizes.headerTitle;
 
+      // زر التاريخ
+      const dateButton = document.querySelector('.date-button-box');
+      if (dateButton) dateButton.style.fontSize = sizes.dateButton;
+
+      // إحصائيات اليوم (الأرقام فقط)
       const statNumbers = document.querySelectorAll('.stat-number');
       statNumbers.forEach(el => el.style.fontSize = sizes.stats);
+      // إحصائيات اليوم (التسميات)
       const statLabels = document.querySelectorAll('.stat-label');
-      statLabels.forEach(el => el.style.fontSize = sizes.stats);
+      statLabels.forEach(el => el.style.fontSize = '0.6rem'); // حجم ثابت للتسميات
 
-      const studentReportCard = document.querySelector('.stat-card.student-report .stat-number');
-      if (studentReportCard) studentReportCard.style.fontSize = sizes.studentReport;
+      // تقرير عن طالب (أيقونة + تسمية)
+      const studentReportNumber = document.querySelector('.stat-card.student-report .stat-number');
+      if (studentReportNumber) studentReportNumber.style.fontSize = sizes.studentReport;
       const studentReportLabel = document.querySelector('.stat-card.student-report .stat-label');
       if (studentReportLabel) studentReportLabel.style.fontSize = sizes.studentReport;
 
+      // اسم الطالب
       const studentNames = document.querySelectorAll('.student-name');
       studentNames.forEach(el => el.style.fontSize = sizes.studentName);
 
+      // أزرار الحضور
       const attendanceBtns = document.querySelectorAll('.btn-status');
       attendanceBtns.forEach(el => el.style.fontSize = sizes.attendanceButtons);
 
+      // الأزرار السفلية
       const bottomBtns = document.querySelectorAll('.bottom-controls .btn-action');
       bottomBtns.forEach(el => el.style.fontSize = sizes.bottomButtons);
 
