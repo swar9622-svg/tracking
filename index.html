@@ -14,7 +14,7 @@
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
 
-  <title>7.7</title>
+  <title>7.8</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -190,7 +190,13 @@
 
     /* حقل تعديل اسم الوحدة في إدارة الوحدات */
     .unit-name-edit-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.625rem; }
-    .unit-name-edit-row input { flex: 1; }
+    .unit-name-edit-row input { flex: 1; min-width: 0; }
+
+    /* حقل تعديل اسم الدرس */
+    .lesson-edit-row { display: flex; gap: 0.3rem; align-items: center; margin-bottom: 0.3rem; }
+    .lesson-edit-row input { flex: 1; min-width: 0; padding: 0.3rem 0.5rem; border-radius: 0.375rem; border: 1px solid #ccc; font-size: 0.8rem; }
+    .lesson-edit-row button { padding: 0.2rem 0.5rem; border-radius: 0.375rem; border: none; background: var(--accent); color: white; font-weight: 700; font-size: 0.7rem; cursor: pointer; white-space: nowrap; }
+    .lesson-edit-row button:active { opacity: 0.8; }
 
     @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
   </style>
@@ -201,7 +207,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (7.7)
+        كشف الغياب والمخالفات (7.8)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -239,7 +245,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (7.7)
+        كشوف المتابعة و الدرجات (7.8)
       </div>
     </header>
     <div class="top-action-bar">
@@ -259,11 +265,9 @@
     <div class="period-export-container">
       <button class="btn-export-period" onclick="exportPeriodPDF()">📄 تصدير كشف الوحدة الحالية PDF</button>
       <button class="btn-export-period" onclick="exportPeriodCSV()" style="background-color: var(--green);">📊 تصدير كشف الوحدة الحالية CSV</button>
-      <!-- زر "الدرجة الموزونة للوحدة" – تم نقله من الأسفل ولون فاتح -->
       <button class="btn-export-period btn-weighted-light" onclick="openFollowupReportModal()">📊 الدرجة الموزونة للوحدة</button>
     </div>
     <div class="bottom-controls">
-      <!-- زر "اشعارات الطلاب PDF" – تم نقله من الأعلى ولون فاتح -->
       <button class="btn-action btn-notify-light" onclick="openNotificationExportModal()">📄 اشعارات الطلاب PDF</button>
       <button class="btn-action" style="background-color: #8e44ad;" onclick="openUnitsManageModal()">⚙️ إدارة الوحدات</button>
     </div>
@@ -301,7 +305,6 @@
         <button class="btn-close-circle" onclick="closeStudentReportDetailModal()">✕</button>
       </div>
       <div id="studentReportStudentNameHeader" style="font-size: 14px; font-weight: 900; color: var(--accent); text-align: center; margin-bottom: 10px; background: #F2F2F7; padding: 8px; border-radius: 8px; line-height: 1.5;"></div>
-
       <div class="table-responsive-wrapper" style="max-height: 45vh; overflow-y: auto; margin-bottom: 12px;">
         <table class="report-table" id="studentReportDetailTable" style="width: 100%;">
           <thead>
@@ -315,7 +318,6 @@
           <tbody id="studentReportDetailTableBody"></tbody>
         </table>
       </div>
-
       <div style="display: flex; flex-direction: column; gap: 6px;">
         <button class="btn-export-period" id="btnExportSingleStudentPDF" onclick="exportSingleStudentPDF()" style="background-color: var(--accent); margin-bottom: 0;">📄 تصدير PDF</button>
         <button class="btn-export-period" id="btnExportSingleStudentCSV" onclick="exportSingleStudentCSV()" style="background-color: var(--green); margin-bottom: 0;">📊 تصدير CSV</button>
@@ -347,7 +349,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة إدارة الوحدات (معدلة: إضافة تعديل اسم الوحدة) ================= -->
+  <!-- ================= نافذة إدارة الوحدات (معدلة: إضافة تعديل اسم الوحدة + تعديل اسم الدرس) ================= -->
   <div class="modal" id="unitsManageModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -358,8 +360,8 @@
       <!-- حقل تعديل اسم الوحدة -->
       <span class="field-label">اسم الوحدة:</span>
       <div class="unit-name-edit-row">
-        <input type="text" id="unitNameEditInput" placeholder="أدخل اسم الوحدة الجديد..." style="flex:1; padding:0.5rem; border-radius:0.5rem; border:1px solid #ccc; font-size:0.875rem; font-weight:700;">
-        <button class="btn-confirm-add" onclick="updateUnitName()" style="white-space:nowrap;">تعديل الاسم</button>
+        <input type="text" id="unitNameEditInput" placeholder="أدخل اسم الوحدة الجديد..." style="flex:1; padding:0.5rem; border-radius:0.5rem; border:1px solid #ccc; font-size:0.875rem; font-weight:700; min-width:0;">
+        <button class="btn-confirm-add" onclick="updateUnitName()" style="white-space:nowrap; padding:0.5rem 0.75rem;">تعديل الاسم</button>
       </div>
 
       <span class="field-label">اختر الوحدة للتعديل أو الحذف:</span>
@@ -377,8 +379,8 @@
         <span class="field-label">عدد دروس هذه الوحدة:</span>
         <input type="number" id="unitLessonsCountInput" min="1" max="10" value="3" style="width: 100%; text-align: center; margin-bottom: 10px;" onchange="generateLessonNameInputs()">
       </div>
-      <span class="field-label">أسماء الدروس بالتسلسل:</span>
-      <div id="lessonNamesInputsContainer" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;"></div>
+      <span class="field-label">أسماء الدروس (مع إمكانية تعديل كل درس على حدة):</span>
+      <div id="lessonNamesInputsContainer" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px;"></div>
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closeUnitsManageModal()">إلغاء</button>
         <button class="btn-modal-save" onclick="saveUnitConfig()">حفظ التعديلات</button>
@@ -445,7 +447,6 @@
         <button class="btn-menu-option" style="background-color: var(--accent);" onclick="triggerFileInput()">📥 استعادة من ملف نسخة احتياطية (Restore)</button>
         <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="importFullBackupJSON(event)">
       </div>
-
       <div class="data-box-section">
         <div class="data-box-title">⚙️ إعدادات العرض والخطوط</div>
         <button class="btn-menu-option" style="background-color: #8E44AD;" onclick="openFontSettingsModal()">⚙️ إعدادات الخط (الخطوط المختارة)</button>
@@ -577,6 +578,20 @@
         <span class="field-label" style="font-size:0.75rem; margin:0;">حجم خط النص (px):</span>
         <input type="number" id="notificationTextFontSize" class="notification-input" value="11" min="8" max="20" style="width:70px;">
         <span style="font-size:0.65rem; color:#999;">(العنوان، اسم الطالب، النصوص، التوقيع)</span>
+      </div>
+
+      <!-- خيارات الجودة -->
+      <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-top:0.5rem;">
+        <span class="field-label" style="font-size:0.75rem; margin:0;">جودة التصدير:</span>
+        <select id="notificationQualitySelect" class="notification-input" style="width:110px; padding:0.3rem;">
+          <option value="0.5">منخفضة (0.5)</option>
+          <option value="0.7">متوسطة (0.7)</option>
+          <option value="0.85" selected>عالية (0.85)</option>
+          <option value="0.95">فائقة (0.95)</option>
+          <option value="custom">مخصص</option>
+        </select>
+        <input type="number" id="notificationQualityCustom" class="notification-input" value="0.85" min="0.3" max="1.0" step="0.05" style="width:70px; display:none;">
+        <span class="quality-hint" style="font-size:0.65rem; color:#999;">(القيمة الافتراضية: 0.85)</span>
       </div>
 
       <!-- النص العلوي -->
@@ -1497,7 +1512,6 @@
       document.getElementById('unitsManageModal').style.display = 'flex';
       initUnitsModalSelect();
       loadUnitDetailsToModal();
-      // تعبئة حقل اسم الوحدة
       const select = document.getElementById('modalUnitSelect');
       document.getElementById('unitNameEditInput').value = select.value || '';
     }
@@ -1567,6 +1581,54 @@
       alert(`✅ تم تغيير اسم الوحدة من "${oldName}" إلى "${newName}" بنجاح!`);
     }
 
+    // ===== دالة تعديل اسم الدرس =====
+    function updateLessonName(index) {
+      const input = document.querySelector(`.lesson-name-input[data-index="${index}"]`);
+      if (!input) return;
+      const newName = input.value.trim();
+      if (!newName) {
+        alert("الرجاء إدخال اسم صحيح للدرس!");
+        return;
+      }
+
+      const select = document.getElementById('modalUnitSelect');
+      const unitName = select.value;
+      if (!unitName || !unitsData[unitName]) return;
+
+      const oldName = unitsData[unitName].lessons[index];
+      if (newName === oldName) {
+        alert("الاسم الجديد مطابق للاسم القديم.");
+        return;
+      }
+
+      // تحديث اسم الدرس في unitsData
+      unitsData[unitName].lessons[index] = newName;
+
+      // تحديث followupData: تغيير اسم الدرس في جميع سجلات المتابعة لهذه الوحدة
+      const clsKeyPrefix = `${unitName}_`;
+      for (let key in followupData) {
+        if (key.startsWith(clsKeyPrefix)) {
+          const studentData = followupData[key];
+          for (let student in studentData) {
+            if (studentData[student].hw && studentData[student].hw[oldName] !== undefined) {
+              studentData[student].hw[newName] = studentData[student].hw[oldName];
+              delete studentData[student].hw[oldName];
+            }
+            if (studentData[student].act && studentData[student].act[oldName] !== undefined) {
+              studentData[student].act[newName] = studentData[student].act[oldName];
+              delete studentData[student].act[oldName];
+            }
+          }
+        }
+      }
+
+      saveData();
+      // إعادة تحميل تفاصيل الوحدة وعرض الأسماء الجديدة
+      loadUnitDetailsToModal();
+      renderFollowupTable(currentActiveUnit);
+      alert(`✅ تم تغيير اسم الدرس من "${oldName}" إلى "${newName}" بنجاح!`);
+    }
+
     function initUnitsModalSelect() {
       const select = document.getElementById('modalUnitSelect');
       const selectedVal = select.value;
@@ -1575,7 +1637,6 @@
         select.innerHTML += `<option value="${uName}">${uName}</option>`;
       });
       if (unitsData[selectedVal]) select.value = selectedVal;
-      // تحديث حقل اسم الوحدة
       document.getElementById('unitNameEditInput').value = select.value || '';
     }
 
@@ -1607,9 +1668,13 @@
       const container = document.getElementById('lessonNamesInputsContainer');
       container.innerHTML = '';
       lessons.forEach((lName, idx) => {
-        container.innerHTML += `
-          <input type="text" class="lesson-name-input" data-index="${idx}" value="${lName}" placeholder="اسم الدرس ${idx + 1}" style="width: 100%; padding: 6px 10px; font-size: 13px;">
+        const row = document.createElement('div');
+        row.className = 'lesson-edit-row';
+        row.innerHTML = `
+          <input type="text" class="lesson-name-input" data-index="${idx}" value="${lName}" placeholder="اسم الدرس ${idx + 1}" style="flex:1; padding:0.3rem 0.5rem; border-radius:0.375rem; border:1px solid #ccc; font-size:0.8rem; min-width:0;">
+          <button type="button" onclick="updateLessonName(${idx})" style="padding:0.2rem 0.5rem; border-radius:0.375rem; border:none; background:var(--accent); color:white; font-weight:700; font-size:0.7rem; cursor:pointer; white-space:nowrap;">تعديل</button>
         `;
+        container.appendChild(row);
       });
     }
 
@@ -1645,6 +1710,7 @@
       const uName = select.value;
       if (!uName || !unitsData[uName]) return;
 
+      // جمع أسماء الدروس من حقول الإدخال
       const inputs = document.querySelectorAll('.lesson-name-input');
       let lessons = [];
       inputs.forEach(inp => {
@@ -2779,7 +2845,7 @@
     }
 
     // =========================
-    // دوال نافذة تصدير اشعارات الطلاب – نسخة محسنة (مأخوذة من 7.5) مع دعم الأسطر الجديدة وحجم خط التوقيع
+    // دوال نافذة تصدير اشعارات الطلاب – نسخة محسنة مع دعم الجودة والأسطر الجديدة
     // =========================
 
     const NOTIF_STORAGE_KEY = 'notification_export_settings';
@@ -2793,6 +2859,22 @@
           document.getElementById('notificationRowsPerColumn').value = saved.rowsPerColumn || 8;
           document.getElementById('notificationTableFontSize').value = saved.tableFontSize || 7;
           document.getElementById('notificationTextFontSize').value = saved.textFontSize || 11;
+          // استعادة خيار الجودة
+          const quality = saved.quality || 0.85;
+          const qualitySelect = document.getElementById('notificationQualitySelect');
+          let optionExists = false;
+          for (let opt of qualitySelect.options) {
+            if (parseFloat(opt.value) === quality) {
+              qualitySelect.value = opt.value;
+              optionExists = true;
+              break;
+            }
+          }
+          if (!optionExists) {
+            qualitySelect.value = 'custom';
+            document.getElementById('notificationQualityCustom').value = quality;
+            document.getElementById('notificationQualityCustom').style.display = 'inline-block';
+          }
           if (saved.selectedUnits) {
             const checkboxes = document.querySelectorAll('#notificationUnitCheckboxes input[type="checkbox"]');
             checkboxes.forEach(cb => {
@@ -2810,17 +2892,37 @@
         checkboxes.forEach(cb => {
           if (cb.checked) selectedUnits.push(cb.value);
         });
+        let quality = 0.85;
+        const qualitySelect = document.getElementById('notificationQualitySelect');
+        if (qualitySelect.value === 'custom') {
+          quality = parseFloat(document.getElementById('notificationQualityCustom').value) || 0.85;
+        } else {
+          quality = parseFloat(qualitySelect.value) || 0.85;
+        }
         const settings = {
           topText: document.getElementById('notificationTopText').value,
           bottomText: document.getElementById('notificationBottomText').value,
           rowsPerColumn: document.getElementById('notificationRowsPerColumn').value,
           tableFontSize: document.getElementById('notificationTableFontSize').value,
           textFontSize: document.getElementById('notificationTextFontSize').value,
+          quality: quality,
           selectedUnits: selectedUnits
         };
         localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(settings));
       } catch (e) {}
     }
+
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.id === 'notificationQualitySelect') {
+        const select = e.target;
+        const customInput = document.getElementById('notificationQualityCustom');
+        if (select.value === 'custom') {
+          customInput.style.display = 'inline-block';
+        } else {
+          customInput.style.display = 'none';
+        }
+      }
+    });
 
     function openNotificationExportModal() {
       const container = document.getElementById('notificationUnitCheckboxes');
@@ -2852,9 +2954,7 @@
     }
 
     // ================================================================
-    // الدالة الجديدة لتصدير الإشعارات (باستخدام html2canvas + jsPDF)
-    // مع دعم الأسطر الجديدة في النصوص العلوية والسفلية
-    // وحجم خط التوقيع يتغير مع تغير textFontSize
+    // الدالة الجديدة لتصدير الإشعارات مع دعم الجودة والأسطر الجديدة
     // ================================================================
 
     async function exportNotificationsPDF() {
@@ -2885,6 +2985,24 @@
       let textFontSize = parseInt(document.getElementById('notificationTextFontSize').value) || 11;
       if (textFontSize < 8) textFontSize = 8;
       if (textFontSize > 20) textFontSize = 20;
+
+      // قراءة الجودة
+      let quality = 0.85;
+      const qualitySelect = document.getElementById('notificationQualitySelect');
+      if (qualitySelect.value === 'custom') {
+        quality = parseFloat(document.getElementById('notificationQualityCustom').value) || 0.85;
+      } else {
+        quality = parseFloat(qualitySelect.value) || 0.85;
+      }
+      if (quality < 0.3) quality = 0.3;
+      if (quality > 1.0) quality = 1.0;
+
+      // تحديد scale بناءً على الجودة
+      let scaleValue = 1.0;
+      if (quality >= 0.95) scaleValue = 2.5;
+      else if (quality >= 0.85) scaleValue = 2.0;
+      else if (quality >= 0.7) scaleValue = 1.5;
+      else scaleValue = 1.0;
 
       const topText = document.getElementById('notificationTopText').value.trim() || 'نحيطكم علماً بأن مستوى الطالب خلال هذه الفترة كان كالتالي:';
       const bottomText = document.getElementById('notificationBottomText').value.trim() || 'نشكر تعاونكم معنا، ونسأل الله التوفيق للجميع.';
@@ -2928,7 +3046,7 @@
         const student = classStudents[idx];
         progressDiv.textContent = `جاري تجهيز صفحة ${idx + 1} من ${classStudents.length}...`;
 
-        // حساب بيانات الطالب
+        // حساب بيانات الطالب (نفس الكود السابق)
         let totalAbsent = 0, totalLate = 0, totalViolations = 0;
         for (let date in records) {
           if (records[date] && records[date][currentClass]) {
@@ -2990,7 +3108,7 @@
         let finalTest = totalTest / divisor;
         let weightedScore = finalHwAvg + finalActAvg + finalTest;
 
-        // بناء صفوف الجدول
+        // بناء صفوف الجدول (نفس الكود السابق)
         let allRows = [];
         unitDataList.forEach(unit => {
           const lessons = unit.lessons;
@@ -3134,8 +3252,7 @@
 
         let allTablesHtml = mainTableHtml + combinedTablesHtml + weightedHtml;
 
-        // دالة بناء الإشعار مع دعم الأسطر الجديدة في النصوص العلوية والسفلية
-        // وحجم خط التوقيع يتغير مع textFontSize
+        // دالة بناء الإشعار مع دعم الأسطر الجديدة
         function buildNotification(studentName, className, topTxt, bottomTxt, contentHtml, isBottom = false) {
           let extraHtml = '';
           if (isBottom) {
@@ -3187,9 +3304,9 @@
         tempContainer.innerHTML = '';
         tempContainer.appendChild(pageDiv);
 
-        // استخدام html2canvas
+        // استخدام html2canvas مع قيمة scale المحسوبة
         const canvas = await html2canvas(tempContainer, {
-          scale: 2,
+          scale: scaleValue,
           useCORS: true,
           logging: false,
           backgroundColor: '#ffffff',
@@ -3212,7 +3329,7 @@
 
       for (let i = 0; i < pageImages.length; i++) {
         const canvas = pageImages[i];
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const imgData = canvas.toDataURL('image/jpeg', quality);
         const imgWidth = pdfWidth - 2 * margin;
         const imgHeight = (canvas.height / canvas.width) * imgWidth;
         let finalImgHeight = imgHeight;
