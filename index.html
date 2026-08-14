@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -7,15 +8,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="نظام متابعة الطلاب المدرسي">
 
-  <!-- المكتبات الأساسية (موجودة لديك) -->
+  <!-- المكتبات الأساسية -->
   <script src="./html2pdf.bundle.min.js"></script>
-  <!-- إضافة مكتبات إضافية لدعم تصدير الإشعارات بجودة عالية (بدون إنترنت) -->
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
-  <!-- مكتبة قراءة ملفات الإكسل -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>8.0</title>
+  <title>8.1</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -90,12 +89,10 @@
     .btn-export-period { background-color: #e67e22; color: white; border: none; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); user-select: none; -webkit-user-select: none; }
     .btn-export-period:active { opacity: 0.8; }
 
-    /* زر الدرجة الموزونة للوحدة – لون فاتح */
     .btn-weighted-light { background-color: #D6EAF8; color: #1B4F72; border: 1px solid #A9CCE3; }
     .btn-weighted-light:active { opacity: 0.8; }
     .btn-weighted-light:hover { background-color: #C5E0F0; }
 
-    /* زر اشعارات الطلاب – لون فاتح */
     .btn-notify-light { background-color: #E8DAEF; color: #6C3483; border: 1px solid #D2B4DE; }
     .btn-notify-light:active { opacity: 0.8; }
     .btn-notify-light:hover { background-color: #DDD0E8; }
@@ -105,7 +102,6 @@
     .followup-table th, .followup-table td { border: 1px solid #ddd; padding: 0.5rem 0.375rem; white-space: nowrap; }
     .followup-table th { background-color: #f8f9fa; color: #2c3e50; }
 
-    /* أزرار استيراد صغيرة - بنفس لون الخلفية */
     .import-icon-btn {
       display: inline-block;
       border: none;
@@ -120,29 +116,11 @@
       -webkit-user-select: none;
     }
     .import-icon-btn:active { opacity: 0.6; }
-
-    /* لون الواجبات (أخضر فاتح) */
-    .import-icon-hw {
-      background-color: #D4EFDF;
-      color: #117A65;
-      border: 1px solid #A9DFBF;
-    }
+    .import-icon-hw { background-color: #D4EFDF; color: #117A65; border: 1px solid #A9DFBF; }
     .import-icon-hw:hover { background-color: #C5E8D5; }
-
-    /* لون الأنشطة (أصفر فاتح) */
-    .import-icon-act {
-      background-color: #FCF3CF;
-      color: #7D6608;
-      border: 1px solid #F9E79F;
-    }
+    .import-icon-act { background-color: #FCF3CF; color: #7D6608; border: 1px solid #F9E79F; }
     .import-icon-act:hover { background-color: #F9EBC5; }
-
-    /* لون الاختبارات (أحمر فاتح) */
-    .import-icon-test {
-      background-color: #FADBD8;
-      color: #78281F;
-      border: 1px solid #F5B7B1;
-    }
+    .import-icon-test { background-color: #FADBD8; color: #78281F; border: 1px solid #F5B7B1; }
     .import-icon-test:hover { background-color: #F5CCC8; }
 
     .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 100; align-items: center; justify-content: center; padding: 0.75rem; }
@@ -214,7 +192,6 @@
     .btn-confirm-cancel { flex: 1; background-color: var(--gray-btn); color: var(--text-primary); border: none; padding: 0.625rem; border-radius: 0.625rem; font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; }
     .btn-confirm-cancel:active { opacity: 0.8; }
 
-    /* --- مكونات نافذة تصدير الاشعارات --- */
     .unit-checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.375rem; margin-bottom: 0.75rem; }
     .unit-check-item { display: flex; align-items: center; gap: 0.375rem; background: #F9F9FB; padding: 0.375rem 0.5rem; border-radius: 0.5rem; border: 1px solid #E5E5EA; font-weight: 700; font-size: 0.8125rem; cursor: pointer; }
     .unit-check-item:active { background: #E5E5EA; }
@@ -222,22 +199,101 @@
     .notification-textarea { width: 100%; height: 4.5rem; border-radius: 0.625rem; border: 1px solid #D1D1D6; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 600; line-height: 1.6; resize: vertical; outline: none; margin-bottom: 0.5rem; }
     .notification-textarea:focus { border-color: var(--accent); }
     .notification-input { width: 100%; padding: 0.4rem 0.6rem; border-radius: 0.5rem; border: 1px solid #ccc; font-size: 0.875rem; font-weight: 700; text-align: center; background: #f9f9fb; }
-
-    /* الحفاظ على الأسطر الجديدة في النصوص العلوية والسفلية */
     .preserve-newlines { white-space: pre-wrap; text-align: center; }
-
-    /* --- تذييل الصفحة (للطباعة) --- */
     .page-footer { text-align: center; font-size: 0.6rem; color: #999; border-top: 1px dashed #ddd; padding-top: 0.3rem; margin-top: 0.3rem; }
 
-    /* حقل تعديل اسم الوحدة في إدارة الوحدات */
     .unit-name-edit-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.625rem; }
     .unit-name-edit-row input { flex: 1; min-width: 0; }
-
-    /* حقل تعديل اسم الدرس */
     .lesson-edit-row { display: flex; gap: 0.3rem; align-items: center; margin-bottom: 0.3rem; }
     .lesson-edit-row input { flex: 1; min-width: 0; padding: 0.3rem 0.5rem; border-radius: 0.375rem; border: 1px solid #ccc; font-size: 0.8rem; }
     .lesson-edit-row button { padding: 0.2rem 0.5rem; border-radius: 0.375rem; border: none; background: var(--accent); color: white; font-weight: 700; font-size: 0.7rem; cursor: pointer; white-space: nowrap; }
     .lesson-edit-row button:active { opacity: 0.8; }
+
+    /* تنسيق قائمة تعديل الأسماء في النافذة المنبثقة */
+    .edit-student-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.5rem;
+      margin-bottom: 0.3rem;
+      background: #f9f9fb;
+      border-radius: 0.5rem;
+      border: 1px solid #e5e5ea;
+      transition: background 0.15s;
+    }
+    .edit-student-item:hover { background: #f0f0f5; }
+    .edit-student-item .student-number {
+      font-weight: bold;
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      min-width: 28px;
+    }
+    .edit-student-item .student-display-name {
+      flex: 1;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 0.1rem 0.2rem;
+      border-radius: 0.3rem;
+      transition: background 0.15s;
+    }
+    .edit-student-item .student-display-name:hover {
+      background: #e5e5ea;
+    }
+    .edit-student-item .student-edit-input {
+      flex: 1;
+      padding: 0.2rem 0.5rem;
+      border: 1px solid var(--accent);
+      border-radius: 0.3rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      background: white;
+      display: none;
+    }
+    .edit-student-item .btn-edit-save {
+      padding: 0.2rem 0.6rem;
+      border-radius: 0.3rem;
+      border: none;
+      background: var(--green);
+      color: white;
+      font-weight: 700;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: none;
+      white-space: nowrap;
+    }
+    .edit-student-item .btn-edit-save:active { opacity: 0.8; }
+    .edit-student-item .btn-edit-cancel {
+      padding: 0.2rem 0.6rem;
+      border-radius: 0.3rem;
+      border: none;
+      background: #e5e5ea;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: none;
+      white-space: nowrap;
+    }
+    .edit-student-item .btn-edit-cancel:active { opacity: 0.8; }
+    .edit-student-item .btn-edit-trigger {
+      padding: 0.2rem 0.6rem;
+      border-radius: 0.3rem;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      font-size: 0.7rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .edit-student-item .btn-edit-trigger:active { opacity: 0.8; }
+
+    .edit-student-item.editing .student-display-name { display: none; }
+    .edit-student-item.editing .student-edit-input { display: inline-block; }
+    .edit-student-item.editing .btn-edit-save { display: inline-block; }
+    .edit-student-item.editing .btn-edit-cancel { display: inline-block; }
+    .edit-student-item.editing .btn-edit-trigger { display: none; }
 
     @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
   </style>
@@ -248,7 +304,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (8.0)
+        كشف الغياب والمخالفات (8.1)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -286,7 +342,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (8.0)
+        كشوف المتابعة و الدرجات (8.1)
       </div>
     </header>
     <div class="top-action-bar">
@@ -390,24 +446,20 @@
     </div>
   </div>
 
-  <!-- ================= نافذة إدارة الوحدات (معدلة: إضافة تعديل اسم الوحدة + تعديل اسم الدرس) ================= -->
+  <!-- ================= نافذة إدارة الوحدات ================= -->
   <div class="modal" id="unitsManageModal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <div class="modal-title" style="margin:0;">⚙️ إدارة الوحدات والدروس</div>
         <button class="btn-close-circle" onclick="closeUnitsManageModal()">✕</button>
       </div>
-
-      <!-- حقل تعديل اسم الوحدة -->
       <span class="field-label">اسم الوحدة:</span>
       <div class="unit-name-edit-row">
         <input type="text" id="unitNameEditInput" placeholder="أدخل اسم الوحدة الجديد..." style="flex:1; padding:0.5rem; border-radius:0.5rem; border:1px solid #ccc; font-size:0.875rem; font-weight:700; min-width:0;">
         <button class="btn-confirm-add" onclick="updateUnitName()" style="white-space:nowrap; padding:0.5rem 0.75rem;">تعديل الاسم</button>
       </div>
-
       <span class="field-label">اختر الوحدة للتعديل أو الحذف:</span>
       <select id="modalUnitSelect" class="select-class-full" onchange="loadUnitDetailsToModal()"></select>
-
       <div class="class-manage-btns">
         <button type="button" class="btn-add-cls-btn" onclick="toggleAddUnitBox()">➕ إضافة وحدة</button>
         <button type="button" class="btn-del-cls-btn" onclick="promptDeleteUnit()">🗑️ حذف الوحدة</button>
@@ -460,7 +512,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة تقارير كشوف المتابعة (تبقت للاستخدام الداخلي) ================= -->
+  <!-- ================= نافذة تقارير كشوف المتابعة ================= -->
   <div class="modal" id="followupReportModal">
     <div class="modal-content" style="max-width: 600px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -532,7 +584,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة إدارة الأسماء والصفوف ================= -->
+  <!-- ================= نافذة إدارة الأسماء والصفوف (معدلة) ================= -->
   <div class="modal" id="manageModal">
     <div class="modal-content" style="max-height: 90vh;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -554,9 +606,31 @@
       </div>
       <span class="field-label">أسماء الطلاب (كل اسم في سطر):</span>
       <textarea id="studentNamesTextarea" placeholder="أدخل أسماء الطلاب..."></textarea>
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+        <button class="btn-action" style="background-color:var(--accent); flex:1; font-size:12px; min-height:36px;" onclick="saveStudentsFromTextarea()">💾 حفظ الأسماء</button>
+        <button class="btn-action" style="background-color:#8E44AD; flex:1; font-size:12px; min-height:36px;" onclick="openEditStudentNameModal()">✏️ تعديل اسم طالب</button>
+      </div>
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closeManageModal()">إلغاء</button>
-        <button class="btn-modal-save" onclick="saveStudentsFromTextarea()">حفظ الأسماء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= نافذة تعديل اسم الطالب (منبثقة) ================= -->
+  <div class="modal" id="editStudentNameModal" style="z-index: 125;">
+    <div class="modal-content" style="max-width: 500px; width: 95%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="modal-title" style="margin:0; font-size:1rem;">✏️ تعديل اسم طالب</div>
+        <button class="btn-close-circle" onclick="closeEditStudentNameModal()">✕</button>
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:8px; font-weight:700; text-align:center;">
+        انقر (نقرتين) على اسم الطالب لتعديله، ثم اضغط "حفظ".
+      </div>
+      <div id="editStudentListContainer" style="max-height: 55vh; overflow-y: auto; border: 1px solid #e5e5ea; border-radius: 0.75rem; padding: 0.5rem; background: #f9f9fb;">
+        <!-- يتم توليد القائمة هنا -->
+      </div>
+      <div class="modal-actions" style="margin-top: 0.75rem;">
+        <button class="btn-modal-cancel" onclick="closeEditStudentNameModal()">إغلاق</button>
       </div>
     </div>
   </div>
@@ -591,7 +665,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة تصدير اشعارات الطلاب (محدثة) ================= -->
+  <!-- ================= نافذة تصدير اشعارات الطلاب ================= -->
   <div class="modal" id="notificationExportModal" style="z-index: 120; display: none;">
     <div class="modal-content wide" style="max-width: 500px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -601,27 +675,19 @@
       <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:8px; font-weight:700; text-align:center;">
         اختر الوحدات، حدد عدد الصفوف لكل عمود، وحجم خط الجداول والنص، ثم اكتب النصوص العلوية والسفلية.
       </div>
-
-      <!-- وحدات قابلة للاختيار -->
       <span class="field-label" style="font-size:0.75rem;">الوحدات المطلوبة:</span>
       <div id="notificationUnitCheckboxes" class="unit-checkbox-grid"></div>
-
-      <!-- عدد الصفوف لكل عمود -->
       <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem; align-items:center; flex-wrap:wrap;">
         <span class="field-label" style="font-size:0.75rem; margin:0;">عدد الصفوف لكل عمود:</span>
         <input type="number" id="notificationRowsPerColumn" class="notification-input" value="8" min="2" max="20" style="width:70px;">
         <span class="field-label" style="font-size:0.75rem; margin:0;">حجم خط الجداول (px):</span>
         <input type="number" id="notificationTableFontSize" class="notification-input" value="7" min="5" max="14" style="width:70px;">
       </div>
-
-      <!-- حجم خط النص -->
       <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem; align-items:center; flex-wrap:wrap;">
         <span class="field-label" style="font-size:0.75rem; margin:0;">حجم خط النص (px):</span>
         <input type="number" id="notificationTextFontSize" class="notification-input" value="11" min="8" max="20" style="width:70px;">
         <span style="font-size:0.65rem; color:#999;">(العنوان، اسم الطالب، النصوص، التوقيع)</span>
       </div>
-
-      <!-- خيارات الجودة -->
       <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-top:0.5rem;">
         <span class="field-label" style="font-size:0.75rem; margin:0;">جودة التصدير:</span>
         <select id="notificationQualitySelect" class="notification-input" style="width:110px; padding:0.3rem;">
@@ -634,15 +700,10 @@
         <input type="number" id="notificationQualityCustom" class="notification-input" value="0.85" min="0.3" max="1.0" step="0.05" style="width:70px; display:none;">
         <span class="quality-hint" style="font-size:0.65rem; color:#999;">(القيمة الافتراضية: 0.85)</span>
       </div>
-
-      <!-- النص العلوي -->
       <span class="field-label" style="font-size:0.75rem; margin-top:0.25rem;">📝 النص العلوي:</span>
       <textarea id="notificationTopText" class="notification-textarea" placeholder="اكتب النص الذي يظهر أعلى الجدول (سطرين أو ثلاثة)..." style="white-space:pre-wrap;"></textarea>
-
-      <!-- النص السفلي -->
       <span class="field-label" style="font-size:0.75rem;">📝 النص السفلي:</span>
       <textarea id="notificationBottomText" class="notification-textarea" placeholder="اكتب النص الذي يظهر أسفل الجدول (سطرين أو ثلاثة)..." style="white-space:pre-wrap;"></textarea>
-
       <div class="modal-actions" style="margin-top:0.25rem;">
         <button class="btn-modal-cancel" onclick="closeNotificationExportModal()">إلغاء</button>
         <button class="btn-modal-save" onclick="exportNotificationsPDF()" style="background-color:#6C3483;">📄 تصدير PDF</button>
@@ -695,9 +756,12 @@
     let itemToDelete = '';
     let deleteTargetType = '';
 
+    // متغيرات لتتبع حالة التعديل في النافذة المنبثقة
+    let editingIndex = -1;
+
     document.getElementById('dateSelect').valueAsDate = new Date();
 
-    // ================== إعدادات الخطوط الديناميكية ==================
+    // ================== إعدادات الخطوط ==================
     const AVAILABLE_FONTS = [
       { name: "الافتراضي (خط الآيفون)", value: "system" },
       { name: "Almarai (المراي)", value: "Almarai" },
@@ -945,7 +1009,6 @@
       const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
 
       const thead = document.getElementById('followupTableHead');
-      // بناء رأس الجدول مع أزرار استيراد صغيرة بجانب العناوين
       let headHtml = `
         <tr>
           <th rowspan="2" style="background-color: #f8f9fa; color: #2c3e50; vertical-align: middle;">#</th>
@@ -1113,10 +1176,7 @@
       });
     }
 
-    // ================================================================
-    // دالة استيراد الإكسل (الواجبات، الأنشطة، الاختبارات) – مع مربعات تأكيد
-    // ================================================================
-
+    // ===== دالة استيراد الإكسل =====
     function importExcel(type) {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       const unitName = currentActiveUnit;
@@ -1133,7 +1193,6 @@
       const clsKey = `${currentClass}_${unitName}`;
       if (!followupData[clsKey]) followupData[clsKey] = {};
 
-      // إنشاء عنصر إدخال الملف
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.xlsx, .xls';
@@ -1160,10 +1219,7 @@
               return;
             }
 
-            // قراءة الصف الأول (أسماء الأعمدة)
             const headerRow = jsonData[0];
-            // العمود الأول هو اسم الطالب
-            // الأعمدة التالية هي أسماء الدروس
             const lessonNames = [];
             for (let i = 1; i < headerRow.length; i++) {
               let name = headerRow[i] ? headerRow[i].toString().trim() : '';
@@ -1176,7 +1232,6 @@
               return;
             }
 
-            // تحديث أسماء الدروس في الوحدة (إذا كانت مختلفة)
             const currentLessons = unitsData[unitName].lessons;
             let lessonsChanged = false;
             if (currentLessons.length !== lessonNames.length) {
@@ -1195,15 +1250,11 @@
               }
             }
 
-            // قراءة البيانات
             const studentsInFile = [];
             const studentsAdded = [];
             const studentsUpdated = [];
-
-            // تحضير قائمة الطلاب الحاليين في الفصل
             const currentStudents = new Set(appData[currentClass]);
 
-            // قراءة الصفوف
             for (let r = 1; r < jsonData.length; r++) {
               const row = jsonData[r];
               if (!row || !row[0]) continue;
@@ -1211,7 +1262,6 @@
               if (!studentName) continue;
               studentsInFile.push(studentName);
 
-              // إذا كان الطالب غير موجود في الفصل
               if (!currentStudents.has(studentName)) {
                 const add = confirm(`الطالب "${studentName}" غير مدرج في البرنامج.\nهل تريد إضافته إلى الفصل؟`);
                 if (add) {
@@ -1219,18 +1269,16 @@
                   currentStudents.add(studentName);
                   studentsAdded.push(studentName);
                 } else {
-                  continue; // تخطي هذا الطالب
+                  continue;
                 }
               }
 
-              // تهيئة بيانات الطالب للوحدة الحالية
               if (!followupData[clsKey][studentName]) {
                 followupData[clsKey][studentName] = { hw: {}, act: {}, test1: '', test2: '' };
               }
 
               const stData = followupData[clsKey][studentName];
 
-              // استيراد حسب النوع
               if (type === 'hw') {
                 for (let col = 0; col < lessonNames.length; col++) {
                   const val = row[col + 1];
@@ -1252,8 +1300,6 @@
                   studentsUpdated.push(studentName);
                 }
               } else if (type === 'test') {
-                // الاختبارات: قد يكون لدينا عمودين: الاختبار والمشروع
-                // أو عمود واحد فقط (الاختبار)
                 if (row.length >= 2) {
                   const testVal = parseFloat(row[1]);
                   if (!isNaN(testVal) && testVal !== '') {
@@ -1268,7 +1314,6 @@
                     studentsUpdated.push(studentName);
                   }
                 }
-                // إذا كان هناك عمود واحد فقط، نعتبره الاختبار
                 if (row.length >= 2 && row.length < 3) {
                   const testVal = parseFloat(row[1]);
                   if (!isNaN(testVal) && testVal !== '') {
@@ -1279,8 +1324,7 @@
               }
             }
 
-            // بعد الاستيراد، التحقق من الطلاب الموجودين في البرنامج وليسوا في الملف
-            if (type !== 'test') { // نطبق هذه الميزة فقط للواجبات والأنشطة
+            if (type !== 'test') {
               const studentsInProgram = new Set(appData[currentClass]);
               const studentsInFileSet = new Set(studentsInFile);
               const missingFromFile = [];
@@ -1306,7 +1350,6 @@
               }
             }
 
-            // حفظ البيانات وتحديث الواجهات
             saveData();
             renderUnitsDropdown();
             renderFollowupTable(unitName);
@@ -1328,7 +1371,224 @@
     }
 
     // ================================================================
-    // باقي الدوال (نفس الكود السابق)
+    // دوال تعديل اسم الطالب (النافذة المنبثقة)
+    // ================================================================
+
+    function openEditStudentNameModal() {
+      const selectedClass = document.getElementById('modalClassSelect').value;
+      if (!selectedClass || !appData[selectedClass] || appData[selectedClass].length === 0) {
+        alert("لا يوجد طلاب في هذا الفصل لتعديل أسمائهم.");
+        return;
+      }
+      renderEditStudentList();
+      document.getElementById('editStudentNameModal').style.display = 'flex';
+    }
+
+    function closeEditStudentNameModal() {
+      document.getElementById('editStudentNameModal').style.display = 'none';
+      // إلغاء أي تعديل مفتوح
+      if (editingIndex !== -1) {
+        cancelEditName(editingIndex);
+      }
+      editingIndex = -1;
+    }
+
+    function renderEditStudentList() {
+      const selectedClass = document.getElementById('modalClassSelect').value;
+      const container = document.getElementById('editStudentListContainer');
+      container.innerHTML = '';
+
+      // جلب الأسماء وترتيبها أبجدياً مع الاحتفاظ بالمؤشر الأصلي
+      const students = appData[selectedClass].map((name, idx) => ({ name, idx }));
+      students.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+      if (students.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">لا يوجد طلاب في هذا الفصل</div>';
+        return;
+      }
+
+      students.forEach((item, index) => {
+        const originalIndex = item.idx;
+        const studentName = item.name;
+
+        const row = document.createElement('div');
+        row.className = 'edit-student-item';
+        row.id = `edit-row-${originalIndex}`;
+
+        // رقم
+        const numSpan = document.createElement('span');
+        numSpan.className = 'student-number';
+        numSpan.textContent = index + 1;
+        row.appendChild(numSpan);
+
+        // اسم قابل للنقر المزدوج
+        const displayName = document.createElement('span');
+        displayName.className = 'student-display-name';
+        displayName.textContent = studentName;
+        displayName.ondblclick = function() {
+          startEditName(originalIndex);
+        };
+        row.appendChild(displayName);
+
+        // حقل الإدخال (مخفي)
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'student-edit-input';
+        input.value = studentName;
+        input.dataset.originalName = studentName;
+        input.dataset.originalIndex = originalIndex;
+        row.appendChild(input);
+
+        // زر حفظ
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'btn-edit-save';
+        saveBtn.textContent = '✅ حفظ';
+        saveBtn.onclick = function() {
+          saveEditedName(originalIndex);
+        };
+        row.appendChild(saveBtn);
+
+        // زر إلغاء
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'btn-edit-cancel';
+        cancelBtn.textContent = '✖️ إلغاء';
+        cancelBtn.onclick = function() {
+          cancelEditName(originalIndex);
+        };
+        row.appendChild(cancelBtn);
+
+        // زر تعديل (الافتراضي)
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn-edit-trigger';
+        editBtn.textContent = '✏️ تعديل';
+        editBtn.onclick = function() {
+          startEditName(originalIndex);
+        };
+        row.appendChild(editBtn);
+
+        container.appendChild(row);
+      });
+    }
+
+    function startEditName(originalIndex) {
+      const selectedClass = document.getElementById('modalClassSelect').value;
+      const row = document.getElementById(`edit-row-${originalIndex}`);
+      if (!row) return;
+
+      // إلغاء أي تعديل مفتوح
+      if (editingIndex !== -1 && editingIndex !== originalIndex) {
+        cancelEditName(editingIndex);
+      }
+
+      const displayName = row.querySelector('.student-display-name');
+      const input = row.querySelector('.student-edit-input');
+      const saveBtn = row.querySelector('.btn-edit-save');
+      const cancelBtn = row.querySelector('.btn-edit-cancel');
+      const editBtn = row.querySelector('.btn-edit-trigger');
+
+      // إظهار وضع التعديل
+      row.classList.add('editing');
+      input.value = displayName.textContent;
+      input.focus();
+      input.select();
+
+      editingIndex = originalIndex;
+    }
+
+    function saveEditedName(originalIndex) {
+      const selectedClass = document.getElementById('modalClassSelect').value;
+      const row = document.getElementById(`edit-row-${originalIndex}`);
+      if (!row) return;
+
+      const input = row.querySelector('.student-edit-input');
+      const newName = input.value.trim();
+      const oldName = input.dataset.originalName;
+
+      if (!newName) {
+        alert("الاسم لا يمكن أن يكون فارغاً!");
+        return;
+      }
+
+      if (newName === oldName) {
+        cancelEditName(originalIndex);
+        return;
+      }
+
+      // التحقق من عدم التكرار
+      if (appData[selectedClass].includes(newName)) {
+        alert(`الاسم "${newName}" موجود مسبقاً!`);
+        return;
+      }
+
+      // تنفيذ التعديل
+      if (updateStudentNameInAllData(oldName, newName, selectedClass)) {
+        // تحديث النص في المربع الجماعي
+        updateTextareaAfterRename(selectedClass);
+
+        // تحديث القائمة
+        renderEditStudentList();
+
+        // عرض رسالة تأكيد
+        alert(`✅ تم تعديل اسم "${oldName}" إلى "${newName}" بنجاح.`);
+
+        // إعادة تعيين حالة التعديل
+        editingIndex = -1;
+      } else {
+        alert("❌ حدث خطأ أثناء التعديل. تأكد من أن الاسم الجديد غير مكرر.");
+      }
+    }
+
+    function cancelEditName(originalIndex) {
+      const row = document.getElementById(`edit-row-${originalIndex}`);
+      if (!row) return;
+
+      row.classList.remove('editing');
+      if (editingIndex === originalIndex) {
+        editingIndex = -1;
+      }
+    }
+
+    // دالة مساعدة لتحديث الاسم في جميع السجلات
+    function updateStudentNameInAllData(oldName, newName, className) {
+      // 1. تحديث قائمة الفصل
+      let idx = appData[className].indexOf(oldName);
+      if (idx === -1) {
+        // قد يكون الطالب غير موجود (تم حذفه)، نضيفه بالقائمة الجديدة
+        // لكن الأفضل منع هذا السيناريو
+        return false;
+      }
+      appData[className][idx] = newName;
+
+      // 2. تحديث سجلات الغياب والمخالفات
+      for (let date in records) {
+        if (records[date] && records[date][className] && records[date][className][oldName] !== undefined) {
+          records[date][className][newName] = records[date][className][oldName];
+          delete records[date][className][oldName];
+        }
+      }
+
+      // 3. تحديث درجات المتابعة في جميع الوحدات
+      for (let key in followupData) {
+        if (key.startsWith(className + '_')) {
+          if (followupData[key][oldName] !== undefined) {
+            followupData[key][newName] = followupData[key][oldName];
+            delete followupData[key][oldName];
+          }
+        }
+      }
+
+      saveData();
+      renderStudents(); // تحديث الشاشة الرئيسية
+      return true;
+    }
+
+    // دالة لتحديث محتوى textarea بعد التعديل
+    function updateTextareaAfterRename(className) {
+      if (appData[className]) {
+        document.getElementById('studentNamesTextarea').value = appData[className].join('\n');
+      }
+    }
+
     // ================================================================
 
     function openPeriodSummaryModal(periodNum) {
@@ -1773,6 +2033,8 @@
     function closeManageModal() {
       document.getElementById('manageModal').style.display = 'none';
       document.getElementById('inlineAddBox').style.display = 'none';
+      // إغلاق نافذة تعديل الأسماء إذا كانت مفتوحة
+      closeEditStudentNameModal();
     }
 
     function openDataMenuModal() {
@@ -1796,7 +2058,7 @@
       document.getElementById('inlineAddUnitBox').style.display = 'none';
     }
 
-    // ===== دالة تعديل اسم الوحدة =====
+    // ===== دوال تعديل اسم الوحدة والدرس =====
     function updateUnitName() {
       const select = document.getElementById('modalUnitSelect');
       const oldName = select.value;
@@ -1821,11 +2083,9 @@
         return;
       }
 
-      // نقل البيانات من الاسم القديم إلى الجديد
       unitsData[newName] = unitsData[oldName];
       delete unitsData[oldName];
 
-      // تحديث followupData
       const newFollowupData = {};
       for (let key in followupData) {
         if (key.startsWith(oldName + '_')) {
@@ -1837,11 +2097,9 @@
       }
       followupData = newFollowupData;
 
-      // تحديث الفترات المختارة
       period1SelectedUnits = period1SelectedUnits.map(u => u === oldName ? newName : u);
       period2SelectedUnits = period2SelectedUnits.map(u => u === oldName ? newName : u);
 
-      // تحديث الوحدة الحالية
       if (currentActiveUnit === oldName) {
         currentActiveUnit = newName;
       }
@@ -1856,7 +2114,6 @@
       alert(`✅ تم تغيير اسم الوحدة من "${oldName}" إلى "${newName}" بنجاح!`);
     }
 
-    // ===== دالة تعديل اسم الدرس =====
     function updateLessonName(index) {
       const input = document.querySelector(`.lesson-name-input[data-index="${index}"]`);
       if (!input) return;
@@ -1876,10 +2133,8 @@
         return;
       }
 
-      // تحديث اسم الدرس في unitsData
       unitsData[unitName].lessons[index] = newName;
 
-      // تحديث followupData: تغيير اسم الدرس في جميع سجلات المتابعة لهذه الوحدة
       const clsKeyPrefix = `${unitName}_`;
       for (let key in followupData) {
         if (key.startsWith(clsKeyPrefix)) {
@@ -2063,6 +2318,10 @@
       saveData();
       document.getElementById('classSelect').value = selectedClass;
       renderStudents();
+      // تحديث النافذة المنبثقة إذا كانت مفتوحة
+      if (document.getElementById('editStudentNameModal').style.display === 'flex') {
+        renderEditStudentList();
+      }
       closeManageModal();
     }
 
@@ -3118,7 +3377,7 @@
     }
 
     // =========================
-    // دوال نافذة تصدير اشعارات الطلاب – نسخة محسنة مع دعم الجودة والأسطر الجديدة
+    // دوال نافذة تصدير اشعارات الطلاب
     // =========================
 
     const NOTIF_STORAGE_KEY = 'notification_export_settings';
@@ -3225,10 +3484,6 @@
       document.getElementById('notificationExportModal').style.display = 'none';
     }
 
-    // ================================================================
-    // الدالة الجديدة لتصدير الإشعارات مع دعم الجودة والأسطر الجديدة
-    // ================================================================
-
     async function exportNotificationsPDF() {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       if (!currentClass || !appData[currentClass] || appData[currentClass].length === 0) {
@@ -3258,7 +3513,6 @@
       if (textFontSize < 8) textFontSize = 8;
       if (textFontSize > 20) textFontSize = 20;
 
-      // قراءة الجودة
       let quality = 0.85;
       const qualitySelect = document.getElementById('notificationQualitySelect');
       if (qualitySelect.value === 'custom') {
@@ -3269,7 +3523,6 @@
       if (quality < 0.3) quality = 0.3;
       if (quality > 1.0) quality = 1.0;
 
-      // تحديد scale بناءً على الجودة
       let scaleValue = 1.0;
       if (quality >= 0.95) scaleValue = 2.5;
       else if (quality >= 0.85) scaleValue = 2.0;
@@ -3294,7 +3547,6 @@
         return unitColors[unitName] || '#F2F2F7';
       }
 
-      // إنشاء حاوية مؤقتة
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'fixed';
       tempContainer.style.left = '-9999px';
@@ -3308,7 +3560,6 @@
 
       const pageImages = [];
 
-      // إظهار تقدم التصدير
       const progressDiv = document.createElement('div');
       progressDiv.style.cssText = 'position:fixed; top:10px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:white; padding:8px 20px; border-radius:30px; font-weight:bold; z-index:9999;';
       progressDiv.textContent = 'جاري تجهيز الصفحات...';
@@ -3318,7 +3569,6 @@
         const student = classStudents[idx];
         progressDiv.textContent = `جاري تجهيز صفحة ${idx + 1} من ${classStudents.length}...`;
 
-        // حساب بيانات الطالب (نفس الكود السابق)
         let totalAbsent = 0, totalLate = 0, totalViolations = 0;
         for (let date in records) {
           if (records[date] && records[date][currentClass]) {
@@ -3380,7 +3630,6 @@
         let finalTest = totalTest / divisor;
         let weightedScore = finalHwAvg + finalActAvg + finalTest;
 
-        // بناء صفوف الجدول (نفس الكود السابق)
         let allRows = [];
         unitDataList.forEach(unit => {
           const lessons = unit.lessons;
@@ -3524,7 +3773,6 @@
 
         let allTablesHtml = mainTableHtml + combinedTablesHtml + weightedHtml;
 
-        // دالة بناء الإشعار مع دعم الأسطر الجديدة
         function buildNotification(studentName, className, topTxt, bottomTxt, contentHtml, isBottom = false) {
           let extraHtml = '';
           if (isBottom) {
@@ -3557,7 +3805,6 @@
         let notification1 = buildNotification(student, currentClass, topText, bottomText, allTablesHtml, false);
         let notification2 = buildNotification(student, currentClass, topText, bottomText, allTablesHtml, true);
 
-        // تجميع الصفحة
         const pageDiv = document.createElement('div');
         pageDiv.style.width = '100%';
         pageDiv.style.maxWidth = '100%';
@@ -3576,7 +3823,6 @@
         tempContainer.innerHTML = '';
         tempContainer.appendChild(pageDiv);
 
-        // استخدام html2canvas مع قيمة scale المحسوبة
         const canvas = await html2canvas(tempContainer, {
           scale: scaleValue,
           useCORS: true,
@@ -3592,7 +3838,6 @@
       document.body.removeChild(tempContainer);
       document.body.removeChild(progressDiv);
 
-      // إنشاء PDF باستخدام jsPDF
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = 210;
