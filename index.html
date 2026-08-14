@@ -1034,6 +1034,19 @@
       localStorage.setItem(STUDENT_NUMBER_MAP_KEY, JSON.stringify(queryStudentNumberMap));
     }
 
+    // ===== دالة جديدة للحصول على جميع الطلاب =====
+    function getAllStudents() {
+      const allStudents = [];
+      Object.keys(appData).forEach(cls => {
+        if (appData[cls]) {
+          appData[cls].forEach(student => {
+            allStudents.push(student);
+          });
+        }
+      });
+      return allStudents;
+    }
+
     document.getElementById('dateSelect').valueAsDate = new Date();
 
     // إعدادات الخطوط
@@ -1846,6 +1859,7 @@
     // ================================
     function openStudentNumbersModal() {
       initClassSelects();
+      loadStudentNumberMap(); // تحميل الأرقام المحفوظة
       document.getElementById('studentNumbersModal').style.display = 'flex';
       renderStudentNumbersList();
     }
@@ -1998,7 +2012,34 @@
     function openQueryExportModal() {
       initClassSelects();
       renderQueryUnitCheckboxes();
-      document.getElementById('queryExportModal').style.display = 'flex';
+      
+      // ===== التحقق من وجود أرقام محفوظة =====
+      loadStudentNumberMap();
+      const allStudents = getAllStudents();
+      const missingStudents = allStudents.filter(student => !queryStudentNumberMap[student]);
+      
+      if (missingStudents.length === 0) {
+        // جميع الأرقام محفوظة → نعرض رسالة ونصدر مباشرة
+        document.getElementById('queryExportModal').style.display = 'flex';
+        const uploadBtn = document.querySelector('#queryExportModal .btn-upload');
+        if (uploadBtn) uploadBtn.style.display = 'none';
+        document.getElementById('queryIdFileInput').style.display = 'none';
+        document.getElementById('queryIdFileStatus').innerHTML = '✅ جميع الأرقام محفوظة (لا حاجة لرفع ملف)';
+        document.getElementById('queryIdFileStatus').style.color = 'var(--green)';
+        
+        // نضغط تصدير تلقائياً بعد تأخير بسيط
+        setTimeout(() => {
+          exportQueryData();
+        }, 500);
+      } else {
+        // يوجد طلاب بدون أرقام → نطلب رفع الملف
+        const uploadBtn = document.querySelector('#queryExportModal .btn-upload');
+        if (uploadBtn) uploadBtn.style.display = 'block';
+        document.getElementById('queryIdFileInput').style.display = 'block';
+        document.getElementById('queryIdFileStatus').innerHTML = `⚠️ ${missingStudents.length} طالب غير موجود في الملف المحفوظ، يرجى رفع ملف البيانات.`;
+        document.getElementById('queryIdFileStatus').style.color = 'var(--red)';
+        document.getElementById('queryExportModal').style.display = 'flex';
+      }
     }
 
     function closeQueryExportModal() {
@@ -2078,6 +2119,25 @@
           queryIdFileName = file.name;
           document.getElementById('queryIdFileStatus').innerHTML = `✅ تم رفع الملف: ${file.name} (${rows.length} طالب)`;
           document.getElementById('queryIdFileStatus').style.color = 'var(--green)';
+          
+          // ===== بعد رفع الملف، نحاول استخراج الأرقام وحفظها تلقائياً =====
+          loadStudentNumberMap();
+          let savedCount = 0;
+          rows.forEach(item => {
+            if (!queryStudentNumberMap[item.name]) {
+              const match = item.id.match(/\d{5,}$/);
+              if (match) {
+                const number = match[0].slice(-5);
+                queryStudentNumberMap[item.name] = number;
+                savedCount++;
+              }
+            }
+          });
+          if (savedCount > 0) {
+            saveStudentNumberMap();
+            document.getElementById('queryIdFileStatus').innerHTML = `✅ تم رفع الملف وحفظ ${savedCount} رقم جديد.`;
+          }
+          
         } catch (error) {
           console.error(error);
           alert("❌ حدث خطأ أثناء قراءة ملف البيانات. تأكد من صيغة الملف.");
@@ -2090,6 +2150,15 @@
     function exportQueryData() {
       const selectedFilter = document.getElementById('queryClassSelect').value;
       const allClasses = Object.keys(appData);
+      
+      // ===== التحقق من وجود أرقام قبل التصدير =====
+      loadStudentNumberMap();
+      const allStudents = getAllStudents();
+      const missingStudents = allStudents.filter(student => !queryStudentNumberMap[student]);
+      if (missingStudents.length > 0) {
+        alert(`⚠️ لا يمكن التصدير! الطلاب التالية أسماؤهم ليس لديهم أرقام:\n\n${missingStudents.join('\n')}\n\nيرجى رفع ملف البيانات أولاً.`);
+        return;
+      }
       
       const checkboxes = document.querySelectorAll('#queryUnitCheckboxes input[type="checkbox"]');
       const selectedUnits = [];
@@ -2125,25 +2194,25 @@
         }
       }
 
-      let allStudents = [];
+      let allStudentsList = [];
       targetClasses.forEach(cls => {
         if (appData[cls]) {
           appData[cls].forEach(student => {
-            allStudents.push({ name: student, class: cls });
+            allStudentsList.push({ name: student, class: cls });
           });
         }
       });
 
-      if (allStudents.length === 0) {
+      if (allStudentsList.length === 0) {
         alert("لا يوجد طلاب في الفصول المحددة!");
         return;
       }
 
-      allStudents.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+      allStudentsList.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
       const tempNumberMap = {};
-      const missingStudents = [];
-      allStudents.forEach(item => {
+      const missingStudentsList = [];
+      allStudentsList.forEach(item => {
         const student = item.name;
         if (queryStudentNumberMap[student]) {
           tempNumberMap[student] = queryStudentNumberMap[student];
@@ -2156,25 +2225,25 @@
             const number = match[0].slice(-5);
             tempNumberMap[student] = number;
           } else {
-            missingStudents.push(student);
+            missingStudentsList.push(student);
           }
         } else {
-          missingStudents.push(student);
+          missingStudentsList.push(student);
         }
       });
 
-      if (missingStudents.length > 0) {
-        const userInput = prompt(`الطلاب التالية أسماؤهم غير موجودة في ملف البيانات:\n${missingStudents.join('\n')}\n\nيرجى إدخال رقم لكل طالب (5 أرقام) مفصولة بفواصل، بنفس الترتيب.`);
+      if (missingStudentsList.length > 0) {
+        const userInput = prompt(`الطلاب التالية أسماؤهم غير موجودة في ملف البيانات:\n${missingStudentsList.join('\n')}\n\nيرجى إدخال رقم لكل طالب (5 أرقام) مفصولة بفواصل، بنفس الترتيب.`);
         if (!userInput) {
           alert("تم إلغاء التصدير.");
           return;
         }
         const numbers = userInput.split(',').map(s => s.trim());
-        if (numbers.length !== missingStudents.length) {
+        if (numbers.length !== missingStudentsList.length) {
           alert("عدد الأرقام المدخلة لا يساوي عدد الطلاب المفقودين.");
           return;
         }
-        missingStudents.forEach((student, idx) => {
+        missingStudentsList.forEach((student, idx) => {
           let num = numbers[idx];
           if (!num || num.length < 5) {
             alert(`الرقم "${num}" غير صحيح. يجب أن يحتوي على 5 أرقام على الأقل.`);
@@ -2205,7 +2274,7 @@
         return;
       }
 
-      performQueryExport(targetClasses, selectedUnits, tempNumberMap, allStudents);
+      performQueryExport(targetClasses, selectedUnits, tempNumberMap, allStudentsList);
     }
 
     function showDuplicateNumbersModal(duplicates, numberMap) {
@@ -2277,19 +2346,19 @@
       const selectedFilter = document.getElementById('queryClassSelect').value;
       const allClasses = Object.keys(appData);
       let targetClasses = (selectedFilter === 'الكل') ? allClasses : [selectedFilter];
-      let allStudents = [];
+      let allStudentsList = [];
       targetClasses.forEach(cls => {
         if (appData[cls]) {
           appData[cls].forEach(student => {
-            allStudents.push({ name: student, class: cls });
+            allStudentsList.push({ name: student, class: cls });
           });
         }
       });
-      allStudents.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-      performQueryExport(targetClasses, selectedUnits, newMap, allStudents);
+      allStudentsList.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+      performQueryExport(targetClasses, selectedUnits, newMap, allStudentsList);
     }
 
-    function performQueryExport(targetClasses, selectedUnits, numberMap, allStudents) {
+    function performQueryExport(targetClasses, selectedUnits, numberMap, allStudentsList) {
       const wb = XLSX.utils.book_new();
 
       selectedUnits.forEach((unitName, unitIndex) => {
@@ -2303,7 +2372,7 @@
         header.push('المشاركة', 'الاختبار', 'المشروع', 'الغياب', 'التأخر', 'المخالفات');
         rows.push(header);
 
-        allStudents.forEach(item => {
+        allStudentsList.forEach(item => {
           const student = item.name;
           const cls = item.class;
           const row = [];
@@ -2347,7 +2416,7 @@
       const weightedHeader = ['رقم الطالب', 'اسم الطالب', 'الفصل', 'معدل الواجبات', 'معدل الأنشطة', 'المشاركة الكلية', 'مجموع الاختبارات', 'المجموع الكلي', 'الغياب', 'التأخر', 'المخالفات'];
       weightedRows.push(weightedHeader);
 
-      allStudents.forEach(item => {
+      allStudentsList.forEach(item => {
         const student = item.name;
         const cls = item.class;
         let totalHwAvg = 0, totalActAvg = 0, totalTest1 = 0, totalTest2 = 0;
