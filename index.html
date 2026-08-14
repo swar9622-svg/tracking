@@ -14,7 +14,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>8.3</title>
+  <title>8.4</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -333,7 +333,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (8.3)
+        كشف الغياب والمخالفات (8.4)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -371,7 +371,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (8.3)
+        كشوف المتابعة و الدرجات (8.4)
       </div>
     </header>
     <div class="top-action-bar">
@@ -2136,11 +2136,11 @@
           validUnitsCount++;
         });
 
-        const divisor = validUnitsCount > 0 ? validUnitsCount : 1;
-        const finalHwAvg = (totalHwAvg / divisor).toFixed(2);
-        const finalActAvg = (totalActAvg / divisor).toFixed(2);
-        const finalTest1 = (totalTest1 / divisor).toFixed(2);
-        const finalTest2 = (totalTest2 / divisor).toFixed(2);
+        // *** التعديل هنا: لا نقسم على عدد الوحدات، بل نأخذ المجموع الكلي مباشرة ***
+        const finalHwAvg = totalHwAvg.toFixed(2);
+        const finalActAvg = totalActAvg.toFixed(2);
+        const finalTest1 = totalTest1.toFixed(2);
+        const finalTest2 = totalTest2.toFixed(2);
         const partScore = calculateStudentParticipationScore(cls, student);
         const testTotal = (parseFloat(finalTest1) + parseFloat(finalTest2)).toFixed(2);
         const totalSum = (parseFloat(finalHwAvg) + parseFloat(finalActAvg) + partScore + parseFloat(testTotal)).toFixed(2);
@@ -2260,7 +2260,6 @@
       if (!currentClass || !appData[currentClass]) return;
 
       const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-      let unitsCount = (currentActivePeriod === 1 ? period1SelectedUnits : period2SelectedUnits).length || 1;
 
       const thead = document.getElementById('periodSummaryTableHead');
       thead.innerHTML = `
@@ -2294,6 +2293,7 @@
       });
     }
 
+    // ======== الدالة المعدلة: لا تقسم على عدد الوحدات ========
     function calculatePeriodWeightedTotals(className, studentName) {
       const activeList = currentActivePeriod === 1 ? period1SelectedUnits : period2SelectedUnits;
       const unitsToCalc = activeList.length > 0 ? activeList : Object.keys(unitsData);
@@ -2335,11 +2335,11 @@
         validUnitsCount++;
       });
 
-      const divisor = validUnitsCount > 0 ? validUnitsCount : 1;
-      let finalHwAvg = (totalHwAvg / divisor).toFixed(2);
-      let finalActAvg = (totalActAvg / divisor).toFixed(2);
-      let finalTest1 = (totalTest1 / divisor).toFixed(2);
-      let finalTest2 = (totalTest2 / divisor).toFixed(2);
+      // *** إزالة القسمة تماماً: نأخذ المجموع الكلي كما هو ***
+      let finalHwAvg = totalHwAvg.toFixed(2);
+      let finalActAvg = totalActAvg.toFixed(2);
+      let finalTest1 = totalTest1.toFixed(2);
+      let finalTest2 = totalTest2.toFixed(2);
 
       let partScore = calculateStudentParticipationScore(className, studentName);
       let testTotal = (parseFloat(finalTest1) + parseFloat(finalTest2)).toFixed(2);
