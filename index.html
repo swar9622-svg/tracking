@@ -14,7 +14,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>8.1</title>
+  <title>8.3</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -209,7 +209,6 @@
     .lesson-edit-row button { padding: 0.2rem 0.5rem; border-radius: 0.375rem; border: none; background: var(--accent); color: white; font-weight: 700; font-size: 0.7rem; cursor: pointer; white-space: nowrap; }
     .lesson-edit-row button:active { opacity: 0.8; }
 
-    /* تنسيق قائمة تعديل الأسماء في النافذة المنبثقة */
     .edit-student-item {
       display: flex;
       align-items: center;
@@ -295,6 +294,36 @@
     .edit-student-item.editing .btn-edit-cancel { display: inline-block; }
     .edit-student-item.editing .btn-edit-trigger { display: none; }
 
+    .query-export-section {
+      margin-bottom: 0.75rem;
+    }
+    .query-export-section .field-label {
+      font-size: 0.8rem;
+    }
+    .query-export-section .btn-upload {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 0.25rem;
+    }
+    .query-export-section .btn-upload:active { opacity: 0.8; }
+    .query-export-section .file-status {
+      font-size: 0.7rem;
+      color: var(--green);
+      font-weight: 700;
+      text-align: center;
+      margin-top: 0.2rem;
+    }
+    .query-export-section .unit-checkbox-grid {
+      margin-top: 0.3rem;
+    }
+
     @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
   </style>
 </head>
@@ -304,7 +333,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (8.1)
+        كشف الغياب والمخالفات (8.3)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -342,7 +371,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (8.1)
+        كشوف المتابعة و الدرجات (8.3)
       </div>
     </header>
     <div class="top-action-bar">
@@ -540,9 +569,74 @@
         <button class="btn-menu-option" style="background-color: var(--accent);" onclick="triggerFileInput()">📥 استعادة من ملف نسخة احتياطية (Restore)</button>
         <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="importFullBackupJSON(event)">
       </div>
+      <!-- قسم تصدير بيانات الاستعلام (جديد) -->
+      <div class="data-box-section" style="border-top: 2px solid #E5E5EA; padding-top: 0.75rem;">
+        <div class="data-box-title">📤 تصدير بيانات الاستعلام (data.xlsx)</div>
+        <button class="btn-menu-option" style="background-color: #8E44AD;" onclick="openQueryExportModal()">📤 تصدير data.xlsx</button>
+      </div>
       <div class="data-box-section">
         <div class="data-box-title">⚙️ إعدادات العرض والخطوط</div>
         <button class="btn-menu-option" style="background-color: #8E44AD;" onclick="openFontSettingsModal()">⚙️ إعدادات الخط (الخطوط المختارة)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= نافذة تصدير بيانات الاستعلام ================= -->
+  <div class="modal" id="queryExportModal" style="z-index: 130; display: none;">
+    <div class="modal-content" style="max-width: 500px; width: 95%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="modal-title" style="margin:0; font-size:1rem;">📤 تصدير data.xlsx</div>
+        <button class="btn-close-circle" onclick="closeQueryExportModal()">✕</button>
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:10px; font-weight:700; text-align:center;">
+        ارفع ملف السجل المدني (Excel/CSV) الذي يحتوي على أعمدة: السجل المدني، الاسم، الفصل، ثم اختر الوحدات واضغط تصدير.
+      </div>
+
+      <!-- اختيار الفصل (للتصفية) -->
+      <div class="query-export-section">
+        <span class="field-label">الفصل المطلوب (اختر الكل للتصدير الشامل):</span>
+        <select id="queryClassSelect" class="select-class-full">
+          <option value="الكل">الكل (جميع الفصول)</option>
+        </select>
+      </div>
+
+      <!-- رفع ملف السجل المدني -->
+      <div class="query-export-section">
+        <span class="field-label">ملف السجل المدني (Excel/CSV):</span>
+        <button class="btn-upload" onclick="document.getElementById('queryIdFileInput').click()">📤 اختيار ملف السجل المدني</button>
+        <input type="file" id="queryIdFileInput" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleQueryIdFileUpload(event)">
+        <div id="queryIdFileStatus" class="file-status" style="color: var(--text-secondary);">لم يتم رفع ملف بعد</div>
+      </div>
+
+      <!-- اختيار الوحدات -->
+      <div class="query-export-section">
+        <span class="field-label">اختر الوحدات المراد تصديرها:</span>
+        <div id="queryUnitCheckboxes" class="unit-checkbox-grid"></div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 0.25rem;">
+        <button class="btn-modal-cancel" onclick="closeQueryExportModal()">إلغاء</button>
+        <button class="btn-modal-save" onclick="exportQueryData()" style="background-color:#8E44AD;">📤 تصدير data.xlsx</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= نافذة معالجة تكرار أرقام الطلاب ================= -->
+  <div class="modal" id="duplicateNumbersModal" style="z-index: 140; display: none;">
+    <div class="modal-content" style="max-width: 500px; width: 95%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="modal-title" style="margin:0; font-size:1rem; color:var(--red);">⚠️ تكرار في أرقام الطلاب</div>
+        <button class="btn-close-circle" onclick="closeDuplicateNumbersModal()">✕</button>
+      </div>
+      <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:10px; font-weight:700; text-align:center;">
+        تم العثور على أكثر من طالب له نفس رقم الطالب. يرجى تعديل الأرقام المكررة يدوياً في الحقول أدناه، ثم اضغط "حفظ وتصدير".
+      </div>
+      <div id="duplicateNumbersContainer" style="max-height: 50vh; overflow-y: auto; border: 1px solid #e5e5ea; border-radius: 0.75rem; padding: 0.5rem; background: #f9f9fb; margin-bottom: 0.75rem;">
+        <!-- سيتم توليد القائمة هنا -->
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeDuplicateNumbersModal()">إلغاء التصدير</button>
+        <button class="btn-modal-save" onclick="saveDuplicateNumbersAndExport()" style="background-color:var(--green);">💾 حفظ وتصدير</button>
       </div>
     </div>
   </div>
@@ -759,6 +853,28 @@
     // متغيرات لتتبع حالة التعديل في النافذة المنبثقة
     let editingIndex = -1;
 
+    // ===== متغيرات ميزة تصدير بيانات الاستعلام =====
+    let queryIdFileData = null; // سيحتوي على مصفوفة الصفوف من ملف السجل المدني
+    let queryIdFileName = '';
+    let queryStudentNumberMap = {}; // خريطة الاسم -> الرقم النهائي (محفوظة في localStorage)
+    const STUDENT_NUMBER_MAP_KEY = 'attendance_student_number_map';
+
+    // تحميل خريطة الأرقام المحفوظة
+    function loadStudentNumberMap() {
+      const saved = localStorage.getItem(STUDENT_NUMBER_MAP_KEY);
+      if (saved) {
+        try {
+          queryStudentNumberMap = JSON.parse(saved);
+        } catch(e) { queryStudentNumberMap = {}; }
+      } else {
+        queryStudentNumberMap = {};
+      }
+    }
+
+    function saveStudentNumberMap() {
+      localStorage.setItem(STUDENT_NUMBER_MAP_KEY, JSON.stringify(queryStudentNumberMap));
+    }
+
     document.getElementById('dateSelect').valueAsDate = new Date();
 
     // ================== إعدادات الخطوط ==================
@@ -866,31 +982,37 @@
       localStorage.setItem('attendance_penalties_data', JSON.stringify(penaltiesData));
       localStorage.setItem('attendance_period1_selected_units', JSON.stringify(period1SelectedUnits));
       localStorage.setItem('attendance_period2_selected_units', JSON.stringify(period2SelectedUnits));
+      saveStudentNumberMap(); // حفظ خريطة الأرقام
     }
 
     function initClassSelects() {
       const classSelect = document.getElementById('classSelect');
       const modalClassSelect = document.getElementById('modalClassSelect');
       const followupClassSelect = document.getElementById('followupClassSelect');
+      const queryClassSelect = document.getElementById('queryClassSelect');
 
       const selectedMain = classSelect.value;
       const selectedModal = modalClassSelect.value;
       const selectedFollowup = followupClassSelect.value;
+      const selectedQuery = queryClassSelect.value;
 
       classSelect.innerHTML = '';
       modalClassSelect.innerHTML = '';
       followupClassSelect.innerHTML = '';
+      queryClassSelect.innerHTML = '<option value="الكل">الكل (جميع الفصول)</option>';
 
       const classKeys = Object.keys(appData);
       classKeys.forEach(cls => {
         classSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
         modalClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
         followupClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
+        queryClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
       });
 
       if (classKeys.includes(selectedMain)) classSelect.value = selectedMain;
       if (classKeys.includes(selectedModal)) modalClassSelect.value = selectedModal;
       if (classKeys.includes(selectedFollowup)) followupClassSelect.value = selectedFollowup;
+      if (selectedQuery === 'الكل' || classKeys.includes(selectedQuery)) queryClassSelect.value = selectedQuery;
     }
 
     function getStudentDayRecord(date, cls, student) {
@@ -1587,6 +1709,487 @@
       if (appData[className]) {
         document.getElementById('studentNamesTextarea').value = appData[className].join('\n');
       }
+    }
+
+    // ================================================================
+    // دوال تصدير بيانات الاستعلام (data.xlsx) - النسخة النهائية 8.3
+    // ================================================================
+
+    function openQueryExportModal() {
+      // تحديث قائمة الفصل في النافذة
+      initClassSelects();
+      renderQueryUnitCheckboxes();
+      document.getElementById('queryExportModal').style.display = 'flex';
+    }
+
+    function closeQueryExportModal() {
+      document.getElementById('queryExportModal').style.display = 'none';
+    }
+
+    function renderQueryUnitCheckboxes() {
+      const container = document.getElementById('queryUnitCheckboxes');
+      container.innerHTML = '';
+      const allUnits = Object.keys(unitsData);
+      if (allUnits.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:10px; color:#999;">لا توجد وحدات مسجلة.</div>';
+        return;
+      }
+      allUnits.forEach(uName => {
+        const label = document.createElement('label');
+        label.className = 'unit-check-item';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = uName;
+        cb.checked = true;
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(` ${uName}`));
+        container.appendChild(label);
+      });
+    }
+
+    function handleQueryIdFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (typeof XLSX === 'undefined') {
+        alert("مكتبة قراءة الإكسل غير محملة! تأكد من اتصال الإنترنت.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(loadEvent) {
+        try {
+          const data = new Uint8Array(loadEvent.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+          if (jsonData.length < 2) {
+            alert("الملف فارغ أو لا يحتوي على بيانات كافية!");
+            return;
+          }
+
+          // نتوقع أن الأعمدة هي: السجل المدني، الاسم، الفصل (قد يكون الفصل موجوداً أو لا)
+          // سنجرب قراءة الأعمدة حسب الترتيب
+          const headerRow = jsonData[0];
+          // نحاول التعرف على الأعمدة
+          let idCol = -1, nameCol = -1, classCol = -1;
+          for (let i = 0; i < headerRow.length; i++) {
+            const cell = headerRow[i] ? headerRow[i].toString().trim() : '';
+            if (cell.includes('سجل') || cell.includes('رقم') || cell.includes('هوية')) idCol = i;
+            else if (cell.includes('اسم')) nameCol = i;
+            else if (cell.includes('فصل') || cell.includes('صف')) classCol = i;
+          }
+          // إذا لم نجد، نفترض أن العمود الأول هو السجل، الثاني الاسم، الثالث الفصل (اختياري)
+          if (idCol === -1) idCol = 0;
+          if (nameCol === -1) nameCol = 1;
+          // classCol يمكن أن يكون -1
+
+          // تخزين البيانات
+          const rows = [];
+          for (let r = 1; r < jsonData.length; r++) {
+            const row = jsonData[r];
+            if (!row || !row[idCol] || !row[nameCol]) continue;
+            const id = row[idCol].toString().trim();
+            const name = row[nameCol].toString().trim();
+            const cls = (classCol !== -1 && row[classCol]) ? row[classCol].toString().trim() : '';
+            rows.push({ id, name, cls });
+          }
+
+          if (rows.length === 0) {
+            alert("لم يتم العثور على بيانات صالحة في الملف. تأكد من وجود أعمدة السجل المدني والاسم.");
+            return;
+          }
+
+          queryIdFileData = rows;
+          queryIdFileName = file.name;
+          document.getElementById('queryIdFileStatus').innerHTML = `✅ تم رفع الملف: ${file.name} (${rows.length} طالب)`;
+          document.getElementById('queryIdFileStatus').style.color = 'var(--green)';
+        } catch (error) {
+          console.error(error);
+          alert("❌ حدث خطأ أثناء قراءة ملف السجل المدني. تأكد من صيغة الملف.");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // دالة تصدير البيانات النهائية (كل الفصول في ملف واحد، كل وحدة صفحة، وآخر صفحة موزونة)
+    function exportQueryData() {
+      const selectedFilter = document.getElementById('queryClassSelect').value; // "الكل" أو اسم فصل
+      const allClasses = Object.keys(appData);
+      
+      // اختيار الوحدات المحددة
+      const checkboxes = document.querySelectorAll('#queryUnitCheckboxes input[type="checkbox"]');
+      const selectedUnits = [];
+      checkboxes.forEach(cb => {
+        if (cb.checked) selectedUnits.push(cb.value);
+      });
+      if (selectedUnits.length === 0) {
+        alert("يرجى اختيار وحدة واحدة على الأقل!");
+        return;
+      }
+
+      if (!queryIdFileData) {
+        alert("يرجى رفع ملف السجل المدني أولاً!");
+        return;
+      }
+
+      // تحميل خريطة الأرقام المحفوظة
+      loadStudentNumberMap();
+
+      // بناء خريطة الاسم -> الرقم من ملف السجل المدني (لكل الفصول)
+      const idMap = {};
+      queryIdFileData.forEach(item => {
+        idMap[item.name] = item.id;
+      });
+
+      // تحديد الفصول المطلوبة
+      let targetClasses = [];
+      if (selectedFilter === 'الكل') {
+        targetClasses = allClasses;
+      } else {
+        if (allClasses.includes(selectedFilter)) {
+          targetClasses = [selectedFilter];
+        } else {
+          alert("الفصل المحدد غير موجود!");
+          return;
+        }
+      }
+
+      // جمع كل الطلاب من جميع الفصول المطلوبة
+      let allStudents = [];
+      targetClasses.forEach(cls => {
+        if (appData[cls]) {
+          appData[cls].forEach(student => {
+            allStudents.push({ name: student, class: cls });
+          });
+        }
+      });
+
+      if (allStudents.length === 0) {
+        alert("لا يوجد طلاب في الفصول المحددة!");
+        return;
+      }
+
+      // ترتيب الطلاب أبجدياً حسب الاسم
+      allStudents.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+      // بناء خريطة الأرقام النهائية
+      const tempNumberMap = {};
+      const missingStudents = [];
+      allStudents.forEach(item => {
+        const student = item.name;
+        // 1. نبحث في الخريطة المحفوظة
+        if (queryStudentNumberMap[student]) {
+          tempNumberMap[student] = queryStudentNumberMap[student];
+          return;
+        }
+        // 2. نبحث في ملف السجل المدني
+        if (idMap[student]) {
+          const rawId = idMap[student];
+          const match = rawId.match(/\d{5,}$/);
+          if (match) {
+            const number = match[0].slice(-5);
+            tempNumberMap[student] = number;
+          } else {
+            missingStudents.push(student);
+          }
+        } else {
+          missingStudents.push(student);
+        }
+      });
+
+      // إذا كان هناك طلاب مفقودون، نطلب إدخالاً يدوياً
+      if (missingStudents.length > 0) {
+        const userInput = prompt(`الطلاب التالية أسماؤهم غير موجودة في ملف السجل المدني:\n${missingStudents.join('\n')}\n\nيرجى إدخال رقم لكل طالب (5 أرقام) مفصولة بفواصل، بنفس الترتيب.`);
+        if (!userInput) {
+          alert("تم إلغاء التصدير.");
+          return;
+        }
+        const numbers = userInput.split(',').map(s => s.trim());
+        if (numbers.length !== missingStudents.length) {
+          alert("عدد الأرقام المدخلة لا يساوي عدد الطلاب المفقودين.");
+          return;
+        }
+        missingStudents.forEach((student, idx) => {
+          let num = numbers[idx];
+          if (!num || num.length < 5) {
+            alert(`الرقم "${num}" غير صحيح. يجب أن يحتوي على 5 أرقام على الأقل.`);
+            return;
+          }
+          const finalNum = num.slice(-5);
+          tempNumberMap[student] = finalNum;
+          queryStudentNumberMap[student] = finalNum;
+        });
+        saveStudentNumberMap();
+      }
+
+      // التحقق من التكرار
+      const numberCount = {};
+      for (let student in tempNumberMap) {
+        const num = tempNumberMap[student];
+        if (!numberCount[num]) numberCount[num] = [];
+        numberCount[num].push(student);
+      }
+      const duplicates = {};
+      for (let num in numberCount) {
+        if (numberCount[num].length > 1) {
+          duplicates[num] = numberCount[num];
+        }
+      }
+      if (Object.keys(duplicates).length > 0) {
+        showDuplicateNumbersModal(duplicates, tempNumberMap);
+        return;
+      }
+
+      // لا يوجد تكرار، نكمل التصدير
+      performQueryExport(targetClasses, selectedUnits, tempNumberMap, allStudents);
+    }
+
+    // نافذة التكرار (نفس السابق)
+    function showDuplicateNumbersModal(duplicates, numberMap) {
+      const container = document.getElementById('duplicateNumbersContainer');
+      container.innerHTML = '';
+      let html = '';
+      for (let num in duplicates) {
+        const students = duplicates[num];
+        html += `<div style="background:#f8d7da; padding:4px 8px; border-radius:6px; margin-bottom:6px; border:1px solid #f5c6cb;">`;
+        html += `<div style="font-weight:bold; color:#721c24;">الرقم المكرر: ${num}</div>`;
+        students.forEach((student, idx) => {
+          html += `
+            <div style="display:flex; align-items:center; gap:4px; margin:2px 0;">
+              <span style="flex:1; font-weight:700;">${student}</span>
+              <input type="text" class="duplicate-number-input" data-student="${student}" value="${num}" style="width:80px; text-align:center; border:1px solid #ccc; border-radius:4px; padding:2px;">
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+      container.innerHTML = html;
+      document.getElementById('duplicateNumbersModal').style.display = 'flex';
+      window._tempNumberMap = numberMap;
+      window._duplicates = duplicates;
+    }
+
+    function closeDuplicateNumbersModal() {
+      document.getElementById('duplicateNumbersModal').style.display = 'none';
+      window._tempNumberMap = null;
+      window._duplicates = null;
+    }
+
+    function saveDuplicateNumbersAndExport() {
+      const inputs = document.querySelectorAll('.duplicate-number-input');
+      const newMap = {};
+      const checkboxes = document.querySelectorAll('#queryUnitCheckboxes input[type="checkbox"]');
+      const selectedUnits = [];
+      checkboxes.forEach(cb => {
+        if (cb.checked) selectedUnits.push(cb.value);
+      });
+
+      inputs.forEach(inp => {
+        const student = inp.dataset.student;
+        let val = inp.value.trim();
+        if (!val || val.length < 5) {
+          alert(`الرقم "${val}" غير صحيح للطالب ${student}. يجب أن يحتوي على 5 أرقام.`);
+          return;
+        }
+        const finalNum = val.slice(-5);
+        newMap[student] = finalNum;
+        queryStudentNumberMap[student] = finalNum;
+      });
+
+      // التحقق من التكرار بعد التعديل
+      const numberCount = {};
+      for (let student in newMap) {
+        const num = newMap[student];
+        if (!numberCount[num]) numberCount[num] = [];
+        numberCount[num].push(student);
+      }
+      for (let num in numberCount) {
+        if (numberCount[num].length > 1) {
+          alert(`لا يزال هناك تكرار للرقم "${num}" بين الطلاب: ${numberCount[num].join(', ')}. يرجى تعديله.`);
+          return;
+        }
+      }
+
+      saveStudentNumberMap();
+      closeDuplicateNumbersModal();
+      // نستمر في التصدير
+      const selectedFilter = document.getElementById('queryClassSelect').value;
+      const allClasses = Object.keys(appData);
+      let targetClasses = (selectedFilter === 'الكل') ? allClasses : [selectedFilter];
+      let allStudents = [];
+      targetClasses.forEach(cls => {
+        if (appData[cls]) {
+          appData[cls].forEach(student => {
+            allStudents.push({ name: student, class: cls });
+          });
+        }
+      });
+      allStudents.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+      performQueryExport(targetClasses, selectedUnits, newMap, allStudents);
+    }
+
+    // ===== دالة التصدير الفعلية (data.xlsx) =====
+    function performQueryExport(targetClasses, selectedUnits, numberMap, allStudents) {
+      // إنشاء مصنف إكسل جديد
+      const wb = XLSX.utils.book_new();
+
+      // لكل وحدة، صفحة
+      selectedUnits.forEach((unitName, unitIndex) => {
+        const unitObj = unitsData[unitName] || { lessons: ["درس 1"] };
+        const lessons = unitObj.lessons;
+
+        // بناء صفوف البيانات
+        const rows = [];
+        // الصف الأول: العناوين
+        const header = ['رقم الطالب', 'اسم الطالب', 'الفصل'];
+        lessons.forEach(l => header.push(`واجب ${l}`));
+        lessons.forEach(l => header.push(`نشاط ${l}`));
+        header.push('المشاركة', 'الاختبار', 'المشروع', 'الغياب', 'التأخر', 'المخالفات');
+        rows.push(header);
+
+        // صفوف الطلاب
+        allStudents.forEach(item => {
+          const student = item.name;
+          const cls = item.class;
+          const row = [];
+          // رقم الطالب
+          row.push(numberMap[student] || '');
+          // الاسم
+          row.push(student);
+          // الفصل
+          row.push(cls);
+          const clsKey = `${cls}_${unitName}`;
+          const fData = followupData[clsKey] || {};
+          const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
+          // الواجبات
+          lessons.forEach(l => {
+            row.push(stData.hw[l] !== undefined ? stData.hw[l] : '');
+          });
+          // الأنشطة
+          lessons.forEach(l => {
+            row.push(stData.act[l] !== undefined ? stData.act[l] : '');
+          });
+          // المشاركة
+          const partScore = calculateStudentParticipationScore(cls, student);
+          row.push(partScore.toFixed(2));
+          // الاختبار والمشروع
+          row.push(stData.test1 !== undefined ? stData.test1 : '');
+          row.push(stData.test2 !== undefined ? stData.test2 : '');
+          // الغياب والتأخر والمخالفات (تراكمي)
+          let totalAbsent = 0, totalLate = 0, totalViolations = 0;
+          for (let date in records) {
+            if (records[date] && records[date][cls]) {
+              const rec = getStudentDayRecord(date, cls, student);
+              if (rec.status === 'غائب') totalAbsent++;
+              if (rec.status === 'متأخر') totalLate++;
+              totalViolations += rec.violations ? rec.violations.length : 0;
+            }
+          }
+          row.push(totalAbsent);
+          row.push(totalLate);
+          row.push(totalViolations);
+          rows.push(row);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        XLSX.utils.book_append_sheet(wb, ws, unitName);
+      });
+
+      // === الصفحة الأخيرة: الدرجة الموزونة (لجميع الطلاب، جميع الفصول) ===
+      const weightedRows = [];
+      const weightedHeader = ['رقم الطالب', 'اسم الطالب', 'الفصل', 'معدل الواجبات', 'معدل الأنشطة', 'المشاركة الكلية', 'مجموع الاختبارات', 'المجموع الكلي', 'الغياب', 'التأخر', 'المخالفات'];
+      weightedRows.push(weightedHeader);
+
+      allStudents.forEach(item => {
+        const student = item.name;
+        const cls = item.class;
+        // حساب الدرجات الموزونة عبر الوحدات المختارة
+        let totalHwAvg = 0, totalActAvg = 0, totalTest1 = 0, totalTest2 = 0;
+        let validUnitsCount = 0;
+        selectedUnits.forEach(uName => {
+          const clsKey = `${cls}_${uName}`;
+          const fData = followupData[clsKey] || {};
+          const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
+          const unitObj = unitsData[uName] || { lessons: [] };
+          const lessons = unitObj.lessons;
+
+          let hwSum = 0, hwCount = 0;
+          lessons.forEach(l => {
+            let v = parseFloat(stData.hw[l]);
+            if (!isNaN(v)) { hwSum += v; hwCount++; }
+          });
+          let hwAvg = hwCount > 0 ? (hwSum / hwCount) : 0;
+
+          let actSum = 0, actCount = 0;
+          lessons.forEach(l => {
+            let v = parseFloat(stData.act[l]);
+            if (!isNaN(v)) { actSum += v; actCount++; }
+          });
+          let actAvg = actCount > 0 ? (actSum / actCount) : 0;
+
+          let t1 = parseFloat(stData.test1) || 0;
+          let t2 = parseFloat(stData.test2) || 0;
+
+          totalHwAvg += hwAvg;
+          totalActAvg += actAvg;
+          totalTest1 += t1;
+          totalTest2 += t2;
+          validUnitsCount++;
+        });
+
+        const divisor = validUnitsCount > 0 ? validUnitsCount : 1;
+        const finalHwAvg = (totalHwAvg / divisor).toFixed(2);
+        const finalActAvg = (totalActAvg / divisor).toFixed(2);
+        const finalTest1 = (totalTest1 / divisor).toFixed(2);
+        const finalTest2 = (totalTest2 / divisor).toFixed(2);
+        const partScore = calculateStudentParticipationScore(cls, student);
+        const testTotal = (parseFloat(finalTest1) + parseFloat(finalTest2)).toFixed(2);
+        const totalSum = (parseFloat(finalHwAvg) + parseFloat(finalActAvg) + partScore + parseFloat(testTotal)).toFixed(2);
+
+        // الغياب التراكمي
+        let totalAbsent = 0, totalLate = 0, totalViolations = 0;
+        for (let date in records) {
+          if (records[date] && records[date][cls]) {
+            const rec = getStudentDayRecord(date, cls, student);
+            if (rec.status === 'غائب') totalAbsent++;
+            if (rec.status === 'متأخر') totalLate++;
+            totalViolations += rec.violations ? rec.violations.length : 0;
+          }
+        }
+
+        weightedRows.push([
+          numberMap[student] || '',
+          student,
+          cls,
+          finalHwAvg,
+          finalActAvg,
+          partScore.toFixed(2),
+          testTotal,
+          totalSum,
+          totalAbsent,
+          totalLate,
+          totalViolations
+        ]);
+      });
+
+      const wsWeighted = XLSX.utils.aoa_to_sheet(weightedRows);
+      XLSX.utils.book_append_sheet(wb, wsWeighted, 'الدرجة الموزونة');
+
+      // تصدير الملف
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/octet-stream' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `data.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+
+      alert(`✅ تم تصدير data.xlsx بنجاح! (${selectedUnits.length} وحدة + صفحة موزونة)`);
+      closeQueryExportModal();
     }
 
     // ================================================================
@@ -3867,6 +4470,9 @@
     // =====================================================================
     // التهيئة
     // =====================================================================
+
+    // تحميل خريطة الأرقام عند بدء التشغيل
+    loadStudentNumberMap();
 
     initClassSelects();
     renderStudents();
