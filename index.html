@@ -14,7 +14,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>8.6</title>
+  <title>9.0</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -83,6 +83,8 @@
     .top-action-bar { display: flex; gap: 0.5rem; margin: 0.625rem 0.75rem 0.375rem 0.75rem; }
     .btn-period-main { flex: 1; background-color: #2c3e50; color: white; border: none; padding: 0.5625rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.375rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); transition: background 0.2s; user-select: none; -webkit-user-select: none; }
     .btn-period-main:active { opacity: 0.8; }
+    .btn-student-numbers { flex: 1; background-color: #8E44AD; color: white; border: none; padding: 0.5625rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.375rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); transition: background 0.2s; user-select: none; -webkit-user-select: none; }
+    .btn-student-numbers:active { opacity: 0.8; }
 
     .period-export-container { margin: 0.625rem 0.9375rem; text-align: center; display: flex; flex-direction: column; gap: 0.375rem; }
     .btn-export-period { background-color: #e67e22; color: white; border: none; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); user-select: none; -webkit-user-select: none; }
@@ -349,6 +351,104 @@
       color: var(--accent);
     }
 
+    /* تنسيقات نافذة أرقام الطلاب */
+    .student-number-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.6rem;
+      margin-bottom: 0.3rem;
+      background: #f9f9fb;
+      border-radius: 0.5rem;
+      border: 1px solid #e5e5ea;
+      transition: background 0.15s;
+    }
+    .student-number-item:hover { background: #f0f0f5; }
+    .student-number-item .student-name-display {
+      flex: 1;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+    .student-number-item .student-number-display {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.3rem;
+      transition: background 0.15s;
+      min-width: 60px;
+      text-align: center;
+      background: #EBF3FF;
+      border: 1px solid #B3D7FF;
+    }
+    .student-number-item .student-number-display:hover {
+      background: #D6E8FF;
+    }
+    .student-number-item .student-number-input {
+      width: 80px;
+      padding: 0.15rem 0.3rem;
+      border: 2px solid var(--accent);
+      border-radius: 0.3rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      background: white;
+      display: none;
+    }
+    .student-number-item .btn-number-save {
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.3rem;
+      border: none;
+      background: var(--green);
+      color: white;
+      font-weight: 700;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: none;
+      white-space: nowrap;
+    }
+    .student-number-item .btn-number-save:active { opacity: 0.8; }
+    .student-number-item .btn-number-cancel {
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.3rem;
+      border: none;
+      background: #e5e5ea;
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: none;
+      white-space: nowrap;
+    }
+    .student-number-item .btn-number-cancel:active { opacity: 0.8; }
+    .student-number-item .btn-number-edit {
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.3rem;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      font-size: 0.7rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .student-number-item .btn-number-edit:active { opacity: 0.8; }
+    .student-number-item .number-status {
+      font-size: 0.65rem;
+      font-weight: 700;
+      min-width: 50px;
+      text-align: center;
+    }
+    .number-status.unique { color: var(--green); }
+    .number-status.duplicate { color: var(--red); }
+
+    .student-number-item.editing-number .student-number-display { display: none; }
+    .student-number-item.editing-number .student-number-input { display: inline-block; }
+    .student-number-item.editing-number .btn-number-save { display: inline-block; }
+    .student-number-item.editing-number .btn-number-cancel { display: inline-block; }
+    .student-number-item.editing-number .btn-number-edit { display: none; }
+
     @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
   </style>
 </head>
@@ -358,7 +458,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (8.6)
+        كشف الغياب والمخالفات (9.0)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -396,14 +496,12 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (8.6)
+        كشوف المتابعة و الدرجات (9.0)
       </div>
     </header>
     <div class="top-action-bar">
-      <!-- زر الفترات (بدون الصنف active-period) -->
       <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
-      <!-- تم حذف زر الفترة الثانية، المساحة فارغة -->
-      <div style="flex:1;"></div>
+      <button class="btn-student-numbers" onclick="openStudentNumbersModal()">🔢 أرقام الطلاب</button>
     </div>
     <div class="units-wrapper">
       <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)"></select>
@@ -505,6 +603,35 @@
       <div style="text-align: center;">
         <button class="btn-export-period" id="btnExportPeriodSummaryPDF" onclick="exportPeriodSummaryPDF()" style="background-color: var(--accent);">📄 تصدير التقرير PDF</button>
         <button class="btn-export-period" id="btnExportPeriodSummaryCSV" onclick="exportPeriodSummaryCSV()" style="background-color: var(--green);">📊 تصدير التقرير CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= نافذة أرقام الطلاب ================= -->
+  <div class="modal" id="studentNumbersModal" style="z-index: 115;">
+    <div class="modal-content" style="max-width: 500px; width: 95%;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="modal-title" style="margin:0; font-size:1rem;">🔢 أرقام الطلاب</div>
+        <button class="btn-close-circle" onclick="closeStudentNumbersModal()">✕</button>
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:8px; font-weight:700; text-align:center;">
+        اختر الفصل لعرض أرقام الطلاب. انقر (نقرتين) على الرقم لتعديله.
+      </div>
+      <div class="query-export-section">
+        <span class="field-label">اختر الفصل:</span>
+        <select id="studentNumbersClassSelect" class="select-class-full" onchange="renderStudentNumbersList()">
+          <option value="">-- اختر فصل --</option>
+        </select>
+      </div>
+      <div id="studentNumbersListContainer" style="max-height: 50vh; overflow-y: auto; border: 1px solid #e5e5ea; border-radius: 0.75rem; padding: 0.5rem; background: #f9f9fb; min-height: 100px;">
+        <div style="text-align:center; color:#999; padding:20px;">اختر فصلاً لعرض الطلاب</div>
+      </div>
+      <div style="margin-top: 10px; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="btn-action" style="background-color: var(--accent); flex:1; font-size:12px; min-height:36px;" onclick="renderStudentNumbersList()">🔄 تحديث</button>
+        <button class="btn-action" style="background-color: var(--green); flex:1; font-size:12px; min-height:36px;" onclick="saveAllStudentNumbers()">💾 حفظ الكل</button>
+      </div>
+      <div class="modal-actions" style="margin-top: 0.5rem;">
+        <button class="btn-modal-cancel" onclick="closeStudentNumbersModal()">إغلاق</button>
       </div>
     </div>
   </div>
@@ -673,7 +800,7 @@
   </div>
 
   <!-- ================= نافذة إعدادات الخط ================= -->
-  <div class="modal" id="fontSettingsModal" style="z-index: 115;">
+  <div class="modal" id="fontSettingsModal" style="z-index: 116;">
     <div class="modal-content" style="max-width: 400px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <div class="modal-title" style="margin:0;">⚙️ إعدادات الخط</div>
@@ -884,6 +1011,7 @@
     let deleteTargetType = '';
 
     let editingIndex = -1;
+    let editingNumberIndex = -1;
 
     // متغيرات ميزة تصدير بيانات الاستعلام
     let queryIdFileData = null;
@@ -1019,16 +1147,19 @@
       const modalClassSelect = document.getElementById('modalClassSelect');
       const followupClassSelect = document.getElementById('followupClassSelect');
       const queryClassSelect = document.getElementById('queryClassSelect');
+      const studentNumbersClassSelect = document.getElementById('studentNumbersClassSelect');
 
       const selectedMain = classSelect.value;
       const selectedModal = modalClassSelect.value;
       const selectedFollowup = followupClassSelect.value;
       const selectedQuery = queryClassSelect.value;
+      const selectedNumbers = studentNumbersClassSelect.value;
 
       classSelect.innerHTML = '';
       modalClassSelect.innerHTML = '';
       followupClassSelect.innerHTML = '';
       queryClassSelect.innerHTML = '<option value="الكل">الكل (جميع الفصول)</option>';
+      studentNumbersClassSelect.innerHTML = '<option value="">-- اختر فصل --</option>';
 
       const classKeys = Object.keys(appData);
       classKeys.forEach(cls => {
@@ -1036,12 +1167,14 @@
         modalClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
         followupClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
         queryClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
+        studentNumbersClassSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
       });
 
       if (classKeys.includes(selectedMain)) classSelect.value = selectedMain;
       if (classKeys.includes(selectedModal)) modalClassSelect.value = selectedModal;
       if (classKeys.includes(selectedFollowup)) followupClassSelect.value = selectedFollowup;
       if (selectedQuery === 'الكل' || classKeys.includes(selectedQuery)) queryClassSelect.value = selectedQuery;
+      if (classKeys.includes(selectedNumbers)) studentNumbersClassSelect.value = selectedNumbers;
     }
 
     function getStudentDayRecord(date, cls, student) {
@@ -1708,7 +1841,160 @@
       }
     }
 
+    // ================================
+    // دوال نافذة أرقام الطلاب
+    // ================================
+    function openStudentNumbersModal() {
+      initClassSelects();
+      document.getElementById('studentNumbersModal').style.display = 'flex';
+      renderStudentNumbersList();
+    }
+
+    function closeStudentNumbersModal() {
+      document.getElementById('studentNumbersModal').style.display = 'none';
+      if (editingNumberIndex !== -1) {
+        cancelEditNumber(editingNumberIndex);
+      }
+      editingNumberIndex = -1;
+    }
+
+    function renderStudentNumbersList() {
+      const selectedClass = document.getElementById('studentNumbersClassSelect').value;
+      const container = document.getElementById('studentNumbersListContainer');
+
+      if (!selectedClass || !appData[selectedClass] || appData[selectedClass].length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">لا يوجد طلاب في هذا الفصل</div>';
+        return;
+      }
+
+      loadStudentNumberMap();
+
+      // حساب التكرارات
+      const numberCount = {};
+      for (let student in queryStudentNumberMap) {
+        const num = queryStudentNumberMap[student];
+        if (!numberCount[num]) numberCount[num] = [];
+        numberCount[num].push(student);
+      }
+
+      const students = [...appData[selectedClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      let html = '';
+
+      students.forEach((student, index) => {
+        const number = queryStudentNumberMap[student] || '';
+        const isDuplicate = number && numberCount[number] && numberCount[number].length > 1;
+        const statusText = isDuplicate ? '⚠️ مكرر' : (number ? '✅ فريد' : '❌ بدون رقم');
+        const statusClass = isDuplicate ? 'duplicate' : (number ? 'unique' : '');
+
+        html += `
+          <div class="student-number-item" id="number-row-${index}">
+            <span style="font-weight:bold; color:var(--text-secondary); font-size:0.7rem; min-width:28px;">${index + 1}</span>
+            <span class="student-name-display">${student}</span>
+            <span class="student-number-display" id="number-display-${index}" ondblclick="startEditNumber(${index})">${number || '---'}</span>
+            <input type="text" class="student-number-input" id="number-input-${index}" value="${number}" maxlength="10" style="display:none; width:80px; padding:0.15rem 0.3rem; border:2px solid var(--accent); border-radius:0.3rem; font-size:0.85rem; font-weight:700; text-align:center; background:white;">
+            <button class="btn-number-save" id="number-save-${index}" style="display:none;" onclick="saveEditNumber(${index})">✅ حفظ</button>
+            <button class="btn-number-cancel" id="number-cancel-${index}" style="display:none;" onclick="cancelEditNumber(${index})">✖️ إلغاء</button>
+            <button class="btn-number-edit" id="number-edit-${index}" onclick="startEditNumber(${index})">✏️</button>
+            <span class="number-status ${statusClass}">${statusText}</span>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function startEditNumber(index) {
+      if (editingNumberIndex !== -1 && editingNumberIndex !== index) {
+        cancelEditNumber(editingNumberIndex);
+      }
+
+      const row = document.getElementById(`number-row-${index}`);
+      if (!row) return;
+
+      const display = document.getElementById(`number-display-${index}`);
+      const input = document.getElementById(`number-input-${index}`);
+      const saveBtn = document.getElementById(`number-save-${index}`);
+      const cancelBtn = document.getElementById(`number-cancel-${index}`);
+      const editBtn = document.getElementById(`number-edit-${index}`);
+
+      row.classList.add('editing-number');
+      input.value = display.textContent === '---' ? '' : display.textContent;
+      input.focus();
+      input.select();
+
+      editingNumberIndex = index;
+    }
+
+    function cancelEditNumber(index) {
+      const row = document.getElementById(`number-row-${index}`);
+      if (!row) return;
+      row.classList.remove('editing-number');
+      if (editingNumberIndex === index) {
+        editingNumberIndex = -1;
+      }
+    }
+
+    function saveEditNumber(index) {
+      const selectedClass = document.getElementById('studentNumbersClassSelect').value;
+      const input = document.getElementById(`number-input-${index}`);
+      const display = document.getElementById(`number-display-${index}`);
+      const newNumber = input.value.trim();
+      const oldNumber = display.textContent === '---' ? '' : display.textContent;
+
+      // الحصول على اسم الطالب من الصف
+      const students = [...appData[selectedClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      const studentName = students[index];
+
+      if (!studentName) {
+        alert("حدث خطأ في تحديد الطالب!");
+        return;
+      }
+
+      if (!newNumber) {
+        // حذف الرقم
+        delete queryStudentNumberMap[studentName];
+        display.textContent = '---';
+        saveStudentNumberMap();
+        cancelEditNumber(index);
+        renderStudentNumbersList();
+        return;
+      }
+
+      // التحقق من التكرار مع الأسماء الأخرى
+      let isDuplicate = false;
+      let duplicateStudent = '';
+      for (let st in queryStudentNumberMap) {
+        if (st !== studentName && queryStudentNumberMap[st] === newNumber) {
+          isDuplicate = true;
+          duplicateStudent = st;
+          break;
+        }
+      }
+
+      if (isDuplicate) {
+        alert(`⚠️ الرقم "${newNumber}" مستخدم بالفعل للطالب "${duplicateStudent}". يرجى اختيار رقم مختلف.`);
+        input.focus();
+        input.select();
+        return;
+      }
+
+      // حفظ الرقم
+      queryStudentNumberMap[studentName] = newNumber;
+      display.textContent = newNumber;
+      saveStudentNumberMap();
+      cancelEditNumber(index);
+      renderStudentNumbersList();
+    }
+
+    function saveAllStudentNumbers() {
+      saveStudentNumberMap();
+      alert("✅ تم حفظ جميع أرقام الطلاب بنجاح!");
+      renderStudentNumbersList();
+    }
+
+    // ================================
     // دوال تصدير بيانات الاستعلام
+    // ================================
     function openQueryExportModal() {
       initClassSelects();
       renderQueryUnitCheckboxes();
