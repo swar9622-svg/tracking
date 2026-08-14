@@ -14,7 +14,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>8.4</title>
+  <title>8.6</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -83,7 +83,6 @@
     .top-action-bar { display: flex; gap: 0.5rem; margin: 0.625rem 0.75rem 0.375rem 0.75rem; }
     .btn-period-main { flex: 1; background-color: #2c3e50; color: white; border: none; padding: 0.5625rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.375rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); transition: background 0.2s; user-select: none; -webkit-user-select: none; }
     .btn-period-main:active { opacity: 0.8; }
-    .btn-period-main.active-period { background-color: #27ae60; }
 
     .period-export-container { margin: 0.625rem 0.9375rem; text-align: center; display: flex; flex-direction: column; gap: 0.375rem; }
     .btn-export-period { background-color: #e67e22; color: white; border: none; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); user-select: none; -webkit-user-select: none; }
@@ -324,6 +323,32 @@
       margin-top: 0.3rem;
     }
 
+    /* أزرار اختيار اسم الفترة داخل نافذة الفترات */
+    .period-name-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin: 0.5rem 0 0.75rem 0;
+      justify-content: center;
+    }
+    .period-name-btn {
+      padding: 0.4rem 1rem;
+      border-radius: 0.5rem;
+      border: 2px solid #ccc;
+      background: #f9f9fb;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .period-name-btn:active { opacity: 0.7; }
+    .period-name-btn.selected-period-name {
+      border-color: var(--accent);
+      background: #EBF3FF;
+      color: var(--accent);
+    }
+
     @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
   </style>
 </head>
@@ -333,7 +358,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (8.4)
+        كشف الغياب والمخالفات (8.6)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -371,12 +396,14 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (8.4)
+        كشوف المتابعة و الدرجات (8.6)
       </div>
     </header>
     <div class="top-action-bar">
-      <button class="btn-period-main" onclick="openPeriodSummaryModal(1)">📌 الفترة الأولى</button>
-      <button class="btn-period-main" onclick="openPeriodSummaryModal(2)" style="background-color: #16a085;">📌 الفترة الثانية</button>
+      <!-- زر الفترات (بدون الصنف active-period) -->
+      <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
+      <!-- تم حذف زر الفترة الثانية، المساحة فارغة -->
+      <div style="flex:1;"></div>
     </div>
     <div class="units-wrapper">
       <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)"></select>
@@ -458,6 +485,13 @@
         <div class="modal-title" id="periodSummaryModalTitle" style="margin:0;">📌 خلاصة الفترة والدرجات الموزونة</div>
         <button class="btn-close-circle" onclick="closePeriodSummaryModal()">✕</button>
       </div>
+
+      <!-- أزرار اختيار اسم الفترة للطباعة -->
+      <div class="period-name-selector">
+        <button class="period-name-btn selected-period-name" id="periodNameFirstBtn" onclick="selectPeriodName('الأولى')">📝 الفترة الأولى</button>
+        <button class="period-name-btn" id="periodNameSecondBtn" onclick="selectPeriodName('الثانية')">📝 الفترة الثانية</button>
+      </div>
+
       <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; font-weight: 700; text-align: center;">
         اختر الوحدات الخاصة بهذه الفترة. يتم حساب الدرجات الموزونة وتحديث الجدول أدناه تلقائياً:
       </div>
@@ -581,7 +615,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة تصدير بيانات الاستعلام (معدلة لإزالة كلمات حساسة) ================= -->
+  <!-- ================= نافذة تصدير بيانات الاستعلام ================= -->
   <div class="modal" id="queryExportModal" style="z-index: 130; display: none;">
     <div class="modal-content" style="max-width: 500px; width: 95%;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -592,7 +626,6 @@
         ارفع ملف البيانات (Excel/CSV) الذي يحتوي على أعمدة: رقم الطالب، الاسم، الفصل، ثم اختر الوحدات واضغط تصدير.
       </div>
 
-      <!-- اختيار الفصل (للتصفية) -->
       <div class="query-export-section">
         <span class="field-label">الفصل المطلوب (اختر الكل للتصدير الشامل):</span>
         <select id="queryClassSelect" class="select-class-full">
@@ -600,7 +633,6 @@
         </select>
       </div>
 
-      <!-- رفع ملف البيانات (بدلاً من السجل المدني) -->
       <div class="query-export-section">
         <span class="field-label">ملف بيانات الطلاب (Excel/CSV):</span>
         <button class="btn-upload" onclick="document.getElementById('queryIdFileInput').click()">📤 اختيار ملف البيانات</button>
@@ -608,7 +640,6 @@
         <div id="queryIdFileStatus" class="file-status" style="color: var(--text-secondary);">لم يتم رفع ملف بعد</div>
       </div>
 
-      <!-- اختيار الوحدات -->
       <div class="query-export-section">
         <span class="field-label">اختر الوحدات المراد تصديرها:</span>
         <div id="queryUnitCheckboxes" class="unit-checkbox-grid"></div>
@@ -838,28 +869,28 @@
     let followupData = JSON.parse(localStorage.getItem('attendance_followup_data')) || {};
     let penaltiesData = JSON.parse(localStorage.getItem('attendance_penalties_data')) || defaultPenalties;
 
+    // فقط فترة أولى (تم حذف الثانية)
     let period1SelectedUnits = JSON.parse(localStorage.getItem('attendance_period1_selected_units')) || [];
-    let period2SelectedUnits = JSON.parse(localStorage.getItem('attendance_period2_selected_units')) || [];
-    let currentActivePeriod = 1;
 
+    // اسم الفترة المختار للطباعة (الأولى أو الثانية) - افتراضي الأولى
+    let selectedPeriodName = 'الأولى';
+
+    let currentActiveUnit = Object.keys(unitsData)[0] || "الوحدة الأولى";
     let currentStudentForViolation = '';
     let currentReportTab = 'summary';
-    let currentActiveUnit = Object.keys(unitsData)[0] || "الوحدة الأولى";
     let selectedStudentForReport = '';
 
     let itemToDelete = '';
     let deleteTargetType = '';
 
-    // متغيرات لتتبع حالة التعديل في النافذة المنبثقة
     let editingIndex = -1;
 
-    // ===== متغيرات ميزة تصدير بيانات الاستعلام =====
-    let queryIdFileData = null; // سيحتوي على مصفوفة الصفوف من ملف البيانات
+    // متغيرات ميزة تصدير بيانات الاستعلام
+    let queryIdFileData = null;
     let queryIdFileName = '';
-    let queryStudentNumberMap = {}; // خريطة الاسم -> الرقم النهائي (محفوظة في localStorage)
+    let queryStudentNumberMap = {};
     const STUDENT_NUMBER_MAP_KEY = 'attendance_student_number_map';
 
-    // تحميل خريطة الأرقام المحفوظة
     function loadStudentNumberMap() {
       const saved = localStorage.getItem(STUDENT_NUMBER_MAP_KEY);
       if (saved) {
@@ -877,7 +908,7 @@
 
     document.getElementById('dateSelect').valueAsDate = new Date();
 
-    // ================== إعدادات الخطوط ==================
+    // إعدادات الخطوط
     const AVAILABLE_FONTS = [
       { name: "الافتراضي (خط الآيفون)", value: "system" },
       { name: "Almarai (المراي)", value: "Almarai" },
@@ -972,8 +1003,7 @@
       alert("✅ تم حفظ إعدادات الخط بنجاح!");
     }
 
-    // ================================================================
-
+    // دوال حفظ البيانات
     function saveData() {
       localStorage.setItem('attendance_app_data', JSON.stringify(appData));
       localStorage.setItem('attendance_records', JSON.stringify(records));
@@ -981,8 +1011,7 @@
       localStorage.setItem('attendance_followup_data', JSON.stringify(followupData));
       localStorage.setItem('attendance_penalties_data', JSON.stringify(penaltiesData));
       localStorage.setItem('attendance_period1_selected_units', JSON.stringify(period1SelectedUnits));
-      localStorage.setItem('attendance_period2_selected_units', JSON.stringify(period2SelectedUnits));
-      saveStudentNumberMap(); // حفظ خريطة الأرقام
+      saveStudentNumberMap();
     }
 
     function initClassSelects() {
@@ -1298,7 +1327,7 @@
       });
     }
 
-    // ===== دالة استيراد الإكسل =====
+    // دالة استيراد الإكسل
     function importExcel(type) {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       const unitName = currentActiveUnit;
@@ -1324,7 +1353,7 @@
         if (!file) return;
 
         if (typeof XLSX === 'undefined') {
-          alert("مكتبة قراءة الإكسل غير محملة! تأكد من اتصال الإنترنت أو تحميل المكتبة.");
+          alert("مكتبة قراءة الإكسل غير محملة! تأكد من اتصال الإنترنت.");
           return;
         }
 
@@ -1492,10 +1521,7 @@
       input.click();
     }
 
-    // ================================================================
-    // دوال تعديل اسم الطالب (النافذة المنبثقة)
-    // ================================================================
-
+    // دوال تعديل اسم الطالب
     function openEditStudentNameModal() {
       const selectedClass = document.getElementById('modalClassSelect').value;
       if (!selectedClass || !appData[selectedClass] || appData[selectedClass].length === 0) {
@@ -1508,7 +1534,6 @@
 
     function closeEditStudentNameModal() {
       document.getElementById('editStudentNameModal').style.display = 'none';
-      // إلغاء أي تعديل مفتوح
       if (editingIndex !== -1) {
         cancelEditName(editingIndex);
       }
@@ -1520,7 +1545,6 @@
       const container = document.getElementById('editStudentListContainer');
       container.innerHTML = '';
 
-      // جلب الأسماء وترتيبها أبجدياً مع الاحتفاظ بالمؤشر الأصلي
       const students = appData[selectedClass].map((name, idx) => ({ name, idx }));
       students.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
@@ -1537,13 +1561,11 @@
         row.className = 'edit-student-item';
         row.id = `edit-row-${originalIndex}`;
 
-        // رقم
         const numSpan = document.createElement('span');
         numSpan.className = 'student-number';
         numSpan.textContent = index + 1;
         row.appendChild(numSpan);
 
-        // اسم قابل للنقر المزدوج
         const displayName = document.createElement('span');
         displayName.className = 'student-display-name';
         displayName.textContent = studentName;
@@ -1552,7 +1574,6 @@
         };
         row.appendChild(displayName);
 
-        // حقل الإدخال (مخفي)
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'student-edit-input';
@@ -1561,7 +1582,6 @@
         input.dataset.originalIndex = originalIndex;
         row.appendChild(input);
 
-        // زر حفظ
         const saveBtn = document.createElement('button');
         saveBtn.className = 'btn-edit-save';
         saveBtn.textContent = '✅ حفظ';
@@ -1570,7 +1590,6 @@
         };
         row.appendChild(saveBtn);
 
-        // زر إلغاء
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'btn-edit-cancel';
         cancelBtn.textContent = '✖️ إلغاء';
@@ -1579,7 +1598,6 @@
         };
         row.appendChild(cancelBtn);
 
-        // زر تعديل (الافتراضي)
         const editBtn = document.createElement('button');
         editBtn.className = 'btn-edit-trigger';
         editBtn.textContent = '✏️ تعديل';
@@ -1597,7 +1615,6 @@
       const row = document.getElementById(`edit-row-${originalIndex}`);
       if (!row) return;
 
-      // إلغاء أي تعديل مفتوح
       if (editingIndex !== -1 && editingIndex !== originalIndex) {
         cancelEditName(editingIndex);
       }
@@ -1608,7 +1625,6 @@
       const cancelBtn = row.querySelector('.btn-edit-cancel');
       const editBtn = row.querySelector('.btn-edit-trigger');
 
-      // إظهار وضع التعديل
       row.classList.add('editing');
       input.value = displayName.textContent;
       input.focus();
@@ -1636,24 +1652,15 @@
         return;
       }
 
-      // التحقق من عدم التكرار
       if (appData[selectedClass].includes(newName)) {
         alert(`الاسم "${newName}" موجود مسبقاً!`);
         return;
       }
 
-      // تنفيذ التعديل
       if (updateStudentNameInAllData(oldName, newName, selectedClass)) {
-        // تحديث النص في المربع الجماعي
         updateTextareaAfterRename(selectedClass);
-
-        // تحديث القائمة
         renderEditStudentList();
-
-        // عرض رسالة تأكيد
         alert(`✅ تم تعديل اسم "${oldName}" إلى "${newName}" بنجاح.`);
-
-        // إعادة تعيين حالة التعديل
         editingIndex = -1;
       } else {
         alert("❌ حدث خطأ أثناء التعديل. تأكد من أن الاسم الجديد غير مكرر.");
@@ -1663,25 +1670,17 @@
     function cancelEditName(originalIndex) {
       const row = document.getElementById(`edit-row-${originalIndex}`);
       if (!row) return;
-
       row.classList.remove('editing');
       if (editingIndex === originalIndex) {
         editingIndex = -1;
       }
     }
 
-    // دالة مساعدة لتحديث الاسم في جميع السجلات
     function updateStudentNameInAllData(oldName, newName, className) {
-      // 1. تحديث قائمة الفصل
       let idx = appData[className].indexOf(oldName);
-      if (idx === -1) {
-        // قد يكون الطالب غير موجود (تم حذفه)، نضيفه بالقائمة الجديدة
-        // لكن الأفضل منع هذا السيناريو
-        return false;
-      }
+      if (idx === -1) return false;
       appData[className][idx] = newName;
 
-      // 2. تحديث سجلات الغياب والمخالفات
       for (let date in records) {
         if (records[date] && records[date][className] && records[date][className][oldName] !== undefined) {
           records[date][className][newName] = records[date][className][oldName];
@@ -1689,7 +1688,6 @@
         }
       }
 
-      // 3. تحديث درجات المتابعة في جميع الوحدات
       for (let key in followupData) {
         if (key.startsWith(className + '_')) {
           if (followupData[key][oldName] !== undefined) {
@@ -1700,23 +1698,18 @@
       }
 
       saveData();
-      renderStudents(); // تحديث الشاشة الرئيسية
+      renderStudents();
       return true;
     }
 
-    // دالة لتحديث محتوى textarea بعد التعديل
     function updateTextareaAfterRename(className) {
       if (appData[className]) {
         document.getElementById('studentNamesTextarea').value = appData[className].join('\n');
       }
     }
 
-    // ================================================================
-    // دوال تصدير بيانات الاستعلام (data.xlsx) - معدلة لإزالة كلمات حساسة
-    // ================================================================
-
+    // دوال تصدير بيانات الاستعلام
     function openQueryExportModal() {
-      // تحديث قائمة الفصل في النافذة
       initClassSelects();
       renderQueryUnitCheckboxes();
       document.getElementById('queryExportModal').style.display = 'flex';
@@ -1769,7 +1762,6 @@
             return;
           }
 
-          // نتوقع أن الأعمدة هي: رقم الطالب، الاسم، الفصل
           const headerRow = jsonData[0];
           let idCol = -1, nameCol = -1, classCol = -1;
           for (let i = 0; i < headerRow.length; i++) {
@@ -1778,10 +1770,8 @@
             else if (cell.includes('اسم')) nameCol = i;
             else if (cell.includes('فصل') || cell.includes('صف')) classCol = i;
           }
-          // إذا لم نجد، نفترض أن العمود الأول هو الرقم، الثاني الاسم، الثالث الفصل (اختياري)
           if (idCol === -1) idCol = 0;
           if (nameCol === -1) nameCol = 1;
-          // classCol يمكن أن يكون -1
 
           const rows = [];
           for (let r = 1; r < jsonData.length; r++) {
@@ -1812,10 +1802,9 @@
 
     // دالة تصدير البيانات النهائية (كل الفصول في ملف واحد، كل وحدة صفحة، وآخر صفحة موزونة)
     function exportQueryData() {
-      const selectedFilter = document.getElementById('queryClassSelect').value; // "الكل" أو اسم فصل
+      const selectedFilter = document.getElementById('queryClassSelect').value;
       const allClasses = Object.keys(appData);
       
-      // اختيار الوحدات المحددة
       const checkboxes = document.querySelectorAll('#queryUnitCheckboxes input[type="checkbox"]');
       const selectedUnits = [];
       checkboxes.forEach(cb => {
@@ -1831,16 +1820,13 @@
         return;
       }
 
-      // تحميل خريطة الأرقام المحفوظة
       loadStudentNumberMap();
 
-      // بناء خريطة الاسم -> الرقم من ملف البيانات (لكل الفصول)
       const idMap = {};
       queryIdFileData.forEach(item => {
         idMap[item.name] = item.id;
       });
 
-      // تحديد الفصول المطلوبة
       let targetClasses = [];
       if (selectedFilter === 'الكل') {
         targetClasses = allClasses;
@@ -1853,7 +1839,6 @@
         }
       }
 
-      // جمع كل الطلاب من جميع الفصول المطلوبة
       let allStudents = [];
       targetClasses.forEach(cls => {
         if (appData[cls]) {
@@ -1868,20 +1853,16 @@
         return;
       }
 
-      // ترتيب الطلاب أبجدياً حسب الاسم
       allStudents.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
-      // بناء خريطة الأرقام النهائية
       const tempNumberMap = {};
       const missingStudents = [];
       allStudents.forEach(item => {
         const student = item.name;
-        // 1. نبحث في الخريطة المحفوظة
         if (queryStudentNumberMap[student]) {
           tempNumberMap[student] = queryStudentNumberMap[student];
           return;
         }
-        // 2. نبحث في ملف البيانات
         if (idMap[student]) {
           const rawId = idMap[student];
           const match = rawId.match(/\d{5,}$/);
@@ -1896,7 +1877,6 @@
         }
       });
 
-      // إذا كان هناك طلاب مفقودون، نطلب إدخالاً يدوياً
       if (missingStudents.length > 0) {
         const userInput = prompt(`الطلاب التالية أسماؤهم غير موجودة في ملف البيانات:\n${missingStudents.join('\n')}\n\nيرجى إدخال رقم لكل طالب (5 أرقام) مفصولة بفواصل، بنفس الترتيب.`);
         if (!userInput) {
@@ -1939,11 +1919,9 @@
         return;
       }
 
-      // لا يوجد تكرار، نكمل التصدير
       performQueryExport(targetClasses, selectedUnits, tempNumberMap, allStudents);
     }
 
-    // نافذة التكرار (نفس السابق)
     function showDuplicateNumbersModal(duplicates, numberMap) {
       const container = document.getElementById('duplicateNumbersContainer');
       container.innerHTML = '';
@@ -1995,7 +1973,6 @@
         queryStudentNumberMap[student] = finalNum;
       });
 
-      // التحقق من التكرار بعد التعديل
       const numberCount = {};
       for (let student in newMap) {
         const num = newMap[student];
@@ -2011,7 +1988,6 @@
 
       saveStudentNumberMap();
       closeDuplicateNumbersModal();
-      // نستمر في التصدير
       const selectedFilter = document.getElementById('queryClassSelect').value;
       const allClasses = Object.keys(appData);
       let targetClasses = (selectedFilter === 'الكل') ? allClasses : [selectedFilter];
@@ -2027,54 +2003,40 @@
       performQueryExport(targetClasses, selectedUnits, newMap, allStudents);
     }
 
-    // ===== دالة التصدير الفعلية (data.xlsx) =====
     function performQueryExport(targetClasses, selectedUnits, numberMap, allStudents) {
-      // إنشاء مصنف إكسل جديد
       const wb = XLSX.utils.book_new();
 
-      // لكل وحدة، صفحة
       selectedUnits.forEach((unitName, unitIndex) => {
         const unitObj = unitsData[unitName] || { lessons: ["درس 1"] };
         const lessons = unitObj.lessons;
 
-        // بناء صفوف البيانات
         const rows = [];
-        // الصف الأول: العناوين
         const header = ['رقم الطالب', 'اسم الطالب', 'الفصل'];
         lessons.forEach(l => header.push(`واجب ${l}`));
         lessons.forEach(l => header.push(`نشاط ${l}`));
         header.push('المشاركة', 'الاختبار', 'المشروع', 'الغياب', 'التأخر', 'المخالفات');
         rows.push(header);
 
-        // صفوف الطلاب
         allStudents.forEach(item => {
           const student = item.name;
           const cls = item.class;
           const row = [];
-          // رقم الطالب
           row.push(numberMap[student] || '');
-          // الاسم
           row.push(student);
-          // الفصل
           row.push(cls);
           const clsKey = `${cls}_${unitName}`;
           const fData = followupData[clsKey] || {};
           const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
-          // الواجبات
           lessons.forEach(l => {
             row.push(stData.hw[l] !== undefined ? stData.hw[l] : '');
           });
-          // الأنشطة
           lessons.forEach(l => {
             row.push(stData.act[l] !== undefined ? stData.act[l] : '');
           });
-          // المشاركة
           const partScore = calculateStudentParticipationScore(cls, student);
           row.push(partScore.toFixed(2));
-          // الاختبار والمشروع
           row.push(stData.test1 !== undefined ? stData.test1 : '');
           row.push(stData.test2 !== undefined ? stData.test2 : '');
-          // الغياب والتأخر والمخالفات (تراكمي)
           let totalAbsent = 0, totalLate = 0, totalViolations = 0;
           for (let date in records) {
             if (records[date] && records[date][cls]) {
@@ -2094,7 +2056,7 @@
         XLSX.utils.book_append_sheet(wb, ws, unitName);
       });
 
-      // === الصفحة الأخيرة: الدرجة الموزونة (لجميع الطلاب، جميع الفصول) ===
+      // صفحة الدرجة الموزونة
       const weightedRows = [];
       const weightedHeader = ['رقم الطالب', 'اسم الطالب', 'الفصل', 'معدل الواجبات', 'معدل الأنشطة', 'المشاركة الكلية', 'مجموع الاختبارات', 'المجموع الكلي', 'الغياب', 'التأخر', 'المخالفات'];
       weightedRows.push(weightedHeader);
@@ -2102,7 +2064,6 @@
       allStudents.forEach(item => {
         const student = item.name;
         const cls = item.class;
-        // حساب الدرجات الموزونة عبر الوحدات المختارة
         let totalHwAvg = 0, totalActAvg = 0, totalTest1 = 0, totalTest2 = 0;
         let validUnitsCount = 0;
         selectedUnits.forEach(uName => {
@@ -2136,16 +2097,16 @@
           validUnitsCount++;
         });
 
-        // *** التعديل هنا: لا نقسم على عدد الوحدات، بل نأخذ المجموع الكلي مباشرة ***
-        const finalHwAvg = totalHwAvg.toFixed(2);
-        const finalActAvg = totalActAvg.toFixed(2);
-        const finalTest1 = totalTest1.toFixed(2);
-        const finalTest2 = totalTest2.toFixed(2);
+        // القسمة على عدد الوحدات (للمعدل)
+        const divisor = validUnitsCount > 0 ? validUnitsCount : 1;
+        const finalHwAvg = (totalHwAvg / divisor).toFixed(2);
+        const finalActAvg = (totalActAvg / divisor).toFixed(2);
+        const finalTest1 = (totalTest1 / divisor).toFixed(2);
+        const finalTest2 = (totalTest2 / divisor).toFixed(2);
         const partScore = calculateStudentParticipationScore(cls, student);
         const testTotal = (parseFloat(finalTest1) + parseFloat(finalTest2)).toFixed(2);
         const totalSum = (parseFloat(finalHwAvg) + parseFloat(finalActAvg) + partScore + parseFloat(testTotal)).toFixed(2);
 
-        // الغياب التراكمي
         let totalAbsent = 0, totalLate = 0, totalViolations = 0;
         for (let date in records) {
           if (records[date] && records[date][cls]) {
@@ -2174,7 +2135,6 @@
       const wsWeighted = XLSX.utils.aoa_to_sheet(weightedRows);
       XLSX.utils.book_append_sheet(wb, wsWeighted, 'الدرجة الموزونة');
 
-      // تصدير الملف
       const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
       const blob = new Blob([wbout], { type: 'application/octet-stream' });
       const link = document.createElement('a');
@@ -2189,13 +2149,20 @@
       closeQueryExportModal();
     }
 
-    // ================================================================
+    // دوال الفترات (تم تعديلها)
+    function selectPeriodName(name) {
+      selectedPeriodName = name;
+      // تحديث الأزرار
+      document.getElementById('periodNameFirstBtn').classList.toggle('selected-period-name', name === 'الأولى');
+      document.getElementById('periodNameSecondBtn').classList.toggle('selected-period-name', name === 'الثانية');
+    }
 
-    function openPeriodSummaryModal(periodNum) {
-      currentActivePeriod = periodNum || 1;
+    function openPeriodSummaryModal() {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      document.getElementById('periodSummaryModalTitle').innerText = `📌 خلاصة الفترة والدرجات الموزونة`;
 
-      document.getElementById('periodSummaryModalTitle').innerText = `📌 خلاصة الفترة ${currentActivePeriod === 1 ? 'الأولى' : 'الثانية'} والدرجات الموزونة`;
+      // تعيين اسم الفترة الافتراضي (الأولى)
+      selectPeriodName('الأولى');
 
       renderPeriodUnitsToggleBar();
       renderPeriodSummaryTable();
@@ -2210,17 +2177,14 @@
       const container = document.getElementById('periodUnitsToggleBar');
       container.innerHTML = '';
 
-      let activeList = currentActivePeriod === 1 ? period1SelectedUnits : period2SelectedUnits;
       const allUnits = Object.keys(unitsData);
 
-      if (activeList.length === 0) {
-        if (currentActivePeriod === 1) period1SelectedUnits = [...allUnits];
-        else period2SelectedUnits = [...allUnits];
-        activeList = currentActivePeriod === 1 ? period1SelectedUnits : period2SelectedUnits;
+      if (period1SelectedUnits.length === 0) {
+        period1SelectedUnits = [...allUnits];
       }
 
       allUnits.forEach(uName => {
-        const isChecked = activeList.includes(uName);
+        const isChecked = period1SelectedUnits.includes(uName);
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.style.padding = '6px 12px';
@@ -2238,17 +2202,16 @@
     }
 
     function togglePeriodUnit(uName) {
-      let activeList = currentActivePeriod === 1 ? period1SelectedUnits : period2SelectedUnits;
-      const idx = activeList.indexOf(uName);
+      const idx = period1SelectedUnits.indexOf(uName);
       if (idx > -1) {
-        if (activeList.length > 1) {
-          activeList.splice(idx, 1);
+        if (period1SelectedUnits.length > 1) {
+          period1SelectedUnits.splice(idx, 1);
         } else {
           alert("يجب اختيار وحدة واحدة على الأقل!");
           return;
         }
       } else {
-        activeList.push(uName);
+        period1SelectedUnits.push(uName);
       }
       saveData();
       renderPeriodUnitsToggleBar();
@@ -2293,10 +2256,9 @@
       });
     }
 
-    // ======== الدالة المعدلة: لا تقسم على عدد الوحدات ========
+    // دالة الحساب (تعتمد على period1SelectedUnits وتقسم على عدد الوحدات)
     function calculatePeriodWeightedTotals(className, studentName) {
-      const activeList = currentActivePeriod === 1 ? period1SelectedUnits : period2SelectedUnits;
-      const unitsToCalc = activeList.length > 0 ? activeList : Object.keys(unitsData);
+      const unitsToCalc = period1SelectedUnits.length > 0 ? period1SelectedUnits : Object.keys(unitsData);
 
       let totalHwAvg = 0;
       let totalActAvg = 0;
@@ -2335,15 +2297,15 @@
         validUnitsCount++;
       });
 
-      // *** إزالة القسمة تماماً: نأخذ المجموع الكلي كما هو ***
-      let finalHwAvg = totalHwAvg.toFixed(2);
-      let finalActAvg = totalActAvg.toFixed(2);
-      let finalTest1 = totalTest1.toFixed(2);
-      let finalTest2 = totalTest2.toFixed(2);
+      // القسمة على عدد الوحدات
+      const divisor = validUnitsCount > 0 ? validUnitsCount : 1;
+      let finalHwAvg = (totalHwAvg / divisor).toFixed(2);
+      let finalActAvg = (totalActAvg / divisor).toFixed(2);
+      let finalTest1 = (totalTest1 / divisor).toFixed(2);
+      let finalTest2 = (totalTest2 / divisor).toFixed(2);
 
       let partScore = calculateStudentParticipationScore(className, studentName);
       let testTotal = (parseFloat(finalTest1) + parseFloat(finalTest2)).toFixed(2);
-
       let totalSum = (parseFloat(finalHwAvg) + parseFloat(finalActAvg) + partScore + parseFloat(testTotal)).toFixed(2);
 
       return {
@@ -2355,6 +2317,7 @@
       };
     }
 
+    // دوال تقرير الطالب
     function openStudentReportSelectModal() {
       const currentClass = document.getElementById('classSelect').value;
       if (!currentClass || !appData[currentClass] || appData[currentClass].length === 0) {
@@ -2633,7 +2596,6 @@
     function closeManageModal() {
       document.getElementById('manageModal').style.display = 'none';
       document.getElementById('inlineAddBox').style.display = 'none';
-      // إغلاق نافذة تعديل الأسماء إذا كانت مفتوحة
       closeEditStudentNameModal();
     }
 
@@ -2658,7 +2620,7 @@
       document.getElementById('inlineAddUnitBox').style.display = 'none';
     }
 
-    // ===== دوال تعديل اسم الوحدة والدرس =====
+    // دوال إدارة الوحدات
     function updateUnitName() {
       const select = document.getElementById('modalUnitSelect');
       const oldName = select.value;
@@ -2698,7 +2660,6 @@
       followupData = newFollowupData;
 
       period1SelectedUnits = period1SelectedUnits.map(u => u === oldName ? newName : u);
-      period2SelectedUnits = period2SelectedUnits.map(u => u === oldName ? newName : u);
 
       if (currentActiveUnit === oldName) {
         currentActiveUnit = newName;
@@ -2918,7 +2879,6 @@
       saveData();
       document.getElementById('classSelect').value = selectedClass;
       renderStudents();
-      // تحديث النافذة المنبثقة إذا كانت مفتوحة
       if (document.getElementById('editStudentNameModal').style.display === 'flex') {
         renderEditStudentList();
       }
@@ -3364,7 +3324,7 @@
       return div;
     }
 
-    // ===== دوال تصدير تقارير كشوف المتابعة =====
+    // دوال تصدير تقارير كشوف المتابعة
     async function exportFollowupReportModalPDF() {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       if (!currentClass || !appData[currentClass]) {
@@ -3484,8 +3444,7 @@
       downloadFile(csv, `تقرير_متابعة_${currentClass}_${currentActiveUnit}.csv`, 'text/csv;charset=utf-8;');
     }
 
-    // ===== دوال التصدير الأخرى =====
-
+    // دوال التصدير الأخرى
     async function generatePDF() {
       const currentClass = document.getElementById('classSelect').value;
       if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
@@ -3846,6 +3805,7 @@
       }
     }
 
+    // تصدير تقرير الفترة (يستخدم selectedPeriodName)
     async function exportPeriodSummaryPDF() {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       if (!currentClass || !appData[currentClass]) return alert("يرجى اختيار فصل أولاً!");
@@ -3853,6 +3813,10 @@
       try {
         const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
         const todayDate = new Date().toLocaleDateString('ar-SA');
+
+        // الحصول على الوحدات المختارة
+        const selectedUnits = period1SelectedUnits.length > 0 ? period1SelectedUnits : Object.keys(unitsData);
+        const unitsListStr = selectedUnits.join('، ');
 
         let tableHtml = `
           <table style="width:100%; border-collapse:collapse; font-size:10px;">
@@ -3887,9 +3851,9 @@
 
         tableHtml += `</tbody></table>`;
 
-        const periodName = currentActivePeriod === 1 ? 'الأولى' : 'الثانية';
+        const periodName = selectedPeriodName === 'الأولى' ? 'الأولى' : 'الثانية';
         const title = `خلاصة الفترة ${periodName} والدرجات الموزونة`;
-        const subtitle = `<span>الفصل: ${currentClass}</span><span>التاريخ: ${todayDate}</span><span>عدد الطلاب: ${classStudents.length}</span>`;
+        const subtitle = `<span>الفصل: ${currentClass}</span><span>التاريخ: ${todayDate}</span><span>الوحدات: ${unitsListStr}</span><span>عدد الطلاب: ${classStudents.length}</span>`;
 
         const element = buildPdfElement(tableHtml, title, subtitle);
         await exportPdf(element, `خلاصة_الفترة_${periodName}_${currentClass}.pdf`, {
@@ -3914,7 +3878,7 @@
         csv += `${idx + 1},${student},${weighted.hwAvg},${weighted.actAvg},${weighted.partScore},${weighted.testTotal},${weighted.totalSum}\n`;
       });
 
-      const periodName = currentActivePeriod === 1 ? 'الأولى' : 'الثانية';
+      const periodName = selectedPeriodName === 'الأولى' ? 'الأولى' : 'الثانية';
       downloadFile(csv, `خلاصة_الفترة_${periodName}_${currentClass}.csv`, 'text/csv;charset=utf-8;');
     }
 
@@ -3925,8 +3889,8 @@
         unitsData,
         followupData,
         penaltiesData,
-        period1SelectedUnits,
-        period2SelectedUnits
+        period1SelectedUnits
+        // تم حذف period2SelectedUnits
       };
       const jsonStr = JSON.stringify(data, null, 2);
       downloadFile(jsonStr, `backup_school_system_${new Date().toISOString().slice(0,10)}.json`, 'application/json');
@@ -3950,8 +3914,7 @@
           if (imported.followupData) followupData = imported.followupData;
           if (imported.penaltiesData) penaltiesData = imported.penaltiesData;
           if (imported.period1SelectedUnits) period1SelectedUnits = imported.period1SelectedUnits;
-          if (imported.period2SelectedUnits) period2SelectedUnits = imported.period2SelectedUnits;
-
+          // تجاهل period2 إذا وجد
           saveData();
           initClassSelects();
           renderStudents();
@@ -3976,10 +3939,7 @@
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
-    // =========================
     // دوال نافذة تصدير اشعارات الطلاب
-    // =========================
-
     const NOTIF_STORAGE_KEY = 'notification_export_settings';
 
     function loadNotificationSettings() {
@@ -4464,13 +4424,8 @@
       alert(`تم تصدير ${pageImages.length} إشعار بنجاح!`);
     }
 
-    // =====================================================================
     // التهيئة
-    // =====================================================================
-
-    // تحميل خريطة الأرقام عند بدء التشغيل
     loadStudentNumberMap();
-
     initClassSelects();
     renderStudents();
     renderUnitsDropdown();
