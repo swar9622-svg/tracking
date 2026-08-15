@@ -449,6 +449,35 @@
     .student-number-item.editing-number .btn-number-cancel { display: inline-block; }
     .student-number-item.editing-number .btn-number-edit { display: none; }
 
+    /* زر رفع الملف داخل نافذة أرقام الطلاب */
+    .upload-excel-btn {
+      background-color: #28A745;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 0.25rem;
+      transition: opacity 0.15s;
+    }
+    .upload-excel-btn:active { opacity: 0.8; }
+    .upload-excel-btn:hover { opacity: 0.9; }
+
+    .upload-status {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 0.2rem;
+      padding: 0.2rem;
+      border-radius: 0.3rem;
+    }
+    .upload-status.success { color: var(--green); background: #E8F8F5; }
+    .upload-status.error { color: var(--red); background: #FDEDEC; }
+    .upload-status.info { color: var(--accent); background: #EBF3FF; }
+
     @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
   </style>
 </head>
@@ -607,9 +636,9 @@
     </div>
   </div>
 
-  <!-- ================= نافذة أرقام الطلاب ================= -->
+  <!-- ================= نافذة أرقام الطلاب (معدلة مع خيار طلاب بدون أرقام) ================= -->
   <div class="modal" id="studentNumbersModal" style="z-index: 115;">
-    <div class="modal-content" style="max-width: 500px; width: 95%;">
+    <div class="modal-content" style="max-width: 550px; width: 95%;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <div class="modal-title" style="margin:0; font-size:1rem;">🔢 أرقام الطلاب</div>
         <button class="btn-close-circle" onclick="closeStudentNumbersModal()">✕</button>
@@ -617,15 +646,27 @@
       <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:8px; font-weight:700; text-align:center;">
         اختر الفصل لعرض أرقام الطلاب. انقر (نقرتين) على الرقم لتعديله.
       </div>
+
       <div class="query-export-section">
         <span class="field-label">اختر الفصل:</span>
         <select id="studentNumbersClassSelect" class="select-class-full" onchange="renderStudentNumbersList()">
           <option value="">-- اختر فصل --</option>
+          <option value="__no_numbers__">🔴 طلاب بدون أرقام</option>
         </select>
       </div>
-      <div id="studentNumbersListContainer" style="max-height: 50vh; overflow-y: auto; border: 1px solid #e5e5ea; border-radius: 0.75rem; padding: 0.5rem; background: #f9f9fb; min-height: 100px;">
+
+      <!-- قسم رفع ملف Excel داخل نفس النافذة -->
+      <div class="query-export-section" style="border-top: 1px solid #E5E5EA; padding-top: 0.5rem;">
+        <span class="field-label" style="font-size:0.75rem;">📤 رفع ملف Excel لاستيراد أرقام الطلاب:</span>
+        <button class="upload-excel-btn" onclick="document.getElementById('studentNumbersFileInput').click()">📤 اختيار ملف Excel</button>
+        <input type="file" id="studentNumbersFileInput" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleStudentNumbersFileUpload(event)">
+        <div id="studentNumbersUploadStatus" class="upload-status info">لم يتم رفع ملف بعد</div>
+      </div>
+
+      <div id="studentNumbersListContainer" style="max-height: 45vh; overflow-y: auto; border: 1px solid #e5e5ea; border-radius: 0.75rem; padding: 0.5rem; background: #f9f9fb; min-height: 100px;">
         <div style="text-align:center; color:#999; padding:20px;">اختر فصلاً لعرض الطلاب</div>
       </div>
+
       <div style="margin-top: 10px; display: flex; gap: 0.5rem; flex-wrap: wrap;">
         <button class="btn-action" style="background-color: var(--accent); flex:1; font-size:12px; min-height:36px;" onclick="renderStudentNumbersList()">🔄 تحديث</button>
         <button class="btn-action" style="background-color: var(--green); flex:1; font-size:12px; min-height:36px;" onclick="saveAllStudentNumbers()">💾 حفظ الكل</button>
@@ -1047,6 +1088,22 @@
       return allStudents;
     }
 
+    // ===== دالة للحصول على الطلاب بدون أرقام =====
+    function getStudentsWithoutNumbers() {
+      loadStudentNumberMap();
+      const studentsWithoutNumbers = [];
+      Object.keys(appData).forEach(cls => {
+        if (appData[cls]) {
+          appData[cls].forEach(student => {
+            if (!queryStudentNumberMap[student]) {
+              studentsWithoutNumbers.push({ name: student, class: cls });
+            }
+          });
+        }
+      });
+      return studentsWithoutNumbers;
+    }
+
     document.getElementById('dateSelect').valueAsDate = new Date();
 
     // إعدادات الخطوط
@@ -1172,7 +1229,7 @@
       modalClassSelect.innerHTML = '';
       followupClassSelect.innerHTML = '';
       queryClassSelect.innerHTML = '<option value="الكل">الكل (جميع الفصول)</option>';
-      studentNumbersClassSelect.innerHTML = '<option value="">-- اختر فصل --</option>';
+      studentNumbersClassSelect.innerHTML = '<option value="">-- اختر فصل --</option><option value="__no_numbers__">🔴 طلاب بدون أرقام</option>';
 
       const classKeys = Object.keys(appData);
       classKeys.forEach(cls => {
@@ -1187,7 +1244,7 @@
       if (classKeys.includes(selectedModal)) modalClassSelect.value = selectedModal;
       if (classKeys.includes(selectedFollowup)) followupClassSelect.value = selectedFollowup;
       if (selectedQuery === 'الكل' || classKeys.includes(selectedQuery)) queryClassSelect.value = selectedQuery;
-      if (classKeys.includes(selectedNumbers)) studentNumbersClassSelect.value = selectedNumbers;
+      if (selectedNumbers === '__no_numbers__' || classKeys.includes(selectedNumbers)) studentNumbersClassSelect.value = selectedNumbers;
     }
 
     function getStudentDayRecord(date, cls, student) {
@@ -1855,13 +1912,16 @@
     }
 
     // ================================
-    // دوال نافذة أرقام الطلاب
+    // دوال نافذة أرقام الطلاب (معدلة مع خيار طلاب بدون أرقام)
     // ================================
     function openStudentNumbersModal() {
       initClassSelects();
-      loadStudentNumberMap(); // تحميل الأرقام المحفوظة
+      loadStudentNumberMap();
       document.getElementById('studentNumbersModal').style.display = 'flex';
       renderStudentNumbersList();
+      // إعادة تعيين حالة رفع الملف
+      document.getElementById('studentNumbersUploadStatus').className = 'upload-status info';
+      document.getElementById('studentNumbersUploadStatus').textContent = 'لم يتم رفع ملف بعد';
     }
 
     function closeStudentNumbersModal() {
@@ -1872,10 +1932,165 @@
       editingNumberIndex = -1;
     }
 
+    // دالة رفع ملف Excel من نافذة أرقام الطلاب
+    function handleStudentNumbersFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (typeof XLSX === 'undefined') {
+        alert("مكتبة قراءة الإكسل غير محملة! تأكد من اتصال الإنترنت.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(loadEvent) {
+        try {
+          const data = new Uint8Array(loadEvent.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+          if (jsonData.length < 2) {
+            alert("الملف فارغ أو لا يحتوي على بيانات كافية!");
+            return;
+          }
+
+          const headerRow = jsonData[0];
+          let idCol = -1, nameCol = -1, classCol = -1;
+          for (let i = 0; i < headerRow.length; i++) {
+            const cell = headerRow[i] ? headerRow[i].toString().trim() : '';
+            if (cell.includes('رقم') || cell.includes('هوية') || cell.includes('ID') || cell.includes('السجل')) idCol = i;
+            else if (cell.includes('اسم')) nameCol = i;
+            else if (cell.includes('فصل') || cell.includes('صف')) classCol = i;
+          }
+          if (idCol === -1) idCol = 0;
+          if (nameCol === -1) nameCol = 1;
+
+          const rows = [];
+          for (let r = 1; r < jsonData.length; r++) {
+            const row = jsonData[r];
+            if (!row || !row[idCol] || !row[nameCol]) continue;
+            const id = row[idCol].toString().trim();
+            const name = row[nameCol].toString().trim();
+            const cls = (classCol !== -1 && row[classCol]) ? row[classCol].toString().trim() : '';
+            rows.push({ id, name, cls });
+          }
+
+          if (rows.length === 0) {
+            alert("لم يتم العثور على بيانات صالحة في الملف. تأكد من وجود أعمدة رقم الطالب والاسم.");
+            return;
+          }
+
+          // حفظ البيانات مؤقتاً
+          window._studentNumbersFileData = rows;
+
+          // استخراج الأرقام وحفظها
+          loadStudentNumberMap();
+          let savedCount = 0;
+          let duplicateCount = 0;
+          const duplicates = [];
+
+          rows.forEach(item => {
+            if (!queryStudentNumberMap[item.name]) {
+              // استخراج آخر 5 أرقام من رقم الهوية
+              const match = item.id.match(/\d{5,}$/);
+              if (match) {
+                const number = match[0].slice(-5);
+                // التحقق من التكرار مع الأرقام المحفوظة
+                let isDuplicate = false;
+                for (let st in queryStudentNumberMap) {
+                  if (st !== item.name && queryStudentNumberMap[st] === number) {
+                    isDuplicate = true;
+                    break;
+                  }
+                }
+                if (isDuplicate) {
+                  duplicateCount++;
+                  duplicates.push({ name: item.name, number: number });
+                } else {
+                  queryStudentNumberMap[item.name] = number;
+                  savedCount++;
+                }
+              }
+            }
+          });
+
+          if (savedCount > 0 || duplicateCount > 0) {
+            saveStudentNumberMap();
+            let statusMsg = '';
+            const statusDiv = document.getElementById('studentNumbersUploadStatus');
+            
+            if (savedCount > 0 && duplicateCount === 0) {
+              statusMsg = `✅ تم رفع الملف وحفظ ${savedCount} رقم جديد بنجاح!`;
+              statusDiv.className = 'upload-status success';
+            } else if (savedCount > 0 && duplicateCount > 0) {
+              statusMsg = `⚠️ تم حفظ ${savedCount} رقم، ولكن ${duplicateCount} رقم مكرر (${duplicates.map(d => d.name).join(', ')})`;
+              statusDiv.className = 'upload-status error';
+            } else if (savedCount === 0 && duplicateCount > 0) {
+              statusMsg = `❌ جميع الأرقام مكررة (${duplicateCount} طالب). يرجى تعديل الأرقام يدوياً.`;
+              statusDiv.className = 'upload-status error';
+            } else {
+              statusMsg = `ℹ️ لم يتم العثور على أرقام جديدة للحفظ.`;
+              statusDiv.className = 'upload-status info';
+            }
+            statusDiv.textContent = statusMsg;
+            
+            // إعادة تحميل القائمة
+            renderStudentNumbersList();
+            
+            if (duplicateCount > 0) {
+              alert(`⚠️ تم العثور على ${duplicateCount} رقم مكرر. يرجى تعديلها يدوياً من القائمة.`);
+            }
+          } else {
+            document.getElementById('studentNumbersUploadStatus').className = 'upload-status info';
+            document.getElementById('studentNumbersUploadStatus').textContent = 'ℹ️ جميع الأرقام موجودة مسبقاً.';
+          }
+
+        } catch (error) {
+          console.error(error);
+          document.getElementById('studentNumbersUploadStatus').className = 'upload-status error';
+          document.getElementById('studentNumbersUploadStatus').textContent = '❌ حدث خطأ أثناء قراءة الملف. تأكد من الصيغة.';
+          alert("❌ حدث خطأ أثناء قراءة ملف البيانات. تأكد من صيغة الملف.");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
     function renderStudentNumbersList() {
       const selectedClass = document.getElementById('studentNumbersClassSelect').value;
       const container = document.getElementById('studentNumbersListContainer');
 
+      // ===== حالة خاصة: عرض الطلاب بدون أرقام =====
+      if (selectedClass === '__no_numbers__') {
+        const studentsWithoutNumbers = getStudentsWithoutNumbers();
+        
+        if (studentsWithoutNumbers.length === 0) {
+          container.innerHTML = '<div style="text-align:center; color:#27ae60; padding:20px; font-weight:bold;">✅ جميع الطلاب لديهم أرقام!</div>';
+          return;
+        }
+
+        loadStudentNumberMap();
+        let html = '';
+        studentsWithoutNumbers.forEach((item, index) => {
+          const number = queryStudentNumberMap[item.name] || '';
+          html += `
+            <div class="student-number-item" id="number-row-no-${index}">
+              <span style="font-weight:bold; color:var(--text-secondary); font-size:0.7rem; min-width:28px;">${index + 1}</span>
+              <span class="student-name-display" style="font-size:0.8rem;">${item.name} <span style="color:#999; font-weight:400; font-size:0.65rem;">(${item.class})</span></span>
+              <span class="student-number-display" id="number-display-no-${index}" ondblclick="startEditNumber('no-${index}')">${number || '---'}</span>
+              <input type="text" class="student-number-input" id="number-input-no-${index}" value="${number}" maxlength="10" style="display:none; width:80px; padding:0.15rem 0.3rem; border:2px solid var(--accent); border-radius:0.3rem; font-size:0.85rem; font-weight:700; text-align:center; background:white;">
+              <button class="btn-number-save" id="number-save-no-${index}" style="display:none;" onclick="saveEditNumber('no-${index}')">✅ حفظ</button>
+              <button class="btn-number-cancel" id="number-cancel-no-${index}" style="display:none;" onclick="cancelEditNumber('no-${index}')">✖️ إلغاء</button>
+              <button class="btn-number-edit" id="number-edit-no-${index}" onclick="startEditNumber('no-${index}')">✏️</button>
+              <span class="number-status" style="color:#e67e22;">🔴 بدون رقم</span>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+        return;
+      }
+
+      // ===== عرض طلاب فصل محدد =====
       if (!selectedClass || !appData[selectedClass] || appData[selectedClass].length === 0) {
         container.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">لا يوجد طلاب في هذا الفصل</div>';
         return;
@@ -1917,47 +2132,85 @@
       container.innerHTML = html;
     }
 
-    function startEditNumber(index) {
-      if (editingNumberIndex !== -1 && editingNumberIndex !== index) {
+    // ===== دالة بدء تعديل الرقم (تعمل مع كل من الأرقام العادية والرقم الافتراضي) =====
+    function startEditNumber(id) {
+      // إلغاء التعديل السابق
+      if (editingNumberIndex !== -1 && editingNumberIndex !== id) {
         cancelEditNumber(editingNumberIndex);
       }
 
-      const row = document.getElementById(`number-row-${index}`);
-      if (!row) return;
+      // البحث عن الصف
+      let row = document.getElementById(`number-row-${id}`);
+      if (!row) {
+        // إذا كان id يبدأ بـ 'no-' نبحث بالطريقة الأخرى
+        if (typeof id === 'string' && id.startsWith('no-')) {
+          row = document.getElementById(`number-row-${id}`);
+        }
+        if (!row) return;
+      }
 
-      const display = document.getElementById(`number-display-${index}`);
-      const input = document.getElementById(`number-input-${index}`);
-      const saveBtn = document.getElementById(`number-save-${index}`);
-      const cancelBtn = document.getElementById(`number-cancel-${index}`);
-      const editBtn = document.getElementById(`number-edit-${index}`);
+      const display = document.getElementById(`number-display-${id}`);
+      const input = document.getElementById(`number-input-${id}`);
+      const saveBtn = document.getElementById(`number-save-${id}`);
+      const cancelBtn = document.getElementById(`number-cancel-${id}`);
+      const editBtn = document.getElementById(`number-edit-${id}`);
+
+      if (!display || !input || !saveBtn || !cancelBtn || !editBtn) return;
 
       row.classList.add('editing-number');
       input.value = display.textContent === '---' ? '' : display.textContent;
       input.focus();
       input.select();
 
-      editingNumberIndex = index;
+      editingNumberIndex = id;
     }
 
-    function cancelEditNumber(index) {
-      const row = document.getElementById(`number-row-${index}`);
-      if (!row) return;
+    function cancelEditNumber(id) {
+      let row = document.getElementById(`number-row-${id}`);
+      if (!row) {
+        if (typeof id === 'string' && id.startsWith('no-')) {
+          row = document.getElementById(`number-row-${id}`);
+        }
+        if (!row) return;
+      }
       row.classList.remove('editing-number');
-      if (editingNumberIndex === index) {
+      if (editingNumberIndex === id) {
         editingNumberIndex = -1;
       }
     }
 
-    function saveEditNumber(index) {
-      const selectedClass = document.getElementById('studentNumbersClassSelect').value;
-      const input = document.getElementById(`number-input-${index}`);
-      const display = document.getElementById(`number-display-${index}`);
+    function saveEditNumber(id) {
+      let row = document.getElementById(`number-row-${id}`);
+      if (!row) {
+        if (typeof id === 'string' && id.startsWith('no-')) {
+          row = document.getElementById(`number-row-${id}`);
+        }
+        if (!row) return;
+      }
+
+      const input = document.getElementById(`number-input-${id}`);
+      const display = document.getElementById(`number-display-${id}`);
       const newNumber = input.value.trim();
       const oldNumber = display.textContent === '---' ? '' : display.textContent;
 
-      // الحصول على اسم الطالب من الصف
-      const students = [...appData[selectedClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-      const studentName = students[index];
+      // الحصول على اسم الطالب
+      let studentName = '';
+      let selectedClass = document.getElementById('studentNumbersClassSelect').value;
+
+      if (typeof id === 'string' && id.startsWith('no-')) {
+        // حالة الطلاب بدون أرقام
+        const index = parseInt(id.replace('no-', ''));
+        const studentsWithoutNumbers = getStudentsWithoutNumbers();
+        if (studentsWithoutNumbers[index]) {
+          studentName = studentsWithoutNumbers[index].name;
+        }
+      } else {
+        // حالة الفصل العادي
+        const students = [...appData[selectedClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+        if (students[id]) {
+          studentName = students[id];
+        }
+      }
 
       if (!studentName) {
         alert("حدث خطأ في تحديد الطالب!");
@@ -1969,7 +2222,7 @@
         delete queryStudentNumberMap[studentName];
         display.textContent = '---';
         saveStudentNumberMap();
-        cancelEditNumber(index);
+        cancelEditNumber(id);
         renderStudentNumbersList();
         return;
       }
@@ -1996,7 +2249,7 @@
       queryStudentNumberMap[studentName] = newNumber;
       display.textContent = newNumber;
       saveStudentNumberMap();
-      cancelEditNumber(index);
+      cancelEditNumber(id);
       renderStudentNumbersList();
     }
 
@@ -2013,7 +2266,7 @@
       initClassSelects();
       renderQueryUnitCheckboxes();
       
-      // ===== التحقق من وجود أرقام محفوظة =====
+      // التحقق من وجود أرقام محفوظة
       loadStudentNumberMap();
       const allStudents = getAllStudents();
       const missingStudents = allStudents.filter(student => !queryStudentNumberMap[student]);
@@ -2120,7 +2373,7 @@
           document.getElementById('queryIdFileStatus').innerHTML = `✅ تم رفع الملف: ${file.name} (${rows.length} طالب)`;
           document.getElementById('queryIdFileStatus').style.color = 'var(--green)';
           
-          // ===== بعد رفع الملف، نحاول استخراج الأرقام وحفظها تلقائياً =====
+          // بعد رفع الملف، نحاول استخراج الأرقام وحفظها تلقائياً
           loadStudentNumberMap();
           let savedCount = 0;
           rows.forEach(item => {
@@ -2146,12 +2399,12 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // دالة تصدير البيانات النهائية (كل الفصول في ملف واحد، كل وحدة صفحة، وآخر صفحة موزونة)
+    // دالة تصدير البيانات النهائية
     function exportQueryData() {
       const selectedFilter = document.getElementById('queryClassSelect').value;
       const allClasses = Object.keys(appData);
       
-      // ===== التحقق من وجود أرقام قبل التصدير =====
+      // التحقق من وجود أرقام قبل التصدير
       loadStudentNumberMap();
       const allStudents = getAllStudents();
       const missingStudents = allStudents.filter(student => !queryStudentNumberMap[student]);
@@ -2452,7 +2705,6 @@
           validUnitsCount++;
         });
 
-        // القسمة على عدد الوحدات (للمعدل)
         const divisor = validUnitsCount > 0 ? validUnitsCount : 1;
         const finalHwAvg = (totalHwAvg / divisor).toFixed(2);
         const finalActAvg = (totalActAvg / divisor).toFixed(2);
@@ -2507,7 +2759,6 @@
     // دوال الفترات (تم تعديلها)
     function selectPeriodName(name) {
       selectedPeriodName = name;
-      // تحديث الأزرار
       document.getElementById('periodNameFirstBtn').classList.toggle('selected-period-name', name === 'الأولى');
       document.getElementById('periodNameSecondBtn').classList.toggle('selected-period-name', name === 'الثانية');
     }
@@ -2515,10 +2766,7 @@
     function openPeriodSummaryModal() {
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       document.getElementById('periodSummaryModalTitle').innerText = `📌 خلاصة الفترة والدرجات الموزونة`;
-
-      // تعيين اسم الفترة الافتراضي (الأولى)
       selectPeriodName('الأولى');
-
       renderPeriodUnitsToggleBar();
       renderPeriodSummaryTable();
       document.getElementById('periodSummaryModal').style.display = 'flex';
@@ -2531,13 +2779,10 @@
     function renderPeriodUnitsToggleBar() {
       const container = document.getElementById('periodUnitsToggleBar');
       container.innerHTML = '';
-
       const allUnits = Object.keys(unitsData);
-
       if (period1SelectedUnits.length === 0) {
         period1SelectedUnits = [...allUnits];
       }
-
       allUnits.forEach(uName => {
         const isChecked = period1SelectedUnits.includes(uName);
         const btn = document.createElement('button');
@@ -2611,15 +2856,9 @@
       });
     }
 
-    // دالة الحساب (تعتمد على period1SelectedUnits وتقسم على عدد الوحدات)
     function calculatePeriodWeightedTotals(className, studentName) {
       const unitsToCalc = period1SelectedUnits.length > 0 ? period1SelectedUnits : Object.keys(unitsData);
-
-      let totalHwAvg = 0;
-      let totalActAvg = 0;
-      let totalTest1 = 0;
-      let totalTest2 = 0;
-      let validUnitsCount = 0;
+      let totalHwAvg = 0, totalActAvg = 0, totalTest1 = 0, totalTest2 = 0, validUnitsCount = 0;
 
       unitsToCalc.forEach(uName => {
         const clsKey = `${className}_${uName}`;
@@ -2629,17 +2868,11 @@
         const lessons = unitObj.lessons;
 
         let hwSum = 0, hwCount = 0;
-        lessons.forEach(l => {
-          let v = parseFloat(stData.hw[l]);
-          if (!isNaN(v)) { hwSum += v; hwCount++; }
-        });
+        lessons.forEach(l => { let v = parseFloat(stData.hw[l]); if (!isNaN(v)) { hwSum += v; hwCount++; } });
         let hwAvg = hwCount > 0 ? (hwSum / hwCount) : 0;
 
         let actSum = 0, actCount = 0;
-        lessons.forEach(l => {
-          let v = parseFloat(stData.act[l]);
-          if (!isNaN(v)) { actSum += v; actCount++; }
-        });
+        lessons.forEach(l => { let v = parseFloat(stData.act[l]); if (!isNaN(v)) { actSum += v; actCount++; } });
         let actAvg = actCount > 0 ? (actSum / actCount) : 0;
 
         let t1 = parseFloat(stData.test1) || 0;
@@ -2652,13 +2885,11 @@
         validUnitsCount++;
       });
 
-      // القسمة على عدد الوحدات
       const divisor = validUnitsCount > 0 ? validUnitsCount : 1;
       let finalHwAvg = (totalHwAvg / divisor).toFixed(2);
       let finalActAvg = (totalActAvg / divisor).toFixed(2);
       let finalTest1 = (totalTest1 / divisor).toFixed(2);
       let finalTest2 = (totalTest2 / divisor).toFixed(2);
-
       let partScore = calculateStudentParticipationScore(className, studentName);
       let testTotal = (parseFloat(finalTest1) + parseFloat(finalTest2)).toFixed(2);
       let totalSum = (parseFloat(finalHwAvg) + parseFloat(finalActAvg) + partScore + parseFloat(testTotal)).toFixed(2);
@@ -4169,7 +4400,6 @@
         const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
         const todayDate = new Date().toLocaleDateString('ar-SA');
 
-        // الحصول على الوحدات المختارة
         const selectedUnits = period1SelectedUnits.length > 0 ? period1SelectedUnits : Object.keys(unitsData);
         const unitsListStr = selectedUnits.join('، ');
 
@@ -4245,7 +4475,6 @@
         followupData,
         penaltiesData,
         period1SelectedUnits
-        // تم حذف period2SelectedUnits
       };
       const jsonStr = JSON.stringify(data, null, 2);
       downloadFile(jsonStr, `backup_school_system_${new Date().toISOString().slice(0,10)}.json`, 'application/json');
@@ -4269,7 +4498,6 @@
           if (imported.followupData) followupData = imported.followupData;
           if (imported.penaltiesData) penaltiesData = imported.penaltiesData;
           if (imported.period1SelectedUnits) period1SelectedUnits = imported.period1SelectedUnits;
-          // تجاهل period2 إذا وجد
           saveData();
           initClassSelects();
           renderStudents();
