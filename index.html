@@ -14,7 +14,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>9.0</title>
+  <title>9.5</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -351,54 +351,97 @@
       color: var(--accent);
     }
 
-    /* تنسيقات نافذة أرقام الطلاب */
-    .student-number-item {
+    /* تنسيقات نافذة أرقام الطلاب - التصميم الجديد */
+    .student-number-card {
+      background: #f9f9fb;
+      border-radius: 0.75rem;
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid #E5E5EA;
+      transition: all 0.2s;
+    }
+    .student-number-card:hover {
+      background: #f0f0f5;
+    }
+    .student-number-card .student-name-row {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .student-number-card .student-name-row .student-class-tag {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      background: #E5E5EA;
+      padding: 0.1rem 0.5rem;
+      border-radius: 0.5rem;
+    }
+    .student-number-card .number-row {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.4rem 0.6rem;
-      margin-bottom: 0.3rem;
-      background: #f9f9fb;
-      border-radius: 0.5rem;
-      border: 1px solid #e5e5ea;
-      transition: background 0.15s;
+      flex-wrap: wrap;
     }
-    .student-number-item:hover { background: #f0f0f5; }
-    .student-number-item .student-name-display {
-      flex: 1;
-      font-weight: 800;
-      font-size: 0.9rem;
-    }
-    .student-number-item .student-number-display {
+    .student-number-card .number-row .number-display {
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       color: var(--accent);
-      cursor: pointer;
-      padding: 0.1rem 0.4rem;
-      border-radius: 0.3rem;
-      transition: background 0.15s;
-      min-width: 60px;
-      text-align: center;
       background: #EBF3FF;
-      border: 1px solid #B3D7FF;
+      padding: 0.2rem 0.6rem;
+      border-radius: 0.4rem;
+      border: 2px solid #B3D7FF;
+      min-width: 70px;
+      text-align: center;
+      font-family: monospace;
+      font-size: 1rem;
     }
-    .student-number-item .student-number-display:hover {
-      background: #D6E8FF;
+    .student-number-card .number-row .number-display.missing {
+      color: #e67e22;
+      background: #FEF9E7;
+      border-color: #F9E79F;
     }
-    .student-number-item .student-number-input {
-      width: 80px;
-      padding: 0.15rem 0.3rem;
+    .student-number-card .number-row .number-display.duplicate {
+      color: var(--red);
+      background: #FDEDEC;
+      border-color: #F5B7B1;
+    }
+    .student-number-card .number-row .number-input {
+      width: 100px;
+      padding: 0.25rem 0.5rem;
       border: 2px solid var(--accent);
-      border-radius: 0.3rem;
-      font-size: 0.85rem;
+      border-radius: 0.4rem;
+      font-size: 0.95rem;
       font-weight: 700;
       text-align: center;
       background: white;
       display: none;
+      font-family: monospace;
     }
-    .student-number-item .btn-number-save {
-      padding: 0.15rem 0.5rem;
-      border-radius: 0.3rem;
+    .student-number-card .number-row .number-input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.2);
+    }
+    .student-number-card .number-row .btn-number-edit {
+      padding: 0.2rem 0.7rem;
+      border-radius: 0.4rem;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      font-size: 0.7rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+    .student-number-card .number-row .btn-number-edit:active { opacity: 0.7; }
+    .student-number-card .number-row .btn-number-save {
+      padding: 0.2rem 0.7rem;
+      border-radius: 0.4rem;
       border: none;
       background: var(--green);
       color: white;
@@ -407,11 +450,12 @@
       cursor: pointer;
       display: none;
       white-space: nowrap;
+      transition: opacity 0.15s;
     }
-    .student-number-item .btn-number-save:active { opacity: 0.8; }
-    .student-number-item .btn-number-cancel {
-      padding: 0.15rem 0.5rem;
-      border-radius: 0.3rem;
+    .student-number-card .number-row .btn-number-save:active { opacity: 0.7; }
+    .student-number-card .number-row .btn-number-cancel {
+      padding: 0.2rem 0.7rem;
+      border-radius: 0.4rem;
       border: none;
       background: #e5e5ea;
       color: var(--text-primary);
@@ -420,34 +464,24 @@
       cursor: pointer;
       display: none;
       white-space: nowrap;
+      transition: opacity 0.15s;
     }
-    .student-number-item .btn-number-cancel:active { opacity: 0.8; }
-    .student-number-item .btn-number-edit {
-      padding: 0.15rem 0.5rem;
+    .student-number-card .number-row .btn-number-cancel:active { opacity: 0.7; }
+    .student-number-card .number-row .number-status {
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 0.1rem 0.4rem;
       border-radius: 0.3rem;
-      border: none;
-      background: var(--accent);
-      color: white;
-      font-weight: 700;
-      font-size: 0.7rem;
-      cursor: pointer;
-      white-space: nowrap;
     }
-    .student-number-item .btn-number-edit:active { opacity: 0.8; }
-    .student-number-item .number-status {
-      font-size: 0.65rem;
-      font-weight: 700;
-      min-width: 50px;
-      text-align: center;
-    }
-    .number-status.unique { color: var(--green); }
-    .number-status.duplicate { color: var(--red); }
+    .number-status.unique { color: var(--green); background: #D5F5E3; }
+    .number-status.duplicate { color: var(--red); background: #FDEDEC; }
+    .number-status.missing { color: #e67e22; background: #FEF9E7; }
 
-    .student-number-item.editing-number .student-number-display { display: none; }
-    .student-number-item.editing-number .student-number-input { display: inline-block; }
-    .student-number-item.editing-number .btn-number-save { display: inline-block; }
-    .student-number-item.editing-number .btn-number-cancel { display: inline-block; }
-    .student-number-item.editing-number .btn-number-edit { display: none; }
+    .student-number-card.editing .number-display { display: none; }
+    .student-number-card.editing .number-input { display: inline-block; }
+    .student-number-card.editing .btn-number-edit { display: none; }
+    .student-number-card.editing .btn-number-save { display: inline-block; }
+    .student-number-card.editing .btn-number-cancel { display: inline-block; }
 
     /* زر رفع الملف داخل نافذة أرقام الطلاب */
     .upload-excel-btn {
@@ -487,7 +521,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (9.0)
+        كشف الغياب والمخالفات (9.5)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -525,7 +559,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (9.0)
+        كشوف المتابعة و الدرجات (9.5)
       </div>
     </header>
     <div class="top-action-bar">
@@ -636,7 +670,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة أرقام الطلاب ================= -->
+  <!-- ================= نافذة أرقام الطلاب - التصميم الجديد ================= -->
   <div class="modal" id="studentNumbersModal" style="z-index: 115;">
     <div class="modal-content" style="max-width: 550px; width: 95%;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -644,7 +678,7 @@
         <button class="btn-close-circle" onclick="closeStudentNumbersModal()">✕</button>
       </div>
       <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:8px; font-weight:700; text-align:center;">
-        اختر الفصل لعرض أرقام الطلاب. اضغط على الرقم لتعديله.
+        اختر الفصل لعرض أرقام الطلاب. اضغط على زر "تعديل" لتغيير الرقم.
       </div>
 
       <div class="query-export-section">
@@ -1904,7 +1938,7 @@
     }
 
     // ================================
-    // دوال نافذة أرقام الطلاب
+    // دوال نافذة أرقام الطلاب - التصميم الجديد
     // ================================
     function openStudentNumbersModal() {
       initClassSelects();
@@ -2039,6 +2073,7 @@
       reader.readAsArrayBuffer(file);
     }
 
+    // ===== التصميم الجديد لعرض أرقام الطلاب =====
     function renderStudentNumbersList() {
       const selectedClass = document.getElementById('studentNumbersClassSelect').value;
       const container = document.getElementById('studentNumbersListContainer');
@@ -2054,16 +2089,22 @@
         studentsWithoutNumbers.forEach((item, index) => {
           const number = queryStudentNumberMap[item.name] || '';
           const uniqueId = 'no-' + index;
+          const statusClass = number ? 'unique' : 'missing';
+          const statusText = number ? '✅ فريد' : '🔴 بدون رقم';
           html += `
-            <div class="student-number-item" id="number-row-${uniqueId}">
-              <span style="font-weight:bold; color:var(--text-secondary); font-size:0.7rem; min-width:28px;">${index + 1}</span>
-              <span class="student-name-display" style="font-size:0.8rem;">${item.name} <span style="color:#999; font-weight:400; font-size:0.65rem;">(${item.class})</span></span>
-              <span class="student-number-display" id="number-display-${uniqueId}" onclick="startEditNumber('${uniqueId}')">${number || '---'}</span>
-              <input type="text" class="student-number-input" id="number-input-${uniqueId}" value="${number}" maxlength="10" style="display:none; width:80px; padding:0.15rem 0.3rem; border:2px solid var(--accent); border-radius:0.3rem; font-size:0.85rem; font-weight:700; text-align:center; background:white;">
-              <button class="btn-number-save" id="number-save-${uniqueId}" style="display:none;" onclick="saveEditNumber('${uniqueId}')">✅ حفظ</button>
-              <button class="btn-number-cancel" id="number-cancel-${uniqueId}" style="display:none;" onclick="cancelEditNumber('${uniqueId}')">✖️ إلغاء</button>
-              <button class="btn-number-edit" id="number-edit-${uniqueId}" onclick="startEditNumber('${uniqueId}')">✏️</button>
-              <span class="number-status" style="color:#e67e22;">🔴 بدون رقم</span>
+            <div class="student-number-card" id="number-card-${uniqueId}">
+              <div class="student-name-row">
+                <span>${item.name}</span>
+                <span class="student-class-tag">${item.class}</span>
+              </div>
+              <div class="number-row">
+                <span class="number-display ${number ? '' : 'missing'}" id="number-display-${uniqueId}">${number || '---'}</span>
+                <input type="text" class="number-input" id="number-input-${uniqueId}" value="${number}" maxlength="10" placeholder="رقم الطالب">
+                <button class="btn-number-edit" id="number-edit-${uniqueId}" onclick="startEditNumber('${uniqueId}')">✏️ تعديل</button>
+                <button class="btn-number-save" id="number-save-${uniqueId}" onclick="saveEditNumber('${uniqueId}')">✅ حفظ</button>
+                <button class="btn-number-cancel" id="number-cancel-${uniqueId}" onclick="cancelEditNumber('${uniqueId}')">✖️ إلغاء</button>
+                <span class="number-status ${statusClass}">${statusText}</span>
+              </div>
             </div>
           `;
         });
@@ -2090,20 +2131,40 @@
       students.forEach((student, index) => {
         const number = queryStudentNumberMap[student] || '';
         const isDuplicate = number && numberCount[number] && numberCount[number].length > 1;
-        const statusText = isDuplicate ? '⚠️ مكرر' : (number ? '✅ فريد' : '❌ بدون رقم');
-        const statusClass = isDuplicate ? 'duplicate' : (number ? 'unique' : '');
+        let statusClass = '';
+        let statusText = '';
+        let displayClass = '';
+        
+        if (isDuplicate) {
+          statusClass = 'duplicate';
+          statusText = '⚠️ مكرر';
+          displayClass = 'duplicate';
+        } else if (number) {
+          statusClass = 'unique';
+          statusText = '✅ فريد';
+          displayClass = '';
+        } else {
+          statusClass = 'missing';
+          statusText = '🔴 بدون رقم';
+          displayClass = 'missing';
+        }
+        
         const uniqueId = index;
 
         html += `
-          <div class="student-number-item" id="number-row-${uniqueId}">
-            <span style="font-weight:bold; color:var(--text-secondary); font-size:0.7rem; min-width:28px;">${index + 1}</span>
-            <span class="student-name-display">${student}</span>
-            <span class="student-number-display" id="number-display-${uniqueId}" onclick="startEditNumber('${uniqueId}')">${number || '---'}</span>
-            <input type="text" class="student-number-input" id="number-input-${uniqueId}" value="${number}" maxlength="10" style="display:none; width:80px; padding:0.15rem 0.3rem; border:2px solid var(--accent); border-radius:0.3rem; font-size:0.85rem; font-weight:700; text-align:center; background:white;">
-            <button class="btn-number-save" id="number-save-${uniqueId}" style="display:none;" onclick="saveEditNumber('${uniqueId}')">✅ حفظ</button>
-            <button class="btn-number-cancel" id="number-cancel-${uniqueId}" style="display:none;" onclick="cancelEditNumber('${uniqueId}')">✖️ إلغاء</button>
-            <button class="btn-number-edit" id="number-edit-${uniqueId}" onclick="startEditNumber('${uniqueId}')">✏️</button>
-            <span class="number-status ${statusClass}">${statusText}</span>
+          <div class="student-number-card" id="number-card-${uniqueId}">
+            <div class="student-name-row">
+              <span>${student}</span>
+              <span class="student-class-tag">${selectedClass}</span>
+            </div>
+            <div class="number-row">
+              <span class="number-display ${displayClass}" id="number-display-${uniqueId}">${number || '---'}</span>
+              <input type="text" class="number-input" id="number-input-${uniqueId}" value="${number}" maxlength="10" placeholder="رقم الطالب">
+              <button class="btn-number-edit" id="number-edit-${uniqueId}" onclick="startEditNumber('${uniqueId}')">✏️ تعديل</button>
+              <button class="btn-number-save" id="number-save-${uniqueId}" onclick="saveEditNumber('${uniqueId}')">✅ حفظ</button>
+              <button class="btn-number-cancel" id="number-cancel-${uniqueId}" onclick="cancelEditNumber('${uniqueId}')">✖️ إلغاء</button>
+              <span class="number-status ${statusClass}">${statusText}</span>
+            </div>
           </div>
         `;
       });
@@ -2111,23 +2172,26 @@
       container.innerHTML = html;
     }
 
+    // ===== دوال التعديل الجديدة =====
     function startEditNumber(id) {
+      // إلغاء التعديل السابق
       if (editingNumberIndex !== -1 && editingNumberIndex !== id) {
         cancelEditNumber(editingNumberIndex);
       }
 
-      const row = document.getElementById(`number-row-${id}`);
-      if (!row) return;
+      const card = document.getElementById(`number-card-${id}`);
+      if (!card) return;
 
       const display = document.getElementById(`number-display-${id}`);
       const input = document.getElementById(`number-input-${id}`);
+      const editBtn = document.getElementById(`number-edit-${id}`);
       const saveBtn = document.getElementById(`number-save-${id}`);
       const cancelBtn = document.getElementById(`number-cancel-${id}`);
-      const editBtn = document.getElementById(`number-edit-${id}`);
 
-      if (!display || !input || !saveBtn || !cancelBtn || !editBtn) return;
+      if (!display || !input || !editBtn || !saveBtn || !cancelBtn) return;
 
-      row.classList.add('editing-number');
+      // إظهار وضع التعديل
+      card.classList.add('editing');
       input.value = display.textContent === '---' ? '' : display.textContent;
       input.focus();
       input.select();
@@ -2136,22 +2200,23 @@
     }
 
     function cancelEditNumber(id) {
-      const row = document.getElementById(`number-row-${id}`);
-      if (!row) return;
-      row.classList.remove('editing-number');
+      const card = document.getElementById(`number-card-${id}`);
+      if (!card) return;
+      card.classList.remove('editing');
       if (editingNumberIndex === id) {
         editingNumberIndex = -1;
       }
     }
 
     function saveEditNumber(id) {
-      const row = document.getElementById(`number-row-${id}`);
-      if (!row) return;
+      const card = document.getElementById(`number-card-${id}`);
+      if (!card) return;
 
       const input = document.getElementById(`number-input-${id}`);
       const display = document.getElementById(`number-display-${id}`);
       const newNumber = input.value.trim();
 
+      // الحصول على اسم الطالب والفصل
       let studentName = '';
       let selectedClass = document.getElementById('studentNumbersClassSelect').value;
 
@@ -2174,14 +2239,17 @@
       }
 
       if (!newNumber) {
+        // حذف الرقم
         delete queryStudentNumberMap[studentName];
         display.textContent = '---';
+        display.className = 'number-display missing';
         saveStudentNumberMap();
         cancelEditNumber(id);
         renderStudentNumbersList();
         return;
       }
 
+      // التحقق من التكرار
       let isDuplicate = false;
       let duplicateStudent = '';
       for (let st in queryStudentNumberMap) {
@@ -2199,8 +2267,10 @@
         return;
       }
 
+      // حفظ الرقم
       queryStudentNumberMap[studentName] = newNumber;
       display.textContent = newNumber;
+      display.className = 'number-display';
       saveStudentNumberMap();
       cancelEditNumber(id);
       renderStudentNumbersList();
@@ -4977,3 +5047,5 @@
   </script>
 </body>
 </html>
+
+
