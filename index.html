@@ -28,7 +28,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>📚 كشف المتابعة 10.6</title>
+  <title>📚 كشف المتابعة 10.7</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -599,7 +599,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (10.6)
+        كشف الغياب والمخالفات (10.7)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -637,7 +637,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (10.6)
+        كشوف المتابعة و الدرجات (10.7)
       </div>
     </header>
     <div class="top-action-bar">
@@ -1495,7 +1495,7 @@
           <div class="attendance-buttons">
             <button class="btn-status ${status === 'غائب' ? 'active-absent' : ''}" onclick="setStatus('${CSS.escape(student)}', 'غائب')">غائب</button>
             <button class="btn-status ${status === 'متأخر' ? 'active-late' : ''}" onclick="setStatus('${CSS.escape(student)}', 'متأخر')">متأخر</button>
-            <button class="btn-status ${vBtnClass} ${disabledClass}" onclick="openImportExportModal('${CSS.escape(student)}')">${vBtnText}</button>
+            <button class="btn-status ${vBtnClass} ${disabledClass}" onclick="openViolationModal('${CSS.escape(student)}')">${vBtnText}</button>
           </div>
         `;
         listContainer.appendChild(card);
