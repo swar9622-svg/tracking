@@ -28,7 +28,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>📚 كشف المتابعة 10.2</title>
+  <title>📚 كشف المتابعة 10.3</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -599,7 +599,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (10.2)
+        كشف الغياب والمخالفات (10.3)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -637,7 +637,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (10.2)
+        كشوف المتابعة و الدرجات (10.3)
       </div>
     </header>
     <div class="top-action-bar">
@@ -2021,9 +2021,9 @@
 
       // نقل الدرجات من الأسماء القديمة إلى الجديدة (بنفس الترتيب)
       const minLength = Math.min(oldLessons.length, newLessons.length);
-      const clsKeyPrefix = `${uName}_`;
+      const clsKeySuffix = `_${uName}`;
       for (let key in followupData) {
-        if (key.startsWith(clsKeyPrefix)) {
+        if (key.endsWith(clsKeySuffix)) {
           const studentData = followupData[key];
           for (let student in studentData) {
             // نقل الواجبات
@@ -3632,9 +3632,9 @@
 
       unitsData[unitName].lessons[index] = newName;
 
-      const clsKeyPrefix = `${unitName}_`;
+      const clsKeySuffix = `_${unitName}`;
       for (let key in followupData) {
-        if (key.startsWith(clsKeyPrefix)) {
+        if (key.endsWith(clsKeySuffix)) {
           const studentData = followupData[key];
           for (let student in studentData) {
             if (studentData[student].hw && studentData[student].hw[oldName] !== undefined) {
