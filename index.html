@@ -28,7 +28,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>📚 كشف المتابعة 10.0</title>
+  <title>📚 كشف المتابعة 10.1</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -599,7 +599,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (10.0)
+        كشف الغياب والمخالفات (10.1)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -637,7 +637,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (10.0)
+        كشوف المتابعة و الدرجات (10.1)
       </div>
     </header>
     <div class="top-action-bar">
@@ -1703,7 +1703,7 @@
     }
 
     // ============================================================
-    // دوال التصدير والاستيراد الجديدة (الإصدار 10.0)
+    // دوال التصدير والاستيراد الجديدة (الإصدار 10.1)
     // ============================================================
     function openImportExportModal(type) {
       currentImportType = type;
@@ -1765,9 +1765,16 @@
           const fileLessonCount = headerRow.length - 1;
           const systemLessons = unitsData[unitName].lessons || [];
 
-          // التحقق من تطابق عدد الأعمدة مع عدد دروس الوحدة
-          if (fileLessonCount !== systemLessons.length) {
-            alert(`⚠️ عدد الأعمدة في الملف (${fileLessonCount}) لا يتطابق مع عدد دروس الوحدة (${systemLessons.length}).\nيرجى التأكد من صحة القالب.`);
+          // التحقق من عدد الأعمدة حسب النوع
+          let expectedCols = 0;
+          if (type === 'test') {
+            expectedCols = 2; // اختبار ومشروع
+          } else {
+            expectedCols = systemLessons.length;
+          }
+
+          if (fileLessonCount !== expectedCols) {
+            alert(`⚠️ عدد الأعمدة في الملف (${fileLessonCount}) لا يتطابق مع المطلوب (${expectedCols}).\nيرجى التأكد من صحة القالب.`);
             return;
           }
 
@@ -1842,6 +1849,7 @@
             let updated = false;
 
             if (type === 'hw') {
+              // الواجبات: الأعمدة بعد عمود الاسم هي دروس الوحدة
               for (let col = 0; col < systemLessons.length; col++) {
                 const val = row[col + 1];
                 if (val === undefined || val === null || val === '') continue;
@@ -1862,6 +1870,7 @@
                 updated = true;
               }
             } else if (type === 'test') {
+              // الاختبارات: عمودين فقط (اختبار، مشروع)
               if (row.length >= 2) {
                 const testVal = parseFloat(row[1]);
                 if (!isNaN(testVal) && testVal !== '') {
@@ -1876,6 +1885,7 @@
                   updated = true;
                 }
               }
+              // إذا كان هناك عمود واحد فقط (اختبار فقط)
               if (row.length >= 2 && row.length < 3) {
                 const testVal = parseFloat(row[1]);
                 if (!isNaN(testVal) && testVal !== '') {
@@ -1934,59 +1944,39 @@
 
       // بناء الصفوف
       const rows = [];
-      // الصف الأول: أسماء الدروس كترويسة
-      const header = ['اسم الطالب'];
-      lessons.forEach(l => header.push(l));
-      rows.push(header);
 
-      // الصفوف التالية: كل طالب مع درجاته الحالية
-      classStudents.forEach(student => {
-        const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
-        const row = [student];
-
-        if (type === 'hw') {
-          lessons.forEach(l => {
-            row.push(stData.hw[l] !== undefined ? stData.hw[l] : '');
-          });
-        } else if (type === 'act') {
-          lessons.forEach(l => {
-            row.push(stData.act[l] !== undefined ? stData.act[l] : '');
-          });
-        } else if (type === 'test') {
-          row.push(stData.test1 !== undefined ? stData.test1 : '');
-          row.push(stData.test2 !== undefined ? stData.test2 : '');
-          // إذا كان عدد الدروس 2، نضيف عمودين فقط، وإلا نضيف عمودين فقط (اختبار ومشروع)
-          // نضمن أن عدد الأعمدة يساوي عدد الدروس + 1
-        }
-        rows.push(row);
-      });
-
-      // للتأكد من تطابق عدد الأعمدة للاختبارات مع عدد الدروس
       if (type === 'test') {
-        // نتأكد أن عدد الأعمدة (عدا عمود الاسم) يساوي عدد الدروس
-        // ولكن الاختبارات لها عمودين فقط (اختبار ومشروع)
-        // لذلك نعيد بناء الصفوف بشكل صحيح للاختبارات
-        // نضبط الصف الأول
-        const testHeader = ['اسم الطالب'];
-        lessons.forEach((l, idx) => {
-          if (idx === 0) testHeader.push('اختبار');
-          else if (idx === 1) testHeader.push('مشروع');
-          else testHeader.push(`درجة ${idx+1}`);
-        });
-        rows[0] = testHeader;
-
-        // نعيد بناء صفوف الطلاب للاختبارات
-        for (let i = 1; i < rows.length; i++) {
-          const student = rows[i][0];
+        // الاختبارات: عمودان فقط (اختبار، مشروع)
+        const header = ['اسم الطالب', 'اختبار', 'مشروع'];
+        rows.push(header);
+        classStudents.forEach(student => {
           const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
-          const newRow = [student];
-          lessons.forEach((l, idx) => {
-            if (idx === 0) newRow.push(stData.test1 !== undefined ? stData.test1 : '');
-            else if (idx === 1) newRow.push(stData.test2 !== undefined ? stData.test2 : '');
-            else newRow.push('');
-          });
-          rows[i] = newRow;
-        }
+          rows.push([
+            student,
+            stData.test1 !== undefined ? stData.test1 : '',
+            stData.test2 !== undefined ? stData.test2 : ''
+          ]);
+        });
+      } else {
+        // الواجبات أو الأنشطة: أعمدة بعدد الدروس
+        const header = ['اسم الطالب'];
+        lessons.forEach(l => header.push(l));
+        rows.push(header);
+
+        classStudents.forEach(student => {
+          const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
+          const row = [student];
+          if (type === 'hw') {
+            lessons.forEach(l => {
+              row.push(stData.hw[l] !== undefined ? stData.hw[l] : '');
+            });
+          } else if (type === 'act') {
+            lessons.forEach(l => {
+              row.push(stData.act[l] !== undefined ? stData.act[l] : '');
+            });
+          }
+          rows.push(row);
+        });
       }
 
       const wb = XLSX.utils.book_new();
