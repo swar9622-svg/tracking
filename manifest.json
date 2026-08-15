@@ -1,6 +1,6 @@
 {
-  "name": "كشف المتابعة",
-  "short_name": "كشف المتابعة",
+  "name": "📚 كشف المتابعة",
+  "short_name": "📚 كشف المتابعة",
   "description": "نظام متابعة الغياب والمخالفات والدرجات",
   "start_url": "./index.html",
   "display": "standalone",
