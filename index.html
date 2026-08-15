@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -28,7 +29,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>📚 كشف المتابعة 9.8</title>
+  <title>📚 كشف المتابعة 9.9</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -573,7 +574,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (9.8)
+        كشف الغياب والمخالفات (9.9)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -611,7 +612,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (9.8)
+        كشوف المتابعة و الدرجات (9.9)
       </div>
     </header>
     <div class="top-action-bar">
@@ -1200,6 +1201,29 @@
       return studentsWithoutNumbers;
     }
 
+    // ============================================================
+    // دالة الحصول على الأسماء المكررة عبر جميع الفصول
+    // ============================================================
+    function getDuplicateNames() {
+      const nameCount = {};
+      // اجمع كل الأسماء من جميع الفصول
+      Object.keys(appData).forEach(cls => {
+        if (appData[cls]) {
+          appData[cls].forEach(name => {
+            nameCount[name] = (nameCount[name] || 0) + 1;
+          });
+        }
+      });
+      // أرجع الأسماء التي تكررت أكثر من مرة
+      const duplicates = [];
+      for (let name in nameCount) {
+        if (nameCount[name] > 1) {
+          duplicates.push(name);
+        }
+      }
+      return duplicates;
+    }
+
     document.getElementById('dateSelect').valueAsDate = new Date();
 
     const AVAILABLE_FONTS = [
@@ -1361,6 +1385,7 @@
       if (!currentClass || !appData[currentClass]) return;
 
       const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      const duplicateNames = getDuplicateNames();
 
       let absentCount = 0;
       let lateCount = 0;
@@ -1381,8 +1406,9 @@
 
         const card = document.createElement('div');
         card.className = 'student-card';
+        const nameColor = duplicateNames.includes(student) ? 'color: #FF3B30;' : '';
         card.innerHTML = `
-          <div class="student-name">${student}</div>
+          <div class="student-name" style="${nameColor}">${student}</div>
           <div class="attendance-buttons">
             <button class="btn-status ${status === 'غائب' ? 'active-absent' : ''}" onclick="setStatus('${CSS.escape(student)}', 'غائب')">غائب</button>
             <button class="btn-status ${status === 'متأخر' ? 'active-late' : ''}" onclick="setStatus('${CSS.escape(student)}', 'متأخر')">متأخر</button>
@@ -1455,6 +1481,7 @@
       if (!followupData[clsKey]) followupData[clsKey] = {};
 
       const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      const duplicateNames = getDuplicateNames();
 
       const thead = document.getElementById('followupTableHead');
       let headHtml = `
@@ -1510,11 +1537,13 @@
           followupData[clsKey][student] = { hw: {}, act: {}, test1: '', test2: '' };
         }
         const stData = followupData[clsKey][student];
+        const isDuplicate = duplicateNames.includes(student);
+        const nameColor = isDuplicate ? 'color: #FF3B30;' : '';
 
         let row = document.createElement('tr');
         let rowHtml = `
           <td style="font-weight: bold; color: var(--text-secondary);">${idx + 1}</td>
-          <td class="student-name-td" style="font-weight: 900; font-size: 14px; text-align: right;">${student}</td>
+          <td class="student-name-td" style="font-weight: 900; font-size: 14px; text-align: right; ${nameColor}">${student}</td>
         `;
 
         lessons.forEach(l => {
@@ -1844,6 +1873,7 @@
 
       const students = appData[selectedClass].map((name, idx) => ({ name, idx }));
       students.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+      const duplicateNames = getDuplicateNames();
 
       if (students.length === 0) {
         container.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">لا يوجد طلاب في هذا الفصل</div>';
@@ -1853,6 +1883,8 @@
       students.forEach((item, index) => {
         const originalIndex = item.idx;
         const studentName = item.name;
+        const isDuplicate = duplicateNames.includes(studentName);
+        const nameColor = isDuplicate ? 'color: #FF3B30;' : '';
 
         const row = document.createElement('div');
         row.className = 'edit-student-item';
@@ -1866,6 +1898,7 @@
         const displayName = document.createElement('span');
         displayName.className = 'student-display-name';
         displayName.textContent = studentName;
+        displayName.style.cssText = nameColor;
         displayName.ondblclick = function() {
           startEditName(originalIndex);
         };
@@ -2153,16 +2186,19 @@
           return;
         }
         loadStudentNumberMap();
+        const duplicateNames = getDuplicateNames();
         let html = '';
         studentsWithoutNumbers.forEach((item, index) => {
           const number = queryStudentNumberMap[item.name] || '';
           const uniqueId = 'no-' + index;
           const statusClass = number ? 'unique' : 'missing';
           const statusText = number ? '✅ فريد' : '🔴 بدون رقم';
+          const isDuplicate = duplicateNames.includes(item.name);
+          const nameColor = isDuplicate ? 'color: #FF3B30;' : '';
           html += `
             <div class="student-number-card" id="number-card-${uniqueId}">
               <div class="student-name-row">
-                <span>${item.name}</span>
+                <span style="${nameColor}">${item.name}</span>
                 <span class="student-class-tag">${item.class}</span>
               </div>
               <div class="number-row">
@@ -2194,6 +2230,7 @@
       }
 
       const students = [...appData[selectedClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      const duplicateNames = getDuplicateNames();
       let html = '';
 
       students.forEach((student, index) => {
@@ -2218,11 +2255,13 @@
         }
         
         const uniqueId = index;
+        const isNameDuplicate = duplicateNames.includes(student);
+        const nameColor = isNameDuplicate ? 'color: #FF3B30;' : '';
 
         html += `
           <div class="student-number-card" id="number-card-${uniqueId}">
             <div class="student-name-row">
-              <span>${student}</span>
+              <span style="${nameColor}">${student}</span>
               <span class="student-class-tag">${selectedClass}</span>
             </div>
             <div class="number-row">
@@ -2922,6 +2961,7 @@
       if (!currentClass || !appData[currentClass]) return;
 
       const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      const duplicateNames = getDuplicateNames();
 
       const thead = document.getElementById('periodSummaryTableHead');
       thead.innerHTML = `
@@ -2941,10 +2981,12 @@
 
       classStudents.forEach((student, idx) => {
         let weighted = calculatePeriodWeightedTotals(currentClass, student);
+        const isDuplicate = duplicateNames.includes(student);
+        const nameColor = isDuplicate ? 'color: #FF3B30;' : '';
         tbody.innerHTML += `
           <tr>
             <td style="font-weight: bold; color: var(--text-secondary);">${idx + 1}</td>
-            <td class="student-name-td" style="font-weight: 900; font-size: 15px; text-align: right;">${student}</td>
+            <td class="student-name-td" style="font-weight: 900; font-size: 15px; text-align: right; ${nameColor}">${student}</td>
             <td style="font-weight: bold;">${weighted.hwAvg}</td>
             <td style="font-weight: bold;">${weighted.actAvg}</td>
             <td style="font-weight: bold; background-color: #ebdef0;">${weighted.partScore}</td>
@@ -3011,14 +3053,17 @@
       }
 
       const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      const duplicateNames = getDuplicateNames();
       const tbody = document.getElementById('studentReportSelectTableBody');
       tbody.innerHTML = '';
 
       classStudents.forEach((student, idx) => {
+        const isDuplicate = duplicateNames.includes(student);
+        const nameColor = isDuplicate ? 'color: #FF3B30;' : '';
         tbody.innerHTML += `
           <tr onclick="selectStudentForReportAction('${CSS.escape(student)}')" style="cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='#F2F2F7'" onmouseout="this.style.background='transparent'">
             <td style="color:var(--text-secondary); font-weight:bold;">${idx + 1}</td>
-            <td class="student-name-td" style="font-size: 15px; font-weight: 900; padding: 10px 8px; white-space: normal; word-break: break-word;">${student}</td>
+            <td class="student-name-td" style="font-size: 15px; font-weight: 900; padding: 10px 8px; white-space: normal; word-break: break-word; ${nameColor}">${student}</td>
           </tr>
         `;
       });
@@ -3684,6 +3729,7 @@
       }
 
       const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      const duplicateNames = getDuplicateNames();
       let studentStats = {};
       classStudents.forEach(st => { studentStats[st] = { absent: 0, late: 0, violations: 0 }; });
 
@@ -3720,10 +3766,12 @@
         const abs = studentStats[st].absent;
         const lat = studentStats[st].late;
         const vio = studentStats[st].violations;
+        const isDuplicate = duplicateNames.includes(st);
+        const nameColor = isDuplicate ? 'color: #FF3B30;' : '';
         html += `
           <tr>
             <td style="color:var(--text-secondary); font-weight:bold;">${idx + 1}</td>
-            <td class="student-name-td" style="font-weight: 900; font-size: 15px;">${st}</td>
+            <td class="student-name-td" style="font-weight: 900; font-size: 15px; ${nameColor}">${st}</td>
             <td><span class="badge-num badge-absent">${abs}</span></td>
             <td><span class="badge-num badge-late">${lat}</span></td>
             <td><span class="badge-num badge-violation">${vio}</span></td>
@@ -3745,6 +3793,7 @@
       }
 
       const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      const duplicateNames = getDuplicateNames();
       let studentVioCounts = {};
 
       classStudents.forEach(st => {
@@ -3788,10 +3837,12 @@
 
       classStudents.forEach((st, idx) => {
         let totalStVio = 0;
+        const isDuplicate = duplicateNames.includes(st);
+        const nameColor = isDuplicate ? 'color: #FF3B30;' : '';
         html += `
           <tr>
             <td style="color:var(--text-secondary); font-weight:bold; font-size:11px;">${idx + 1}</td>
-            <td class="student-name-td" style="font-size:15px; font-weight:900; white-space:nowrap;">${st}</td>
+            <td class="student-name-td" style="font-size:15px; font-weight:900; white-space:nowrap; ${nameColor}">${st}</td>
         `;
 
         VIOLATIONS_LIST.forEach(vText => {
@@ -3827,6 +3878,7 @@
       }
 
       const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      const duplicateNames = getDuplicateNames();
       const unitObj = unitsData[currentActiveUnit] || { lessons: ["درس 1"] };
       const lessons = unitObj.lessons;
       const clsKey = `${currentClass}_${currentActiveUnit}`;
@@ -3851,6 +3903,8 @@
 
       classStudents.forEach((student, idx) => {
         const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
+        const isDuplicate = duplicateNames.includes(student);
+        const nameColor = isDuplicate ? 'color: #FF3B30;' : '';
 
         let hwSum = 0, hwCount = 0;
         lessons.forEach(l => { let v = parseFloat(stData.hw[l]); if (!isNaN(v)) { hwSum += v; hwCount++; } });
@@ -3875,7 +3929,7 @@
         html += `
           <tr>
             <td style="color:var(--text-secondary); font-weight:bold;">${idx + 1}</td>
-            <td class="student-name-td" style="font-weight: 900; font-size: 15px;">${student}</td>
+            <td class="student-name-td" style="font-weight: 900; font-size: 15px; ${nameColor}">${student}</td>
             <td><b>${hwAvg}</b></td>
             <td><b>${actAvg}</b></td>
             <td><b>${partVal}</b></td>
