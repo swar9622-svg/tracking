@@ -1037,6 +1037,10 @@
         <input type="number" id="pdfSizeTitleInput" class="select-class-full" style="text-align:center;" min="6" max="60" step="1">
       </div>
       <div style="margin-bottom: 12px;">
+        <span class="field-label" id="pdfSizeHeadersLabel">حجم عناوين الجدول (px):</span>
+        <input type="number" id="pdfSizeHeadersInput" class="select-class-full" style="text-align:center;" min="6" max="60" step="1">
+      </div>
+      <div style="margin-bottom: 12px;">
         <span class="field-label" id="pdfSizeNamesLabel">حجم أسماء الطلاب (px):</span>
         <input type="number" id="pdfSizeNamesInput" class="select-class-full" style="text-align:center;" min="6" max="60" step="1">
       </div>
@@ -4232,35 +4236,39 @@
     }
 
     // ============ نظام تخصيص أحجام خطوط تقارير PDF (لكل تقرير حجمه الافتراضي الخاص) ============
+    const PDF_SIZE_FALLBACK = { title: 16, headers: 11, names: 11, data: 11 };
     const PDF_REPORT_DEFAULTS = {
-      singleStudent:    { title: 16, names: 11, data: 11 },
-      reportSummary:    { title: 16, names: 15, data: 11 },
-      reportViolations: { title: 16, names: 15, data: 9  },
-      followupCurrent:  { title: 16, names: 12, data: 10 },
-      periodUnit:       { title: 16, names: 10, data: 8  },
-      periodSummary:    { title: 16, names: 12, data: 10 }
+      singleStudent:    { title: 16, headers: 11, names: 11, data: 11 },
+      reportSummary:    { title: 16, headers: 11, names: 15, data: 11 },
+      reportViolations: { title: 16, headers: 9,  names: 15, data: 9  },
+      followupCurrent:  { title: 16, headers: 10, names: 12, data: 10 },
+      periodUnit:       { title: 16, headers: 8,  names: 10, data: 8  },
+      periodSummary:    { title: 16, headers: 10, names: 12, data: 10 }
     };
     let pdfSizeSettings = JSON.parse(localStorage.getItem('attendance_pdf_size_settings')) || {};
     let pendingPdfReportKey = null;
 
     function getPdfSizes(key) {
-      const def = PDF_REPORT_DEFAULTS[key] || { title: 16, names: 11, data: 11 };
+      const def = PDF_REPORT_DEFAULTS[key] || PDF_SIZE_FALLBACK;
       const custom = pdfSizeSettings[key] || {};
       return {
-        title: custom.title !== undefined && custom.title !== null ? custom.title : def.title,
-        names: custom.names !== undefined && custom.names !== null ? custom.names : def.names,
-        data:  custom.data  !== undefined && custom.data  !== null ? custom.data  : def.data
+        title:   custom.title   !== undefined && custom.title   !== null ? custom.title   : def.title,
+        headers: custom.headers !== undefined && custom.headers !== null ? custom.headers : def.headers,
+        names:   custom.names   !== undefined && custom.names   !== null ? custom.names   : def.names,
+        data:    custom.data    !== undefined && custom.data    !== null ? custom.data    : def.data
       };
     }
 
     function openPdfSizeModal(reportKey) {
       pendingPdfReportKey = reportKey;
-      const def = PDF_REPORT_DEFAULTS[reportKey] || { title: 16, names: 11, data: 11 };
+      const def = PDF_REPORT_DEFAULTS[reportKey] || PDF_SIZE_FALLBACK;
       const cur = getPdfSizes(reportKey);
       document.getElementById('pdfSizeTitleLabel').innerText = `حجم عنوان الكشف (px): (الافتراضي: ${def.title})`;
+      document.getElementById('pdfSizeHeadersLabel').innerText = `حجم عناوين الجدول (px): (الافتراضي: ${def.headers})`;
       document.getElementById('pdfSizeNamesLabel').innerText = `حجم أسماء الطلاب (px): (الافتراضي: ${def.names})`;
       document.getElementById('pdfSizeDataLabel').innerText = `حجم بيانات الجدول (px): (الافتراضي: ${def.data})`;
       document.getElementById('pdfSizeTitleInput').value = cur.title;
+      document.getElementById('pdfSizeHeadersInput').value = cur.headers;
       document.getElementById('pdfSizeNamesInput').value = cur.names;
       document.getElementById('pdfSizeDataInput').value = cur.data;
       document.getElementById('pdfSizeSettingsModal').style.display = 'flex';
@@ -4273,8 +4281,9 @@
 
     function resetPdfSizeModalDefaults() {
       if (!pendingPdfReportKey) return;
-      const def = PDF_REPORT_DEFAULTS[pendingPdfReportKey] || { title: 16, names: 11, data: 11 };
+      const def = PDF_REPORT_DEFAULTS[pendingPdfReportKey] || PDF_SIZE_FALLBACK;
       document.getElementById('pdfSizeTitleInput').value = def.title;
+      document.getElementById('pdfSizeHeadersInput').value = def.headers;
       document.getElementById('pdfSizeNamesInput').value = def.names;
       document.getElementById('pdfSizeDataInput').value = def.data;
     }
@@ -4282,14 +4291,16 @@
     async function confirmPdfSizeExport() {
       if (!pendingPdfReportKey) return;
       const key = pendingPdfReportKey;
-      const def = PDF_REPORT_DEFAULTS[key] || { title: 16, names: 11, data: 11 };
+      const def = PDF_REPORT_DEFAULTS[key] || PDF_SIZE_FALLBACK;
 
       const titleVal = parseFloat(document.getElementById('pdfSizeTitleInput').value);
+      const headersVal = parseFloat(document.getElementById('pdfSizeHeadersInput').value);
       const namesVal = parseFloat(document.getElementById('pdfSizeNamesInput').value);
       const dataVal = parseFloat(document.getElementById('pdfSizeDataInput').value);
 
       pdfSizeSettings[key] = {
         title: isNaN(titleVal) ? def.title : titleVal,
+        headers: isNaN(headersVal) ? def.headers : headersVal,
         names: isNaN(namesVal) ? def.names : namesVal,
         data: isNaN(dataVal) ? def.data : dataVal
       };
@@ -4342,11 +4353,13 @@
         fontFamilyCSS = `* { font-family: '${displayFamily}', sans-serif !important; font-weight: ${weight} !important; }`;
       }
 
-      const sz = sizes || { title: 16, names: 11, data: 11 };
+      const sz = sizes || PDF_SIZE_FALLBACK;
       const sizeOverrideCSS = `
           .pdf-report-title { font-size: ${sz.title}px !important; }
-          .pdf-table-wrap td, .pdf-table-wrap th { font-size: ${sz.data}px !important; }
+          .pdf-table-wrap th { font-size: ${sz.headers}px !important; }
+          .pdf-table-wrap td { font-size: ${sz.data}px !important; }
           .pdf-table-wrap .pdf-student-name-cell { font-size: ${sz.names}px !important; }
+          .pdf-table-wrap tr { page-break-inside: avoid !important; break-inside: avoid !important; }
       `;
 
       div.innerHTML = `
