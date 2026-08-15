@@ -28,7 +28,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>📚 كشف المتابعة 9.6</title>
+  <title>📚 كشف المتابعة 9.8</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -573,7 +573,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (9.6)
+        كشف الغياب والمخالفات (9.8)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -611,7 +611,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (9.6)
+        كشوف المتابعة و الدرجات (9.8)
       </div>
     </header>
     <div class="top-action-bar">
@@ -4566,14 +4566,27 @@
       downloadFile(csv, `خلاصة_الفترة_${periodName}_${currentClass}.csv`, 'text/csv;charset=utf-8;');
     }
 
+    // ============================================================
+    // دوال النسخ الاحتياطي الكاملة (تم التعديل)
+    // ============================================================
     function exportFullBackupJSON() {
+      // جلب إعدادات الإشعارات من localStorage
+      let notificationSettings = {};
+      try {
+        const saved = localStorage.getItem('notification_export_settings');
+        if (saved) notificationSettings = JSON.parse(saved);
+      } catch(e) {}
+
       const data = {
         appData,
         records,
         unitsData,
         followupData,
         penaltiesData,
-        period1SelectedUnits
+        period1SelectedUnits,
+        studentNumberMap: queryStudentNumberMap,
+        fontSettings: fontSettings,
+        notificationSettings: notificationSettings
       };
       const jsonStr = JSON.stringify(data, null, 2);
       downloadFile(jsonStr, `backup_school_system_${new Date().toISOString().slice(0,10)}.json`, 'application/json');
@@ -4591,18 +4604,45 @@
       reader.onload = function(e) {
         try {
           const imported = JSON.parse(e.target.result);
+
+          // استعادة البيانات الرئيسية
           if (imported.appData) appData = imported.appData;
           if (imported.records) records = imported.records;
           if (imported.unitsData) unitsData = imported.unitsData;
           if (imported.followupData) followupData = imported.followupData;
           if (imported.penaltiesData) penaltiesData = imported.penaltiesData;
           if (imported.period1SelectedUnits) period1SelectedUnits = imported.period1SelectedUnits;
+
+          // استعادة أرقام الطلاب
+          if (imported.studentNumberMap) {
+            queryStudentNumberMap = imported.studentNumberMap;
+            saveStudentNumberMap(); // حفظ مباشر في localStorage
+          }
+
+          // استعادة إعدادات الخط
+          if (imported.fontSettings) {
+            fontSettings = imported.fontSettings;
+            localStorage.setItem('attendance_font_settings', JSON.stringify(fontSettings));
+            applyFontSettings(); // تطبيق فوري
+          }
+
+          // استعادة إعدادات الإشعارات
+          if (imported.notificationSettings) {
+            localStorage.setItem('notification_export_settings', JSON.stringify(imported.notificationSettings));
+          }
+
+          // حفظ جميع البيانات (بما فيها أرقام الطلاب)
           saveData();
+
+          // تحديث الواجهة
           initClassSelects();
           renderStudents();
           renderUnitsDropdown();
+          applyFontSettings(); // تأكيد تطبيق الخط
+
           alert("✅ تم استعادة النسخة الاحتياطية بنجاح!");
         } catch (err) {
+          console.error(err);
           alert("❌ ملف النسخة الاحتياطي غير صالح!");
         }
       };
