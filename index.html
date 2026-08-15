@@ -636,7 +636,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة أرقام الطلاب (معدلة مع خيار طلاب بدون أرقام) ================= -->
+  <!-- ================= نافذة أرقام الطلاب ================= -->
   <div class="modal" id="studentNumbersModal" style="z-index: 115;">
     <div class="modal-content" style="max-width: 550px; width: 95%;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -644,7 +644,7 @@
         <button class="btn-close-circle" onclick="closeStudentNumbersModal()">✕</button>
       </div>
       <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:8px; font-weight:700; text-align:center;">
-        اختر الفصل لعرض أرقام الطلاب. انقر (نقرتين) على الرقم لتعديله.
+        اختر الفصل لعرض أرقام الطلاب. اضغط على الرقم لتعديله.
       </div>
 
       <div class="query-export-section">
@@ -771,7 +771,7 @@
         <button class="btn-menu-option" style="background-color: var(--accent);" onclick="triggerFileInput()">📥 استعادة من ملف نسخة احتياطية (Restore)</button>
         <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="importFullBackupJSON(event)">
       </div>
-      <!-- قسم تصدير بيانات الاستعلام (جديد) -->
+      <!-- قسم تصدير بيانات الاستعلام -->
       <div class="data-box-section" style="border-top: 2px solid #E5E5EA; padding-top: 0.75rem;">
         <div class="data-box-title">📤 تصدير بيانات الاستعلام (data.xlsx)</div>
         <button class="btn-menu-option" style="background-color: #8E44AD;" onclick="openQueryExportModal()">📤 تصدير data.xlsx</button>
@@ -791,7 +791,7 @@
         <button class="btn-close-circle" onclick="closeQueryExportModal()">✕</button>
       </div>
       <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:10px; font-weight:700; text-align:center;">
-        ارفع ملف البيانات (Excel/CSV) الذي يحتوي على أعمدة: رقم الطالب، الاسم، الفصل، ثم اختر الوحدات واضغط تصدير.
+        اختر الوحدات واضغط تصدير. (إذا كانت الأرقام محفوظة لا حاجة لرفع ملف)
       </div>
 
       <div class="query-export-section">
@@ -877,7 +877,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة إدارة الأسماء والصفوف (معدلة) ================= -->
+  <!-- ================= نافذة إدارة الأسماء والصفوف ================= -->
   <div class="modal" id="manageModal">
     <div class="modal-content" style="max-height: 90vh;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -909,7 +909,7 @@
     </div>
   </div>
 
-  <!-- ================= نافذة تعديل اسم الطالب (منبثقة) ================= -->
+  <!-- ================= نافذة تعديل اسم الطالب ================= -->
   <div class="modal" id="editStudentNameModal" style="z-index: 125;">
     <div class="modal-content" style="max-width: 500px; width: 95%;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -1037,10 +1037,7 @@
     let followupData = JSON.parse(localStorage.getItem('attendance_followup_data')) || {};
     let penaltiesData = JSON.parse(localStorage.getItem('attendance_penalties_data')) || defaultPenalties;
 
-    // فقط فترة أولى (تم حذف الثانية)
     let period1SelectedUnits = JSON.parse(localStorage.getItem('attendance_period1_selected_units')) || [];
-
-    // اسم الفترة المختار للطباعة (الأولى أو الثانية) - افتراضي الأولى
     let selectedPeriodName = 'الأولى';
 
     let currentActiveUnit = Object.keys(unitsData)[0] || "الوحدة الأولى";
@@ -1054,7 +1051,6 @@
     let editingIndex = -1;
     let editingNumberIndex = -1;
 
-    // متغيرات ميزة تصدير بيانات الاستعلام
     let queryIdFileData = null;
     let queryIdFileName = '';
     let queryStudentNumberMap = {};
@@ -1075,7 +1071,6 @@
       localStorage.setItem(STUDENT_NUMBER_MAP_KEY, JSON.stringify(queryStudentNumberMap));
     }
 
-    // ===== دالة جديدة للحصول على جميع الطلاب =====
     function getAllStudents() {
       const allStudents = [];
       Object.keys(appData).forEach(cls => {
@@ -1088,7 +1083,6 @@
       return allStudents;
     }
 
-    // ===== دالة للحصول على الطلاب بدون أرقام =====
     function getStudentsWithoutNumbers() {
       loadStudentNumberMap();
       const studentsWithoutNumbers = [];
@@ -1106,7 +1100,6 @@
 
     document.getElementById('dateSelect').valueAsDate = new Date();
 
-    // إعدادات الخطوط
     const AVAILABLE_FONTS = [
       { name: "الافتراضي (خط الآيفون)", value: "system" },
       { name: "Almarai (المراي)", value: "Almarai" },
@@ -1201,7 +1194,6 @@
       alert("✅ تم حفظ إعدادات الخط بنجاح!");
     }
 
-    // دوال حفظ البيانات
     function saveData() {
       localStorage.setItem('attendance_app_data', JSON.stringify(appData));
       localStorage.setItem('attendance_records', JSON.stringify(records));
@@ -1912,14 +1904,13 @@
     }
 
     // ================================
-    // دوال نافذة أرقام الطلاب (معدلة مع خيار طلاب بدون أرقام)
+    // دوال نافذة أرقام الطلاب
     // ================================
     function openStudentNumbersModal() {
       initClassSelects();
       loadStudentNumberMap();
       document.getElementById('studentNumbersModal').style.display = 'flex';
       renderStudentNumbersList();
-      // إعادة تعيين حالة رفع الملف
       document.getElementById('studentNumbersUploadStatus').className = 'upload-status info';
       document.getElementById('studentNumbersUploadStatus').textContent = 'لم يتم رفع ملف بعد';
     }
@@ -1932,7 +1923,6 @@
       editingNumberIndex = -1;
     }
 
-    // دالة رفع ملف Excel من نافذة أرقام الطلاب
     function handleStudentNumbersFileUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1981,10 +1971,7 @@
             return;
           }
 
-          // حفظ البيانات مؤقتاً
           window._studentNumbersFileData = rows;
-
-          // استخراج الأرقام وحفظها
           loadStudentNumberMap();
           let savedCount = 0;
           let duplicateCount = 0;
@@ -1992,11 +1979,9 @@
 
           rows.forEach(item => {
             if (!queryStudentNumberMap[item.name]) {
-              // استخراج آخر 5 أرقام من رقم الهوية
               const match = item.id.match(/\d{5,}$/);
               if (match) {
                 const number = match[0].slice(-5);
-                // التحقق من التكرار مع الأرقام المحفوظة
                 let isDuplicate = false;
                 for (let st in queryStudentNumberMap) {
                   if (st !== item.name && queryStudentNumberMap[st] === number) {
@@ -2034,8 +2019,6 @@
               statusDiv.className = 'upload-status info';
             }
             statusDiv.textContent = statusMsg;
-            
-            // إعادة تحميل القائمة
             renderStudentNumbersList();
             
             if (duplicateCount > 0) {
@@ -2060,28 +2043,26 @@
       const selectedClass = document.getElementById('studentNumbersClassSelect').value;
       const container = document.getElementById('studentNumbersListContainer');
 
-      // ===== حالة خاصة: عرض الطلاب بدون أرقام =====
       if (selectedClass === '__no_numbers__') {
         const studentsWithoutNumbers = getStudentsWithoutNumbers();
-        
         if (studentsWithoutNumbers.length === 0) {
           container.innerHTML = '<div style="text-align:center; color:#27ae60; padding:20px; font-weight:bold;">✅ جميع الطلاب لديهم أرقام!</div>';
           return;
         }
-
         loadStudentNumberMap();
         let html = '';
         studentsWithoutNumbers.forEach((item, index) => {
           const number = queryStudentNumberMap[item.name] || '';
+          const uniqueId = 'no-' + index;
           html += `
-            <div class="student-number-item" id="number-row-no-${index}">
+            <div class="student-number-item" id="number-row-${uniqueId}">
               <span style="font-weight:bold; color:var(--text-secondary); font-size:0.7rem; min-width:28px;">${index + 1}</span>
               <span class="student-name-display" style="font-size:0.8rem;">${item.name} <span style="color:#999; font-weight:400; font-size:0.65rem;">(${item.class})</span></span>
-              <span class="student-number-display" id="number-display-no-${index}" ondblclick="startEditNumber('no-${index}')">${number || '---'}</span>
-              <input type="text" class="student-number-input" id="number-input-no-${index}" value="${number}" maxlength="10" style="display:none; width:80px; padding:0.15rem 0.3rem; border:2px solid var(--accent); border-radius:0.3rem; font-size:0.85rem; font-weight:700; text-align:center; background:white;">
-              <button class="btn-number-save" id="number-save-no-${index}" style="display:none;" onclick="saveEditNumber('no-${index}')">✅ حفظ</button>
-              <button class="btn-number-cancel" id="number-cancel-no-${index}" style="display:none;" onclick="cancelEditNumber('no-${index}')">✖️ إلغاء</button>
-              <button class="btn-number-edit" id="number-edit-no-${index}" onclick="startEditNumber('no-${index}')">✏️</button>
+              <span class="student-number-display" id="number-display-${uniqueId}" onclick="startEditNumber('${uniqueId}')">${number || '---'}</span>
+              <input type="text" class="student-number-input" id="number-input-${uniqueId}" value="${number}" maxlength="10" style="display:none; width:80px; padding:0.15rem 0.3rem; border:2px solid var(--accent); border-radius:0.3rem; font-size:0.85rem; font-weight:700; text-align:center; background:white;">
+              <button class="btn-number-save" id="number-save-${uniqueId}" style="display:none;" onclick="saveEditNumber('${uniqueId}')">✅ حفظ</button>
+              <button class="btn-number-cancel" id="number-cancel-${uniqueId}" style="display:none;" onclick="cancelEditNumber('${uniqueId}')">✖️ إلغاء</button>
+              <button class="btn-number-edit" id="number-edit-${uniqueId}" onclick="startEditNumber('${uniqueId}')">✏️</button>
               <span class="number-status" style="color:#e67e22;">🔴 بدون رقم</span>
             </div>
           `;
@@ -2090,15 +2071,12 @@
         return;
       }
 
-      // ===== عرض طلاب فصل محدد =====
       if (!selectedClass || !appData[selectedClass] || appData[selectedClass].length === 0) {
         container.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">لا يوجد طلاب في هذا الفصل</div>';
         return;
       }
 
       loadStudentNumberMap();
-
-      // حساب التكرارات
       const numberCount = {};
       for (let student in queryStudentNumberMap) {
         const num = queryStudentNumberMap[student];
@@ -2114,16 +2092,17 @@
         const isDuplicate = number && numberCount[number] && numberCount[number].length > 1;
         const statusText = isDuplicate ? '⚠️ مكرر' : (number ? '✅ فريد' : '❌ بدون رقم');
         const statusClass = isDuplicate ? 'duplicate' : (number ? 'unique' : '');
+        const uniqueId = index;
 
         html += `
-          <div class="student-number-item" id="number-row-${index}">
+          <div class="student-number-item" id="number-row-${uniqueId}">
             <span style="font-weight:bold; color:var(--text-secondary); font-size:0.7rem; min-width:28px;">${index + 1}</span>
             <span class="student-name-display">${student}</span>
-            <span class="student-number-display" id="number-display-${index}" ondblclick="startEditNumber(${index})">${number || '---'}</span>
-            <input type="text" class="student-number-input" id="number-input-${index}" value="${number}" maxlength="10" style="display:none; width:80px; padding:0.15rem 0.3rem; border:2px solid var(--accent); border-radius:0.3rem; font-size:0.85rem; font-weight:700; text-align:center; background:white;">
-            <button class="btn-number-save" id="number-save-${index}" style="display:none;" onclick="saveEditNumber(${index})">✅ حفظ</button>
-            <button class="btn-number-cancel" id="number-cancel-${index}" style="display:none;" onclick="cancelEditNumber(${index})">✖️ إلغاء</button>
-            <button class="btn-number-edit" id="number-edit-${index}" onclick="startEditNumber(${index})">✏️</button>
+            <span class="student-number-display" id="number-display-${uniqueId}" onclick="startEditNumber('${uniqueId}')">${number || '---'}</span>
+            <input type="text" class="student-number-input" id="number-input-${uniqueId}" value="${number}" maxlength="10" style="display:none; width:80px; padding:0.15rem 0.3rem; border:2px solid var(--accent); border-radius:0.3rem; font-size:0.85rem; font-weight:700; text-align:center; background:white;">
+            <button class="btn-number-save" id="number-save-${uniqueId}" style="display:none;" onclick="saveEditNumber('${uniqueId}')">✅ حفظ</button>
+            <button class="btn-number-cancel" id="number-cancel-${uniqueId}" style="display:none;" onclick="cancelEditNumber('${uniqueId}')">✖️ إلغاء</button>
+            <button class="btn-number-edit" id="number-edit-${uniqueId}" onclick="startEditNumber('${uniqueId}')">✏️</button>
             <span class="number-status ${statusClass}">${statusText}</span>
           </div>
         `;
@@ -2132,22 +2111,13 @@
       container.innerHTML = html;
     }
 
-    // ===== دالة بدء تعديل الرقم (تعمل مع كل من الأرقام العادية والرقم الافتراضي) =====
     function startEditNumber(id) {
-      // إلغاء التعديل السابق
       if (editingNumberIndex !== -1 && editingNumberIndex !== id) {
         cancelEditNumber(editingNumberIndex);
       }
 
-      // البحث عن الصف
-      let row = document.getElementById(`number-row-${id}`);
-      if (!row) {
-        // إذا كان id يبدأ بـ 'no-' نبحث بالطريقة الأخرى
-        if (typeof id === 'string' && id.startsWith('no-')) {
-          row = document.getElementById(`number-row-${id}`);
-        }
-        if (!row) return;
-      }
+      const row = document.getElementById(`number-row-${id}`);
+      if (!row) return;
 
       const display = document.getElementById(`number-display-${id}`);
       const input = document.getElementById(`number-input-${id}`);
@@ -2166,13 +2136,8 @@
     }
 
     function cancelEditNumber(id) {
-      let row = document.getElementById(`number-row-${id}`);
-      if (!row) {
-        if (typeof id === 'string' && id.startsWith('no-')) {
-          row = document.getElementById(`number-row-${id}`);
-        }
-        if (!row) return;
-      }
+      const row = document.getElementById(`number-row-${id}`);
+      if (!row) return;
       row.classList.remove('editing-number');
       if (editingNumberIndex === id) {
         editingNumberIndex = -1;
@@ -2180,35 +2145,26 @@
     }
 
     function saveEditNumber(id) {
-      let row = document.getElementById(`number-row-${id}`);
-      if (!row) {
-        if (typeof id === 'string' && id.startsWith('no-')) {
-          row = document.getElementById(`number-row-${id}`);
-        }
-        if (!row) return;
-      }
+      const row = document.getElementById(`number-row-${id}`);
+      if (!row) return;
 
       const input = document.getElementById(`number-input-${id}`);
       const display = document.getElementById(`number-display-${id}`);
       const newNumber = input.value.trim();
-      const oldNumber = display.textContent === '---' ? '' : display.textContent;
 
-      // الحصول على اسم الطالب
       let studentName = '';
       let selectedClass = document.getElementById('studentNumbersClassSelect').value;
 
       if (typeof id === 'string' && id.startsWith('no-')) {
-        // حالة الطلاب بدون أرقام
         const index = parseInt(id.replace('no-', ''));
         const studentsWithoutNumbers = getStudentsWithoutNumbers();
         if (studentsWithoutNumbers[index]) {
           studentName = studentsWithoutNumbers[index].name;
         }
       } else {
-        // حالة الفصل العادي
         const students = [...appData[selectedClass]].sort((a, b) => a.localeCompare(b, 'ar'));
-        if (students[id]) {
-          studentName = students[id];
+        if (students[parseInt(id)]) {
+          studentName = students[parseInt(id)];
         }
       }
 
@@ -2218,7 +2174,6 @@
       }
 
       if (!newNumber) {
-        // حذف الرقم
         delete queryStudentNumberMap[studentName];
         display.textContent = '---';
         saveStudentNumberMap();
@@ -2227,7 +2182,6 @@
         return;
       }
 
-      // التحقق من التكرار مع الأسماء الأخرى
       let isDuplicate = false;
       let duplicateStudent = '';
       for (let st in queryStudentNumberMap) {
@@ -2245,7 +2199,6 @@
         return;
       }
 
-      // حفظ الرقم
       queryStudentNumberMap[studentName] = newNumber;
       display.textContent = newNumber;
       saveStudentNumberMap();
@@ -2266,30 +2219,23 @@
       initClassSelects();
       renderQueryUnitCheckboxes();
       
-      // التحقق من وجود أرقام محفوظة
       loadStudentNumberMap();
       const allStudents = getAllStudents();
       const missingStudents = allStudents.filter(student => !queryStudentNumberMap[student]);
       
       if (missingStudents.length === 0) {
-        // جميع الأرقام محفوظة → نعرض رسالة ونصدر مباشرة
         document.getElementById('queryExportModal').style.display = 'flex';
         const uploadBtn = document.querySelector('#queryExportModal .btn-upload');
         if (uploadBtn) uploadBtn.style.display = 'none';
         document.getElementById('queryIdFileInput').style.display = 'none';
-        document.getElementById('queryIdFileStatus').innerHTML = '✅ جميع الأرقام محفوظة (لا حاجة لرفع ملف)';
+        document.getElementById('queryIdFileStatus').innerHTML = '✅ جميع الأرقام محفوظة';
         document.getElementById('queryIdFileStatus').style.color = 'var(--green)';
-        
-        // نضغط تصدير تلقائياً بعد تأخير بسيط
-        setTimeout(() => {
-          exportQueryData();
-        }, 500);
+        prepareDefaultQueryData();
       } else {
-        // يوجد طلاب بدون أرقام → نطلب رفع الملف
         const uploadBtn = document.querySelector('#queryExportModal .btn-upload');
         if (uploadBtn) uploadBtn.style.display = 'block';
         document.getElementById('queryIdFileInput').style.display = 'block';
-        document.getElementById('queryIdFileStatus').innerHTML = `⚠️ ${missingStudents.length} طالب غير موجود في الملف المحفوظ، يرجى رفع ملف البيانات.`;
+        document.getElementById('queryIdFileStatus').innerHTML = `⚠️ ${missingStudents.length} طالب بدون أرقام، يرجى رفع ملف البيانات.`;
         document.getElementById('queryIdFileStatus').style.color = 'var(--red)';
         document.getElementById('queryExportModal').style.display = 'flex';
       }
@@ -2297,6 +2243,24 @@
 
     function closeQueryExportModal() {
       document.getElementById('queryExportModal').style.display = 'none';
+    }
+
+    function prepareDefaultQueryData() {
+      queryIdFileData = [];
+      loadStudentNumberMap();
+      Object.keys(appData).forEach(cls => {
+        if (appData[cls]) {
+          appData[cls].forEach(student => {
+            const number = queryStudentNumberMap[student] || '';
+            queryIdFileData.push({
+              id: number,
+              name: student,
+              cls: cls
+            });
+          });
+        }
+      });
+      queryIdFileName = 'بيانات محفوظة';
     }
 
     function renderQueryUnitCheckboxes() {
@@ -2373,7 +2337,6 @@
           document.getElementById('queryIdFileStatus').innerHTML = `✅ تم رفع الملف: ${file.name} (${rows.length} طالب)`;
           document.getElementById('queryIdFileStatus').style.color = 'var(--green)';
           
-          // بعد رفع الملف، نحاول استخراج الأرقام وحفظها تلقائياً
           loadStudentNumberMap();
           let savedCount = 0;
           rows.forEach(item => {
@@ -2399,18 +2362,19 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // دالة تصدير البيانات النهائية
     function exportQueryData() {
       const selectedFilter = document.getElementById('queryClassSelect').value;
       const allClasses = Object.keys(appData);
       
-      // التحقق من وجود أرقام قبل التصدير
       loadStudentNumberMap();
       const allStudents = getAllStudents();
       const missingStudents = allStudents.filter(student => !queryStudentNumberMap[student]);
+      
       if (missingStudents.length > 0) {
-        alert(`⚠️ لا يمكن التصدير! الطلاب التالية أسماؤهم ليس لديهم أرقام:\n\n${missingStudents.join('\n')}\n\nيرجى رفع ملف البيانات أولاً.`);
-        return;
+        if (!queryIdFileData || queryIdFileData.length === 0) {
+          alert(`⚠️ لا يمكن التصدير! ${missingStudents.length} طالب بدون أرقام.\n\nيرجى رفع ملف البيانات أولاً.`);
+          return;
+        }
       }
       
       const checkboxes = document.querySelectorAll('#queryUnitCheckboxes input[type="checkbox"]');
@@ -2423,9 +2387,8 @@
         return;
       }
 
-      if (!queryIdFileData) {
-        alert("يرجى رفع ملف البيانات أولاً!");
-        return;
+      if (!queryIdFileData || queryIdFileData.length === 0) {
+        prepareDefaultQueryData();
       }
 
       loadStudentNumberMap();
@@ -2509,7 +2472,6 @@
         saveStudentNumberMap();
       }
 
-      // التحقق من التكرار
       const numberCount = {};
       for (let student in tempNumberMap) {
         const num = tempNumberMap[student];
@@ -2664,7 +2626,6 @@
         XLSX.utils.book_append_sheet(wb, ws, unitName);
       });
 
-      // صفحة الدرجة الموزونة
       const weightedRows = [];
       const weightedHeader = ['رقم الطالب', 'اسم الطالب', 'الفصل', 'معدل الواجبات', 'معدل الأنشطة', 'المشاركة الكلية', 'مجموع الاختبارات', 'المجموع الكلي', 'الغياب', 'التأخر', 'المخالفات'];
       weightedRows.push(weightedHeader);
@@ -2756,7 +2717,7 @@
       closeQueryExportModal();
     }
 
-    // دوال الفترات (تم تعديلها)
+    // دوال الفترات
     function selectPeriodName(name) {
       selectedPeriodName = name;
       document.getElementById('periodNameFirstBtn').classList.toggle('selected-period-name', name === 'الأولى');
