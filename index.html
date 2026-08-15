@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -29,7 +28,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>📚 كشف المتابعة 9.9</title>
+  <title>📚 كشف المتابعة 10.0</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -565,6 +564,32 @@
       margin-top: 4px;
     }
 
+    /* نافذة اختيار التصدير/الاستيراد */
+    .import-export-modal .modal-content {
+      max-width: 320px;
+    }
+    .import-export-modal .btn-import-option {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      border: none;
+      font-size: 0.9375rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: white;
+      transition: opacity 0.15s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .import-export-modal .btn-import-option:active { opacity: 0.8; }
+    .import-export-modal .btn-export-option { background-color: #2ECC71; }
+    .import-export-modal .btn-import-option-import { background-color: var(--accent); }
+
     @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
   </style>
 </head>
@@ -574,7 +599,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (9.9)
+        كشف الغياب والمخالفات (10.0)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -612,7 +637,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (9.9)
+        كشوف المتابعة و الدرجات (10.0)
       </div>
     </header>
     <div class="top-action-bar">
@@ -637,6 +662,26 @@
     <div class="bottom-controls">
       <button class="btn-action btn-notify-light" onclick="openNotificationExportModal()">📄 اشعارات الطلاب PDF</button>
       <button class="btn-action" style="background-color: #8e44ad;" onclick="openUnitsManageModal()">⚙️ إدارة الوحدات</button>
+    </div>
+  </div>
+
+  <!-- ================= نافذة اختيار التصدير/الاستيراد ================= -->
+  <div class="modal import-export-modal" id="importExportModal" style="z-index: 150;">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div class="modal-title" id="importExportModalTitle" style="margin:0; font-size:1rem;">📥 اختيار الإجراء</div>
+        <button class="btn-close-circle" onclick="closeImportExportModal()">✕</button>
+      </div>
+      <div style="font-size:0.8rem; color:var(--text-secondary); text-align:center; margin-bottom:12px; font-weight:700;">
+        اختر ما تريد فعله:
+      </div>
+      <button class="btn-import-option btn-export-option" onclick="exportTemplateExcel()">
+        📤 تصدير قالب Excel
+      </button>
+      <button class="btn-import-option btn-import-option-import" onclick="triggerImportFile()">
+        📥 استيراد من Excel
+      </button>
+      <input type="file" id="importFileInput" accept=".xlsx,.xls" style="display: none;" onchange="handleImportFileUpload(event)">
     </div>
   </div>
 
@@ -1156,6 +1201,10 @@
     let queryStudentNumberMap = {};
     const STUDENT_NUMBER_MAP_KEY = 'attendance_student_number_map';
 
+    // متغيرات للاستيراد/التصدير الجديد
+    let currentImportType = 'hw';
+    let importFileInput = null;
+
     // ============================================================
     // دوال تحميل وحفظ البيانات
     // ============================================================
@@ -1412,7 +1461,7 @@
           <div class="attendance-buttons">
             <button class="btn-status ${status === 'غائب' ? 'active-absent' : ''}" onclick="setStatus('${CSS.escape(student)}', 'غائب')">غائب</button>
             <button class="btn-status ${status === 'متأخر' ? 'active-late' : ''}" onclick="setStatus('${CSS.escape(student)}', 'متأخر')">متأخر</button>
-            <button class="btn-status ${vBtnClass} ${disabledClass}" onclick="openViolationModal('${CSS.escape(student)}')">${vBtnText}</button>
+            <button class="btn-status ${vBtnClass} ${disabledClass}" onclick="openImportExportModal('${CSS.escape(student)}')">${vBtnText}</button>
           </div>
         `;
         listContainer.appendChild(card);
@@ -1491,20 +1540,20 @@
           <th colspan="${lessons.length}" style="background-color: #D4EFDF; color: #117A65; text-align: center; vertical-align: middle; position:relative;">
             الواجبات (10)
             <span style="display:inline-flex; align-items:center; gap:2px; margin-right:4px;">
-              <button class="import-icon-btn import-icon-hw" onclick="importExcel('hw')" title="استيراد درجات الواجبات من إكسل">📥</button>
+              <button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button>
             </span>
           </th>
           <th colspan="${lessons.length}" style="background-color: #FCF3CF; color: #7D6608; text-align: center; vertical-align: middle; position:relative;">
             الأنشطة (20)
             <span style="display:inline-flex; align-items:center; gap:2px; margin-right:4px;">
-              <button class="import-icon-btn import-icon-act" onclick="importExcel('act')" title="استيراد درجات الأنشطة من إكسل">📥</button>
+              <button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button>
             </span>
           </th>
           <th rowspan="2" style="background-color: #EBDEF0; color: #512E5F; vertical-align: middle; text-align: center;">المشاركة</th>
           <th colspan="2" style="background-color: #FADBD8; color: #78281F; text-align: center; vertical-align: middle; position:relative;">
             الاختبارات والمشاريع (20)
             <span style="display:inline-flex; align-items:center; gap:2px; margin-right:4px;">
-              <button class="import-icon-btn import-icon-test" onclick="importExcel('test')" title="استيراد درجات الاختبارات والمشاريع من إكسل">📥</button>
+              <button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button>
             </span>
           </th>
           <th colspan="4" style="background-color: #D6EAF8; color: #1B4F72; text-align: center;">الدرجات الموزونة</th>
@@ -1653,11 +1702,42 @@
       });
     }
 
-    // دالة استيراد الإكسل
-    function importExcel(type) {
+    // ============================================================
+    // دوال التصدير والاستيراد الجديدة (الإصدار 10.0)
+    // ============================================================
+    function openImportExportModal(type) {
+      currentImportType = type;
+      const titleMap = {
+        'hw': '📥 الواجبات (10)',
+        'act': '📥 الأنشطة (20)',
+        'test': '📥 الاختبارات والمشاريع (20)'
+      };
+      document.getElementById('importExportModalTitle').innerText = titleMap[type] || '📥 استيراد/تصدير';
+      document.getElementById('importExportModal').style.display = 'flex';
+    }
+
+    function closeImportExportModal() {
+      document.getElementById('importExportModal').style.display = 'none';
+    }
+
+    function triggerImportFile() {
+      closeImportExportModal();
+      document.getElementById('importFileInput').click();
+    }
+
+    function handleImportFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (typeof XLSX === 'undefined') {
+        alert("مكتبة قراءة الإكسل غير محملة! تأكد من اتصال الإنترنت.");
+        return;
+      }
+
       const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       const unitName = currentActiveUnit;
-      
+      const type = currentImportType;
+
       if (!currentClass || !appData[currentClass]) {
         alert("يرجى اختيار فصل أولاً!");
         return;
@@ -1667,184 +1747,265 @@
         return;
       }
 
-      const clsKey = `${currentClass}_${unitName}`;
-      if (!followupData[clsKey]) followupData[clsKey] = {};
+      const reader = new FileReader();
+      reader.onload = function(loadEvent) {
+        try {
+          const data = new Uint8Array(loadEvent.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.xlsx, .xls';
-      
-      input.onchange = function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        if (typeof XLSX === 'undefined') {
-          alert("مكتبة قراءة الإكسل غير محملة! تأكد من اتصال الإنترنت.");
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(loadEvent) {
-          try {
-            const data = new Uint8Array(loadEvent.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-
-            if (jsonData.length < 2) {
-              alert("الملف فارغ أو لا يحتوي على بيانات كافية!");
-              return;
-            }
-
-            const headerRow = jsonData[0];
-            const lessonNames = [];
-            for (let i = 1; i < headerRow.length; i++) {
-              let name = headerRow[i] ? headerRow[i].toString().trim() : '';
-              if (!name) name = `درس ${i}`;
-              lessonNames.push(name);
-            }
-
-            if (lessonNames.length === 0) {
-              alert("لم يتم العثور على أسماء دروس في الصف الأول!");
-              return;
-            }
-
-            const currentLessons = unitsData[unitName].lessons;
-            let lessonsChanged = false;
-            if (currentLessons.length !== lessonNames.length) {
-              lessonsChanged = true;
-            } else {
-              for (let i = 0; i < currentLessons.length; i++) {
-                if (currentLessons[i] !== lessonNames[i]) {
-                  lessonsChanged = true;
-                  break;
-                }
-              }
-            }
-            if (lessonsChanged) {
-              if (confirm(`تختلف أسماء الدروس في الملف عن أسماء الدروس الحالية.\nهل تريد تحديث أسماء الدروس لتطابق الملف؟`)) {
-                unitsData[unitName].lessons = lessonNames;
-              }
-            }
-
-            const studentsInFile = [];
-            const studentsAdded = [];
-            const studentsUpdated = [];
-            const currentStudents = new Set(appData[currentClass]);
-
-            for (let r = 1; r < jsonData.length; r++) {
-              const row = jsonData[r];
-              if (!row || !row[0]) continue;
-              const studentName = row[0].toString().trim();
-              if (!studentName) continue;
-              studentsInFile.push(studentName);
-
-              if (!currentStudents.has(studentName)) {
-                const add = confirm(`الطالب "${studentName}" غير مدرج في البرنامج.\nهل تريد إضافته إلى الفصل؟`);
-                if (add) {
-                  appData[currentClass].push(studentName);
-                  currentStudents.add(studentName);
-                  studentsAdded.push(studentName);
-                } else {
-                  continue;
-                }
-              }
-
-              if (!followupData[clsKey][studentName]) {
-                followupData[clsKey][studentName] = { hw: {}, act: {}, test1: '', test2: '' };
-              }
-
-              const stData = followupData[clsKey][studentName];
-
-              if (type === 'hw') {
-                for (let col = 0; col < lessonNames.length; col++) {
-                  const val = row[col + 1];
-                  if (val === undefined || val === null || val === '') continue;
-                  const numVal = parseFloat(val);
-                  if (isNaN(numVal)) continue;
-                  const finalVal = Math.min(numVal, 10);
-                  stData.hw[lessonNames[col]] = finalVal;
-                  studentsUpdated.push(studentName);
-                }
-              } else if (type === 'act') {
-                for (let col = 0; col < lessonNames.length; col++) {
-                  const val = row[col + 1];
-                  if (val === undefined || val === null || val === '') continue;
-                  const numVal = parseFloat(val);
-                  if (isNaN(numVal)) continue;
-                  const finalVal = Math.min(numVal, 20);
-                  stData.act[lessonNames[col]] = finalVal;
-                  studentsUpdated.push(studentName);
-                }
-              } else if (type === 'test') {
-                if (row.length >= 2) {
-                  const testVal = parseFloat(row[1]);
-                  if (!isNaN(testVal) && testVal !== '') {
-                    stData.test1 = Math.min(testVal, 20);
-                    studentsUpdated.push(studentName);
-                  }
-                }
-                if (row.length >= 3) {
-                  const projVal = parseFloat(row[2]);
-                  if (!isNaN(projVal) && projVal !== '') {
-                    stData.test2 = Math.min(projVal, 20);
-                    studentsUpdated.push(studentName);
-                  }
-                }
-                if (row.length >= 2 && row.length < 3) {
-                  const testVal = parseFloat(row[1]);
-                  if (!isNaN(testVal) && testVal !== '') {
-                    stData.test1 = Math.min(testVal, 20);
-                    studentsUpdated.push(studentName);
-                  }
-                }
-              }
-            }
-
-            if (type !== 'test') {
-              const studentsInProgram = new Set(appData[currentClass]);
-              const studentsInFileSet = new Set(studentsInFile);
-              const missingFromFile = [];
-              studentsInProgram.forEach(student => {
-                if (!studentsInFileSet.has(student)) {
-                  missingFromFile.push(student);
-                }
-              });
-
-              if (missingFromFile.length > 0) {
-                const msg = `الطلاب التاليون غير مدرجين في ملف الإكسل:\n${missingFromFile.join('\n')}\n\nهل تريد حذفهم من البرنامج؟`;
-                if (confirm(msg)) {
-                  missingFromFile.forEach(student => {
-                    const idx = appData[currentClass].indexOf(student);
-                    if (idx !== -1) {
-                      appData[currentClass].splice(idx, 1);
-                      if (followupData[clsKey]) {
-                        delete followupData[clsKey][student];
-                      }
-                    }
-                  });
-                }
-              }
-            }
-
-            saveData();
-            renderUnitsDropdown();
-            renderFollowupTable(unitName);
-            
-            let msg = `✅ تم استيراد ${type === 'hw' ? 'الواجبات' : type === 'act' ? 'الأنشطة' : 'الاختبارات والمشاريع'} بنجاح!\n`;
-            if (studentsAdded.length > 0) msg += `➕ تم إضافة ${studentsAdded.length} طالب جديد.\n`;
-            if (studentsUpdated.length > 0) msg += `📝 تم تحديث ${studentsUpdated.length} درجة.\n`;
-            alert(msg);
-            
-          } catch (error) {
-            console.error(error);
-            alert("❌ حدث خطأ أثناء قراءة ملف الإكسل. تأكد من صيغة الملف وأنه غير تالف.");
+          if (jsonData.length < 2) {
+            alert("الملف فارغ أو لا يحتوي على بيانات كافية!");
+            return;
           }
-        };
-        reader.readAsArrayBuffer(file);
+
+          const headerRow = jsonData[0];
+          // نأخذ عدد الأعمدة (بدون عمود الاسم)
+          const fileLessonCount = headerRow.length - 1;
+          const systemLessons = unitsData[unitName].lessons || [];
+
+          // التحقق من تطابق عدد الأعمدة مع عدد دروس الوحدة
+          if (fileLessonCount !== systemLessons.length) {
+            alert(`⚠️ عدد الأعمدة في الملف (${fileLessonCount}) لا يتطابق مع عدد دروس الوحدة (${systemLessons.length}).\nيرجى التأكد من صحة القالب.`);
+            return;
+          }
+
+          // قراءة أسماء الطلاب من الملف
+          const studentsInFile = [];
+          for (let r = 1; r < jsonData.length; r++) {
+            const row = jsonData[r];
+            if (!row || !row[0]) continue;
+            const studentName = row[0].toString().trim();
+            if (studentName) studentsInFile.push(studentName);
+          }
+
+          if (studentsInFile.length === 0) {
+            alert("لم يتم العثور على أسماء طلاب في الملف!");
+            return;
+          }
+
+          // الحصول على طلاب النظام
+          const systemStudents = new Set(appData[currentClass]);
+          const systemStudentsList = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+
+          // حساب التقاطع: الطلاب الموجودين في النظام والملف معاً
+          const matchedStudents = systemStudentsList.filter(name => studentsInFile.includes(name));
+          const missingInFile = systemStudentsList.filter(name => !studentsInFile.includes(name));
+          const extraInFile = studentsInFile.filter(name => !systemStudents.has(name));
+
+          // إذا لم يكن هناك أي تطابق
+          if (matchedStudents.length === 0) {
+            alert(`❌ لا يوجد أي تطابق بين أسماء الطلاب في النظام والملف.\nالرجاء التأكد من صحة أسماء الطلاب في الملف.`);
+            return;
+          }
+
+          // عرض رسالة تحذيرية للمستخدم
+          let msg = `📊 إحصائيات المطابقة:\n`;
+          msg += `✅ الطلاب المتطابقون: ${matchedStudents.length}\n`;
+          if (missingInFile.length > 0) {
+            msg += `⚠️ طلاب في النظام غير موجودين في الملف: ${missingInFile.length} (سيتم تجاهلهم)\n`;
+          }
+          if (extraInFile.length > 0) {
+            msg += `⚠️ طلاب في الملف غير موجودين في النظام: ${extraInFile.length} (سيتم تجاهلهم)\n`;
+          }
+          msg += `\nهل تريد رصد درجات ${matchedStudents.length} طالب فقط؟`;
+
+          if (!confirm(msg)) {
+            alert("❌ تم إلغاء الاستيراد.");
+            return;
+          }
+
+          // تنفيذ الاستيراد للطلاب المتطابقين فقط
+          const clsKey = `${currentClass}_${unitName}`;
+          if (!followupData[clsKey]) followupData[clsKey] = {};
+
+          let updatedCount = 0;
+
+          // بناء خريطة سريعة للصفوف حسب اسم الطالب
+          const studentRowMap = {};
+          for (let r = 1; r < jsonData.length; r++) {
+            const row = jsonData[r];
+            if (!row || !row[0]) continue;
+            const name = row[0].toString().trim();
+            if (name) studentRowMap[name] = row;
+          }
+
+          matchedStudents.forEach(studentName => {
+            if (!followupData[clsKey][studentName]) {
+              followupData[clsKey][studentName] = { hw: {}, act: {}, test1: '', test2: '' };
+            }
+            const stData = followupData[clsKey][studentName];
+            const row = studentRowMap[studentName];
+            if (!row) return;
+
+            let updated = false;
+
+            if (type === 'hw') {
+              for (let col = 0; col < systemLessons.length; col++) {
+                const val = row[col + 1];
+                if (val === undefined || val === null || val === '') continue;
+                const numVal = parseFloat(val);
+                if (isNaN(numVal)) continue;
+                const finalVal = Math.min(numVal, 10);
+                stData.hw[systemLessons[col]] = finalVal;
+                updated = true;
+              }
+            } else if (type === 'act') {
+              for (let col = 0; col < systemLessons.length; col++) {
+                const val = row[col + 1];
+                if (val === undefined || val === null || val === '') continue;
+                const numVal = parseFloat(val);
+                if (isNaN(numVal)) continue;
+                const finalVal = Math.min(numVal, 20);
+                stData.act[systemLessons[col]] = finalVal;
+                updated = true;
+              }
+            } else if (type === 'test') {
+              if (row.length >= 2) {
+                const testVal = parseFloat(row[1]);
+                if (!isNaN(testVal) && testVal !== '') {
+                  stData.test1 = Math.min(testVal, 20);
+                  updated = true;
+                }
+              }
+              if (row.length >= 3) {
+                const projVal = parseFloat(row[2]);
+                if (!isNaN(projVal) && projVal !== '') {
+                  stData.test2 = Math.min(projVal, 20);
+                  updated = true;
+                }
+              }
+              if (row.length >= 2 && row.length < 3) {
+                const testVal = parseFloat(row[1]);
+                if (!isNaN(testVal) && testVal !== '') {
+                  stData.test1 = Math.min(testVal, 20);
+                  updated = true;
+                }
+              }
+            }
+
+            if (updated) updatedCount++;
+          });
+
+          saveData();
+          renderUnitsDropdown();
+          renderFollowupTable(unitName);
+
+          alert(`✅ تم استيراد ${updatedCount} طالب بنجاح!`);
+          if (missingInFile.length > 0) {
+            alert(`ℹ️ تم تجاهل ${missingInFile.length} طالب غير موجودين في الملف.`);
+          }
+          if (extraInFile.length > 0) {
+            alert(`ℹ️ تم تجاهل ${extraInFile.length} طالب غير موجودين في النظام.`);
+          }
+
+        } catch (error) {
+          console.error(error);
+          alert("❌ حدث خطأ أثناء قراءة ملف الإكسل. تأكد من صيغة الملف وأنه غير تالف.");
+        }
       };
-      
-      input.click();
+      reader.readAsArrayBuffer(file);
+
+      // إعادة تعيين قيمة input
+      event.target.value = '';
+    }
+
+    function exportTemplateExcel() {
+      closeImportExportModal();
+
+      const currentClass = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
+      const unitName = currentActiveUnit;
+      const type = currentImportType;
+
+      if (!currentClass || !appData[currentClass]) {
+        alert("يرجى اختيار فصل أولاً!");
+        return;
+      }
+      if (!unitsData[unitName]) {
+        alert("الرجاء اختيار وحدة صحيحة أولاً!");
+        return;
+      }
+
+      const lessons = unitsData[unitName].lessons || [];
+      const classStudents = [...appData[currentClass]].sort((a, b) => a.localeCompare(b, 'ar'));
+      const clsKey = `${currentClass}_${unitName}`;
+      const fData = followupData[clsKey] || {};
+
+      // بناء الصفوف
+      const rows = [];
+      // الصف الأول: أسماء الدروس كترويسة
+      const header = ['اسم الطالب'];
+      lessons.forEach(l => header.push(l));
+      rows.push(header);
+
+      // الصفوف التالية: كل طالب مع درجاته الحالية
+      classStudents.forEach(student => {
+        const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
+        const row = [student];
+
+        if (type === 'hw') {
+          lessons.forEach(l => {
+            row.push(stData.hw[l] !== undefined ? stData.hw[l] : '');
+          });
+        } else if (type === 'act') {
+          lessons.forEach(l => {
+            row.push(stData.act[l] !== undefined ? stData.act[l] : '');
+          });
+        } else if (type === 'test') {
+          row.push(stData.test1 !== undefined ? stData.test1 : '');
+          row.push(stData.test2 !== undefined ? stData.test2 : '');
+          // إذا كان عدد الدروس 2، نضيف عمودين فقط، وإلا نضيف عمودين فقط (اختبار ومشروع)
+          // نضمن أن عدد الأعمدة يساوي عدد الدروس + 1
+        }
+        rows.push(row);
+      });
+
+      // للتأكد من تطابق عدد الأعمدة للاختبارات مع عدد الدروس
+      if (type === 'test') {
+        // نتأكد أن عدد الأعمدة (عدا عمود الاسم) يساوي عدد الدروس
+        // ولكن الاختبارات لها عمودين فقط (اختبار ومشروع)
+        // لذلك نعيد بناء الصفوف بشكل صحيح للاختبارات
+        // نضبط الصف الأول
+        const testHeader = ['اسم الطالب'];
+        lessons.forEach((l, idx) => {
+          if (idx === 0) testHeader.push('اختبار');
+          else if (idx === 1) testHeader.push('مشروع');
+          else testHeader.push(`درجة ${idx+1}`);
+        });
+        rows[0] = testHeader;
+
+        // نعيد بناء صفوف الطلاب للاختبارات
+        for (let i = 1; i < rows.length; i++) {
+          const student = rows[i][0];
+          const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '' };
+          const newRow = [student];
+          lessons.forEach((l, idx) => {
+            if (idx === 0) newRow.push(stData.test1 !== undefined ? stData.test1 : '');
+            else if (idx === 1) newRow.push(stData.test2 !== undefined ? stData.test2 : '');
+            else newRow.push('');
+          });
+          rows[i] = newRow;
+        }
+      }
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/octet-stream' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      const typeName = type === 'hw' ? 'hw' : type === 'act' ? 'act' : 'test';
+      const filename = `قالب_${typeName}_${currentClass}_${unitName}.xlsx`;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+
+      alert(`✅ تم تصدير القالب بنجاح!\nاسم الملف: ${filename}`);
     }
 
     // دوال تعديل اسم الطالب
