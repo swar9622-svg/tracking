@@ -28,7 +28,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>📚 كشف المتابعة 10.1</title>
+  <title>📚 كشف المتابعة 10.2</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -599,7 +599,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (10.1)
+        كشف الغياب والمخالفات (10.2)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -637,7 +637,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (10.1)
+        كشوف المتابعة و الدرجات (10.2)
       </div>
     </header>
     <div class="top-action-bar">
@@ -1703,7 +1703,7 @@
     }
 
     // ============================================================
-    // دوال التصدير والاستيراد الجديدة (الإصدار 10.1)
+    // دوال التصدير والاستيراد الجديدة (الإصدار 10.2)
     // ============================================================
     function openImportExportModal(type) {
       currentImportType = type;
@@ -1998,7 +1998,62 @@
       alert(`✅ تم تصدير القالب بنجاح!\nاسم الملف: ${filename}`);
     }
 
-    // دوال تعديل اسم الطالب
+    // ============================================================
+    // دوال إدارة الوحدات (تم تعديل saveUnitConfig لنقل الدرجات)
+    // ============================================================
+    function saveUnitConfig() {
+      const select = document.getElementById('modalUnitSelect');
+      const uName = select.value;
+      if (!uName || !unitsData[uName]) return;
+
+      const inputs = document.querySelectorAll('.lesson-name-input');
+      const newLessons = [];
+      inputs.forEach(inp => {
+        let val = inp.value.trim();
+        if (val) newLessons.push(val);
+      });
+      if (newLessons.length === 0) newLessons.push("درس 1");
+
+      const oldLessons = unitsData[uName].lessons || [];
+
+      // تحديث أسماء الدروس في unitsData
+      unitsData[uName].lessons = newLessons;
+
+      // نقل الدرجات من الأسماء القديمة إلى الجديدة (بنفس الترتيب)
+      const minLength = Math.min(oldLessons.length, newLessons.length);
+      const clsKeyPrefix = `${uName}_`;
+      for (let key in followupData) {
+        if (key.startsWith(clsKeyPrefix)) {
+          const studentData = followupData[key];
+          for (let student in studentData) {
+            // نقل الواجبات
+            for (let i = 0; i < minLength; i++) {
+              const oldName = oldLessons[i];
+              const newName = newLessons[i];
+              if (oldName !== newName) {
+                if (studentData[student].hw && studentData[student].hw[oldName] !== undefined) {
+                  studentData[student].hw[newName] = studentData[student].hw[oldName];
+                  delete studentData[student].hw[oldName];
+                }
+                if (studentData[student].act && studentData[student].act[oldName] !== undefined) {
+                  studentData[student].act[newName] = studentData[student].act[oldName];
+                  delete studentData[student].act[oldName];
+                }
+              }
+            }
+            // إذا زاد عدد الدروس، لا ننقل شيئاً للدروس الجديدة (تبقى فارغة)
+            // إذا نقص عدد الدروس، يتم حذف الدرجات الزائدة تلقائياً (لأن الأسماء القديمة لم تعد موجودة)
+          }
+        }
+      }
+
+      saveData();
+      renderFollowupTable(currentActiveUnit);
+      closeUnitsManageModal();
+      alert("✅ تم حفظ تعديلات الوحدة ونقل الدرجات بنجاح!");
+    }
+
+    // دوال تعديل اسم الطالب (لم تتغير)
     function openEditStudentNameModal() {
       const selectedClass = document.getElementById('modalClassSelect').value;
       if (!selectedClass || !appData[selectedClass] || appData[selectedClass].length === 0) {
@@ -3501,7 +3556,7 @@
       document.getElementById('inlineAddUnitBox').style.display = 'none';
     }
 
-    // دوال إدارة الوحدات
+    // دوال إدارة الوحدات (باقي الدوال)
     function updateUnitName() {
       const select = document.getElementById('modalUnitSelect');
       const oldName = select.value;
@@ -3676,25 +3731,7 @@
       document.getElementById('inlineAddUnitBox').style.display = 'none';
     }
 
-    function saveUnitConfig() {
-      const select = document.getElementById('modalUnitSelect');
-      const uName = select.value;
-      if (!uName || !unitsData[uName]) return;
-
-      const inputs = document.querySelectorAll('.lesson-name-input');
-      let lessons = [];
-      inputs.forEach(inp => {
-        let val = inp.value.trim();
-        if (val) lessons.push(val);
-      });
-
-      if (lessons.length === 0) lessons = ["درس 1"];
-      unitsData[uName].lessons = lessons;
-      saveData();
-      renderFollowupTable(currentActiveUnit);
-      closeUnitsManageModal();
-      alert("✅ تم حفظ تعديلات الوحدة بنجاح!");
-    }
+    // تم تعديل saveUnitConfig سابقاً
 
     function openPenaltyConfigModal() {
       const container = document.getElementById('penaltiesInputsContainer');
