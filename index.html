@@ -28,7 +28,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <title>📚 كشف المتابعة 9.5</title>
+  <title>📚 كشف المتابعة 9.6</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -526,6 +526,44 @@
     .upload-status.error { color: var(--red); background: #FDEDEC; }
     .upload-status.info { color: var(--accent); background: #EBF3FF; }
 
+    /* زر مسح جميع البيانات */
+    .btn-danger {
+      background-color: #FF3B30;
+      color: white;
+      border: none;
+      padding: 0.625rem;
+      border-radius: 0.625rem;
+      font-weight: 700;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 0.25rem;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+    }
+    .btn-danger:active { opacity: 0.8; }
+    .btn-danger:hover { opacity: 0.9; }
+
+    .danger-box {
+      border: 2px solid #FF3B30;
+      background: #FFF5F5;
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      margin-bottom: 0.875rem;
+    }
+    .danger-box .data-box-title {
+      color: #FF3B30;
+    }
+    .danger-box .warning-text {
+      font-size: 0.65rem;
+      color: #FF3B30;
+      text-align: center;
+      margin-top: 4px;
+    }
+
     @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
   </style>
 </head>
@@ -535,7 +573,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (9.5)
+        كشف الغياب والمخالفات (9.6)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -573,7 +611,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (9.5)
+        كشوف المتابعة و الدرجات (9.6)
       </div>
     </header>
     <div class="top-action-bar">
@@ -813,21 +851,34 @@
         <div class="modal-title" style="margin:0;">📂 النسخ الاحتياطي</div>
         <button class="btn-close-circle" onclick="closeDataMenuModal()">✕</button>
       </div>
+
+      <!-- ===== قسم النسخ الاحتياطي الشامل ===== -->
       <div class="data-box-section">
         <div class="data-box-title">🔄 النسخ الاحتياطي الشامل</div>
         <button class="btn-menu-option" style="background-color: var(--green);" onclick="exportFullBackupJSON()">💾 تصدير نسخة احتياطية (Backup)</button>
         <button class="btn-menu-option" style="background-color: var(--accent);" onclick="triggerFileInput()">📥 استعادة من ملف نسخة احتياطية (Restore)</button>
         <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="importFullBackupJSON(event)">
       </div>
+
       <!-- قسم تصدير بيانات الاستعلام -->
       <div class="data-box-section" style="border-top: 2px solid #E5E5EA; padding-top: 0.75rem;">
         <div class="data-box-title">📤 تصدير بيانات الاستعلام (data.xlsx)</div>
         <button class="btn-menu-option" style="background-color: #8E44AD;" onclick="openQueryExportModal()">📤 تصدير data.xlsx</button>
       </div>
+
+      <!-- ===== قسم إعدادات العرض والخطوط ===== -->
       <div class="data-box-section">
         <div class="data-box-title">⚙️ إعدادات العرض والخطوط</div>
         <button class="btn-menu-option" style="background-color: #8E44AD;" onclick="openFontSettingsModal()">⚙️ إعدادات الخط (الخطوط المختارة)</button>
       </div>
+
+      <!-- ===== قسم مسح جميع البيانات (نقل إلى الأسفل) ===== -->
+      <div class="danger-box">
+        <div class="data-box-title">⚠️ مسح جميع البيانات وتهيئة البرنامج</div>
+        <button class="btn-danger" onclick="confirmResetAllData()">🗑️ مسح كل البيانات وإعادة الضبط</button>
+        <div class="warning-text">⚠️ هذا الإجراء لا يمكن التراجع عنه! سيتم حذف جميع الطلاب والغياب والدرجات.</div>
+      </div>
+
     </div>
   </div>
 
@@ -1104,6 +1155,9 @@
     let queryStudentNumberMap = {};
     const STUDENT_NUMBER_MAP_KEY = 'attendance_student_number_map';
 
+    // ============================================================
+    // دوال تحميل وحفظ البيانات
+    // ============================================================
     function loadStudentNumberMap() {
       const saved = localStorage.getItem(STUDENT_NUMBER_MAP_KEY);
       if (saved) {
@@ -4565,6 +4619,162 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // ============================================================
+    // دوال مسح جميع البيانات وتهيئة البرنامج (جديد)
+    // ============================================================
+    function confirmResetAllData() {
+      // نافذة تأكيد مخصصة
+      const confirmDiv = document.createElement('div');
+      confirmDiv.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      `;
+      
+      confirmDiv.innerHTML = `
+        <div style="
+          background: white;
+          border-radius: 20px;
+          padding: 24px 20px;
+          max-width: 400px;
+          width: 100%;
+          text-align: center;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        ">
+          <div style="font-size: 48px; margin-bottom: 10px;">⚠️</div>
+          <div style="font-size: 20px; font-weight: 900; color: #FF3B30; margin-bottom: 8px;">
+            تحذير! مسح جميع البيانات
+          </div>
+          <div style="font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 16px;">
+            سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:
+            <br>• جميع الطلاب والصفوف
+            <br>• سجلات الغياب والتأخر والمخالفات
+            <br>• جميع الدرجات والمتابعات
+            <br>• أرقام الطلاب المحفوظة
+            <br><br>
+            <span style="color: #FF3B30; font-weight: 700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span>
+            <br><br>
+            <span style="font-size: 13px; color: #888;">هل أنت متأكد من رغبتك في المتابعة؟</span>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button onclick="this.closest('div[style]').parentElement.remove()" style="
+              flex: 1;
+              padding: 12px;
+              border-radius: 12px;
+              border: none;
+              background: #E5E5EA;
+              color: var(--text-primary);
+              font-weight: 700;
+              font-size: 16px;
+              cursor: pointer;
+            ">إلغاء</button>
+            <button onclick="executeResetAllData()" style="
+              flex: 1;
+              padding: 12px;
+              border-radius: 12px;
+              border: none;
+              background: #FF3B30;
+              color: white;
+              font-weight: 700;
+              font-size: 16px;
+              cursor: pointer;
+            ">🗑️ مسح الكل</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(confirmDiv);
+    }
+
+    function executeResetAllData() {
+      // إزالة نافذة التأكيد
+      const confirmDiv = document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]');
+      if (confirmDiv) confirmDiv.remove();
+      
+      // إظهار رسالة جاري المسح
+      const loadingDiv = document.createElement('div');
+      loadingDiv.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9998;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      `;
+      loadingDiv.innerHTML = `
+        <div style="
+          background: white;
+          border-radius: 20px;
+          padding: 30px;
+          text-align: center;
+        ">
+          <div style="font-size: 40px; margin-bottom: 10px;">⏳</div>
+          <div style="font-size: 18px; font-weight: 700; color: var(--text-primary);">
+            جاري مسح جميع البيانات...
+          </div>
+          <div style="font-size: 13px; color: #888; margin-top: 4px;">
+            سيتم إعادة تهيئة البرنامج خلال ثوانٍ
+          </div>
+        </div>
+      `;
+      document.body.appendChild(loadingDiv);
+      
+      // تأخير بسيط لظهور رسالة التحميل
+      setTimeout(() => {
+        try {
+          // 1. مسح localStorage بالكامل (جميع المفاتيح)
+          const keysToRemove = [
+            'attendance_app_data',
+            'attendance_records',
+            'attendance_units_data',
+            'attendance_followup_data',
+            'attendance_penalties_data',
+            'attendance_period1_selected_units',
+            'attendance_student_number_map',
+            'attendance_font_settings',
+            'notification_export_settings'
+          ];
+          
+          keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+          });
+          
+          // 2. إعادة تعيين المتغيرات العامة إلى القيم الافتراضية
+          appData = JSON.parse(JSON.stringify(defaultData));
+          records = {};
+          unitsData = JSON.parse(JSON.stringify(defaultUnits));
+          followupData = {};
+          penaltiesData = JSON.parse(JSON.stringify(defaultPenalties));
+          period1SelectedUnits = [];
+          queryStudentNumberMap = {};
+          
+          // 3. حفظ البيانات الجديدة (الفارغة)
+          saveData();
+          
+          // 4. إزالة رسالة التحميل
+          if (loadingDiv.parentElement) loadingDiv.remove();
+          
+          // 5. إعادة تحميل الصفحة
+          setTimeout(() => {
+            alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!');
+            location.reload();
+          }, 500);
+          
+        } catch (error) {
+          console.error('خطأ أثناء مسح البيانات:', error);
+          if (loadingDiv.parentElement) loadingDiv.remove();
+          alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.');
+        }
+      }, 800);
     }
 
     // دوال نافذة تصدير اشعارات الطلاب
