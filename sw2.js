@@ -1,10 +1,10 @@
-const CACHE_NAME = 'attendance-app-v4';
+const CACHE_NAME = 'attendance-app-v5';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
   './icon.png',
-  './html2pdf.bundle.min.js'
+  './html2pdf.bundle.min.js',
   './html2canvas.min.js',
   './jspdf.umd.min.js',
   './xlsx.full.min.js',
@@ -36,9 +36,31 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
+  const isHtmlRequest =
+    event.request.mode === 'navigate' ||
+    event.request.url.endsWith('/') ||
+    event.request.url.endsWith('index.html');
+
+  if (isHtmlRequest) {
+    // Network First: جرّب الإنترنت أولاً وحدّث الكاش تلقائيًا بأحدث نسخة،
+    // وإذا ما فيه اتصال ارجع لآخر نسخة محفوظة.
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseClone);
+          });
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+  } else {
+    // Cache First: للملفات الثابتة (المكتبات) التي نادرًا ما تتغيّر.
+    event.respondWith(
+      caches.match(event.request).then(response => {
+        return response || fetch(event.request);
+      })
+    );
+  }
 });
