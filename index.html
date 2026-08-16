@@ -5686,7 +5686,7 @@
   <script>
   // تسجيل Service Worker للعمل دون إنترنت
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw 2.js')   // 🔴 انتبه للمسافة بين sw و 2
+    navigator.serviceWorker.register('./sw2.js')   // 🔴 انتبه للمسافة بين sw و 2
       .then(() => console.log('✅ Service Worker تم تسجيله بنجاح'))
       .catch(err => console.error('❌ فشل تسجيل Service Worker:', err));
   }
