@@ -28,7 +28,7 @@
   <script src="./jspdf.umd.min.js"></script>
   <script src="./xlsx.full.min.js"></script>
 
-  <title>📚 كشف المتابعة 10.8</title>
+  <title>📚 كشف المتابعة 10.9</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -599,7 +599,7 @@
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">
-        كشف الغياب والمخالفات (10.8)
+        كشف الغياب والمخالفات (10.7)
       </div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
@@ -637,7 +637,7 @@
   <div id="followupScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToAbsenceScreen()">
-        كشوف المتابعة و الدرجات (10.8)
+        كشوف المتابعة و الدرجات (10.7)
       </div>
     </header>
     <div class="top-action-bar">
@@ -4208,7 +4208,7 @@
           margin: [4, 4, 4, 4],
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 1.5, useCORS: true, scrollX: 0, scrollY: 0, logging: false },
-          pagebreak: { mode: ['css', 'legacy'] },
+          pagebreak: { mode: ['avoid-all', 'css'] },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
         const options = { ...defaultOpt, ...opt };
