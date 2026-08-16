@@ -8,7 +8,7 @@ const urlsToCache = [
   './html2canvas.min.js',
   './jspdf.umd.min.js',
   '/xlsx.full.min.js',
-  './sw 2.js'
+  './sw2.js'
 ];
 
 self.addEventListener('install', event => {
