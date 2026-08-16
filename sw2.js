@@ -42,10 +42,11 @@ self.addEventListener('fetch', event => {
     event.request.url.endsWith('index.html');
 
   if (isHtmlRequest) {
-    // Network First: جرّب الإنترنت أولاً وحدّث الكاش تلقائيًا بأحدث نسخة،
-    // وإذا ما فيه اتصال ارجع لآخر نسخة محفوظة.
+    // Network First: يجبر طلب شبكة حقيقي في كل مرة (cache: 'no-store' يتجاوز
+    // كاش المتصفح HTTP Cache نفسه، وليس فقط كاش الـ Service Worker)، ويحدّث
+    // الكاش تلقائيًا بأحدث نسخة، وإذا ما فيه اتصال يرجع لآخر نسخة محفوظة.
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-store' })
         .then(networkResponse => {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then(cache => {
