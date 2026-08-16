@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v5';
+const CACHE_NAME = 'attendance-app-v6';
 const urlsToCache = [
   './',
   './index.html',
@@ -8,7 +8,10 @@ const urlsToCache = [
   './html2canvas.min.js',
   './jspdf.umd.min.js',
   './xlsx.full.min.js',
-  './sw2.js'
+  './sw2.js',
+  './fonts/IBMPlexSansArabic-400.woff2',
+  './fonts/IBMPlexSansArabic-600.woff2',
+  './fonts/IBMPlexSansArabic-700.woff2'
 ];
 
 self.addEventListener('install', event => {
@@ -57,7 +60,7 @@ self.addEventListener('fetch', event => {
         .catch(() => caches.match(event.request))
     );
   } else {
-    // Cache First: للملفات الثابتة (المكتبات) التي نادرًا ما تتغيّر.
+    // Cache First: للملفات الثابتة (المكتبات والخطوط) التي نادرًا ما تتغيّر.
     event.respondWith(
       caches.match(event.request).then(response => {
         return response || fetch(event.request);
