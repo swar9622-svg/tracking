@@ -7,7 +7,7 @@ const urlsToCache = [
   './html2pdf.bundle.min.js'
   './html2canvas.min.js',
   './jspdf.umd.min.js',
-  '/xlsx.full.min.js',
+  './xlsx.full.min.js',
   './sw2.js'
 ];
 
