@@ -1,14 +1,14 @@
-const CACHE_NAME = 'attendance-app-v5';   // غيّر الرقم لفرض التحديث
+const CACHE_NAME = 'attendance-app-v5';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
   './icon.png',
   './html2pdf.bundle.min.js',
-  './html2canvas.min.js',   // <-- أضيف
-  './jspdf.umd.min.js',     // <-- أضيف
-  './xlsx.full.min.js',     // <-- أضيف
-  './sw2.js'                // <-- أضيف (لتخزين نفسه)
+  './html2canvas.min.js',
+  './jspdf.umd.min.js',
+  './xlsx.full.min.js',
+  './sw2.js'
 ];
 
 self.addEventListener('install', event => {
