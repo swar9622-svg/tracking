@@ -65,6 +65,14 @@
     .btn-status.active-violation { background-color: var(--purple); color: #FFFFFF; font-size: 0.6875rem; font-weight: 800; }
     .btn-status.disabled-btn { opacity: 0.4; cursor: not-allowed; }
     .bottom-controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 0.625rem 0.875rem 1.25rem 0.875rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.08); display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; z-index: 20; }
+    #followupBottomControls {
+      transition: none;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      will-change: transform;
+    }
     .btn-action { padding: 0.5rem 0.375rem; border-radius: 0.625rem; border: none; font-size: 0.75rem; font-weight: 700; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.25rem; min-height: 2.625rem; user-select: none; }
     .btn-action:active { opacity: 0.8; }
     .btn-report { background-color: #5856D6; }
@@ -364,7 +372,7 @@
       <button class="btn-export-period" onclick="exportPeriodCSV()" style="background-color:var(--green);">📊 تصدير كشف الوحدة الحالية CSV</button>
       <button class="btn-export-period btn-weighted-light" onclick="openFollowupReportModal()">📊 الدرجة الموزونة للوحدة</button>
     </div>
-    <div class="bottom-controls">
+    <div class="bottom-controls" id="followupBottomControls">
       <button class="btn-action btn-notify-light" onclick="openNotificationExportModal()">📄 اشعارات الطلاب PDF</button>
       <button class="btn-action" style="background-color:#8e44ad;" onclick="openUnitsManageModal()">⚙️ إدارة الوحدات</button>
     </div>
