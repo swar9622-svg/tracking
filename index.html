@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -17,7 +18,7 @@
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
   <script src="./xlsx.full.min.js"></script>
-  <title>📚 كشف المتابعة 11.3</title>
+  <title>📚 كشف المتابعة 11.5</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -242,20 +243,12 @@
     .import-export-modal .btn-export-option { background-color: #2ECC71; }
     .import-export-modal .btn-import-option-import { background-color: var(--accent); }
     
-    /* ========================================================== */
-    /* UPDATE: تم تعديل كود الطباعة ليعمل على Safari و GitHub    */
-    /* ========================================================== */
     @media print { 
       .no-print { display: none !important; } 
       body { background: white; padding: 0; margin: 0; } 
       .modal { position: static; background: none; padding: 0; } 
       .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } 
-
-      @page { 
-          size: A4 landscape; 
-          margin: 0.5cm !important; 
-      }
-      
+      @page { size: A4 landscape; margin: 0.5cm !important; }
       table, tr, td, th, .followup-table, .followup-table-container {
           page-break-inside: auto !important;
           break-inside: auto !important;
@@ -263,14 +256,13 @@
           -webkit-print-color-adjust: exact !important;
       }
     }
-    /* ========================================================== */
   </style>
 </head>
 <body>
 <!-- ===== الشاشة الأولى ===== -->
 <div id="absenceScreen" class="screen active-screen">
   <header>
-    <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.3)</div>
+    <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.5)</div>
     <div class="controls-bar">
       <select id="classSelect" onchange="renderStudents()"></select>
       <input type="date" id="dateSelect" onchange="renderStudents()">
@@ -297,7 +289,7 @@
 <!-- ===== الشاشة الثانية ===== -->
 <div id="followupScreen" class="screen">
   <header>
-    <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.3)</div>
+    <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.5)</div>
   </header>
   <div class="top-action-bar">
     <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
@@ -1182,28 +1174,68 @@ function closeFollowupReportModal(){ document.getElementById('followupReportModa
 
 function calculateStudentParticipationScore(cls,student){ let score=10; for(let date in records){ if(records[date]&&records[date][cls]){ const rec=getStudentDayRecord(date,cls,student); if(rec.status==='غائب') score -= penaltiesData["غياب"]!==undefined?penaltiesData["غياب"]:1; else if(rec.status==='متأخر') score -= penaltiesData["تأخر"]!==undefined?penaltiesData["تأخر"]:0.5; if(rec.violations){ rec.violations.forEach(v=>{ score -= penaltiesData[v]!==undefined?penaltiesData[v]:0.5; }); } } } return score<0?0:score; }
 
-// ===== تصدير PDF (تم التعديل لحل مشكلة الصفحات والبيانات المفقودة) =====
+// ===== تصدير PDF (الحل النهائي: تقسيم الصورة ديناميكياً في المتصفح) =====
 async function exportPdf(element, filename, opt) {
   try {
-    const defaultOpt = {
-      margin: [3, 3, 3, 3], // تقليل الهوامش لتوفير مساحة أكبر
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2.0, useCORS: true, scrollX: 0, scrollY: 0, logging: false }, // زيادة الدقة
-      pagebreak: { mode: 'auto' }, // إزالة 'avoid-all' لمنع الفواصل القسرية
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } // تغيير إلى عرضي لتسع الجدول
+    // خيارات التقاط الصورة
+    const canvasOptions = {
+      scale: 2.0,
+      useCORS: true,
+      scrollX: 0,
+      scrollY: 0,
+      logging: false,
+      width: element.scrollWidth,
+      height: element.scrollHeight,
+      backgroundColor: '#ffffff'
     };
-    const options = { ...defaultOpt, ...opt };
-    if (opt.margin && typeof opt.margin === 'number') {
-      options.margin = [opt.margin, opt.margin, opt.margin, opt.margin];
-    }
-    // دمج الخيارات المخصصة مع الافتراضية
-    if (opt.jsPDF) {
-      options.jsPDF = { ...defaultOpt.jsPDF, ...opt.jsPDF };
+
+    // التقاط صورة كاملة (بدون قص)
+    const canvas = await html2canvas(element, canvasOptions);
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+    // إعدادات jsPDF
+    const { jsPDF } = window.jspdf;
+    const orientation = (opt && opt.jsPDF && opt.jsPDF.orientation) ? opt.jsPDF.orientation : 'landscape';
+    const format = 'a4';
+    const pdf = new jsPDF(orientation, 'mm', format);
+    
+    // أبعاد صفحة PDF بالملم
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // أبعاد الصورة
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgWidth = imgProps.width;
+    const imgHeight = imgProps.height;
+
+    // حساب المقياس (نسبة عرض الصفحة إلى عرض الصورة)
+    const scale = pageWidth / imgWidth;
+    
+    let positionY = 0;
+    let pageNum = 0;
+
+    // تكرار التقسيم بناءً على الارتفاع الكلي للصورة
+    while (positionY < imgHeight) {
+      if (pageNum > 0) {
+        pdf.addPage();
+      }
+      
+      // حساب الإزاحة الرأسية للصفحة الحالية
+      const yOffset = -positionY * scale;
+      
+      // إضافة الصورة مع الإزاحة (ديناميكياً)
+      pdf.addImage(imgData, 'JPEG', 0, yOffset, pageWidth, imgHeight * scale);
+      
+      // زيادة الموضع بمقدار طول الصفحة بالبكسل
+      positionY += pageHeight / scale;
+      pageNum++;
     }
 
-    const pdf = await html2pdf().set(options).from(element).outputPdf('blob');
-    const file = new File([pdf], filename, { type: 'application/pdf' });
+    // تحويل PDF إلى ملف
+    const blob = pdf.output('blob');
+    const file = new File([blob], filename, { type: 'application/pdf' });
 
+    // مشاركة الملف إذا كان الجهاز يدعم ذلك
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file], title: filename, text: 'تقرير نظام المتابعة' });
@@ -1213,8 +1245,9 @@ async function exportPdf(element, filename, opt) {
       }
     }
 
+    // تحميل الملف كحل احتياطي
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(pdf);
+    link.href = URL.createObjectURL(blob);
     link.download = filename;
     document.body.appendChild(link);
     link.click();
