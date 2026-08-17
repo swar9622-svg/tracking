@@ -18,7 +18,7 @@
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
   <script src="./xlsx.full.min.js"></script>
-  <title>📚 كشف المتابعة 11.8</title>
+  <title>📚 كشف المتابعة 11.9</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -262,7 +262,7 @@
 <!-- ===== الشاشة الأولى ===== -->
 <div id="absenceScreen" class="screen active-screen">
   <header>
-    <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.8)</div>
+    <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.9)</div>
     <div class="controls-bar">
       <select id="classSelect" onchange="renderStudents()"></select>
       <input type="date" id="dateSelect" onchange="renderStudents()">
@@ -289,7 +289,7 @@
 <!-- ===== الشاشة الثانية ===== -->
 <div id="followupScreen" class="screen">
   <header>
-    <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.8)</div>
+    <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.9)</div>
   </header>
   <div class="top-action-bar">
     <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
@@ -1185,8 +1185,8 @@ async function exportPdf(element, filename, opt = {}) {
         useCORS: true,
         scrollX: 0,
         scrollY: 0,
-        windowWidth: element.scrollWidth, // الحل المثالي لالتقاط العرض الكامل
-        windowHeight: element.scrollHeight, // الحل المثالي لالتقاط الارتفاع الكامل
+        width: element.scrollWidth, // الحل الأكثر استقراراً لالتقاط كامل العرض والارتفاع
+        height: element.scrollHeight, 
         logging: false
       },
       pagebreak: {
@@ -1303,8 +1303,8 @@ async function generatePeriodOrUnitPDF(unitName,filename,titleText){ const cls=d
         useCORS:true,
         scrollX:0,
         scrollY:0,
-        windowWidth: el.scrollWidth,
-        windowHeight: el.scrollHeight
+        width: el.scrollWidth,
+        height: el.scrollHeight
     },
     pagebreak:{
         mode:'auto',
@@ -1341,7 +1341,7 @@ async function exportNotificationsPDF(){ const cls=document.getElementById('foll
 // ===== دوال أرقام الطلاب =====
 function openStudentNumbersModal(){ initClassSelects(); loadStudentNumberMap(); document.getElementById('studentNumbersModal').style.display='flex'; renderStudentNumbersList(); document.getElementById('studentNumbersUploadStatus').className='upload-status info'; document.getElementById('studentNumbersUploadStatus').textContent='لم يتم رفع ملف بعد'; }
 function closeStudentNumbersModal(){ document.getElementById('studentNumbersModal').style.display='none'; if(editingNumberIndex!==-1) cancelEditNumber(editingNumberIndex); editingNumberIndex=-1; }
-function handleStudentNumbersFileUpload(e){ const file=e.target.files[0]; if(!file) return; if(typeof XLSX==='undefined'){ alert("مكتبة قراءة الإكسل غير محملة!"); return; } const reader=new FileReader(); reader.onload=function(ev){ try { const data=new Uint8Array(ev.target.result), wb=XLSX.read(data,{type:'array'}), sheet=wb.Sheets[wb.SheetNames[0]], json=XLSX.utils.sheet_to_json(sheet,{header:1}); if(json.length<2){ alert("الملف فارغ!"); return; } const header=json[0]; let idCol=-1,nameCol=-1,classCol=-1; for(let i=0;i<header.length;i++){ const cell=header[i]?header[i].toString().trim():''; if(cell.includes('رقم')||cell.includes('هوية')||cell.includes('ID')||cell.includes('السجل')) idCol=i; else if(cell.includes('اسم')) nameCol=i; else if(cell.includes('فصل')||cell.includes('صف')) classCol=i; } if(idCol===-1) idCol=0; if(nameCol===-1) nameCol=1; const rows=[]; for(let r=1;r<json.length;r++){ const row=json[r]; if(!row||!row[idCol]||!row[nameCol]) continue; rows.push({id:row[idCol].toString().trim(),name:row[nameCol].toString().trim(),cls:classCol!==-1&&row[classCol]?row[classCol].toString().trim():''}); } if(rows.length===0){ alert("لم يتم العثور على بيانات صالحة في الملف."); return; } window._studentNumbersFileData=rows; loadStudentNumberMap(); let saved=0, dup=0, dups=[]; rows.forEach(item=>{ if(!queryStudentNumberMap[item.name]){ const match=item.id.match(/\d{5,}$/); if(match){ const num=match[0].slice(-5); let isDup=false; for(let st in queryStudentNumberMap){ if(st!==item.name&&queryStudentNumberMap[st]===num){ isDup=true; break; } } if(isDup){ dup++; dups.push({name:item.name,number:num}); } else { queryStudentNumberMap[item.name]=num; saved++; } } } }); if(saved>0||dup>0){ saveStudentNumberMap(); const status=document.getElementById('studentNumbersUploadStatus'); let msg=''; if(saved>0&&dup===0){ msg=`✅ تم رفع الملف وحفظ ${saved} رقم جديد بنجاح!`; status.className='upload-status success'; } else if(saved>0&&dup>0){ msg=`⚠️ تم حفظ ${saved} رقم، ولكن ${dup} رقم مكرر (${dups.map(d=>d.name).join(', ')})`; status.className='upload-status error'; } else if(saved===0&&dup>0){ msg=`❌ جميع الأرقام مكررة (${dup} طالب). يرجى تعديل الأرقام يدوياً.`; status.className='upload-status error'; } else { msg=`ℹ️ لم يتم العثور على أرقام جديدة للحفظ.`; status.className='upload-status info'; } status.textContent=msg; renderStudentNumbersList(); if(dup>0) alert(`⚠️ تم العثور على ${dup} رقم مكرر. يرجى تعديلها يدوياً من القائمة.`); } else { document.getElementById('studentNumbersUploadStatus').className='upload-status info'; document.getElementById('studentNumbersUploadStatus').textContent='ℹ️ جميع الأرقام موجودة مسبقاً.'; } } catch(err){ console.error(err); document.getElementById('studentNumbersUploadStatus').className='upload-status error'; document.getElementById('studentNumbersUploadStatus').textContent='❌ حدث خطأ أثناء قراءة الملف. تأكد من الصيغة.'; alert("❌ حدث خطأ أثناء قراءة ملف البيانات."); } }; reader.readAsArrayBuffer(file); }
+function handleStudentNumbersFileUpload(e){ const file=e.target.files[0]; if(!file) return; if(typeof XLSX==='undefined'){ alert("مكتبة قراءة الإكسل غير محملة!"); return; } const reader=new FileReader(); reader.onload=function(ev){ try { const data=new Uint8Array(ev.target.result), wb=XLSX.read(data,{type:'array'}), sheet=wb.Sheets[wb.SheetNames[0]], json=XLSX.utils.sheet_to_json(sheet,{header:1}); if(json.length<2){ alert("الملف فارغ!"); return; } const header=json[0]; let idCol=-1,nameCol=-1,classCol=-1; for(let i=0;i<header.length;i++){ const cell=header[i]?header[i].toString().trim():''; if(cell.includes('رقم')||cell.includes('هوية')||cell.includes('ID')||cell.includes('السجل')) idCol=i; else if(cell.includes('اسم')) nameCol=i; else if(cell.includes('فصل')||cell.includes('صف')) classCol=i; } if(idCol===-1) idCol=0; if(nameCol===-1) nameCol=1; const rows=[]; for(let r=1;r<json.length;r++){ const row=json[r]; if(!row||!row[idCol]||!row[nameCol]) continue; rows.push({id:row[idCol].toString().trim(),name:row[nameCol].toString().trim(),cls:classCol!==-1&&row[classCol]?row[classCol].toString().trim():''}); } if(rows.length===0){ alert("لم يتم العثور على بيانات صالحة في الملف."); return; } queryIdFileData=rows; queryIdFileName=file.name; document.getElementById('queryIdFileStatus').innerHTML=`✅ تم رفع الملف: ${file.name} (${rows.length} طالب)`; document.getElementById('queryIdFileStatus').style.color='var(--green)'; loadStudentNumberMap(); let saved=0; rows.forEach(item=>{ if(!queryStudentNumberMap[item.name]){ const match=item.id.match(/\d{5,}$/); if(match){ queryStudentNumberMap[item.name]=match[0].slice(-5); saved++; } } }); if(saved>0){ saveStudentNumberMap(); document.getElementById('queryIdFileStatus').innerHTML=`✅ تم رفع الملف وحفظ ${saved} رقم جديد.`; } } catch(err){ console.error(err); alert("❌ حدث خطأ أثناء قراءة ملف البيانات."); } }; reader.readAsArrayBuffer(file); }
 function renderStudentNumbersList(){ const sel=document.getElementById('studentNumbersClassSelect').value, cont=document.getElementById('studentNumbersListContainer'); if(sel==='__no_numbers__'){ const list=getStudentsWithoutNumbers(); if(list.length===0){ cont.innerHTML='<div style="text-align:center;color:#27ae60;padding:20px;font-weight:bold;">✅ جميع الطلاب لديهم أرقام!</div>'; return; } loadStudentNumberMap(); const dup=getDuplicateNames(); let html=''; list.forEach((item,index)=>{ const num=queryStudentNumberMap[item.name]||'', id='no-'+index, status=num?'unique':'missing', text=num?'✅ فريد':'🔴 بدون رقم', color=dup.includes(item.name)?'color:#FF3B30;':''; html+=`<div class="student-number-card" id="number-card-${id}"><div class="student-name-row"><span style="${color}">${item.name}</span><span class="student-class-tag">${item.class}</span></div><div class="number-row"><span class="number-display ${num?'':'missing'}" id="number-display-${id}">${num||'---'}</span><input type="text" class="number-input" id="number-input-${id}" value="${num}" maxlength="10" placeholder="رقم الطالب"><button class="btn-number-edit" id="number-edit-${id}" onclick="startEditNumber('${id}')">✏️ تعديل</button><button class="btn-number-save" id="number-save-${id}" onclick="saveEditNumber('${id}')">✅ حفظ</button><button class="btn-number-cancel" id="number-cancel-${id}" onclick="cancelEditNumber('${id}')">✖️ إلغاء</button><span class="number-status ${status}">${text}</span></div></div>`; }); cont.innerHTML=html; return; } if(!sel||!appData[sel]||appData[sel].length===0){ cont.innerHTML='<div style="text-align:center;color:#999;padding:20px;">لا يوجد طلاب في هذا الفصل</div>'; return; } loadStudentNumberMap(); const count={}; for(let s in queryStudentNumberMap){ const num=queryStudentNumberMap[s]; if(!count[num]) count[num]=[]; count[num].push(s); } const students=[...appData[sel]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames(); let html=''; students.forEach((s,index)=>{ const num=queryStudentNumberMap[s]||'', isDup=num&&count[num]&&count[num].length>1; let stCls='', stText='', disp=''; if(isDup){ stCls='duplicate'; stText='⚠️ مكرر'; disp='duplicate'; } else if(num){ stCls='unique'; stText='✅ فريد'; disp=''; } else { stCls='missing'; stText='🔴 بدون رقم'; disp='missing'; } const id=index, color=dup.includes(s)?'color:#FF3B30;':''; html+=`<div class="student-number-card" id="number-card-${id}"><div class="student-name-row"><span style="${color}">${s}</span><span class="student-class-tag">${sel}</span></div><div class="number-row"><span class="number-display ${disp}" id="number-display-${id}">${num||'---'}</span><input type="text" class="number-input" id="number-input-${id}" value="${num}" maxlength="10" placeholder="رقم الطالب"><button class="btn-number-edit" id="number-edit-${id}" onclick="startEditNumber('${id}')">✏️ تعديل</button><button class="btn-number-save" id="number-save-${id}" onclick="saveEditNumber('${id}')">✅ حفظ</button><button class="btn-number-cancel" id="number-cancel-${id}" onclick="cancelEditNumber('${id}')">✖️ إلغاء</button><span class="number-status ${stCls}">${stText}</span></div></div>`; }); cont.innerHTML=html; }
 function startEditNumber(id){ if(editingNumberIndex!==-1&&editingNumberIndex!==id) cancelEditNumber(editingNumberIndex); const card=document.getElementById(`number-card-${id}`); if(!card) return; const display=document.getElementById(`number-display-${id}`), input=document.getElementById(`number-input-${id}`); card.classList.add('editing'); input.value=display.textContent==='---'?'':display.textContent; input.focus(); input.select(); editingNumberIndex=id; }
 function cancelEditNumber(id){ const card=document.getElementById(`number-card-${id}`); if(!card) return; card.classList.remove('editing'); if(editingNumberIndex===id) editingNumberIndex=-1; }
