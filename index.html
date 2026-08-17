@@ -1272,40 +1272,71 @@ async function exportPeriodPDF(){ const cls=document.getElementById('followupCla
 function exportPeriodCSV(){ const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value; if(!cls||!appData[cls]) return alert("يرجى اختيار فصل أولاً!"); const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), unit=unitsData[currentActiveUnit]||{lessons:["درس 1"]}, lessons=unit.lessons, key=`${cls}_${currentActiveUnit}`, fData=followupData[key]||{}, units=[currentActiveUnit]; let csv="\uFEFFم,اسم الطالب,"; lessons.forEach(l=>csv+=`واجب ${l},`); lessons.forEach(l=>csv+=`نشاط ${l},`); csv+="المشاركة,اختبار الوحدة,المشروع,الواجبات (موزون),الأنشطة (موزون),المشاركة (موزون),الاختبار (موزون),المجموع الكلي\n"; students.forEach((s,i)=>{ const st=fData[s]||{hw:{},act:{},test1:'',test2:''}; csv+=`${i+1},${s},`; let hwSum=0,hwCnt=0; lessons.forEach(l=>{ let val=st.hw[l]!==undefined?st.hw[l]:''; csv+=`${val},`; let v=parseFloat(val); if(!isNaN(v)){ hwSum+=v; hwCnt++; } }); let actSum=0,actCnt=0; lessons.forEach(l=>{ let val=st.act[l]!==undefined?st.act[l]:''; csv+=`${val},`; let v=parseFloat(val); if(!isNaN(v)){ actSum+=v; actCnt++; } }); let part=calculateStudentParticipationScore(cls,s), t1=st.test1!==undefined?st.test1:'', t2=st.test2!==undefined?st.test2:''; csv+=`${part.toFixed(2)},${t1},${t2},`; const w=computeWeightedScores(cls,s,units); csv+=`${w.hw.toFixed(2)},${w.act.toFixed(2)},${w.participation.toFixed(2)},${w.test.toFixed(2)},${w.total.toFixed(2)}\n`; }); downloadFile(csv,`كشف_متابعة_${cls}_${currentActiveUnit}.csv`,'text/csv;charset=utf-8;'); }
 async function generatePeriodOrUnitPDF(unitName,filename,titleText){ const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value; if(!cls||!appData[cls]) return alert("يرجى اختيار فصل أولاً!"); try { const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), unit=unitsData[unitName]||{lessons:["درس 1"]}, lessons=unit.lessons, key=`${cls}_${unitName}`, fData=followupData[key]||{}, today=new Date().toLocaleDateString('ar-SA'), units=[unitName]; let header=`<tr style="background:#007AFF;color:white;font-size:7px;"><th rowspan="2" style="border:1px solid #007AFF;padding:2px;text-align:center;">#</th><th rowspan="2" style="border:1px solid #007AFF;padding:2px;text-align:right;min-width:70px;">اسم الطالب</th><th colspan="${lessons.length}" style="border:1px solid #007AFF;padding:2px;text-align:center;">الواجبات</th><th colspan="${lessons.length}" style="border:1px solid #007AFF;padding:2px;text-align:center;">الأنشطة</th><th rowspan="2" style="border:1px solid #007AFF;padding:2px;text-align:center;">المشاركة</th><th colspan="2" style="border:1px solid #007AFF;padding:2px;text-align:center;">الاختبارات والمشاريع</th><th colspan="4" style="border:1px solid #007AFF;padding:2px;text-align:center;">الدرجات الموزونة</th><th rowspan="2" style="border:1px solid #007AFF;padding:2px;text-align:center;">المجموع</th></tr><tr style="background:#f0f0f0;color:#333;font-size:6px;">`; lessons.forEach(l=>header+=`<th style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">${l}</th>`); lessons.forEach(l=>header+=`<th style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">${l}</th>`); header+=`<th style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">الاختبار</th><th style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">المشروع</th><th style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">الواجبات</th><th style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">الأنشطة</th><th style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">المشاركة</th><th style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">الاختبار</th></tr>`; let rows=''; students.forEach((s,i)=>{ const st=fData[s]||{hw:{},act:{},test1:'',test2:''}, w=computeWeightedScores(cls,s,units); let hwCells='', actCells=''; lessons.forEach(l=>{ let val=st.hw[l]!==undefined?st.hw[l]:''; hwCells+=`<td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">${val}</td>`; }); lessons.forEach(l=>{ let val=st.act[l]!==undefined?st.act[l]:''; actCells+=`<td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">${val}</td>`; }); let part=calculateStudentParticipationScore(cls,s), t1=st.test1!==undefined?st.test1:'', t2=st.test2!==undefined?st.test2:''; rows+=`<tr><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;font-weight:bold;color:#666;">${i+1}</td><td class="pdf-student-name-cell" style="border:1px solid #ddd;padding:1px;text-align:right;font-size:8px;font-weight:900;">${s}</td>${hwCells}${actCells}<td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;font-weight:bold;background:#f9f2fc;">${part.toFixed(2)}</td><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">${t1}</td><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;">${t2}</td><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;font-weight:bold;">${w.hw.toFixed(2)}</td><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;font-weight:bold;">${w.act.toFixed(2)}</td><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;font-weight:bold;">${w.participation.toFixed(2)}</td><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;font-weight:bold;">${w.test.toFixed(2)}</td><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:6px;font-weight:900;background:#eafaf1;color:#1e8449;">${w.total.toFixed(2)}</td></tr>`; }); const table=`<table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:6px;">${header}${rows}</table>`; const title=`كشف متابعة الدرجات والمهام - ${unitName}`; const sub=`<span>الفصل: ${cls}</span><span>تاريخ الإصدار: ${today}</span><span>عدد الطلاب: ${students.length}</span>`; const el=buildPdfElement(table,title,sub,'',getPdfSizes('periodUnit'));
     /* ===== إصلاح خاص بمشكلة قص الصفحة وفقدان الطلاب عند التصدير من Safari وتطبيق سطح المكتب (لا يؤثر على أي تصدير PDF آخر) =====
-       السبب: html2canvas يعتمد افتراضياً على أبعاد نافذة العرض الحالية (window.innerWidth/innerHeight) لضبط منطقة الالتقاط الداخلية.
-       في Safari وتطبيقات الويب على سطح المكتب (WKWebView) تكون هذه النافذة الداخلية غالباً أصغر من الارتفاع الحقيقي
-       لجدول كشف الوحدة عند وجود عدد كبير من الطلاب، فيتم اقتصاص كل ما يتجاوزها قبل أن تبدأ عملية تقسيم الصفحات أصلاً،
-       بينما متصفحات أخرى (مثل تطبيقات محرر HTML المبنية على Chromium) لا تتقيد بنفس القيد فتُخرج الكشف كاملاً.
-       الحل: إلحاق العنصر فعلياً بالمستند (بشكل غير مرئي تماماً للمستخدم) لقياس أبعاده الحقيقية الكاملة بدقة،
-       ثم تمرير هذه الأبعاد صراحة إلى html2canvas ليلتقط الجدول بكامل ارتفاعه دائماً، أياً كان حجم نافذة التطبيق الفعلية. */
-    el.style.position='absolute';
-    el.style.top='0';
-    el.style.left='0';
-    el.style.opacity='0.001';
-    el.style.pointerEvents='none';
-    el.style.zIndex='-1';
-    document.body.appendChild(el);
-    void el.offsetHeight; // إجبار المتصفح على إتمام التخطيط الكامل قبل القياس
-    const periodUnitFullWidth=Math.ceil(el.scrollWidth);
-    const periodUnitFullHeight=Math.ceil(el.scrollHeight);
+       السبب الحقيقي: عند تمرير عنصر غير ملحق أصلاً بالمستند إلى html2pdf، تقوم المكتبة داخلياً بإلحاقه ووضعه بطريقتها
+       الخاصة قبل الالتقاط. في Safari وتطبيقات الويب على سطح المكتب (WKWebView) هذه الطريقة الداخلية لا تلتقط الارتفاع
+       الكامل للجدول عند وجود عدد كبير من الطلاب، فيصل الملف الناتج مقصوصاً أو حتى صفحات فارغة تماماً.
+       الحل الجذري: تجاوز مسار html2pdf الداخلي كلياً لهذا التصدير فقط، باستخدام نفس الأسلوب المُثبت نجاحه فعلياً
+       في تصدير الإشعارات بهذا البرنامج (إلحاق العنصر يدوياً خارج حدود الشاشة بعرض/ارتفاع صريحين، ثم استدعاء
+       html2canvas مباشرة، ثم تقطيع الصورة الناتجة يدوياً إلى صفحات A4 عرضية عبر jsPDF). لا فرق مرئي في الناتج النهائي. */
+    const pdfPageWidthMm=297, pdfPageHeightMm=210, pdfMarginMm=3;
+    const mmToPx=96/25.4; // تحويل قياسي من مليمتر إلى بكسل بدقة 96 نقطة/بوصة
+    const usableWidthMm=pdfPageWidthMm-2*pdfMarginMm;
+    const usableHeightMm=pdfPageHeightMm-2*pdfMarginMm;
+    const captureWidthPx=Math.round(usableWidthMm*mmToPx);
+
+    const captureWrap=document.createElement('div');
+    captureWrap.style.cssText=`position:fixed;left:-9999px;top:0;width:${captureWidthPx}px;background:#ffffff;`;
+    captureWrap.appendChild(el);
+    document.body.appendChild(captureWrap);
+    void captureWrap.offsetHeight; // إجبار المتصفح على إتمام التخطيط الكامل قبل القياس والالتقاط
+
     try {
-      await exportPdf(el,filename,{
-        jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},
-        margin:3,
-        html2canvas:{
-          scale:2.0,
-          useCORS:true,
-          scrollX:0,
-          scrollY:0,
-          logging:false,
-          windowWidth:periodUnitFullWidth,
-          windowHeight:periodUnitFullHeight,
-          width:periodUnitFullWidth,
-          height:periodUnitFullHeight
-        }
+      const scale=2.0;
+      const fullWidthPx=captureWrap.scrollWidth;
+      const fullHeightPx=captureWrap.scrollHeight;
+      const sourceCanvas=await html2canvas(captureWrap,{
+        scale, useCORS:true, backgroundColor:'#ffffff', logging:false,
+        width:fullWidthPx, height:fullHeightPx
       });
+
+      const canvasPxPerMm=(sourceCanvas.width/usableWidthMm);
+      const pageHeightPx=Math.floor(usableHeightMm*canvasPxPerMm);
+      const totalPages=Math.max(1,Math.ceil(sourceCanvas.height/pageHeightPx));
+
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF('l','mm','a4');
+      for(let p=0;p<totalPages;p++){
+        const sliceY=p*pageHeightPx;
+        const sliceHeightPx=Math.min(pageHeightPx,sourceCanvas.height-sliceY);
+        if(sliceHeightPx<=0) break;
+        const pageCanvas=document.createElement('canvas');
+        pageCanvas.width=sourceCanvas.width;
+        pageCanvas.height=sliceHeightPx;
+        const ctx=pageCanvas.getContext('2d');
+        ctx.fillStyle='#ffffff';
+        ctx.fillRect(0,0,pageCanvas.width,pageCanvas.height);
+        ctx.drawImage(sourceCanvas,0,sliceY,sourceCanvas.width,sliceHeightPx,0,0,sourceCanvas.width,sliceHeightPx);
+        const imgData=pageCanvas.toDataURL('image/jpeg',0.98);
+        const sliceHeightMm=sliceHeightPx/canvasPxPerMm;
+        if(p>0) pdf.addPage();
+        pdf.addImage(imgData,'JPEG',pdfMarginMm,pdfMarginMm,usableWidthMm,sliceHeightMm);
+      }
+
+      const pdfBlob=pdf.output('blob');
+      const file=new File([pdfBlob],filename,{type:'application/pdf'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        try{ await navigator.share({files:[file],title:filename,text:'تقرير نظام المتابعة'}); return; }
+        catch(shareErr){ if(shareErr.name==='AbortError') return; }
+      }
+      const link=document.createElement('a');
+      link.href=URL.createObjectURL(pdfBlob);
+      link.download=filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(()=>URL.revokeObjectURL(link.href),5000);
     } finally {
-      if(el.parentNode) el.parentNode.removeChild(el);
+      if(captureWrap.parentNode) captureWrap.parentNode.removeChild(captureWrap);
     }
   } catch(err){ console.error(err); alert("حدث خطأ أثناء تصدير PDF."); } }
 async function exportPeriodSummaryPDF(){ const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value; if(!cls||!appData[cls]) return alert("يرجى اختيار فصل أولاً!"); try { const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), today=new Date().toLocaleDateString('ar-SA'), units=period1SelectedUnits.length?period1SelectedUnits:Object.keys(unitsData), unitsStr=units.join('، '); let html=`<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr style="background:#007AFF;color:white;"><th style="border:1px solid #007AFF;padding:3px;">#</th><th style="border:1px solid #007AFF;padding:3px;text-align:right;">اسم الطالب</th><th style="border:1px solid #007AFF;padding:3px;">الواجبات (موزونة)</th><th style="border:1px solid #007AFF;padding:3px;">الأنشطة (موزونة)</th><th style="border:1px solid #007AFF;padding:3px;">المشاركة</th><th style="border:1px solid #007AFF;padding:3px;">الاختبار/المشروع</th><th style="border:1px solid #007AFF;padding:3px;background:#1e8449;">المجموع الكلي</th></tr></thead><tbody>`; students.forEach((s,i)=>{ const w=computeWeightedScores(cls,s,units); html+=`<tr><td style="border:1px solid #ddd;padding:3px;text-align:center;">${i+1}</td><td class="pdf-student-name-cell" style="border:1px solid #ddd;padding:3px;text-align:right;font-weight:900;font-size:10px;">${s}</td><td style="border:1px solid #ddd;padding:3px;text-align:center;font-weight:bold;font-size:9px;">${w.hw.toFixed(2)}</td><td style="border:1px solid #ddd;padding:3px;text-align:center;font-weight:bold;font-size:9px;">${w.act.toFixed(2)}</td><td style="border:1px solid #ddd;padding:3px;text-align:center;font-weight:bold;background:#ebdef0;font-size:9px;">${w.participation.toFixed(2)}</td><td style="border:1px solid #ddd;padding:3px;text-align:center;font-weight:bold;font-size:9px;">${w.test.toFixed(2)}</td><td style="border:1px solid #1e8449;padding:3px;text-align:center;font-weight:bold;background:#d5f5e3;color:#1e8449;font-size:9px;">${w.total.toFixed(2)}</td></tr>`; }); html+='</tbody></table>'; const period=selectedPeriodName==='الأولى'?'الأولى':'الثانية'; const title=`خلاصة الفترة ${period} والدرجات الموزونة`; const sub=`<span>الفصل: ${cls}</span><span>التاريخ: ${today}</span><span>الوحدات: ${unitsStr}</span><span>عدد الطلاب: ${students.length}</span>`; const el=buildPdfElement(html,title,sub,'',getPdfSizes('periodSummary')); await exportPdf(el,`خلاصة_الفترة_${period}_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},margin:4}); } catch(err){ console.error(err); alert("حدث خطأ أثناء تصدير PDF."); } }
