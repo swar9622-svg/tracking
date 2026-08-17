@@ -1189,7 +1189,7 @@ async function exportPdf(element, filename, opt) {
       margin: [3, 3, 3, 3], // تقليل الهوامش لتوفير مساحة أكبر
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2.0, useCORS: true, scrollX: 0, scrollY: 0, logging: false }, // زيادة الدقة
-      pagebreak: { mode: 'css' }, // إزالة 'avoid-all' لمنع الفواصل القسرية
+      pagebreak: { mode: 'auto' }, // إزالة 'avoid-all' لمنع الفواصل القسرية
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } // تغيير إلى عرضي لتسع الجدول
     };
     const options = { ...defaultOpt, ...opt };
