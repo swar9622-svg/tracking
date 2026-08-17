@@ -1282,7 +1282,6 @@ async function generatePeriodOrUnitPDF(unitName,filename,titleText){
           today=new Date().toLocaleDateString('ar-SA'),
           units=[unitName];
 
-    // الحصول على أحجام الخطوط المختارة من الإعدادات
     const sz=getPdfSizes('periodUnit');
     const titleSize=sz.title;
     const headSize=sz.headers;
@@ -1326,7 +1325,6 @@ async function generatePeriodOrUnitPDF(unitName,filename,titleText){
     container.innerHTML='<div style="text-align:center;margin-bottom:6px;"><div style="font-size:'+titleSize+'px;font-weight:900;color:#007AFF;">'+(titleText||'كشف متابعة - '+unitName)+'</div><div style="font-size:'+(titleSize-4)+'px;color:#666;margin-top:2px;">الفصل: '+cls+' | التاريخ: '+today+' | الطلاب: '+students.length+'</div></div>'+fullTable;
     document.body.appendChild(container);
 
-    // انتظر حتى يُحسب العرض الفعلي
     const realWidth=container.scrollWidth;
     container.style.width=realWidth+'px';
 
@@ -1368,9 +1366,6 @@ async function generatePeriodOrUnitPDF(unitName,filename,titleText){
     alert('تم تصدير '+pageNum+' صفحة بنجاح!');
   } catch(err){
     console.error(err);
-    alert('حدث خطأ: '+err.message);
-  }
-} console.error(err);
     alert('حدث خطأ: '+err.message);
   }
 }
