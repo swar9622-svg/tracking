@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -17,7 +18,7 @@
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
   <script src="./xlsx.full.min.js"></script>
-  <title>📚 كشف المتابعة 11.5</title>
+  <title>📚 كشف المتابعة 11.6</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -248,7 +249,7 @@
   <!-- ===== الشاشة الأولى ===== -->
   <div id="absenceScreen" class="screen active-screen">
     <header>
-      <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.5)</div>
+      <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.6)</div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
         <input type="date" id="dateSelect" onchange="renderStudents()">
@@ -275,7 +276,7 @@
   <!-- ===== الشاشة الثانية ===== -->
   <div id="followupScreen" class="screen">
     <header>
-      <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.5)</div>
+      <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.6)</div>
     </header>
     <div class="top-action-bar">
       <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
@@ -1141,14 +1142,14 @@
 
     function calculateStudentParticipationScore(cls,student){ let score=10; for(let date in records){ if(records[date]&&records[date][cls]){ const rec=getStudentDayRecord(date,cls,student); if(rec.status==='غائب') score -= penaltiesData["غياب"]!==undefined?penaltiesData["غياب"]:1; else if(rec.status==='متأخر') score -= penaltiesData["تأخر"]!==undefined?penaltiesData["تأخر"]:0.5; if(rec.violations){ rec.violations.forEach(v=>{ score -= penaltiesData[v]!==undefined?penaltiesData[v]:0.5; }); } } } return score<0?0:score; }
 
-    // ===== تصدير PDF (مع إصلاح تخصيص حجم الخط والتوزيع الطبيعي) =====
+    // ===== تصدير PDF (مع إصلاح تخصيص حجم الخط والتوزيع الطبيعي ومنع تداخل الصفوف) =====
     async function exportPdf(element, filename, opt) {
       try {
         const defaultOpt = {
           margin: [4, 4, 4, 4],
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 1.8, useCORS: true, scrollX: 0, scrollY: 0, logging: false },
-          pagebreak: { mode: 'css' },
+          pagebreak: { mode: ['avoid-all', 'css'] }, // منع تقسيم العناصر
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
         const options = { ...defaultOpt, ...opt };
@@ -1185,7 +1186,7 @@
       }
     }
 
-    // ===== دالة buildPdfElement (بدون overflow:hidden، تسمح بالتوزيع الطبيعي) =====
+    // ===== دالة buildPdfElement (مع قواعد منع تقسيم الصفوف) =====
     function buildPdfElement(html, title, subtitle, footer = '', sizes = null) {
       const family = fontSettings.family;
       const display = family.replace(/\+/g, ' ');
@@ -1210,7 +1211,20 @@
         fontCss = `*{font-family:'${display}',sans-serif!important;font-weight:${weight}!important}`;
       }
       const sz = sizes || PDF_SIZE_FALLBACK;
-      const sizeCss = `.pdf-report-title{font-size:${sz.title}px!important}.pdf-table-wrap th{font-size:${sz.headers}px!important}.pdf-table-wrap td{font-size:${sz.data}px!important}.pdf-table-wrap .pdf-student-name-cell{font-size:${sz.names}px!important}.pdf-table-wrap tr{page-break-inside:avoid!important;break-inside:avoid!important}`;
+      const sizeCss = `
+        .pdf-report-title{font-size:${sz.title}px!important}
+        .pdf-table-wrap th{font-size:${sz.headers}px!important}
+        .pdf-table-wrap td{font-size:${sz.data}px!important}
+        .pdf-table-wrap .pdf-student-name-cell{font-size:${sz.names}px!important}
+        .pdf-table-wrap tr, .pdf-table-wrap td, .pdf-table-wrap th, .pdf-table-wrap table {
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
+        .pdf-table-wrap {
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
+      `;
       div.innerHTML = `<style>${fontUrl}html{font-size:${px}px!important}${fontCss}${sizeCss}</style>
         <div style="text-align:center;border-bottom:2px solid #007AFF;padding-bottom:4px;margin-bottom:6px;">
           <h1 class="pdf-report-title" style="margin:0;font-size:1rem;color:#007AFF;font-weight:900;">${title}</h1>
@@ -1223,7 +1237,7 @@
       return div;
     }
 
-    // ===== إعدادات أحجام الخطوط الافتراضية (قابلة للتخصيص من النافذة) =====
+    // ===== إعدادات أحجام الخطوط الافتراضية =====
     const PDF_SIZE_FALLBACK = { title: 16, headers: 11, names: 13, data: 11 };
     const PDF_REPORT_DEFAULTS = {
       singleStudent:    { title: 16, headers: 11, names: 11, data: 11 },
@@ -1243,9 +1257,6 @@
     async function confirmPdfSizeExport(){ if(!pendingPdfReportKey) return; const key=pendingPdfReportKey, def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK; const t=parseFloat(document.getElementById('pdfSizeTitleInput').value), h=parseFloat(document.getElementById('pdfSizeHeadersInput').value), n=parseFloat(document.getElementById('pdfSizeNamesInput').value), d=parseFloat(document.getElementById('pdfSizeDataInput').value); pdfSizeSettings[key]={title:isNaN(t)?def.title:t,headers:isNaN(h)?def.headers:h,names:isNaN(n)?def.names:n,data:isNaN(d)?def.data:d}; localStorage.setItem('attendance_pdf_size_settings',JSON.stringify(pdfSizeSettings)); document.getElementById('pdfSizeSettingsModal').style.display='none'; try{ switch(key){ case'singleStudent':await exportSingleStudentPDF(); break; case'reportSummary':case'reportViolations':await generatePDF(); break; case'followupCurrent':await exportFollowupReportModalPDF(); break; case'periodUnit':await exportPeriodPDF(); break; case'periodSummary':await exportPeriodSummaryPDF(); break; } }finally{ pendingPdfReportKey=null; } }
 
     // ===== دوال التصدير =====
-    // دوال exportFollowupReportModalPDF, generatePDF, exportPeriodPDF, generatePeriodOrUnitPDF, exportPeriodSummaryPDF
-    // مع تعديل generatePeriodOrUnitPDF ليكون اتجاهه عرضي (landscape)
-
     async function exportFollowupReportModalPDF() {
       const cls = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       if (!cls || !appData[cls]) { alert("يرجى اختيار فصل أولاً!"); return; }
@@ -1373,7 +1384,6 @@
       } catch (err) { console.error(err); } finally { btn.innerText = orig; btn.disabled = false; }
     }
 
-    // ===== دالة generatePeriodOrUnitPDF مع الاتجاه العرضي =====
     async function generatePeriodOrUnitPDF(unitName, filename, titleText) {
       const cls = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
       if (!cls || !appData[cls]) return alert("يرجى اختيار فصل أولاً!");
@@ -1439,7 +1449,7 @@
         const title = `كشف متابعة الدرجات والمهام - ${unitName}`;
         const sub = `<span>الفصل: ${cls}</span><span>تاريخ الإصدار: ${today}</span><span>عدد الطلاب: ${students.length}</span>`;
         const element = buildPdfElement(tableHtml, title, sub, '', sizes);
-        // التعديل الرئيسي: فرض الاتجاه العرضي (landscape)
+        // الاتجاه العرضي لكشف الوحدة
         await exportPdf(element, filename, { jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }, margin: 6 });
       } catch (err) {
         console.error(err);
