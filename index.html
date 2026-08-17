@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -17,7 +18,7 @@
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
   <script src="./xlsx.full.min.js"></script>
-  <title>📚 كشف المتابعة 11.3</title>
+  <title>📚 كشف المتابعة 11.4</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -241,14 +242,36 @@
     .import-export-modal .btn-import-option:active { opacity: 0.8; }
     .import-export-modal .btn-export-option { background-color: #2ECC71; }
     .import-export-modal .btn-import-option-import { background-color: var(--accent); }
-    @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
+    
+    /* ========================================================== */
+    /* تحديث حل مشكلة الطباعة في Safari و GitHub (11.4)            */
+    /* ========================================================== */
+    @media print { 
+      .no-print { display: none !important; } 
+      body { background: white; padding: 0; margin: 0; } 
+      .modal { position: static; background: none; padding: 0; } 
+      .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } 
+
+      @page { 
+          size: A4 landscape; 
+          margin: 0.5cm !important; 
+      }
+      
+      table, tr, td, th, .followup-table, .followup-table-container {
+          page-break-inside: auto !important;
+          break-inside: auto !important;
+          overflow: visible !important;
+          -webkit-print-color-adjust: exact !important;
+      }
+    }
+    /* ========================================================== */
   </style>
 </head>
 <body>
 <!-- ===== الشاشة الأولى ===== -->
 <div id="absenceScreen" class="screen active-screen">
   <header>
-    <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.3)</div>
+    <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.4)</div>
     <div class="controls-bar">
       <select id="classSelect" onchange="renderStudents()"></select>
       <input type="date" id="dateSelect" onchange="renderStudents()">
@@ -275,7 +298,7 @@
 <!-- ===== الشاشة الثانية ===== -->
 <div id="followupScreen" class="screen">
   <header>
-    <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.3)</div>
+    <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.4)</div>
   </header>
   <div class="top-action-bar">
     <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
@@ -731,12 +754,36 @@ let defaultUnits = {
 let defaultPenalties = {"غياب":1,"تأخر":0.5};
 VIOLATIONS_LIST.forEach(v=>defaultPenalties[v]=0.5);
 
-let appData = JSON.parse(localStorage.getItem('attendance_app_data')) || defaultData;
-let records = JSON.parse(localStorage.getItem('attendance_records')) || {};
-let unitsData = JSON.parse(localStorage.getItem('attendance_units_data')) || defaultUnits;
-let followupData = JSON.parse(localStorage.getItem('attendance_followup_data')) || {};
-let penaltiesData = JSON.parse(localStorage.getItem('attendance_penalties_data')) || defaultPenalties;
-let period1SelectedUnits = JSON.parse(localStorage.getItem('attendance_period1_selected_units')) || [];
+// ===== إضافة حماية ضد انهيار التطبيق عند قراءة التخزين المحلي =====
+let appData = defaultData;
+let records = {};
+let unitsData = defaultUnits;
+let followupData = {};
+let penaltiesData = defaultPenalties;
+let period1SelectedUnits = [];
+
+try {
+  const storedAppData = localStorage.getItem('attendance_app_data');
+  if(storedAppData) appData = JSON.parse(storedAppData);
+
+  const storedRecords = localStorage.getItem('attendance_records');
+  if(storedRecords) records = JSON.parse(storedRecords);
+
+  const storedUnitsData = localStorage.getItem('attendance_units_data');
+  if(storedUnitsData) unitsData = JSON.parse(storedUnitsData);
+
+  const storedFollowupData = localStorage.getItem('attendance_followup_data');
+  if(storedFollowupData) followupData = JSON.parse(storedFollowupData);
+
+  const storedPenaltiesData = localStorage.getItem('attendance_penalties_data');
+  if(storedPenaltiesData) penaltiesData = JSON.parse(storedPenaltiesData);
+
+  const storedPeriod1 = localStorage.getItem('attendance_period1_selected_units');
+  if(storedPeriod1) period1SelectedUnits = JSON.parse(storedPeriod1);
+} catch(e) {
+  console.warn("حدث خطأ في قراءة بيانات التخزين المحلي، تم تحميل البيانات الافتراضية.", e);
+}
+
 let selectedPeriodName = 'الأولى';
 let currentActiveUnit = Object.keys(unitsData)[0] || "الوحدة الأولى";
 let currentStudentForViolation = '';
@@ -1286,7 +1333,7 @@ function executeResetAllData(){ const div=document.querySelector('div[style*="po
 
 // ===== إشعارات الطلاب =====
 const NOTIF_STORAGE_KEY='notification_export_settings';
-function loadNotificationSettings(){ try { const saved=JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY)); if(saved){ document.getElementById('notificationTopText').value=saved.topText||''; document.getElementById('notificationBottomText').value=saved.bottomText||''; document.getElementById('notificationRowsPerColumn').value=saved.rowsPerColumn||8; document.getElementById('notificationTableFontSize').value=saved.tableFontSize||7; document.getElementById('notificationTextFontSize').value=saved.textFontSize||11; const q=saved.quality||0.85, sel=document.getElementById('notificationQualitySelect'); let found=false; for(let opt of sel.options){ if(parseFloat(opt.value)===q){ sel.value=opt.value; found=true; break; } } if(!found){ sel.value='custom'; document.getElementById('notificationQualityCustom').value=q; document.getElementById('notificationQualityCustom').style.display='inline-block'; } if(saved.selectedUnits){ document.querySelectorAll('#notificationUnitCheckboxes input[type="checkbox"]').forEach(cb=>{ cb.checked=saved.selectedUnits.includes(cb.value); }); } } } catch(e){} }
+function loadNotificationSettings(){ try { const saved=JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY)); if(saved){ document.getElementById('notificationTopText').value=saved.topText||''; document.getElementById('notificationBottomText').value=saved.bottomText||''; document.getElementById('notificationRowsPerColumn').value=saved.rowsPerColumn||8; document.getElementById('notificationTableFontSize').value=saved.tableFontSize||7; document.getElementById('notificationTextFontSize').value=saved.textFontSize||11; const q=saved.quality||0.85, sel=document.getElementById('notificationQualitySelect'); let found=false; for(let opt of sel.options){ if(parseFloat(opt.value)===q){ sel.value=opt.value; found=true; break; } } if(!found){ sel.value='custom'; document.getElementById('notificationQualityCustom').value=q; document.getElementById('notificationQualityCustom').style.display='inline-block'; } if(saved.selectedUnits){ document.querySelectorAll('#notificationUnitCheckboxes input[type="checkbox"]').forEach(cb=>{ cb.checked=saved.selectedUnits.includes(cb.value); }); } } catch(e){} }
 function saveNotificationSettings(){ try { const checkboxes=document.querySelectorAll('#notificationUnitCheckboxes input[type="checkbox"]'), selected=[]; checkboxes.forEach(cb=>{ if(cb.checked) selected.push(cb.value); }); let q=0.85; const sel=document.getElementById('notificationQualitySelect'); if(sel.value==='custom') q=parseFloat(document.getElementById('notificationQualityCustom').value)||0.85; else q=parseFloat(sel.value)||0.85; const settings={topText:document.getElementById('notificationTopText').value,bottomText:document.getElementById('notificationBottomText').value,rowsPerColumn:document.getElementById('notificationRowsPerColumn').value,tableFontSize:document.getElementById('notificationTableFontSize').value,textFontSize:document.getElementById('notificationTextFontSize').value,quality:q,selectedUnits:selected}; localStorage.setItem(NOTIF_STORAGE_KEY,JSON.stringify(settings)); } catch(e){} }
 document.addEventListener('change',function(e){ if(e.target&&e.target.id==='notificationQualitySelect'){ const sel=e.target; const cust=document.getElementById('notificationQualityCustom'); if(sel.value==='custom') cust.style.display='inline-block'; else cust.style.display='none'; } });
 function openNotificationExportModal(){ const cont=document.getElementById('notificationUnitCheckboxes'); cont.innerHTML=''; const all=Object.keys(unitsData); if(all.length===0){ cont.innerHTML='<div style="text-align:center;padding:10px;color:#999;">لا توجد وحدات مسجلة.</div>'; return; } all.forEach(u=>{ const label=document.createElement('label'); label.className='unit-check-item'; const cb=document.createElement('input'); cb.type='checkbox'; cb.value=u; cb.checked=true; label.appendChild(cb); label.appendChild(document.createTextNode(` ${u}`)); cont.appendChild(label); }); loadNotificationSettings(); document.getElementById('notificationExportModal').style.display='flex'; document.getElementById('notificationExportModal').style.zIndex='120'; }
