@@ -1174,9 +1174,10 @@
         rowHtml+=`<td style="background:#FDEDEC;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${t1}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent('الاختبار')}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'test1','',20)"></td>`;
         let t2=stData.test2!==undefined?stData.test2:'';
         let link = stData.projectLink || '';
+        let linkIcon = link ? '🔗' : '⛓️‍💥';
         rowHtml+=`<td style="background:#FDEDEC;padding:4px;white-space:nowrap;">
           <input type="number" step="0.5" min="0" max="20" value="${t2}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent('المشروع')}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'test2','',20)">
-          <button class="project-link-btn" data-student="${encodeURIComponent(student)}" data-class="${encodeURIComponent(cls)}" data-unit="${encodeURIComponent(unitName)}" style="display:${t2!==''?'inline-block':'none'};border:none;background:none;cursor:pointer;font-size:14px;padding:0 4px;" onclick="openProjectLinkModal('${encodeURIComponent(student)}','${encodeURIComponent(cls)}','${encodeURIComponent(unitName)}')">🔗</button>
+          <button class="project-link-btn" data-student="${encodeURIComponent(student)}" data-class="${encodeURIComponent(cls)}" data-unit="${encodeURIComponent(unitName)}" style="border:none;background:none;cursor:pointer;font-size:16px;padding:0 4px;" onclick="openProjectLinkModal('${encodeURIComponent(student)}','${encodeURIComponent(cls)}','${encodeURIComponent(unitName)}')">${linkIcon}</button>
         </td>`;
         const w=computeWeightedScores(cls,student,unitsForWeighted);
         rowHtml+=`<td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.hw.toFixed(2)}</td><td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.act.toFixed(2)}</td>
@@ -1234,6 +1235,9 @@
       alert('تم حفظ الرابط بنجاح!');
     }
     function openProjectLink() {
+      // إغلاق النافذة المنبثقة أولاً
+      closeProjectLinkModal();
+      
       let link = document.getElementById('projectLinkInput').value.trim();
       if (!link) {
         alert('لا يوجد رابط لفتحه');
