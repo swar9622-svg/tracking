@@ -1282,6 +1282,13 @@ async function generatePeriodOrUnitPDF(unitName,filename,titleText){
           today=new Date().toLocaleDateString('ar-SA'),
           units=[unitName];
 
+    // الحصول على أحجام الخطوط المختارة من الإعدادات
+    const sz=getPdfSizes('periodUnit');
+    const titleSize=sz.title;
+    const headSize=sz.headers;
+    const nameSize=sz.names;
+    const dataSize=sz.data;
+
     let headerCells=['#','اسم الطالب'];
     lessons.forEach(l=>headerCells.push('واجب '+l));
     lessons.forEach(l=>headerCells.push('نشاط '+l));
@@ -1291,38 +1298,42 @@ async function generatePeriodOrUnitPDF(unitName,filename,titleText){
     students.forEach((s,i)=>{
       const st=fData[s]||{hw:{},act:{},test1:'',test2:''}, w=computeWeightedScores(cls,s,units);
       const part=calculateStudentParticipationScore(cls,s);
-      let cells='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:7px;font-weight:bold;">'+(i+1)+'</td>';
-      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:right;font-size:8px;font-weight:900;white-space:nowrap;">'+s+'</td>';
-      lessons.forEach(l=>{ const v=st.hw[l]; cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:7px;">'+(v!==undefined?v:'')+'</td>'; });
-      lessons.forEach(l=>{ const v=st.act[l]; cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:7px;">'+(v!==undefined?v:'')+'</td>'; });
-      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:7px;font-weight:bold;background:#f9f2fc;">'+part.toFixed(2)+'</td>';
-      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:7px;">'+(st.test1!==undefined?st.test1:'')+'</td>';
-      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:7px;">'+(st.test2!==undefined?st.test2:'')+'</td>';
-      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:7px;font-weight:bold;">'+w.hw.toFixed(2)+'</td>';
-      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:7px;font-weight:bold;">'+w.act.toFixed(2)+'</td>';
-      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:7px;font-weight:bold;">'+w.participation.toFixed(2)+'</td>';
-      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:7px;font-weight:bold;">'+w.test.toFixed(2)+'</td>';
-      cells+='<td style="border:1px solid #1e8449;padding:2px;text-align:center;font-size:7px;font-weight:900;background:#d5f5e3;color:#1e8449;">'+w.total.toFixed(2)+'</td>';
+      let cells='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:'+dataSize+'px;font-weight:bold;">'+(i+1)+'</td>';
+      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:right;font-size:'+nameSize+'px;font-weight:900;white-space:nowrap;">'+s+'</td>';
+      lessons.forEach(l=>{ const v=st.hw[l]; cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:'+dataSize+'px;">'+(v!==undefined?v:'')+'</td>'; });
+      lessons.forEach(l=>{ const v=st.act[l]; cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:'+dataSize+'px;">'+(v!==undefined?v:'')+'</td>'; });
+      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:'+dataSize+'px;font-weight:bold;background:#f9f2fc;">'+part.toFixed(2)+'</td>';
+      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:'+dataSize+'px;">'+(st.test1!==undefined?st.test1:'')+'</td>';
+      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:'+dataSize+'px;">'+(st.test2!==undefined?st.test2:'')+'</td>';
+      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:'+dataSize+'px;font-weight:bold;">'+w.hw.toFixed(2)+'</td>';
+      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:'+dataSize+'px;font-weight:bold;">'+w.act.toFixed(2)+'</td>';
+      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:'+dataSize+'px;font-weight:bold;">'+w.participation.toFixed(2)+'</td>';
+      cells+='<td style="border:1px solid #ccc;padding:2px;text-align:center;font-size:'+dataSize+'px;font-weight:bold;">'+w.test.toFixed(2)+'</td>';
+      cells+='<td style="border:1px solid #1e8449;padding:2px;text-align:center;font-size:'+dataSize+'px;font-weight:900;background:#d5f5e3;color:#1e8449;">'+w.total.toFixed(2)+'</td>';
       rowsHtml+='<tr>'+cells+'</tr>';
     });
 
     let headerHtml='';
     headerCells.forEach((h,i)=>{
       const w=i===0?'30px':(i===1?'120px':'auto');
-      headerHtml+='<th style="border:1px solid #007AFF;background:#007AFF;color:white;padding:2px;text-align:center;font-size:7px;font-weight:bold;white-space:nowrap;min-width:'+w+';">'+h+'</th>';
+      headerHtml+='<th style="border:1px solid #007AFF;background:#007AFF;color:white;padding:2px;text-align:center;font-size:'+headSize+'px;font-weight:bold;white-space:nowrap;min-width:'+w+';">'+h+'</th>';
     });
 
     const fullTable='<table style="width:100%;border-collapse:collapse;font-family:sans-serif;table-layout:auto;"><thead><tr>'+headerHtml+'</tr></thead><tbody>'+rowsHtml+'</tbody></table>';
 
     const container=document.createElement('div');
-    container.style.cssText='position:fixed;left:-9999px;top:0;width:1200px;background:#fff;padding:10px;direction:rtl;';
-    container.innerHTML='<div style="text-align:center;margin-bottom:6px;"><div style="font-size:14px;font-weight:900;color:#007AFF;">'+(titleText||'كشف متابعة - '+unitName)+'</div><div style="font-size:10px;color:#666;margin-top:2px;">الفصل: '+cls+' | التاريخ: '+today+' | الطلاب: '+students.length+'</div></div>'+fullTable;
+    container.style.cssText='position:fixed;left:-9999px;top:0;background:#fff;padding:10px;direction:rtl;';
+    container.innerHTML='<div style="text-align:center;margin-bottom:6px;"><div style="font-size:'+titleSize+'px;font-weight:900;color:#007AFF;">'+(titleText||'كشف متابعة - '+unitName)+'</div><div style="font-size:'+(titleSize-4)+'px;color:#666;margin-top:2px;">الفصل: '+cls+' | التاريخ: '+today+' | الطلاب: '+students.length+'</div></div>'+fullTable;
     document.body.appendChild(container);
+
+    // انتظر حتى يُحسب العرض الفعلي
+    const realWidth=container.scrollWidth;
+    container.style.width=realWidth+'px';
 
     const canvas=await html2canvas(container,{
       scale:2, useCORS:true, logging:false,
-      width:container.scrollWidth, height:container.scrollHeight,
-      windowWidth:container.scrollWidth, windowHeight:container.scrollHeight
+      width:realWidth, height:container.scrollHeight,
+      windowWidth:realWidth, windowHeight:container.scrollHeight
     });
 
     document.body.removeChild(container);
@@ -1357,6 +1368,9 @@ async function generatePeriodOrUnitPDF(unitName,filename,titleText){
     alert('تم تصدير '+pageNum+' صفحة بنجاح!');
   } catch(err){
     console.error(err);
+    alert('حدث خطأ: '+err.message);
+  }
+} console.error(err);
     alert('حدث خطأ: '+err.message);
   }
 }
