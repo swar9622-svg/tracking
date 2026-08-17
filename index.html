@@ -17,7 +17,7 @@
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
   <script src="./xlsx.full.min.js"></script>
-  <title>📚 كشف المتابعة 11.3</title>
+  <title>📚 كشف المتابعة 11.6</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -241,14 +241,27 @@
     .import-export-modal .btn-import-option:active { opacity: 0.8; }
     .import-export-modal .btn-export-option { background-color: #2ECC71; }
     .import-export-modal .btn-import-option-import { background-color: var(--accent); }
-    @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
+    
+    @media print { 
+      .no-print { display: none !important; } 
+      body { background: white; padding: 0; margin: 0; } 
+      .modal { position: static; background: none; padding: 0; } 
+      .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } 
+      @page { size: A4 landscape; margin: 0.5cm !important; }
+      table, tr, td, th, .followup-table, .followup-table-container {
+          page-break-inside: auto !important;
+          break-inside: auto !important;
+          overflow: visible !important;
+          -webkit-print-color-adjust: exact !important;
+      }
+    }
   </style>
 </head>
 <body>
 <!-- ===== الشاشة الأولى ===== -->
 <div id="absenceScreen" class="screen active-screen">
   <header>
-    <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.3)</div>
+    <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.6)</div>
     <div class="controls-bar">
       <select id="classSelect" onchange="renderStudents()"></select>
       <input type="date" id="dateSelect" onchange="renderStudents()">
@@ -275,7 +288,7 @@
 <!-- ===== الشاشة الثانية ===== -->
 <div id="followupScreen" class="screen">
   <header>
-    <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.3)</div>
+    <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.6)</div>
   </header>
   <div class="top-action-bar">
     <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
@@ -1166,7 +1179,7 @@ async function exportPdf(element, filename, opt) {
     const defaultOpt = {
       margin: [3, 3, 3, 3], // تقليل الهوامش لتوفير مساحة أكبر
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2.0, useCORS: true, scrollX: 0, scrollY: 0, logging: false }, // زيادة الدقة
+      html2canvas: { scale: 2.0, useCORS: true, scrollX: 0, scrollY: 0, logging: false, width: element.scrollWidth, height: element.scrollHeight }, // إضافة الحل النهائي للالتقاط الكامل
       pagebreak: { mode: 'css' }, // إزالة 'avoid-all' لمنع الفواصل القسرية
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } // تغيير إلى عرضي لتسع الجدول
     };
