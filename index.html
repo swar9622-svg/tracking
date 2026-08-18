@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "13.0";</script>
+  <script>const APP_VERSION = "13.1";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2670,8 +2670,8 @@
                 curUnit='';
                 return;
               }
-              const changed=row.unit!==curUnit; curUnit=row.unit;
-              const bg=changed?getColor(row.unit):(i%2===0?'#F9F9FB':'#FFFFFF');
+              curUnit=row.unit;
+              const bg=getColor(row.unit);
               const display=row.isFirst?row.unit:'';
               main+=`<tr style="background:${bg};"><td style="border:1px solid #ddd;padding:1px;text-align:center;font-weight:bold;font-size:${tableSize-1}px;">${display}</td><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:${tableSize-1}px;">${row.lesson}</td><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:${tableSize-1}px;">${row.hw}</td><td style="border:1px solid #ddd;padding:1px;text-align:center;font-size:${tableSize-1}px;">${row.act}</td></tr>`;
             });
