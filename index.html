@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "12.9";</script>
+  <script>const APP_VERSION = "13.0";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -463,7 +463,7 @@
     </div>
   </div>
 
-  <div class="modal" id="studentNumbersModal" style="z-index:115;">
+  <div class="modal" id="studentNumbersModal" style="z-index:135;">
     <div class="modal-content" style="max-width:550px;width:95%;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div class="modal-title" style="margin:0;font-size:1rem;">🔢 أرقام الطلاب</div>
@@ -2627,8 +2627,10 @@
       const top=document.getElementById('notificationTopText').value.trim()||'نحيطكم علماً بأن مستوى الطالب خلال هذه الفترة كان كالتالي:';
       const bot=document.getElementById('notificationBottomText').value.trim()||'نشكر تعاونكم معنا، ونسأل الله التوفيق للجميع.';
       const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), today=new Date().toLocaleDateString('ar-SA');
-      const colors={'الوحدة الأولى':'#E8F4FD','الوحدة الثانية':'#FEF9E7','الوحدة الثالثة':'#FDEBD0','الوحدة الرابعة':'#E8F8F5','الوحدة الخامسة':'#F5EEF8','الوحدة السادسة':'#FDEDEC'};
-      function getColor(u){ return colors[u]||'#F2F2F7'; }
+      const colorPalette=['#E8F4FD','#FEF9E7','#FDEBD0','#E8F8F5','#F5EEF8','#FDEDEC','#EAF2F8','#FEF9E3','#EBF5FB','#F4ECF7','#FDF2E9','#E9F7EF'];
+      const unitColorMap={};
+      selected.forEach((u,i)=>{ unitColorMap[u]=colorPalette[i%colorPalette.length]; });
+      function getColor(u){ return unitColorMap[u]||'#F2F2F7'; }
       function getDarkColor(u){ return darkenColor(getColor(u), 0.22); }
       const temp=document.createElement('div'); temp.style.cssText='position:fixed;left:-9999px;top:0;width:210mm;background:#ffffff;padding:10mm;direction:rtl;box-sizing:border-box;'; document.body.appendChild(temp);
       const images=[];
