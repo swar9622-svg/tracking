@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "12.6";</script>
+  <script>const APP_VERSION = "12.7";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1651,30 +1651,58 @@
       const unit=unitsData[unitName]||{lessons:["درس 1"]}, lessons=unit.lessons, key=`${cls}_${unitName}`;
       if(!followupData[key]) followupData[key]={};
       const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames();
-      let headHtml=`<tr><th rowspan="2" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;">#</th><th rowspan="2" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;text-align:right;min-width:120px;">اسم الطالب</th>
+
+      // بناء رأس الجدول مع العمودين الجديدين
+      let headHtml = `<tr>
+        <th rowspan="2" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;">#</th>
+        <th rowspan="2" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;text-align:right;min-width:120px;">اسم الطالب</th>
         <th colspan="${lessons.length}" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;position:relative;">الواجبات (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button></span></th>
+        <th rowspan="2" style="background:#B8D9C1;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;">موزونه واجب</th>
         <th colspan="${lessons.length}" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
+        <th rowspan="2" style="background:#E5D9A0;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">موزونه نشاط</th>
         <th rowspan="2" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;">المشاركة</th>
         <th colspan="2" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;position:relative;">الاختبارات والمشاريع (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span></th>
-        <th colspan="4" style="background:#D6EAF8;color:#1B4F72;text-align:center;">الدرجات الموزونة</th>
-        <th rowspan="2" style="background:#D5F5E3;color:#1E8449;vertical-align:middle;text-align:center;min-width:80px;">المجموع الكلي</th></tr><tr>`;
+        <th colspan="4" style="background:#D6EAF8;color:#1B4F72;text-align:center;">الموزونه + المشروع (الخلاصه)</th>
+        <th rowspan="2" style="background:#D5F5E3;color:#1E8449;vertical-align:middle;text-align:center;min-width:80px;">المجموع الكلي</th>
+      </tr>
+      <tr>`;
+      // الدروس
       lessons.forEach(l=>{ headHtml+=`<th style="background:#EAFAF1;color:#117A65;font-size:11px;">${l}</th>`; });
+      // لا يوجد عمود بين الواجبات والأنشطة في الصف الثاني (لأن العمود الجديد يمتد من الصف الأول)
       lessons.forEach(l=>{ headHtml+=`<th style="background:#FEF9E7;color:#7D6608;font-size:11px;">${l}</th>`; });
+      // لا يوجد عمود بين الأنشطة والمشاركة في الصف الثاني
       headHtml+=`<th style="background:#FDEDEC;color:#78281F;font-size:11px;">الاختبار</th>
         <th style="background:#FDEDEC;color:#78281F;font-size:11px;">المشروع <button class="import-icon-btn import-icon-test" onclick="openProjectLinksImportExport()" title="تصدير/استيراد روابط المشاريع">📁</button></th>
-        <th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الواجبات</th><th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الأنشطة</th>
-        <th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">المشاركة</th><th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الاختبار</th></tr>`;
+        <th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الواجبات</th>
+        <th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الأنشطة</th>
+        <th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">المشاركة</th>
+        <th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الاختبار</th>
+      </tr>`;
+
       document.getElementById('followupTableHead').innerHTML=headHtml;
       const tbody=document.getElementById('followupTableBody'); tbody.innerHTML='';
       const unitsForWeighted=[unitName];
+
       students.forEach((student,idx)=>{
         if(!followupData[key][student]) followupData[key][student]={hw:{},act:{},test1:'',test2:'',projectLink:''};
         const stData=followupData[key][student], isDup=dup.includes(student), nameColor=isDup?'color:#FF3B30;':'';
+        const unitWeight = computeUnitWeighted(cls, student, unitName);
+        const hwAvg = unitWeight.hw; // متوسط الواجبات (قبل إضافة المشروع)
+        const actAvg = unitWeight.act; // متوسط الأنشطة (قبل إضافة المشروع)
+
         let rowHtml=`<td style="font-weight:bold;color:var(--text-secondary);">${idx+1}</td><td class="student-name-td" style="font-weight:900;font-size:14px;text-align:right;${nameColor}" onclick="toggleFollowupRowHighlight(this)">${student}</td>`;
+        // الواجبات
         lessons.forEach(l=>{ let val=(stData.hw&&stData.hw[l]!==undefined)?stData.hw[l]:''; rowHtml+=`<td style="background:#EAFAF1;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'hw','${encodeURIComponent(l)}',10)"></td>`; });
+        // عمود موزونه واجب
+        rowHtml+=`<td style="background:#D5E8D9;font-weight:bold;text-align:center;font-size:0.8rem;">${hwAvg.toFixed(2)}</td>`;
+        // الأنشطة
         lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',20)"></td>`; });
+        // عمود موزونه نشاط
+        rowHtml+=`<td style="background:#E8E0C5;font-weight:bold;text-align:center;font-size:0.8rem;">${actAvg.toFixed(2)}</td>`;
+        // مشاركة
         let part=calculateStudentParticipationScore(cls,student);
         rowHtml+=`<td style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${part.toFixed(2)}</td>`;
+        // اختبار ومشروع
         let t1=stData.test1!==undefined?stData.test1:'';
         rowHtml+=`<td style="background:#FDEDEC;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${t1}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent('الاختبار')}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'test1','',20)"></td>`;
         let t2=stData.test2!==undefined?stData.test2:'';
@@ -1684,15 +1712,19 @@
           <input type="number" step="0.5" min="0" max="20" value="${t2}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent('المشروع')}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'test2','',20)">
           <button class="project-link-btn" data-student="${encodeURIComponent(student)}" data-class="${encodeURIComponent(cls)}" data-unit="${encodeURIComponent(unitName)}" style="border:none;background:none;cursor:pointer;font-size:16px;padding:0 4px;" onclick="openProjectLinkModal('${encodeURIComponent(student)}','${encodeURIComponent(cls)}','${encodeURIComponent(unitName)}')">${linkIcon}</button>
         </td>`;
+        // الأعمدة الأربعة الأخيرة (الموزونه + المشروع)
         const w=computeWeightedScores(cls,student,unitsForWeighted);
-        rowHtml+=`<td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.hw.toFixed(2)}</td><td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.act.toFixed(2)}</td>
-          <td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.participation.toFixed(2)}</td><td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.test.toFixed(2)}</td>
+        rowHtml+=`<td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.hw.toFixed(2)}</td>
+          <td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.act.toFixed(2)}</td>
+          <td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.participation.toFixed(2)}</td>
+          <td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.test.toFixed(2)}</td>
           <td style="background:#D5F5E3;font-weight:bold;color:#1E8449;text-align:center;">${w.total.toFixed(2)}</td>`;
         let row=document.createElement('tr'); row.innerHTML=rowHtml; tbody.appendChild(row);
       });
       // تطبيق الألوان على الأزرار بعد إعادة الرسم
       applyButtonColorsDelayed();
     }
+
     function toggleFollowupRowHighlight(nameCell) {
       const row = nameCell.closest('tr');
       if (!row) return;
@@ -1701,6 +1733,7 @@
       if (tbody) tbody.querySelectorAll('tr.row-highlighted').forEach(r => r.classList.remove('row-highlighted'));
       if (!wasHighlighted) row.classList.add('row-highlighted');
     }
+
     function updateFollowupValue(cls,unit,student,type,lesson,val) {
       const key=`${cls}_${unit}`;
       if(!followupData[key]) followupData[key]={};
@@ -2265,14 +2298,18 @@
           <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;">#</th>
           <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:right;min-width:80px;">اسم الطالب</th>
           <th colspan="${lessons.length}" style="border:1px solid #007AFF;padding:4px;text-align:center;">الواجبات</th>
+          <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;">موزونه واجب</th>
           <th colspan="${lessons.length}" style="border:1px solid #007AFF;padding:4px;text-align:center;">الأنشطة</th>
+          <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;">موزونه نشاط</th>
           <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;">المشاركة</th>
           <th colspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;">الاختبارات والمشاريع</th>
-          <th colspan="4" style="border:1px solid #007AFF;padding:4px;text-align:center;">الدرجات الموزونة</th>
+          <th colspan="4" style="border:1px solid #007AFF;padding:4px;text-align:center;">الموزونه + المشروع (الخلاصه)</th>
           <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;">المجموع</th>
         </tr><tr style="background:#f0f0f0;color:#333;font-size:${sizes.headers-1}px;">`;
         lessons.forEach(l => { header += `<th style="border:1px solid #ddd;padding:2px;text-align:center;">${l}</th>`; });
+        // لا يوجد عمود بين الواجبات والأنشطة في الصف الثاني
         lessons.forEach(l => { header += `<th style="border:1px solid #ddd;padding:2px;text-align:center;">${l}</th>`; });
+        // لا يوجد عمود بين الأنشطة والمشاركة في الصف الثاني
         header += `<th style="border:1px solid #ddd;padding:2px;text-align:center;">الاختبار</th>
           <th style="border:1px solid #ddd;padding:2px;text-align:center;">المشروع</th>
           <th style="border:1px solid #ddd;padding:2px;text-align:center;">الواجبات</th>
@@ -2283,6 +2320,9 @@
         let rows = '';
         students.forEach((student, idx) => {
           const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '', projectLink: '' };
+          const unitWeight = computeUnitWeighted(cls, student, unitName);
+          const hwAvg = unitWeight.hw;
+          const actAvg = unitWeight.act;
           const w = computeWeightedScores(cls, student, unitsList);
           let hwCells = '', actCells = '';
           lessons.forEach(l => {
@@ -2299,7 +2339,10 @@
           rows += `<tr>
             <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;color:#666;">${idx+1}</td>
             <td class="pdf-student-name-cell" style="border:1px solid #ddd;padding:3px;text-align:right;font-size:${sizes.names}px;font-weight:900;">${student}</td>
-            ${hwCells}${actCells}
+            ${hwCells}
+            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D5E8D9;">${hwAvg.toFixed(2)}</td>
+            ${actCells}
+            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#E8E0C5;">${actAvg.toFixed(2)}</td>
             <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#f9f2fc;">${part.toFixed(2)}</td>
             <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;">${t1}</td>
             <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;">${t2}</td>
@@ -2378,10 +2421,16 @@
       const units = [currentActiveUnit];
       let csv = "\uFEFFم,اسم الطالب,";
       lessons.forEach(l => csv += `واجب ${l},`);
+      csv += "موزونه واجب,";
       lessons.forEach(l => csv += `نشاط ${l},`);
-      csv += "المشاركة,اختبار الوحدة,المشروع,الواجبات (موزون),الأنشطة (موزون),المشاركة (موزون),الاختبار (موزون),المجموع الكلي\n";
+      csv += "موزونه نشاط,";
+      csv += "المشاركة,اختبار الوحدة,المشروع,خ واجب,خ نشاط,خ مشاركه,خ اختبار,المجموع الكلي\n";
       students.forEach((s, i) => {
         const st = fData[s] || { hw: {}, act: {}, test1: '', test2: '', projectLink: '' };
+        const unitWeight = computeUnitWeighted(cls, s, currentActiveUnit);
+        const hwAvg = unitWeight.hw;
+        const actAvg = unitWeight.act;
+        const w = computeWeightedScores(cls, s, units);
         csv += `${i+1},${s},`;
         let hwSum = 0, hwCnt = 0;
         lessons.forEach(l => {
@@ -2390,18 +2439,18 @@
           let v = parseFloat(val);
           if (!isNaN(v)) { hwSum += v; hwCnt++; }
         });
-        let actSum = 0, actCnt = 0;
+        csv += `${hwAvg.toFixed(2)},`;
         lessons.forEach(l => {
           let val = st.act[l] !== undefined ? st.act[l] : '';
           csv += `${val},`;
           let v = parseFloat(val);
           if (!isNaN(v)) { actSum += v; actCnt++; }
         });
+        csv += `${actAvg.toFixed(2)},`;
         let part = calculateStudentParticipationScore(cls, s);
         let t1 = st.test1 !== undefined ? st.test1 : '';
         let t2 = st.test2 !== undefined ? st.test2 : '';
         csv += `${part.toFixed(2)},${t1},${t2},`;
-        const w = computeWeightedScores(cls, s, units);
         csv += `${w.hw.toFixed(2)},${w.act.toFixed(2)},${w.participation.toFixed(2)},${w.test.toFixed(2)},${w.total.toFixed(2)}\n`;
       });
       downloadFile(csv, `كشف_متابعة_${cls}_${currentActiveUnit}.csv`, 'text/csv;charset=utf-8;');
@@ -2525,13 +2574,116 @@
     function prepareDefaultQueryData(){ queryIdFileData=[]; loadStudentNumberMap(); Object.keys(appData).forEach(cls=>{ if(appData[cls]) appData[cls].forEach(s=>{ queryIdFileData.push({id:queryStudentNumberMap[s]||'',name:s,cls}); }); }); queryIdFileName='بيانات محفوظة'; }
     function renderQueryUnitCheckboxes(){ const cont=document.getElementById('queryUnitCheckboxes'); cont.innerHTML=''; const all=Object.keys(unitsData); if(all.length===0){ cont.innerHTML='<div style="text-align:center;padding:10px;color:#999;">لا توجد وحدات مسجلة.</div>'; return; } all.forEach(u=>{ const label=document.createElement('label'); label.className='unit-check-item'; const cb=document.createElement('input'); cb.type='checkbox'; cb.value=u; cb.checked=true; label.appendChild(cb); label.appendChild(document.createTextNode(` ${u}`)); cont.appendChild(label); }); }
     function handleQueryIdFileUpload(e){ const file=e.target.files[0]; if(!file) return; if(typeof XLSX==='undefined'){ alert("مكتبة قراءة الإكسل غير محملة!"); return; } const reader=new FileReader(); reader.onload=function(ev){ try { const data=new Uint8Array(ev.target.result), wb=XLSX.read(data,{type:'array'}), sheet=wb.Sheets[wb.SheetNames[0]], json=XLSX.utils.sheet_to_json(sheet,{header:1}); if(json.length<2){ alert("الملف فارغ!"); return; } const header=json[0]; let idCol=-1,nameCol=-1,classCol=-1; for(let i=0;i<header.length;i++){ const cell=header[i]?header[i].toString().trim():''; if(cell.includes('رقم')||cell.includes('هوية')||cell.includes('ID')) idCol=i; else if(cell.includes('اسم')) nameCol=i; else if(cell.includes('فصل')||cell.includes('صف')) classCol=i; } if(idCol===-1) idCol=0; if(nameCol===-1) nameCol=1; const rows=[]; for(let r=1;r<json.length;r++){ const row=json[r]; if(!row||!row[idCol]||!row[nameCol]) continue; rows.push({id:row[idCol].toString().trim(),name:row[nameCol].toString().trim(),cls:classCol!==-1&&row[classCol]?row[classCol].toString().trim():''}); } if(rows.length===0){ alert("لم يتم العثور على بيانات صالحة في الملف."); return; } queryIdFileData=rows; queryIdFileName=file.name; document.getElementById('queryIdFileStatus').innerHTML=`✅ تم رفع الملف: ${file.name} (${rows.length} طالب)`; document.getElementById('queryIdFileStatus').style.color='var(--green)'; loadStudentNumberMap(); let saved=0; rows.forEach(item=>{ if(!queryStudentNumberMap[item.name]){ const match=item.id.match(/\d{5,}$/); if(match){ queryStudentNumberMap[item.name]=match[0].slice(-5); saved++; } } }); if(saved>0){ saveStudentNumberMap(); document.getElementById('queryIdFileStatus').innerHTML=`✅ تم رفع الملف وحفظ ${saved} رقم جديد.`; } } catch(err){ console.error(err); alert("❌ حدث خطأ أثناء قراءة ملف البيانات."); } }; reader.readAsArrayBuffer(file); }
-    function exportQueryData(){ const filter=document.getElementById('queryClassSelect').value, allClasses=Object.keys(appData); loadStudentNumberMap(); const all=getAllStudents(), missing=all.filter(s=>!queryStudentNumberMap[s]); if(missing.length>0){ if(!queryIdFileData||queryIdFileData.length===0){ alert(`⚠️ لا يمكن التصدير! ${missing.length} طالب بدون أرقام.\n\nيرجى رفع ملف البيانات أولاً.`); return; } } const checkboxes=document.querySelectorAll('#queryUnitCheckboxes input[type="checkbox"]'); const selected=[]; checkboxes.forEach(cb=>{ if(cb.checked) selected.push(cb.value); }); if(selected.length===0){ alert("يرجى اختيار وحدة واحدة على الأقل!"); return; } if(!queryIdFileData||queryIdFileData.length===0) prepareDefaultQueryData(); loadStudentNumberMap(); const idMap={}; queryIdFileData.forEach(item=>{ idMap[item.name]=item.id; }); let targets=[]; if(filter==='الكل') targets=allClasses; else { if(allClasses.includes(filter)) targets=[filter]; else { alert("الفصل المحدد غير موجود!"); return; } } let list=[]; targets.forEach(cls=>{ if(appData[cls]) appData[cls].forEach(s=>list.push({name:s,class:cls})); }); if(list.length===0){ alert("لا يوجد طلاب في الفصول المحددة!"); return; } list.sort((a,b)=>a.name.localeCompare(b.name,'ar')); const tempMap={}, missingList=[]; list.forEach(item=>{ const s=item.name; if(queryStudentNumberMap[s]){ tempMap[s]=queryStudentNumberMap[s]; return; } if(idMap[s]){ const match=idMap[s].match(/\d{5,}$/); if(match) tempMap[s]=match[0].slice(-5); else missingList.push(s); } else missingList.push(s); }); if(missingList.length>0){ const input=prompt(`الطلاب التالية أسماؤهم غير موجودة في ملف البيانات:\n${missingList.join('\n')}\n\nيرجى إدخال رقم لكل طالب (5 أرقام) مفصولة بفواصل، بنفس الترتيب.`); if(!input){ alert("تم إلغاء التصدير."); return; } const nums=input.split(',').map(n=>n.trim()); if(nums.length!==missingList.length){ alert("عدد الأرقام المدخلة لا يساوي عدد الطلاب المفقودين."); return; } missingList.forEach((s,i)=>{ let num=nums[i]; if(!num||num.length<5){ alert(`الرقم "${num}" غير صحيح. يجب أن يحتوي على 5 أرقام على الأقل.`); return; } const final=num.slice(-5); tempMap[s]=final; queryStudentNumberMap[s]=final; }); saveStudentNumberMap(); } const count={}; for(let s in tempMap){ const num=tempMap[s]; if(!count[num]) count[num]=[]; count[num].push(s); } const dups={}; for(let num in count){ if(count[num].length>1) dups[num]=count[num]; } if(Object.keys(dups).length>0){ showDuplicateNumbersModal(dups,tempMap); return; } performQueryExport(targets,selected,tempMap,list); }
-    function showDuplicateNumbersModal(dups,map){ const cont=document.getElementById('duplicateNumbersContainer'); cont.innerHTML=''; let html=''; for(let num in dups){ const students=dups[num]; html+=`<div style="background:#f8d7da;padding:4px 8px;border-radius:6px;margin-bottom:6px;border:1px solid #f5c6cb;"><div style="font-weight:bold;color:#721c24;">الرقم المكرر: ${num}</div>`; students.forEach(s=>{ html+=`<div style="display:flex;align-items:center;gap:4px;margin:2px 0;"><span style="flex:1;font-weight:700;">${s}</span><input type="text" class="duplicate-number-input" data-student="${s}" value="${num}" style="width:80px;text-align:center;border:1px solid #ccc;border-radius:4px;padding:2px;"></div>`; }); html+=`</div>`; } cont.innerHTML=html; document.getElementById('duplicateNumbersModal').style.display='flex'; window._tempNumberMap=map; window._duplicates=dups; }
-    function closeDuplicateNumbersModal(){ document.getElementById('duplicateNumbersModal').style.display='none'; window._tempNumberMap=null; window._duplicates=null; }
-    function saveDuplicateNumbersAndExport(){ const inputs=document.querySelectorAll('.duplicate-number-input'), newMap={}; const checkboxes=document.querySelectorAll('#queryUnitCheckboxes input[type="checkbox"]'), selected=[]; checkboxes.forEach(cb=>{ if(cb.checked) selected.push(cb.value); }); inputs.forEach(inp=>{ const s=inp.dataset.student, val=inp.value.trim(); if(!val||val.length<5){ alert(`الرقم "${val}" غير صحيح للطالب ${s}. يجب أن يحتوي على 5 أرقام.`); return; } newMap[s]=val.slice(-5); queryStudentNumberMap[s]=val.slice(-5); }); const count={}; for(let s in newMap){ const num=newMap[s]; if(!count[num]) count[num]=[]; count[num].push(s); } for(let num in count){ if(count[num].length>1){ alert(`لا يزال هناك تكرار للرقم "${num}" بين الطلاب: ${count[num].join(', ')}. يرجى تعديله.`); return; } } saveStudentNumberMap(); closeDuplicateNumbersModal(); const filter=document.getElementById('queryClassSelect').value, allClasses=Object.keys(appData); let targets=(filter==='الكل')?allClasses:[filter]; let list=[]; targets.forEach(cls=>{ if(appData[cls]) appData[cls].forEach(s=>list.push({name:s,class:cls})); }); list.sort((a,b)=>a.name.localeCompare(b.name,'ar')); performQueryExport(targets,selected,newMap,list); }
-    function performQueryExport(targets,selected,map,list){ const wb=XLSX.utils.book_new(); selected.forEach((unit,i)=>{ const unitObj=unitsData[unit]||{lessons:["درس 1"]}, lessons=unitObj.lessons; const rows=[]; const header=['رقم الطالب','اسم الطالب','الفصل']; lessons.forEach(l=>header.push(`واجب ${l}`)); lessons.forEach(l=>header.push(`نشاط ${l}`)); header.push('المشاركة','الاختبار','المشروع','الغياب','التأخر','المخالفات'); rows.push(header); list.forEach(item=>{ const s=item.name, cls=item.class; const row=[]; row.push(map[s]||''); row.push(s); row.push(cls); const key=`${cls}_${unit}`, fData=followupData[key]||{}, st=fData[s]||{hw:{},act:{},test1:'',test2:'',projectLink:''}; lessons.forEach(l=>row.push(st.hw[l]!==undefined?st.hw[l]:'')); lessons.forEach(l=>row.push(st.act[l]!==undefined?st.act[l]:'')); const part=calculateStudentParticipationScore(cls,s); row.push(part.toFixed(2)); row.push(st.test1!==undefined?st.test1:''); row.push(st.test2!==undefined?st.test2:''); let abs=0,late=0,vio=0; for(let date in records){ if(records[date]&&records[date][cls]){ const rec=getStudentDayRecord(date,cls,s); if(rec.status==='غائب') abs++; if(rec.status==='متأخر') late++; vio+=rec.violations?rec.violations.length:0; } } row.push(abs); row.push(late); row.push(vio); rows.push(row); }); const ws=XLSX.utils.aoa_to_sheet(rows); XLSX.utils.book_append_sheet(wb,ws,unit); }); const wRows=[], wHeader=['رقم الطالب','اسم الطالب','الفصل','معدل الواجبات','معدل الأنشطة','المشاركة الكلية','مجموع الاختبارات','المجموع الكلي','الغياب','التأخر','المخالفات']; wRows.push(wHeader); list.forEach(item=>{ const s=item.name, cls=item.class; const w=computeWeightedScores(cls,s,selected); const fHw=w.hw.toFixed(2), fAct=w.act.toFixed(2), part=w.participation, testTotal=w.test.toFixed(2), totalSum=w.total.toFixed(2); let abs=0,late=0,vio=0; for(let date in records){ if(records[date]&&records[date][cls]){ const rec=getStudentDayRecord(date,cls,s); if(rec.status==='غائب') abs++; if(rec.status==='متأخر') late++; vio+=rec.violations?rec.violations.length:0; } } wRows.push([map[s]||'',s,cls,fHw,fAct,part.toFixed(2),testTotal,totalSum,abs,late,vio]); }); const wsW=XLSX.utils.aoa_to_sheet(wRows); XLSX.utils.book_append_sheet(wb,wsW,'الدرجة الموزونة'); const out=XLSX.write(wb,{bookType:'xlsx',type:'array'}), blob=new Blob([out],{type:'application/octet-stream'}), link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='data.xlsx'; document.body.appendChild(link); link.click(); document.body.removeChild(link); setTimeout(()=>URL.revokeObjectURL(link.href),1000); alert(`✅ تم تصدير data.xlsx بنجاح! (${selected.length} وحدة + صفحة موزونة)`); closeQueryExportModal(); }
 
-    // ===== دوال تصدير PDF للطالب =====
+    function performQueryExport(targets, selectedUnits, map, list) {
+      const wb = XLSX.utils.book_new();
+
+      // لكل وحدة مختارة، إنشاء ورقة
+      selectedUnits.forEach((unit, idx) => {
+        const unitObj = unitsData[unit] || {lessons: ["درس 1"]};
+        const lessons = unitObj.lessons;
+        const rows = [];
+        // رأس الأعمدة
+        const header = ['رقم الطالب', 'الاسم', 'الفصل'];
+        lessons.forEach(l => header.push(`واجب ${l}`));
+        header.push('موزونه واجب');
+        lessons.forEach(l => header.push(`نشاط ${l}`));
+        header.push('موزونه نشاط');
+        header.push('غياب', 'تأخر', 'مخالفات', 'المشاركه', 'اختبار', 'مشروع');
+        header.push('خ واجب', 'خ نشاط', 'خ مشاركه', 'خ اختبار', 'المجموع');
+        rows.push(header);
+
+        list.forEach(item => {
+          const s = item.name, cls = item.class;
+          const key = `${cls}_${unit}`;
+          const fData = followupData[key] || {};
+          const st = fData[s] || {hw:{}, act:{}, test1:'', test2:'', projectLink:''};
+          const unitWeight = computeUnitWeighted(cls, s, unit);
+          const hwAvg = unitWeight.hw;
+          const actAvg = unitWeight.act;
+          const w = computeWeightedScores(cls, s, [unit]);
+
+          // إحصائيات الغياب والتأخر والمخالفات الكلية للطالب
+          let abs=0, late=0, vio=0;
+          for (let date in records) {
+            if (records[date] && records[date][cls]) {
+              const rec = getStudentDayRecord(date, cls, s);
+              if (rec.status === 'غائب') abs++;
+              if (rec.status === 'متأخر') late++;
+              vio += rec.violations ? rec.violations.length : 0;
+            }
+          }
+
+          const row = [];
+          row.push(map[s] || '');
+          row.push(s);
+          row.push(cls);
+          lessons.forEach(l => row.push(st.hw[l] !== undefined ? st.hw[l] : ''));
+          row.push(hwAvg.toFixed(2));
+          lessons.forEach(l => row.push(st.act[l] !== undefined ? st.act[l] : ''));
+          row.push(actAvg.toFixed(2));
+          row.push(abs);
+          row.push(late);
+          row.push(vio);
+          const part = calculateStudentParticipationScore(cls, s);
+          row.push(part.toFixed(2));
+          row.push(st.test1 !== undefined ? st.test1 : '');
+          row.push(st.test2 !== undefined ? st.test2 : '');
+          row.push(w.hw.toFixed(2));
+          row.push(w.act.toFixed(2));
+          row.push(w.participation.toFixed(2));
+          row.push(w.test.toFixed(2));
+          row.push(w.total.toFixed(2));
+          rows.push(row);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        XLSX.utils.book_append_sheet(wb, ws, unit);
+      });
+
+      // صفحة الخلاصة (المتوسطات لكل الطلاب عبر الوحدات المختارة)
+      const summaryHeader = ['اسم الطالب', 'الفصل', 'واجب', 'نشاط', 'مشاركه', 'اختبار', 'المجموع'];
+      const summaryRows = [summaryHeader];
+      list.forEach(item => {
+        const s = item.name, cls = item.class;
+        let sumHw=0, sumAct=0, sumPart=0, sumTest=0, sumTotal=0;
+        selectedUnits.forEach(unit => {
+          const w = computeWeightedScores(cls, s, [unit]);
+          sumHw += w.hw;
+          sumAct += w.act;
+          sumPart += w.participation;
+          sumTest += w.test;
+          sumTotal += w.total;
+        });
+        const n = selectedUnits.length || 1;
+        summaryRows.push([
+          s,
+          cls,
+          (sumHw/n).toFixed(2),
+          (sumAct/n).toFixed(2),
+          (sumPart/n).toFixed(2),
+          (sumTest/n).toFixed(2),
+          (sumTotal/n).toFixed(2)
+        ]);
+      });
+      const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+      XLSX.utils.book_append_sheet(wb, wsSummary, 'خلاصة');
+
+      // حفظ الملف
+      const out = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+      const blob = new Blob([out], {type:'application/octet-stream'});
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'data.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      alert(`✅ تم تصدير data.xlsx بنجاح! (${selectedUnits.length} وحدة + صفحة خلاصة)`);
+      closeQueryExportModal();
+    }
+
+    // === دوال تصدير PDF للطالب ===
     async function exportSingleStudentPDF(){ const cls=document.getElementById('classSelect').value, today=new Date().toLocaleDateString('ar-SA'); let dates=Object.keys(records).sort(), rows=''; dates.forEach(d=>{ if(records[d]&&records[d][cls]){ const rec=getStudentDayRecord(d,cls,selectedStudentForReport), isAbs=rec.status==='غائب', isLate=rec.status==='متأخر', vio=rec.violations?rec.violations.length:0; if(isAbs||isLate||vio>0){ rows+=`<tr><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:6px;text-align:center;font-weight:bold;">${d}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${isAbs?'#FF3B30':'#333'};font-weight:${isAbs?'900':'normal'};">${isAbs?'غائب':'-'}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${isLate?'#FF9500':'#333'};font-weight:${isLate?'900':'normal'};">${isLate?'متأخر':'-'}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${vio>0?'#AF52DE':'#333'};font-weight:${vio>0?'900':'normal'};">${vio>0?vio:'-'}</td></tr>`; } } }); if(!rows) rows='<tr><td colspan="4" style="border:1px solid #D1D1D6;padding:10px;text-align:center;">لا توجد حالات مسجلة.</td></tr>'; const table=`<table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="background:#007AFF;color:white;"><th style="border:1px solid #007AFF;padding:6px;text-align:center;">التاريخ</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">الغياب</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">التأخر</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">عدد المخالفات</th></tr></thead><tbody>${rows}</tbody></table>`; const title=`تقرير مخالفات الطالب: ${selectedStudentForReport}`; const sub=`<span>الفصل: ${cls}</span><span>تاريخ الإصدار: ${today}</span>`; const el=buildPdfElement(table,title,sub,'',getPdfSizes('singleStudent')); await exportPdf(el,`تقرير_مخالفات_${selectedStudentForReport}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},margin:8}); }
     function exportSingleStudentCSV(){ const cls=document.getElementById('classSelect').value; let csv="\uFEFFالتاريخ,الغياب,التأخر,عدد المخالفات\n"; Object.keys(records).sort().forEach(d=>{ if(records[d]&&records[d][cls]){ const rec=getStudentDayRecord(d,cls,selectedStudentForReport), isAbs=rec.status==='غائب', isLate=rec.status==='متأخر', vio=rec.violations?rec.violations.length:0; if(isAbs||isLate||vio>0) csv+=`${d},${isAbs?'غائب':''},${isLate?'متأخر':''},${vio}\n`; } }); downloadFile(csv,`تقرير_مخالفات_${selectedStudentForReport}.csv`,'text/csv;charset=utf-8;'); }
 
