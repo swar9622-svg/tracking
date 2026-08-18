@@ -70,7 +70,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      z-index: 999;
+      z-index: 20;
       background-color: rgba(255,255,255,0.95);
       backdrop-filter: blur(10px);
       padding: 0.625rem 0.875rem 1.25rem 0.875rem;
@@ -123,6 +123,8 @@
     .student-name-tooltip.below::after { top: -6px; bottom: auto; border-right: none; border-bottom: none; border-left: 1.5px solid var(--accent); border-top: 1.5px solid var(--accent); transform: translateX(-50%) rotate(45deg); }
     .followup-table th, .followup-table td { border: 1px solid #ddd; padding: 0.5rem 0.375rem; white-space: nowrap; }
     .followup-table th { background-color: #f8f9fa; color: #2c3e50; }
+    .student-name-td { cursor: pointer; }
+    .followup-table tr.row-highlighted > td { box-shadow: inset 0 0 0 200px rgba(120,120,128,0.20); }
     .import-icon-btn { display: inline-block; border: none; cursor: pointer; font-size: 0.7rem; padding: 0.1rem 0.25rem; border-radius: 0.25rem; margin-right: 0.2rem; line-height: 1.2; transition: opacity 0.15s; user-select: none; }
     .import-icon-btn:active { opacity: 0.6; }
     .import-icon-hw { background-color: #D4EFDF; color: #117A65; border: 1px solid #A9DFBF; }
@@ -1165,7 +1167,7 @@
       students.forEach((student,idx)=>{
         if(!followupData[key][student]) followupData[key][student]={hw:{},act:{},test1:'',test2:'',projectLink:''};
         const stData=followupData[key][student], isDup=dup.includes(student), nameColor=isDup?'color:#FF3B30;':'';
-        let rowHtml=`<td style="font-weight:bold;color:var(--text-secondary);">${idx+1}</td><td class="student-name-td" style="font-weight:900;font-size:14px;text-align:right;${nameColor}">${student}</td>`;
+        let rowHtml=`<td style="font-weight:bold;color:var(--text-secondary);">${idx+1}</td><td class="student-name-td" style="font-weight:900;font-size:14px;text-align:right;${nameColor}" onclick="toggleFollowupRowHighlight(this)">${student}</td>`;
         lessons.forEach(l=>{ let val=(stData.hw&&stData.hw[l]!==undefined)?stData.hw[l]:''; rowHtml+=`<td style="background:#EAFAF1;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'hw','${encodeURIComponent(l)}',10)"></td>`; });
         lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',20)"></td>`; });
         let part=calculateStudentParticipationScore(cls,student);
@@ -1185,6 +1187,14 @@
           <td style="background:#D5F5E3;font-weight:bold;color:#1E8449;text-align:center;">${w.total.toFixed(2)}</td>`;
         let row=document.createElement('tr'); row.innerHTML=rowHtml; tbody.appendChild(row);
       });
+    }
+    function toggleFollowupRowHighlight(nameCell) {
+      const row = nameCell.closest('tr');
+      if (!row) return;
+      const wasHighlighted = row.classList.contains('row-highlighted');
+      const tbody = row.parentElement;
+      if (tbody) tbody.querySelectorAll('tr.row-highlighted').forEach(r => r.classList.remove('row-highlighted'));
+      if (!wasHighlighted) row.classList.add('row-highlighted');
     }
     function updateFollowupValue(cls,unit,student,type,lesson,val) {
       const key=`${cls}_${unit}`;
