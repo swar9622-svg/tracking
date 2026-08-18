@@ -2759,7 +2759,7 @@
         const lessons = unitObj.lessons;
         const rows = [];
         // رأس الأعمدة
-        const header = ['رقم الطالب', 'الاسم', 'الفصل'];
+        const header = ['رقم', 'الاسم', 'الفصل'];
         lessons.forEach(l => header.push(`واجب ${l}`));
         header.push('الموزونه');
         lessons.forEach(l => header.push(`نشاط ${l}`));
@@ -2817,7 +2817,7 @@
       });
 
       // صفحة الخلاصة (المتوسطات لكل الطلاب عبر الوحدات المختارة)
-      const summaryHeader = ['اسم الطالب', 'الفصل', 'واجب', 'نشاط', 'مشاركه', 'اختبار', 'المجموع'];
+      const summaryHeader = ['رقم', 'اسم الطالب', 'الفصل', 'واجب', 'نشاط', 'مشاركه', 'اختبار', 'المجموع'];
       const summaryRows = [summaryHeader];
       list.forEach(item => {
         const s = item.name, cls = item.class;
@@ -2832,6 +2832,7 @@
         });
         const n = selectedUnits.length || 1;
         summaryRows.push([
+          map[s] || '',
           s,
           cls,
           (sumHw/n).toFixed(2),
