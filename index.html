@@ -18,7 +18,7 @@
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
   <script src="./xlsx.full.min.js"></script>
-  <title>📚 كشف المتابعة 11.9</title>
+  <title>📚 كشف المتابعه</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -81,7 +81,7 @@
       will-change: transform;
     }
     #followupScreen .followup-table-container {
-      margin-bottom: 90px;
+      margin-bottom: 10px;
     }
     #followupScreen .period-export-container {
       margin-bottom: 90px;
@@ -280,7 +280,7 @@
   <!-- ===== الشاشة الأولى ===== -->
   <div id="absenceScreen" class="screen active-screen">
     <header>
-      <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.9)</div>
+      <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (<span class="app-version-label"></span>)</div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
         <input type="date" id="dateSelect" onchange="renderStudents()">
@@ -308,7 +308,7 @@
   <!-- ===== الشاشة الثانية ===== -->
   <div id="followupScreen" class="screen">
     <header>
-      <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.9)</div>
+      <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (<span class="app-version-label"></span>)</div>
     </header>
     <div class="top-action-bar">
       <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
@@ -770,6 +770,8 @@
 
   <!-- ================= جميع الـ JavaScript ================= -->
   <script>
+    const APP_VERSION = "12.0";
+    document.querySelectorAll('.app-version-label').forEach(el => el.textContent = APP_VERSION);
     const VIOLATIONS_LIST = [
       "النوم اثناء الشرح","الحديث أثناء الشرح","الاكل اثناء الشرح",
       "عدم أداء الواجب","عدم احضار اللوازم الدراسية","العبث بممتلكات الفصل",
