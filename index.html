@@ -18,7 +18,7 @@
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
   <script src="./xlsx.full.min.js"></script>
-  <title>📚 كشف المتابعه</title>
+  <title>📚 كشف المتابعة 11.6</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -274,13 +274,31 @@
     .import-export-modal .btn-export-option { background-color: #2ECC71; }
     .import-export-modal .btn-import-option-import { background-color: var(--accent); }
     @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .modal { position: static; background: none; padding: 0; } .modal-content { box-shadow: none; max-width: 100%; border-radius: 0; padding: 0.5rem; } }
+
+    /* إضافات لألوان الأزرار */
+    .color-btn-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.625rem;
+      background: #F9F9FB;
+      border: 1px solid #E5E5EA;
+      margin-bottom: 0.375rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .color-btn-item:active { background: #E5E5EA; }
+    .color-btn-item .btn-name { font-weight: 700; font-size: 0.875rem; }
+    .color-btn-item .color-preview { width: 2rem; height: 1.5rem; border-radius: 0.375rem; border: 1px solid #ccc; }
   </style>
 </head>
 <body>
   <!-- ===== الشاشة الأولى ===== -->
   <div id="absenceScreen" class="screen active-screen">
     <header>
-      <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (<span class="app-version-label"></span>)</div>
+      <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.6)</div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
         <input type="date" id="dateSelect" onchange="renderStudents()">
@@ -308,7 +326,7 @@
   <!-- ===== الشاشة الثانية ===== -->
   <div id="followupScreen" class="screen">
     <header>
-      <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (<span class="app-version-label"></span>)</div>
+      <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.6)</div>
     </header>
     <div class="top-action-bar">
       <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
@@ -332,7 +350,7 @@
     <!-- الأزرار الثابتة أسفل شاشة المتابعة -->
     <div class="bottom-controls">
       <button class="btn-action btn-notify-light" onclick="openNotificationExportModal()">📄 اشعارات الطلاب PDF</button>
-      <button class="btn-action" style="background-color:#8e44ad;" onclick="openUnitsManageModal()">⚙️ إدارة الوحدات</button>
+      <button class="btn-action btn-manage-units" style="background-color:#8e44ad;" onclick="openUnitsManageModal()">⚙️ إدارة الوحدات</button>
     </div>
   </div>
 
@@ -572,6 +590,8 @@
       <div class="data-box-section">
         <div class="data-box-title">⚙️ إعدادات العرض والخطوط</div>
         <button class="btn-menu-option" style="background-color:#8E44AD;" onclick="openFontSettingsModal()">⚙️ إعدادات الخط (الخطوط المختارة)</button>
+        <!-- زر جديد لإعدادات ألوان الأزرار -->
+        <button class="btn-menu-option" style="background-color:#8E44AD;" onclick="openButtonColorsModal()">🎨 إعدادات ألوان الأزرار</button>
       </div>
       <div class="data-box-section" style="border-top:2px solid #E5E5EA;padding-top:0.75rem;">
         <div class="data-box-title">🔄 تحديث التطبيق</div>
@@ -641,6 +661,39 @@
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closeFontSettingsModal()">إلغاء</button>
         <button class="btn-modal-save" onclick="saveFontSettings()">حفظ الإعدادات</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة إعدادات ألوان الأزرار (جديدة) -->
+  <div class="modal" id="buttonColorsModal" style="z-index:117;">
+    <div class="modal-content" style="max-width:500px;width:95%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="modal-title" style="margin:0;">🎨 إعدادات ألوان الأزرار</div>
+        <button class="btn-close-circle" onclick="closeButtonColorsModal()">✕</button>
+      </div>
+      <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:10px;text-align:center;">اختر زراً لتعديل لونه</div>
+      <div id="buttonListContainer" style="max-height:40vh;overflow-y:auto;border:1px solid #e5e5ea;border-radius:0.75rem;padding:0.5rem;background:#f9f9fb;margin-bottom:1rem;">
+        <!-- سيتم ملؤها بواسطة JS -->
+      </div>
+      <div id="colorPickerContainer" style="display:none;border-top:1px solid #e5e5ea;padding-top:0.75rem;margin-top:0.5rem;">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;">
+          <div id="buttonPreview" style="padding:0.3rem 1rem;border-radius:0.5rem;font-weight:bold;font-size:0.9rem;background:#007AFF;color:white;border:none;cursor:default;">معاينة</div>
+          <span id="selectedButtonName" style="font-weight:bold;font-size:0.9rem;">الزر المختار</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <div><label style="font-weight:bold;font-size:0.8rem;">الأحمر (R):</label><input type="range" id="redSlider" min="0" max="255" value="0" style="width:100%;" oninput="updateColorPreview()"></div>
+          <div><label style="font-weight:bold;font-size:0.8rem;">الأخضر (G):</label><input type="range" id="greenSlider" min="0" max="255" value="0" style="width:100%;" oninput="updateColorPreview()"></div>
+          <div><label style="font-weight:bold;font-size:0.8rem;">الأزرق (B):</label><input type="range" id="blueSlider" min="0" max="255" value="0" style="width:100%;" oninput="updateColorPreview()"></div>
+          <div><label style="font-weight:bold;font-size:0.8rem;">الشفافية (Alpha):</label><input type="range" id="alphaSlider" min="0" max="1" step="0.01" value="1" style="width:100%;" oninput="updateColorPreview()"></div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+            <button class="btn-modal-save" onclick="saveButtonColor()">💾 حفظ اللون</button>
+            <button class="btn-modal-cancel" onclick="resetButtonColor()" style="background-color:#8E8E93;">↩️ استعادة الافتراضي</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions" style="margin-top:0.5rem;">
+        <button class="btn-modal-cancel" onclick="resetAllButtonColors()" style="background-color:#FF3B30;color:white;">🔄 استعادة جميع الألوان الافتراضية</button>
       </div>
     </div>
   </div>
@@ -770,8 +823,6 @@
 
   <!-- ================= جميع الـ JavaScript ================= -->
   <script>
-    const APP_VERSION = "12.0";
-    document.querySelectorAll('.app-version-label').forEach(el => el.textContent = APP_VERSION);
     const VIOLATIONS_LIST = [
       "النوم اثناء الشرح","الحديث أثناء الشرح","الاكل اثناء الشرح",
       "عدم أداء الواجب","عدم احضار اللوازم الدراسية","العبث بممتلكات الفصل",
@@ -810,6 +861,327 @@
     const STUDENT_NUMBER_MAP_KEY = 'attendance_student_number_map';
     let currentImportType = 'hw';
     let importFileInput = null;
+
+    // ===== ألوان الأزرار =====
+    const DEFAULT_BUTTON_COLORS = {
+      'absentActive': { r: 255, g: 59, b: 48, a: 1 },
+      'lateActive': { r: 255, g: 149, b: 0, a: 1 },
+      'violationActive': { r: 175, g: 82, b: 222, a: 1 },
+      'reportBtn': { r: 88, g: 86, b: 214, a: 1 },
+      'dataBtn': { r: 50, g: 173, b: 230, a: 1 },
+      'resetBtn': { r: 229, g: 229, b: 234, a: 1 },
+      'manageBtn': { r: 0, g: 122, b: 255, a: 1 },
+      'periodBtn': { r: 44, g: 62, b: 80, a: 1 },
+      'numbersBtn': { r: 142, g: 68, b: 173, a: 1 },
+      'unitsBtn': { r: 142, g: 68, b: 173, a: 1 },
+      'exportPdfBtn': { r: 230, g: 126, b: 34, a: 1 },
+      'exportCsvBtn': { r: 52, g: 199, b: 89, a: 1 },
+      'notifyBtn': { r: 108, g: 52, b: 131, a: 1 },
+      'classSelectBox': { r: 249, g: 249, b: 251, a: 1 },
+      'dateSelectBox': { r: 249, g: 249, b: 251, a: 1 },
+      'followupClassSelectBox': { r: 255, g: 255, b: 255, a: 1 },
+      'unitDropdownBox': { r: 255, g: 255, b: 255, a: 1 },
+      'absenceTitleBox': { r: 0, g: 122, b: 255, a: 1 },
+      'followupTitleBox': { r: 0, g: 122, b: 255, a: 1 },
+      'statAbsentBox': { r: 249, g: 249, b: 251, a: 1 },
+      'statLateBox': { r: 249, g: 249, b: 251, a: 1 },
+      'statViolationBox': { r: 249, g: 249, b: 251, a: 1 },
+      'statReportBox': { r: 235, g: 243, b: 255, a: 1 }
+    };
+
+    // أسماء الأزرار المعروضة
+    const BUTTON_NAMES = {
+      'absentActive': 'غائب (حالة نشطة)',
+      'lateActive': 'متأخر (حالة نشطة)',
+      'violationActive': 'مخالفات (حالة نشطة)',
+      'reportBtn': 'التقارير الشاملة',
+      'dataBtn': 'النسخ الاحتياطي',
+      'resetBtn': 'إعادة ضبط اليوم',
+      'manageBtn': 'إدارة الأسماء والصفوف',
+      'periodBtn': 'الفترات',
+      'numbersBtn': 'أرقام الطلاب',
+      'unitsBtn': 'إدارة الوحدات',
+      'exportPdfBtn': 'تصدير كشف الوحدة الحالية PDF',
+      'exportCsvBtn': 'تصدير كشف الوحدة الحالية CSV',
+      'notifyBtn': 'إشعارات الطلاب PDF',
+      'classSelectBox': 'قائمة الفصل (كشف الغياب)',
+      'dateSelectBox': 'قائمة التاريخ',
+      'followupClassSelectBox': 'قائمة الفصل (كشف المتابعة)',
+      'unitDropdownBox': 'قائمة الوحدة (كشف المتابعة)',
+      'absenceTitleBox': 'مستطيل العنوان الرئيسي - كشف الغياب والمخالفات',
+      'followupTitleBox': 'مستطيل العنوان الرئيسي - كشف المتابعة والدرجات',
+      'statAbsentBox': 'مربع غياب اليوم',
+      'statLateBox': 'مربع تأخر اليوم',
+      'statViolationBox': 'مربع مخالفات اليوم',
+      'statReportBox': 'مربع تقرير عن طالب'
+    };
+
+    let buttonColors = JSON.parse(localStorage.getItem('attendance_button_colors')) || null;
+    if (!buttonColors) {
+      buttonColors = JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS));
+    }
+    // دمج القيم الافتراضية في حالة وجود مفاتيح مفقودة
+    for (let key in DEFAULT_BUTTON_COLORS) {
+      if (!buttonColors[key]) buttonColors[key] = { ...DEFAULT_BUTTON_COLORS[key] };
+    }
+
+    function applyButtonColors() {
+      // تطبيق الألوان على الأزرار حسب المعرفات والكلاسات
+      // 1. أزرار الحالة في بطاقات الطلاب (غائب، متأخر، مخالفات)
+      const absentBtns = document.querySelectorAll('.btn-status.active-absent');
+      const lateBtns = document.querySelectorAll('.btn-status.active-late');
+      const violationBtns = document.querySelectorAll('.btn-status.active-violation');
+      
+      const absentColor = buttonColors['absentActive'];
+      const lateColor = buttonColors['lateActive'];
+      const violationColor = buttonColors['violationActive'];
+      
+      absentBtns.forEach(el => {
+        el.style.backgroundColor = `rgba(${absentColor.r},${absentColor.g},${absentColor.b},${absentColor.a})`;
+      });
+      lateBtns.forEach(el => {
+        el.style.backgroundColor = `rgba(${lateColor.r},${lateColor.g},${lateColor.b},${lateColor.a})`;
+      });
+      violationBtns.forEach(el => {
+        el.style.backgroundColor = `rgba(${violationColor.r},${violationColor.g},${violationColor.b},${violationColor.a})`;
+      });
+
+      // 2. الأزرار الثابتة في الأسفل
+      const reportBtn = document.querySelector('.btn-report');
+      const dataBtn = document.querySelector('.btn-data');
+      const resetBtn = document.querySelector('.btn-reset');
+      const manageBtn = document.querySelector('.btn-manage');
+      const periodBtn = document.querySelector('.btn-period-main');
+      const numbersBtn = document.querySelector('.btn-student-numbers');
+      const unitsBtn = document.querySelector('.btn-manage-units');
+      const exportPdfBtn = document.querySelector('.btn-export-period:first-child'); // قد يكون هناك عدة أزرار، نأخذ الأول
+      const exportCsvBtn = document.querySelectorAll('.btn-export-period')[1]; // الثاني
+      const notifyBtn = document.querySelector('.btn-notify-light');
+
+      if (reportBtn) {
+        const c = buttonColors['reportBtn'];
+        reportBtn.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        // نضبط لون النص إذا كان اللون فاتحاً جداً
+        if (c.r > 200 && c.g > 200 && c.b > 200) reportBtn.style.color = '#1C1C1E';
+        else reportBtn.style.color = 'white';
+      }
+      if (dataBtn) {
+        const c = buttonColors['dataBtn'];
+        dataBtn.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) dataBtn.style.color = '#1C1C1E';
+        else dataBtn.style.color = 'white';
+      }
+      if (resetBtn) {
+        const c = buttonColors['resetBtn'];
+        resetBtn.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) resetBtn.style.color = '#1C1C1E';
+        else resetBtn.style.color = 'white';
+      }
+      if (manageBtn) {
+        const c = buttonColors['manageBtn'];
+        manageBtn.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) manageBtn.style.color = '#1C1C1E';
+        else manageBtn.style.color = 'white';
+      }
+      if (periodBtn) {
+        const c = buttonColors['periodBtn'];
+        periodBtn.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) periodBtn.style.color = '#1C1C1E';
+        else periodBtn.style.color = 'white';
+      }
+      if (numbersBtn) {
+        const c = buttonColors['numbersBtn'];
+        numbersBtn.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) numbersBtn.style.color = '#1C1C1E';
+        else numbersBtn.style.color = 'white';
+      }
+      if (unitsBtn) {
+        const c = buttonColors['unitsBtn'];
+        unitsBtn.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) unitsBtn.style.color = '#1C1C1E';
+        else unitsBtn.style.color = 'white';
+      }
+      if (exportPdfBtn) {
+        const c = buttonColors['exportPdfBtn'];
+        exportPdfBtn.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) exportPdfBtn.style.color = '#1C1C1E';
+        else exportPdfBtn.style.color = 'white';
+      }
+      if (exportCsvBtn) {
+        const c = buttonColors['exportCsvBtn'];
+        exportCsvBtn.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) exportCsvBtn.style.color = '#1C1C1E';
+        else exportCsvBtn.style.color = 'white';
+      }
+      if (notifyBtn) {
+        const c = buttonColors['notifyBtn'];
+        notifyBtn.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) notifyBtn.style.color = '#1C1C1E';
+        else notifyBtn.style.color = 'white';
+      }
+
+      // 3. قوائم الفصل والتاريخ والوحدة
+      const classSelectEl = document.getElementById('classSelect');
+      const dateSelectEl = document.getElementById('dateSelect');
+      const followupClassSelectEl = document.getElementById('followupClassSelect');
+      const unitDropdownSelectEl = document.getElementById('unitDropdownSelect');
+
+      if (classSelectEl) {
+        const c = buttonColors['classSelectBox'];
+        classSelectEl.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+      }
+      if (dateSelectEl) {
+        const c = buttonColors['dateSelectBox'];
+        dateSelectEl.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+      }
+      if (followupClassSelectEl) {
+        const c = buttonColors['followupClassSelectBox'];
+        followupClassSelectEl.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+      }
+      if (unitDropdownSelectEl) {
+        const c = buttonColors['unitDropdownBox'];
+        unitDropdownSelectEl.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+      }
+
+      // 4. مستطيل العنوان الرئيسي في الشاشتين
+      const absenceTitleBox = document.querySelector('#absenceScreen .header-title-box');
+      const followupTitleBox = document.querySelector('#followupScreen .header-title-box');
+
+      if (absenceTitleBox) {
+        const c = buttonColors['absenceTitleBox'];
+        absenceTitleBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) absenceTitleBox.style.color = '#1C1C1E';
+        else absenceTitleBox.style.color = 'white';
+      }
+      if (followupTitleBox) {
+        const c = buttonColors['followupTitleBox'];
+        followupTitleBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+        if (c.r > 200 && c.g > 200 && c.b > 200) followupTitleBox.style.color = '#1C1C1E';
+        else followupTitleBox.style.color = 'white';
+      }
+
+      // 5. مربعات إحصائيات اليوم (غياب / تأخر / مخالفات / تقرير عن طالب)
+      const statAbsentBox = document.querySelector('.stat-card.absent');
+      const statLateBox = document.querySelector('.stat-card.late');
+      const statViolationBox = document.querySelector('.stat-card.violation');
+      const statReportBox = document.querySelector('.stat-card.student-report');
+
+      if (statAbsentBox) {
+        const c = buttonColors['statAbsentBox'];
+        statAbsentBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+      }
+      if (statLateBox) {
+        const c = buttonColors['statLateBox'];
+        statLateBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+      }
+      if (statViolationBox) {
+        const c = buttonColors['statViolationBox'];
+        statViolationBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+      }
+      if (statReportBox) {
+        const c = buttonColors['statReportBox'];
+        statReportBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
+      }
+    }
+
+    // استدعاء التطبيق عند تحميل الصفحة وبعد أي تحديث
+    function applyButtonColorsDelayed() {
+      setTimeout(applyButtonColors, 100);
+    }
+
+    // دوال إعدادات الألوان
+    let selectedButtonKey = null;
+
+    function openButtonColorsModal() {
+      renderButtonList();
+      document.getElementById('buttonColorsModal').style.display = 'flex';
+      // إخفاء محدد اللون
+      document.getElementById('colorPickerContainer').style.display = 'none';
+      selectedButtonKey = null;
+    }
+
+    function closeButtonColorsModal() {
+      document.getElementById('buttonColorsModal').style.display = 'none';
+    }
+
+    function renderButtonList() {
+      const container = document.getElementById('buttonListContainer');
+      container.innerHTML = '';
+      for (let key in BUTTON_NAMES) {
+        const color = buttonColors[key] || DEFAULT_BUTTON_COLORS[key];
+        const rgba = `rgba(${color.r},${color.g},${color.b},${color.a})`;
+        const div = document.createElement('div');
+        div.className = 'color-btn-item';
+        div.innerHTML = `
+          <span class="btn-name">${BUTTON_NAMES[key]}</span>
+          <div class="color-preview" style="background-color:${rgba};"></div>
+        `;
+        div.onclick = () => selectButtonForColor(key);
+        container.appendChild(div);
+      }
+    }
+
+    function selectButtonForColor(key) {
+      selectedButtonKey = key;
+      const color = buttonColors[key] || DEFAULT_BUTTON_COLORS[key];
+      document.getElementById('redSlider').value = color.r;
+      document.getElementById('greenSlider').value = color.g;
+      document.getElementById('blueSlider').value = color.b;
+      document.getElementById('alphaSlider').value = color.a;
+      document.getElementById('selectedButtonName').textContent = BUTTON_NAMES[key];
+      document.getElementById('colorPickerContainer').style.display = 'block';
+      updateColorPreview();
+    }
+
+    function updateColorPreview() {
+      const r = parseInt(document.getElementById('redSlider').value);
+      const g = parseInt(document.getElementById('greenSlider').value);
+      const b = parseInt(document.getElementById('blueSlider').value);
+      const a = parseFloat(document.getElementById('alphaSlider').value);
+      const preview = document.getElementById('buttonPreview');
+      preview.style.backgroundColor = `rgba(${r},${g},${b},${a})`;
+    }
+
+    function saveButtonColor() {
+      if (!selectedButtonKey) return;
+      const r = parseInt(document.getElementById('redSlider').value);
+      const g = parseInt(document.getElementById('greenSlider').value);
+      const b = parseInt(document.getElementById('blueSlider').value);
+      const a = parseFloat(document.getElementById('alphaSlider').value);
+      buttonColors[selectedButtonKey] = { r, g, b, a };
+      localStorage.setItem('attendance_button_colors', JSON.stringify(buttonColors));
+      // تطبيق الألوان على الفور
+      applyButtonColors();
+      // إعادة عرض القائمة لتحديث المعاينة
+      renderButtonList();
+      // إعادة فتح المحدد على نفس الزر
+      selectButtonForColor(selectedButtonKey);
+    }
+
+    function resetButtonColor() {
+      if (!selectedButtonKey) return;
+      if (confirm(`هل تريد استعادة اللون الافتراضي للزر "${BUTTON_NAMES[selectedButtonKey]}"؟`)) {
+        const def = DEFAULT_BUTTON_COLORS[selectedButtonKey];
+        buttonColors[selectedButtonKey] = { ...def };
+        localStorage.setItem('attendance_button_colors', JSON.stringify(buttonColors));
+        applyButtonColors();
+        renderButtonList();
+        selectButtonForColor(selectedButtonKey);
+        alert(`✅ تم استعادة اللون الافتراضي للزر "${BUTTON_NAMES[selectedButtonKey]}" بنجاح.`);
+      }
+    }
+
+    function resetAllButtonColors() {
+      if (confirm('هل تريد استعادة جميع الألوان الافتراضية للأزرار؟')) {
+        buttonColors = JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS));
+        localStorage.setItem('attendance_button_colors', JSON.stringify(buttonColors));
+        applyButtonColors();
+        renderButtonList();
+        document.getElementById('colorPickerContainer').style.display = 'none';
+        selectedButtonKey = null;
+        alert('✅ تم استعادة جميع الألوان الافتراضية بنجاح.');
+      }
+    }
 
     // ===== دوال التخزين =====
     function loadStudentNumberMap() {
@@ -940,9 +1312,11 @@
       document.getElementById('absentCount').innerText=absent;
       document.getElementById('lateCount').innerText=late;
       document.getElementById('violationCount').innerText=totalV;
+      // تطبيق الألوان على الأزرار الجديدة
+      applyButtonColorsDelayed();
     }
-    function switchToFollowupScreen(){ document.getElementById('absenceScreen').classList.remove('active-screen'); document.getElementById('followupScreen').classList.add('active-screen'); initClassSelects(); renderUnitsDropdown(); renderFollowupTable(currentActiveUnit); }
-    function switchToAbsenceScreen(){ document.getElementById('followupScreen').classList.remove('active-screen'); document.getElementById('absenceScreen').classList.add('active-screen'); initClassSelects(); renderStudents(); }
+    function switchToFollowupScreen(){ document.getElementById('absenceScreen').classList.remove('active-screen'); document.getElementById('followupScreen').classList.add('active-screen'); initClassSelects(); renderUnitsDropdown(); renderFollowupTable(currentActiveUnit); applyButtonColorsDelayed(); }
+    function switchToAbsenceScreen(){ document.getElementById('followupScreen').classList.remove('active-screen'); document.getElementById('absenceScreen').classList.add('active-screen'); initClassSelects(); renderStudents(); applyButtonColorsDelayed(); }
 
     function validateAndUpdate(el,type,lessonEnc,maxVal) {
       let val=parseFloat(el.value);
@@ -1189,6 +1563,8 @@
           <td style="background:#D5F5E3;font-weight:bold;color:#1E8449;text-align:center;">${w.total.toFixed(2)}</td>`;
         let row=document.createElement('tr'); row.innerHTML=rowHtml; tbody.appendChild(row);
       });
+      // تطبيق الألوان على الأزرار بعد إعادة الرسم
+      applyButtonColorsDelayed();
     }
     function toggleFollowupRowHighlight(nameCell) {
       const row = nameCell.closest('tr');
@@ -1988,14 +2364,14 @@
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ let notif={}; try{ const saved=localStorage.getItem('notification_export_settings'); if(saved) notif=JSON.parse(saved); }catch(e){} const data={appData,records,unitsData,followupData,penaltiesData,period1SelectedUnits,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings:notif}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ let notif={}; try{ const saved=localStorage.getItem('notification_export_settings'); if(saved) notif=JSON.parse(saved); }catch(e){} const data={appData,records,unitsData,followupData,penaltiesData,period1SelectedUnits,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings:notif,buttonColors}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
-    function importFullBackupJSON(e){ const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=function(ev){ try { const imported=JSON.parse(ev.target.result); if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; if(imported.followupData) followupData=imported.followupData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits; if(imported.studentNumberMap){ queryStudentNumberMap=imported.studentNumberMap; saveStudentNumberMap(); } if(imported.fontSettings){ fontSettings=imported.fontSettings; localStorage.setItem('attendance_font_settings',JSON.stringify(fontSettings)); applyFontSettings(); } if(imported.notificationSettings) localStorage.setItem('notification_export_settings',JSON.stringify(imported.notificationSettings)); saveData(); initClassSelects(); renderStudents(); renderUnitsDropdown(); applyFontSettings(); alert("✅ تم استعادة النسخة الاحتياطية بنجاح!"); } catch(err){ console.error(err); alert("❌ ملف النسخة الاحتياطي غير صالح!"); } }; reader.readAsText(file); }
+    function importFullBackupJSON(e){ const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=function(ev){ try { const imported=JSON.parse(ev.target.result); if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; if(imported.followupData) followupData=imported.followupData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits; if(imported.studentNumberMap){ queryStudentNumberMap=imported.studentNumberMap; saveStudentNumberMap(); } if(imported.fontSettings){ fontSettings=imported.fontSettings; localStorage.setItem('attendance_font_settings',JSON.stringify(fontSettings)); applyFontSettings(); } if(imported.buttonColors){ buttonColors=imported.buttonColors; localStorage.setItem('attendance_button_colors',JSON.stringify(buttonColors)); applyButtonColors(); } if(imported.notificationSettings) localStorage.setItem('notification_export_settings',JSON.stringify(imported.notificationSettings)); saveData(); initClassSelects(); renderStudents(); renderUnitsDropdown(); applyFontSettings(); applyButtonColors(); alert("✅ تم استعادة النسخة الاحتياطية بنجاح!"); } catch(err){ console.error(err); alert("❌ ملف النسخة الاحتياطي غير صالح!"); } }; reader.readAsText(file); }
     function downloadFile(content,filename,type){ const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),1000); }
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(()=>{ try { ['attendance_app_data','attendance_records','attendance_units_data','attendance_followup_data','attendance_penalties_data','attendance_period1_selected_units','attendance_student_number_map','attendance_font_settings','notification_export_settings'].forEach(k=>localStorage.removeItem(k)); appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; saveData(); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(()=>{ try { ['attendance_app_data','attendance_records','attendance_units_data','attendance_followup_data','attendance_penalties_data','attendance_period1_selected_units','attendance_student_number_map','attendance_font_settings','notification_export_settings','attendance_button_colors'].forEach(k=>localStorage.removeItem(k)); appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); saveData(); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
@@ -2058,6 +2434,7 @@
     renderStudents();
     renderUnitsDropdown();
     applyFontSettings();
+    applyButtonColors();
 
     fixBottomControlsPosition();
 
