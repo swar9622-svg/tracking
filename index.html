@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+  <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
+  <script>const APP_VERSION = "12.4";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,7 +20,7 @@
   <script src="./html2canvas.min.js"></script>
   <script src="./jspdf.umd.min.js"></script>
   <script src="./xlsx.full.min.js"></script>
-  <title>📚 كشف المتابعة 11.6</title>
+  <title>📚 كشف المتابعة .</title>
   <style>
     :root {
       --bg-color: #F2F2F7;
@@ -298,7 +300,7 @@
   <!-- ===== الشاشة الأولى ===== -->
   <div id="absenceScreen" class="screen active-screen">
     <header>
-      <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (11.6)</div>
+      <div class="header-title-box" onclick="switchToFollowupScreen()">كشف الغياب والمخالفات (<span class="app-version-label"></span>)</div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
         <input type="date" id="dateSelect" onchange="renderStudents()">
@@ -326,7 +328,7 @@
   <!-- ===== الشاشة الثانية ===== -->
   <div id="followupScreen" class="screen">
     <header>
-      <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (11.6)</div>
+      <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (<span class="app-version-label"></span>)</div>
     </header>
     <div class="top-action-bar">
       <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
@@ -2427,6 +2429,10 @@
         });
       }
     }
+
+    // ===== تحديث رقم الإصدار في عنوان الصفحة وعنواني الشاشتين =====
+    document.title = `📚 كشف المتابعة ${APP_VERSION}`;
+    document.querySelectorAll('.app-version-label').forEach(el => el.textContent = APP_VERSION);
 
     // ===== التهيئة النهائية =====
     loadStudentNumberMap();
