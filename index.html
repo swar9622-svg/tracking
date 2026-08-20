@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "16.6";</script>
+  <script>const APP_VERSION = "16.4";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2457,11 +2457,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       row.style.cssText='display:flex;flex-direction:column;gap:10px;background:#F9F9FB;padding:12px;border-radius:12px;border:1px solid #E5E5EA';
       const nameArea=index===null
         ?`<div style="width:100%;min-height:42px;display:flex;align-items:center;padding:0.5rem 0.7rem;border-radius:0.55rem;border:1px solid #D1D1D6;background:white;box-sizing:border-box;font-size:0.9rem;font-weight:800;color:var(--text-primary);word-break:break-word;">${escapeTextForHtml(label)}</div>`
-        :`<input type="text" id="violation_name_edit_${index}" value="${escapeTextForHtml(label)}" style="width:100%;min-height:42px;padding:0.5rem 0.7rem;border-radius:0.24rem;border:1px solid #D1D1D6;background:white;box-sizing:border-box;font-size:0.9rem;font-weight:800;">`;
+        :`<input type="text" id="violation_name_edit_${index}" value="${escapeTextForHtml(label)}" style="width:100%;min-height:42px;padding:0.5rem 0.7rem;border-radius:0.55rem;border:1px solid #D1D1D6;background:white;box-sizing:border-box;font-size:0.9rem;font-weight:800;">`;
       const editButton=index===null?'':`<button type="button" class="btn-confirm-add" onclick="saveViolationName(${index})" style="white-space:nowrap;padding:0.48rem 0.7rem;font-size:0.72rem;">تعديل الاسم</button>`;
-      const degreeControl=`<div style="display:flex;align-items:center;gap:4px;direction:rtl;"><span style="font-size:0.76rem;font-weight:800;color:#000;white-space:nowrap;">درجة الحسم</span><input type="number" step="0.05" min="0" max="10" id="penalty_input_${key}" value="${val}" style="width:70px;padding:0.42rem 0.18rem;text-align:center;box-sizing:border-box;font-size:0.86rem;font-weight:800;direction:ltr;" title="درجة الحسم"></div>`;
-      const editControl=index===null?'':`<div style="margin-inline-end:24px;">${editButton}</div>`;
-      row.innerHTML=`${nameArea}<div style="display:flex;align-items:center;justify-content:flex-start;gap:0;direction:rtl;">${editControl}${degreeControl}</div>`;
+      row.innerHTML=`${nameArea}<div style="display:flex;align-items:center;justify-content:flex-start;gap:32px;direction:rtl;">${editButton}<span style="font-size:0.76rem;font-weight:800;color:var(--text-secondary);white-space:nowrap;">درجة الحسم</span><input type="number" step="0.05" min="0" max="10" id="penalty_input_${key}" value="${val}" style="width:70px;padding:0.42rem 0.18rem;text-align:center;box-sizing:border-box;font-size:0.86rem;font-weight:800;direction:ltr;" title="درجة الحسم"></div>`;
       return row;
     }
     function openPenaltyConfigModal(){
