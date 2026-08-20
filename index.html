@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "17.6";</script>
+  <script>const APP_VERSION = "17.9";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -149,6 +149,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .student-name-tooltip { position: absolute; display: none; z-index: 10000; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); width: max-content; max-width: min(260px, 78vw); padding: 0.3rem 0.6rem; background: #FFFFFF; color: #1C1C1E; border: 1.5px solid var(--accent); border-radius: 0.5rem; box-shadow: 0 3px 10px rgba(0,0,0,0.16); font-size: 0.72rem; font-weight: 800; line-height: 1.25; text-align: center; white-space: normal; word-break: break-word; pointer-events: none; }
     .student-name-tooltip .tooltip-student { display: block; font-weight: 900; }
     .student-name-tooltip .tooltip-column { display: block; margin-top: 2px; padding-top: 2px; border-top: 1px solid rgba(0,0,0,0.12); font-size: 0.64rem; font-weight: 700; opacity: 0.78; }
+    .student-name-tooltip .tooltip-lesson-number { direction:ltr; unicode-bidi:isolate; display:inline-block; }
     .student-name-tooltip::after { content: ""; position: absolute; left: 50%; bottom: -6px; width: 10px; height: 10px; background: #FFFFFF; border-right: 1.5px solid var(--accent); border-bottom: 1.5px solid var(--accent); transform: translateX(-50%) rotate(45deg); }
     .student-name-tooltip.below { top: calc(100% + 8px); bottom: auto; }
     .student-name-tooltip.below::after { top: -6px; bottom: auto; border-right: none; border-bottom: none; border-left: 1.5px solid var(--accent); border-top: 1.5px solid var(--accent); transform: translateX(-50%) rotate(45deg); }
@@ -2128,6 +2129,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         if (!tooltip) return;
         const studentName = decodeURIComponent(input.dataset.student || '');
         const columnName = decodeURIComponent(input.dataset.columnName || '');
+        const assessmentLabel = decodeURIComponent(input.dataset.assessmentLabel || '');
         tooltip.innerHTML = '';
         const studentLine = document.createElement('span');
         studentLine.className = 'tooltip-student';
@@ -2136,7 +2138,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         if (columnName) {
           const columnLine = document.createElement('span');
           columnLine.className = 'tooltip-column';
-          columnLine.textContent = columnName;
+          if (assessmentLabel) {
+            columnLine.dir = 'rtl';
+            columnLine.appendChild(document.createTextNode(`${assessmentLabel} — `));
+            const lessonNumber = document.createElement('bdi');
+            lessonNumber.className = 'tooltip-lesson-number';
+            lessonNumber.dir = 'ltr';
+            lessonNumber.textContent = columnName;
+            columnLine.appendChild(lessonNumber);
+          } else {
+            columnLine.dir = 'auto';
+            columnLine.textContent = columnName;
+          }
           tooltip.appendChild(columnLine);
         }
         tooltip.style.display = 'block';
@@ -2238,11 +2251,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         let rowHtml=`<td style="font-weight:bold;color:var(--text-secondary);">${idx+1}</td><td class="student-name-td" style="font-weight:900;font-size:14px;text-align:right;${nameColor}" onclick="toggleFollowupRowHighlight(this)">${student}</td>`;
         // الواجبات
-        lessons.forEach(l=>{ let val=(stData.hw&&stData.hw[l]!==undefined)?stData.hw[l]:''; rowHtml+=`<td style="background:#EAFAF1;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'hw','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
+        lessons.forEach(l=>{ let val=(stData.hw&&stData.hw[l]!==undefined)?stData.hw[l]:''; rowHtml+=`<td style="background:#EAFAF1;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="واجب" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'hw','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // عمود الموزونه (الواجبات)
         rowHtml+=`<td style="background:#D4EFDF;font-weight:bold;text-align:center;font-size:0.8rem;">${hwAvg.toFixed(2)}</td>`;
         // الأنشطة
-        lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
+        lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // عمود الموزونه (الأنشطة)
         rowHtml+=`<td style="background:#FCF3CF;font-weight:bold;text-align:center;font-size:0.8rem;">${actAvg.toFixed(2)}</td>`;
         // مشاركة
