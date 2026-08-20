@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "15.8";</script>
+  <script>const APP_VERSION = "15.9";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1437,23 +1437,24 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return getCumulativeAttendanceRecord(raw);
     }
 
-    // يمنع احتساب الطالب أكثر من مرة في التاريخ نفسه عند الانتقال بين الوحدات.
-    function getStudentDayRecordInOtherUnit(date,cls,student,unitName=currentAttendanceUnit){
-      if(!isPerUnitParticipationMode()) return null;
-      const raw=rawStudentAttendanceRecord(date,cls,student);
-      if(!raw||typeof raw!=='object'||!raw.units||typeof raw.units!=='object') return null;
-      for(const [unit,value] of Object.entries(raw.units)){
-        if(unit===unitName) continue;
-        const record=normalizeAttendanceRecord(value);
-        if(hasAttendanceData(record)) return {unit,record};
+    // للوحدة 10 درجات: أول تسجيل فعلي في اليوم يحدد وحدة ذلك اليوم لجميع الطلاب.
+    function getAttendanceDayLockedUnit(date,cls){
+      if(!isPerUnitParticipationMode()||!records[date]||!records[date][cls]) return '';
+      for(const raw of Object.values(records[date][cls])){
+        if(!raw||typeof raw!=='object'||!raw.units||typeof raw.units!=='object') continue;
+        for(const [unit,value] of Object.entries(raw.units)){
+          if(hasAttendanceData(normalizeAttendanceRecord(value))) return unit;
+        }
       }
-      return null;
+      return '';
     }
-    function describeStudentDayRecord(record){
-      const parts=[];
-      if(record.status) parts.push(record.status);
-      if(record.violations&&record.violations.length) parts.push(`مخالفات ${record.violations.length}`);
-      return parts.join('، ')||'سجل';
+    function canRecordInCurrentAttendanceUnit(date,cls){
+      const lockedUnit=getAttendanceDayLockedUnit(date,cls);
+      if(lockedUnit&&lockedUnit!==currentAttendanceUnit){
+        alert(`⚠️ التاريخ ${date} مرتبط بالوحدة «${lockedUnit}» لأن فيه حالات مسجلة بالفعل. لا يمكن التسجيل في «${currentAttendanceUnit}» لهذا اليوم.`);
+        return false;
+      }
+      return true;
     }
     function getAttendanceRecordComponents(date,cls,student,selectedUnit='__all__'){
       const raw=rawStudentAttendanceRecord(date,cls,student);
@@ -1608,22 +1609,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       let absent=0, late=0, totalV=0;
       students.forEach(s=>{
         const rec=getStudentDayRecord(date,cls,s,currentAttendanceUnit), status=rec.status, vList=rec.violations;
-        const otherUnitRecord=getStudentDayRecordInOtherUnit(date,cls,s,currentAttendanceUnit);
         if(status==='غائب') absent++;
         if(status==='متأخر') late++;
         totalV+=vList.length;
         const vText=vList.length>0?`مخالفات ${vList.length}`:'مخالفات';
         const vClass=vList.length>0?'active-violation':'', disabled=status==='غائب'?'disabled-btn':'';
-        const locked=!!otherUnitRecord, lockAttribute=locked?'disabled':'';
         const card=document.createElement('div'); card.className='student-card';
         const nameColor=dup.includes(s)?'color:#FF3B30;':'';
-        const otherUnitNotice=locked?`<div style="width:100%;margin:3px 0 6px;padding:5px 8px;border-radius:8px;background:#FFF4E5;color:#9A6700;font-size:12px;font-weight:800;text-align:center;">مسجل في ${otherUnitRecord.unit}: ${describeStudentDayRecord(otherUnitRecord.record)}</div><button class="btn-status" style="background:#EAF2FF;color:#1A5FB4;border:1px solid #A9C7F5;flex:1;" onclick="moveStudentDayRecordToCurrentUnit('${CSS.escape(s)}')">تغيير الوحدة</button>`:'';
-        if(locked) card.style.flexWrap='wrap';
-        card.innerHTML=`<div class="student-name" style="${nameColor}">${s}</div><div class="attendance-buttons" style="${locked?'width:100%;flex-wrap:wrap;':''}">
-          ${otherUnitNotice}
-          <button class="btn-status ${status==='غائب'?'active-absent':''}" ${lockAttribute} onclick="setStatus('${CSS.escape(s)}','غائب')">غائب</button>
-          <button class="btn-status ${status==='متأخر'?'active-late':''}" ${lockAttribute} onclick="setStatus('${CSS.escape(s)}','متأخر')">متأخر</button>
-          <button class="btn-status ${vClass} ${disabled}" ${lockAttribute} onclick="openViolationModal('${CSS.escape(s)}')">${vText}</button>
+        card.innerHTML=`<div class="student-name" style="${nameColor}">${s}</div><div class="attendance-buttons">
+          <button class="btn-status ${status==='غائب'?'active-absent':''}" onclick="setStatus('${CSS.escape(s)}','غائب')">غائب</button>
+          <button class="btn-status ${status==='متأخر'?'active-late':''}" onclick="setStatus('${CSS.escape(s)}','متأخر')">متأخر</button>
+          <button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${CSS.escape(s)}')">${vText}</button>
         </div>`;
         cont.appendChild(card);
       });
@@ -2477,8 +2473,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     // ===== دوال الحضور والمخالفات =====
     function setStatus(student,newStatus){
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
-      const otherUnitRecord=getStudentDayRecordInOtherUnit(date,cls,student,currentAttendanceUnit);
-      if(otherUnitRecord){ alert(`⚠️ للطالب سجل بالفعل في ${otherUnitRecord.unit} في هذا اليوم. استخدم زر «تغيير الوحدة» لنقل السجل بدلاً من تكراره.`); return; }
+      const currentRecord=getStudentDayRecord(date,cls,student,currentAttendanceUnit);
+      const isAddingStatus=currentRecord.status!==newStatus;
+      if(isAddingStatus&&!canRecordInCurrentAttendanceUnit(date,cls)) return;
       const rec=getMutableAttendanceRecord(date,cls,student);
       if(rec.status===newStatus) rec.status='';
       else { rec.status=newStatus; if(newStatus==='غائب') rec.violations=[]; }
@@ -2488,8 +2485,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     function openViolationModal(student){
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
-      const otherUnitRecord=getStudentDayRecordInOtherUnit(date,cls,student,currentAttendanceUnit);
-      if(otherUnitRecord){ alert(`⚠️ للطالب سجل بالفعل في ${otherUnitRecord.unit} في هذا اليوم. استخدم زر «تغيير الوحدة» لنقل السجل بدلاً من تكراره.`); return; }
+      if(!canRecordInCurrentAttendanceUnit(date,cls)) return;
       const rec=getStudentDayRecord(date,cls,student,currentAttendanceUnit);
       if(rec.status==='غائب'){ alert('⚠️ الطالب مسجل كـ "غائب" في الوحدة المختارة، لا يمكن إضافة مخالفات له.'); return; }
       currentStudentForViolation=student; document.getElementById('violationModalTitle').innerText=`⚠️ مخالفات: ${student}${isPerUnitParticipationMode()?` — ${currentAttendanceUnit}`:''}`;
@@ -2502,27 +2498,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function autoSaveStudentViolations(){
       if(!currentStudentForViolation) return;
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
-      const otherUnitRecord=getStudentDayRecordInOtherUnit(date,cls,currentStudentForViolation,currentAttendanceUnit);
-      if(otherUnitRecord){ alert(`⚠️ للطالب سجل بالفعل في ${otherUnitRecord.unit} في هذا اليوم.`); return; }
       const viols=[]; VIOLATIONS_LIST.forEach((v,i)=>{ if(document.getElementById(`v_check_${i}`)?.checked) viols.push(v); });
+      if(viols.length>0&&!canRecordInCurrentAttendanceUnit(date,cls)) return;
       const rec=getMutableAttendanceRecord(date,cls,currentStudentForViolation);
       rec.violations=viols;
       cleanupMutableAttendanceRecord(date,cls,currentStudentForViolation);
-      saveData(); renderStudents();
-    }
-
-    function moveStudentDayRecordToCurrentUnit(student){
-      if(!isPerUnitParticipationMode()) return;
-      const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
-      const source=getStudentDayRecordInOtherUnit(date,cls,student,currentAttendanceUnit);
-      if(!source){ alert('لا يوجد سجل في وحدة أخرى لنقله.'); return; }
-      if(!confirm(`هل تريد نقل سجل الطالب ${student} ليوم ${date} من ${source.unit} إلى ${currentAttendanceUnit}؟\nسيبقى سجل واحد فقط ولن تتكرر أي خصومات.`)) return;
-      const raw=rawStudentAttendanceRecord(date,cls,student);
-      if(!raw||typeof raw!=='object'||!raw.units) return;
-      const target=currentAttendanceUnit;
-      if(raw.units[target]&&hasAttendanceData(normalizeAttendanceRecord(raw.units[target]))){ alert('توجد بيانات في الوحدة المختارة؛ لا يمكن نقل السجل إليها قبل معالجة هذه البيانات.'); return; }
-      raw.units[target]=normalizeAttendanceRecord(source.record);
-      delete raw.units[source.unit];
       saveData(); renderStudents();
     }
 
