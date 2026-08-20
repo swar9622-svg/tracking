@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "15.5";</script>
+  <script>const APP_VERSION = "15.7";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1626,7 +1626,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const cls=document.getElementById('followupClassSelect').value, student=decodeURIComponent(el.dataset.student), key=`${cls}_${currentActiveUnit}`;
       if(!isNaN(val)&&val>maxVal) { alert(`الدرجة أكبر من القصوى ${maxVal}`); let old=''; if(followupData[key]&&followupData[key][student]) { if(type==='hw'){ const l=decodeURIComponent(lessonEnc); old=followupData[key][student].hw?.[l]??''; } else if(type==='act'){ const l=decodeURIComponent(lessonEnc); old=followupData[key][student].act?.[l]??''; } else if(type==='test1') old=followupData[key][student].test1??''; else if(type==='test2') old=followupData[key][student].test2??''; } el.value=old; return; }
       let lesson=''; if(type==='hw'||type==='act') lesson=decodeURIComponent(lessonEnc);
-      updateFollowupValue(cls,currentActiveUnit,student,type,lesson,el.value);
+      updateFollowupValue(cls,currentActiveUnit,student,type,lesson,el.value,el);
     }
 
     // ===== الدالة الجديدة لحساب الدرجات الموزونة  =====
@@ -2048,17 +2048,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(targetIndex < 0 || targetIndex >= inputs.length) return;
 
       event.preventDefault();
-      // يحفظ التعديل أولاً؛ قد يعيد الحفظ رسم الجدول، لذلك نعيد تحديد الخلية في الرسم الجديد.
+      // يحفظ التعديل من دون إعادة رسم الجدول، ثم ينقل التركيز فوراً كي تبقى لوحة الجوال مفتوحة.
+      const target = inputs[targetIndex];
       input.dispatchEvent(new Event('change', {bubbles:true}));
-      setTimeout(() => {
-        const refreshedInputs = Array.from(document.querySelectorAll('#followupTableBody input[type="number"]'));
-        const target = refreshedInputs[targetIndex];
-        if(target){
-          target.focus();
-          target.select();
-          target.closest('td')?.scrollIntoView({block:'nearest', inline:'nearest'});
-        }
-      }, 0);
+      if(target){
+        target.focus();
+        target.select();
+        target.closest('td')?.scrollIntoView({block:'nearest', inline:'nearest'});
+      }
     }
 
     function toggleFollowupRowHighlight(nameCell) {
@@ -2070,7 +2067,33 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if (!wasHighlighted) row.classList.add('row-highlighted');
     }
 
-    function updateFollowupValue(cls,unit,student,type,lesson,val) {
+    // يحدّث الخلايا المحسوبة في الصف ذاته دون إعادة بناء الجدول، كي لا تفقد لوحة الجوال التركيز.
+    function refreshFollowupCalculatedCells(row, cls, student, unit) {
+      if(!row) return;
+      const lessons=(unitsData[unit] && unitsData[unit].lessons) || ['درس 1'];
+      const lessonCount=lessons.length;
+      const hwAverage=2+lessonCount;
+      const actAverage=hwAverage+1+lessonCount;
+      const participation=actAverage+1;
+      const finalHw=participation+3;
+      const finalAct=participation+4;
+      const finalParticipation=participation+5;
+      const finalTest=participation+6;
+      const total=participation+7;
+      const raw=computeRawAverages(cls,student,unit);
+      const part=calculateStudentParticipationScore(cls,student,unit);
+      const weighted=computeWeightedScores(cls,student,[unit]);
+      if(row.cells[hwAverage]) row.cells[hwAverage].textContent=raw.hwAvg.toFixed(2);
+      if(row.cells[actAverage]) row.cells[actAverage].textContent=raw.actAvg.toFixed(2);
+      if(row.cells[participation]) row.cells[participation].textContent=part.toFixed(2);
+      if(row.cells[finalHw]) row.cells[finalHw].textContent=weighted.hw.toFixed(2);
+      if(row.cells[finalAct]) row.cells[finalAct].textContent=weighted.act.toFixed(2);
+      if(row.cells[finalParticipation]) row.cells[finalParticipation].textContent=weighted.participation.toFixed(2);
+      if(row.cells[finalTest]) row.cells[finalTest].textContent=weighted.test.toFixed(2);
+      if(row.cells[total]) row.cells[total].textContent=weighted.total.toFixed(2);
+    }
+
+    function updateFollowupValue(cls,unit,student,type,lesson,val,sourceInput=null) {
       const key=`${cls}_${unit}`;
       if(!followupData[key]) followupData[key]={};
       if(!followupData[key][student]) followupData[key][student]={hw:{},act:{},test1:'',test2:'',projectLink:''};
@@ -2078,7 +2101,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       else if(type==='act') followupData[key][student].act[lesson]=val;
       else if(type==='test1') followupData[key][student].test1=val;
       else if(type==='test2') followupData[key][student].test2=val;
-      saveData(); renderFollowupTable(currentActiveUnit);
+      saveData();
+      if(sourceInput) refreshFollowupCalculatedCells(sourceInput.closest('tr'),cls,student,unit);
+      else renderFollowupTable(currentActiveUnit);
     }
     function onFollowupClassChange(cls){ renderFollowupTable(currentActiveUnit); }
     function onUnitDropdownChange(unit){ currentActiveUnit=unit; renderFollowupTable(unit); }
