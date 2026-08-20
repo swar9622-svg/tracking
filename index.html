@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "15.4";</script>
+  <script>const APP_VERSION = "15.5";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3201,89 +3201,38 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const classSelect = document.getElementById('followupClassSelect');
       const savedClass = classSelect ? classSelect.value : '';
       const savedActiveUnit = currentActiveUnit;
-      const renderedScopes = new Set();
-      const exportWarnings = [];
       const asNumber = value => Number.parseFloat(String(value).replace(/,/g,'')) || 0;
-      const cellText = cell => cell ? cell.textContent.trim() : '';
-      // يوحّد المسافات والمحارف المخفية في الاسم ليتطابق صف الكشف مع قائمة الطلاب.
-      const normalizeStudentName = value => String(value||'').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\u00A0/g,' ').replace(/\s+/g,' ').trim();
-      const findVisibleStudentRow = (rows, student) => {
-        const target = normalizeStudentName(student);
-        return rows.find(tr => normalizeStudentName(cellText(tr.cells[1])) === target);
-      };
-      const inputValue = cell => {
-        const input = cell ? cell.querySelector('input') : null;
-        return input ? input.value : '';
-      };
 
-      // يبني لقطة للصف من خلايا كشف المتابعة؛ لا تستدعي هذه الدالة أي حساب درجات.
-      function readVisibleFollowupRow(cls, student, unit, lessons) {
-        const scope = `${cls}__${unit}`;
-        // يهيئ سجلاً فارغاً للطالب الجديد قبل رسم كشف الوحدة، فلا يفشل التصدير عند إضافته حديثاً.
+      // مصدر موحد لصف التصدير: نفس بيانات ودوال كشف المتابعة، من دون قراءة صفوف DOM.
+      // بذلك لا يتأثر التصدير بطول الاسم أو ترتيب الصفوف أو إضافة/حذف الطلاب.
+      function buildFollowupExportSnapshot(cls, student, unit, lessons) {
         const followupKey = `${cls}_${unit}`;
         if(!followupData[followupKey]) followupData[followupKey] = {};
-        if(!followupData[followupKey][student]) followupData[followupKey][student] = {hw:{},act:{},test1:'',test2:'',projectLink:''};
-        if(!renderedScopes.has(scope)){
-          if(classSelect) classSelect.value=cls;
-          renderFollowupTable(unit);
-          renderedScopes.add(scope);
+        if(!followupData[followupKey][student]) {
+          followupData[followupKey][student] = {hw:{},act:{},test1:'',test2:'',projectLink:''};
         }
-        let rows = Array.from(document.querySelectorAll('#followupTableBody tr'));
-        // كشف المتابعة يرتب أسماء الفصل نفسه بالترتيب العربي؛ القراءة بالموقع تمنع تعذر المطابقة النصية للأسماء الطويلة.
-        const classStudents = [...(appData[cls] || [])].sort((a,b)=>a.localeCompare(b,'ar'));
-        const studentIndex = classStudents.findIndex(name => normalizeStudentName(name) === normalizeStudentName(student));
-        let row = studentIndex >= 0 ? rows[studentIndex] : null;
-        if(!row) row = findVisibleStudentRow(rows, student);
-        // إعادة الرسم مرة واحدة؛ تعالج حالة تغير الفصل أو الوحدة أثناء تحضير أوراق متعددة.
-        if(!row){
-          renderFollowupTable(unit);
-          rows = Array.from(document.querySelectorAll('#followupTableBody tr'));
-          row = studentIndex >= 0 ? rows[studentIndex] : null;
-          if(!row) row = findVisibleStudentRow(rows, student);
-        }
-
-        const lessonCount = lessons.length;
-        if(!row){
-          const attendance = getStudentAttendanceStats(cls, student, isPerUnitParticipationMode() ? unit : '__all__');
-          exportWarnings.push(`${student} — ${unit}`);
-          // لا تُخترع أي درجة عند تعذر قراءة الصف: تظل القيم الأكاديمية فارغة وتبقى الخلاصة من الصفوف المتاحة فقط.
-          return {
-            hwInputs:Array(lessonCount).fill(''), hwAverage:'', actInputs:Array(lessonCount).fill(''), actAverage:'',
-            absence:attendance.absent, late:attendance.late, violations:attendance.violations,
-            participation:'', test:'', project:'', finalHw:'', finalAct:'', finalParticipation:'', finalTest:'', total:'', missingRow:true
-          };
-        }
-
-        const hwStart = 2;
-        const hwAverage = hwStart + lessonCount;
-        const actStart = hwAverage + 1;
-        const actAverage = actStart + lessonCount;
-        const participation = actAverage + 1;
-        const test = participation + 1;
-        const project = participation + 2;
-        const finalHw = participation + 3;
-        const finalAct = participation + 4;
-        const finalParticipation = participation + 5;
-        const finalTest = participation + 6;
-        const total = participation + 7;
-
+        const stData = followupData[followupKey][student];
+        const raw = computeRawAverages(cls, student, unit);
+        const participation = calculateStudentParticipationScore(cls, student, unit);
+        const weighted = computeWeightedScores(cls, student, [unit]);
         const attendance = getStudentAttendanceStats(cls, student, isPerUnitParticipationMode() ? unit : '__all__');
+
         return {
-          hwInputs: lessons.map((_, index) => inputValue(row.cells[hwStart + index])),
-          hwAverage: cellText(row.cells[hwAverage]),
-          actInputs: lessons.map((_, index) => inputValue(row.cells[actStart + index])),
-          actAverage: cellText(row.cells[actAverage]),
+          hwInputs: lessons.map(lesson => stData.hw && stData.hw[lesson] !== undefined ? stData.hw[lesson] : ''),
+          hwAverage: raw.hwAvg.toFixed(2),
+          actInputs: lessons.map(lesson => stData.act && stData.act[lesson] !== undefined ? stData.act[lesson] : ''),
+          actAverage: raw.actAvg.toFixed(2),
           absence: attendance.absent,
           late: attendance.late,
           violations: attendance.violations,
-          participation: cellText(row.cells[participation]),
-          test: inputValue(row.cells[test]),
-          project: inputValue(row.cells[project]),
-          finalHw: cellText(row.cells[finalHw]),
-          finalAct: cellText(row.cells[finalAct]),
-          finalParticipation: cellText(row.cells[finalParticipation]),
-          finalTest: cellText(row.cells[finalTest]),
-          total: cellText(row.cells[total])
+          participation: participation.toFixed(2),
+          test: stData.test1 !== undefined ? stData.test1 : '',
+          project: stData.test2 !== undefined ? stData.test2 : '',
+          finalHw: weighted.hw.toFixed(2),
+          finalAct: weighted.act.toFixed(2),
+          finalParticipation: weighted.participation.toFixed(2),
+          finalTest: weighted.test.toFixed(2),
+          total: weighted.total.toFixed(2)
         };
       }
 
@@ -3303,7 +3252,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           unitSnapshots[unit] = {};
 
           list.forEach(item => {
-            const snapshot = readVisibleFollowupRow(item.class, item.name, unit, lessons);
+            const snapshot = buildFollowupExportSnapshot(item.class, item.name, unit, lessons);
             unitSnapshots[unit][`${item.class}__${item.name}`] = snapshot;
             // صف الوحدة: نقل حرفي لقيم كشف المتابعة ولا توجد دوال حساب درجات هنا.
             rows.push([
@@ -3328,7 +3277,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           let availableUnits=0;
           selectedUnits.forEach(unit => {
             const snapshot = unitSnapshots[unit][`${item.class}__${item.name}`];
-            if(snapshot && !snapshot.missingRow){
+            if(snapshot){
               sumHw += asNumber(snapshot.finalHw);
               sumAct += asNumber(snapshot.finalAct);
               sumPart += asNumber(snapshot.finalParticipation);
@@ -3359,17 +3308,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         link.click();
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-        const warningText = exportWarnings.length ? `\n\n⚠️ تم إنشاء الملف، لكن تعذر قراءة ${exportWarnings.length} صف من كشف المتابعة؛ تُركت درجاتها الأكاديمية فارغة: ${exportWarnings.join(' | ')}` : '';
-        alert(`✅ تم إنشاء وتنزيل ملف data.xlsx بنجاح.${warningText}`);
+        alert('✅ تم إنشاء وتنزيل ملف data.xlsx بنجاح.');
       } catch(err) {
         console.error('تعذر تصدير data.xlsx:', err);
         alert(`❌ تعذر تصدير ملف data.xlsx. ${err && err.message ? err.message : 'يرجى المحاولة مرة أخرى.'}`);
       } finally {
-        // يعيد كشف المتابعة إلى ما كان يعرضه المستخدم قبل بدء التصدير.
-        if(classSelect && savedClass){
-          classSelect.value=savedClass;
-          renderFollowupTable(savedActiveUnit);
-        }
+        // لا تتغير واجهة كشف المتابعة أثناء التصدير.
       }
     }
 
