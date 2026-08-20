@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "16.9";</script>
+  <script>const APP_VERSION = "17.0";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2962,28 +2962,27 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const today = new Date().toLocaleDateString('ar-SA');
         const unitsList = [unitName];
         const sizes = getPdfSizes('periodUnit');
-        let header = `<tr style="background:#007AFF;color:white;font-size:${sizes.headers}px;">
-          <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;">#</th>
-          <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:right;min-width:80px;">اسم الطالب</th>
-          <th colspan="${lessons.length}" style="border:1px solid #007AFF;padding:4px;text-align:center;">الواجبات</th>
-          <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;background:#D4EFDF;">الموزونه</th>
-          <th colspan="${lessons.length}" style="border:1px solid #007AFF;padding:4px;text-align:center;">الأنشطة</th>
-          <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;background:#FCF3CF;">الموزونه</th>
-          <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;">المشاركة</th>
-          <th colspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;">الاختبارات والمشاريع</th>
-          <th colspan="4" style="border:1px solid #007AFF;padding:4px;text-align:center;">الموزونه + المشروع (الخلاصه)</th>
-          <th rowspan="2" style="border:1px solid #007AFF;padding:4px;text-align:center;">المجموع</th>
-        </tr><tr style="background:#f0f0f0;color:#333;font-size:${sizes.headers-1}px;">`;
-        lessons.forEach(l => { header += `<th style="border:1px solid #ddd;padding:2px;text-align:center;">${l}</th>`; });
-        // لا يوجد عمود بين الواجبات والأنشطة في الصف الثاني
-        lessons.forEach(l => { header += `<th style="border:1px solid #ddd;padding:2px;text-align:center;">${l}</th>`; });
-        // لا يوجد عمود بين الأنشطة والمشاركة في الصف الثاني
-        header += `<th style="border:1px solid #ddd;padding:2px;text-align:center;">الاختبار</th>
-          <th style="border:1px solid #ddd;padding:2px;text-align:center;">المشروع</th>
-          <th style="border:1px solid #ddd;padding:2px;text-align:center;">الواجبات</th>
-          <th style="border:1px solid #ddd;padding:2px;text-align:center;">الأنشطة</th>
-          <th style="border:1px solid #ddd;padding:2px;text-align:center;">المشاركة</th>
-          <th style="border:1px solid #ddd;padding:2px;text-align:center;">الاختبار</th></tr>`;
+        const wrappedHeader='line-height:1.22;white-space:normal;overflow-wrap:normal;word-break:normal;min-width:42px;';
+        let header = `<tr style="font-size:${sizes.headers}px;">
+          <th rowspan="2" style="border:1px solid #D1D1D6;padding:4px;text-align:center;background:#F8F9FA;color:#2C3E50;${wrappedHeader}">#</th>
+          <th rowspan="2" style="border:1px solid #D1D1D6;padding:4px;text-align:right;min-width:88px;background:#F8F9FA;color:#2C3E50;${wrappedHeader}">اسم الطالب</th>
+          <th colspan="${lessons.length}" style="border:1px solid #A9DFBF;padding:4px;text-align:center;background:#D4EFDF;color:#117A65;${wrappedHeader}">الواجبات (10)</th>
+          <th rowspan="2" style="border:1px solid #A9DFBF;padding:4px;text-align:center;background:#D4EFDF;color:#117A65;${wrappedHeader}">الموزونة<br>للواجبات</th>
+          <th colspan="${lessons.length}" style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#7D6608;${wrappedHeader}">الأنشطة (20)</th>
+          <th rowspan="2" style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#7D6608;${wrappedHeader}">الموزونة<br>للأنشطة</th>
+          <th rowspan="2" style="border:1px solid #D2B4DE;padding:4px;text-align:center;background:#EBDEF0;color:#512E5F;${wrappedHeader}">درجة<br>المشاركة</th>
+          <th colspan="2" style="border:1px solid #F5B7B1;padding:4px;text-align:center;background:#FADBD8;color:#78281F;${wrappedHeader}">الاختبارات والمشاريع (20)</th>
+          <th colspan="4" style="border:1px solid #AED6F1;padding:4px;text-align:center;background:#D6EAF8;color:#1B4F72;${wrappedHeader}">الدرجات الموزونة + المشروع<br>الخلاصة</th>
+          <th rowspan="2" style="border:1px solid #A9DFBF;padding:4px;text-align:center;background:#D5F5E3;color:#1E8449;${wrappedHeader}">المجموع<br>الكلي</th>
+        </tr><tr style="font-size:${Math.max(6,sizes.headers-1)}px;">`;
+        lessons.forEach(l => { header += `<th style="border:1px solid #D5F5E3;padding:2px;text-align:center;background:#EAFAF1;color:#117A65;${wrappedHeader}">${l}</th>`; });
+        lessons.forEach(l => { header += `<th style="border:1px solid #F9E79F;padding:2px;text-align:center;background:#FEF9E7;color:#7D6608;${wrappedHeader}">${l}</th>`; });
+        header += `<th style="border:1px solid #F5B7B1;padding:2px;text-align:center;background:#FDEDEC;color:#78281F;${wrappedHeader}">الاختبار</th>
+          <th style="border:1px solid #F5B7B1;padding:2px;text-align:center;background:#FDEDEC;color:#78281F;${wrappedHeader}">المشروع</th>
+          <th style="border:1px solid #AED6F1;padding:2px;text-align:center;background:#EBF5FB;color:#1B4F72;${wrappedHeader}">الموزونة<br>للواجبات</th>
+          <th style="border:1px solid #AED6F1;padding:2px;text-align:center;background:#EBF5FB;color:#1B4F72;${wrappedHeader}">الموزونة<br>للأنشطة</th>
+          <th style="border:1px solid #AED6F1;padding:2px;text-align:center;background:#EBF5FB;color:#1B4F72;${wrappedHeader}">الموزونة<br>للمشاركة</th>
+          <th style="border:1px solid #AED6F1;padding:2px;text-align:center;background:#EBF5FB;color:#1B4F72;${wrappedHeader}">الموزونة<br>للاختبار</th></tr>`;
 
         let rows = '';
         students.forEach((student, idx) => {
@@ -2995,11 +2994,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           let hwCells = '', actCells = '';
           lessons.forEach(l => {
             let val = stData.hw[l] !== undefined ? stData.hw[l] : '';
-            hwCells += `<td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;">${val}</td>`;
+            hwCells += `<td style="border:1px solid #A9DFBF;padding:3px;text-align:center;font-size:${sizes.data}px;background:#EAFAF1;color:#117A65;">${val}</td>`;
           });
           lessons.forEach(l => {
             let val = stData.act[l] !== undefined ? stData.act[l] : '';
-            actCells += `<td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;">${val}</td>`;
+            actCells += `<td style="border:1px solid #F7DC6F;padding:3px;text-align:center;font-size:${sizes.data}px;background:#FEF9E7;color:#7D6608;">${val}</td>`;
           });
           let part = calculateStudentParticipationScore(cls, student, unitName);
           let t1 = stData.test1 !== undefined ? stData.test1 : '';
@@ -3008,20 +3007,20 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;color:#666;">${idx+1}</td>
             <td class="pdf-student-name-cell" style="border:1px solid #ddd;padding:3px;text-align:right;font-size:${sizes.names}px;font-weight:900;">${student}</td>
             ${hwCells}
-            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D4EFDF;">${hwAvg.toFixed(2)}</td>
+            <td style="border:1px solid #A9DFBF;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D4EFDF;color:#117A65;">${hwAvg.toFixed(2)}</td>
             ${actCells}
-            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#FCF3CF;">${actAvg.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#f9f2fc;">${part.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;">${t1}</td>
-            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;">${t2}</td>
-            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;">${w.hw.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;">${w.act.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;">${w.participation.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;">${w.test.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:900;background:#eafaf1;color:#1e8449;">${w.total.toFixed(2)}</td>
+            <td style="border:1px solid #F7DC6F;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#FCF3CF;color:#7D6608;">${actAvg.toFixed(2)}</td>
+            <td style="border:1px solid #D2B4DE;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#F5EEF8;color:#512E5F;">${part.toFixed(2)}</td>
+            <td style="border:1px solid #F5B7B1;padding:3px;text-align:center;font-size:${sizes.data}px;background:#FDEDEC;">${t1}</td>
+            <td style="border:1px solid #F5B7B1;padding:3px;text-align:center;font-size:${sizes.data}px;background:#FDEDEC;">${t2}</td>
+            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EBF5FB;color:#1B4F72;">${w.hw.toFixed(2)}</td>
+            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EBF5FB;color:#1B4F72;">${w.act.toFixed(2)}</td>
+            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EBF5FB;color:#1B4F72;">${w.participation.toFixed(2)}</td>
+            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EBF5FB;color:#1B4F72;">${w.test.toFixed(2)}</td>
+            <td style="border:1px solid #A9DFBF;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:900;background:#D5F5E3;color:#1E8449;">${w.total.toFixed(2)}</td>
           </tr>`;
         });
-        const tableHtml = `<table style="width:100%;border-collapse:collapse;font-family:sans-serif;">${header}${rows}</table>`;
+        const tableHtml = `<table style="width:100%;border-collapse:collapse;font-family:sans-serif;table-layout:auto;">${header}${rows}</table>`;
         const title = `كشف متابعة الدرجات والمهام - ${unitName}`;
         const sub = `<span>الفصل: ${cls}</span><span>تاريخ الإصدار: ${today}</span><span>عدد الطلاب: ${students.length}</span>`;
         const element = buildPdfElement(tableHtml, title, sub, '', sizes);
@@ -3598,11 +3597,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const cls=document.getElementById('classSelect').value, today=new Date().toLocaleDateString('ar-SA'), scope=currentStudentReportUnitSelection, scopeLabel=getAttendanceScopeLabel(scope);
       let rows='';
       buildStudentReportRows(cls,selectedStudentForReport,scope).forEach(({date,unit,record})=>{
-        const isAbs=record.status==='غائب', isLate=record.status==='متأخر', vio=record.violations?record.violations.length:0;
-        rows+=`<tr><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:6px;text-align:center;font-weight:bold;">${date}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;font-weight:bold;color:#007AFF;">${unit}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${isAbs?'#FF3B30':'#333'};font-weight:${isAbs?'900':'normal'};">${isAbs?'غائب':'-'}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${isLate?'#FF9500':'#333'};font-weight:${isLate?'900':'normal'};">${isLate?'متأخر':'-'}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${vio>0?'#AF52DE':'#333'};font-weight:${vio>0?'900':'normal'};">${vio>0?vio:'-'}</td></tr>`;
+        const isAbs=record.status==='غائب', isLate=record.status==='متأخر';
+        const violationNames=(record.violations||[]).map(id=>{ const item=getViolationById(id); return item?item.name:String(id||''); }).filter(Boolean);
+        const violationText=violationNames.length?violationNames.join('، '):'-';
+        rows+=`<tr><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:6px;text-align:center;font-weight:bold;">${date}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;font-weight:bold;color:#007AFF;">${unit}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${isAbs?'#FF3B30':'#333'};font-weight:${isAbs?'900':'normal'};">${isAbs?'غائب':'-'}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${isLate?'#FF9500':'#333'};font-weight:${isLate?'900':'normal'};">${isLate?'متأخر':'-'}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:right;line-height:1.45;white-space:normal;overflow-wrap:anywhere;color:${violationNames.length?'#AF52DE':'#333'};font-weight:${violationNames.length?'900':'normal'};">${escapeTextForHtml(violationText)}</td></tr>`;
       });
       if(!rows) rows='<tr><td colspan="5" style="border:1px solid #D1D1D6;padding:10px;text-align:center;">لا توجد حالات مسجلة.</td></tr>';
-      const table=`<table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="background:#007AFF;color:white;"><th style="border:1px solid #007AFF;padding:6px;text-align:center;">التاريخ</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">الوحدة</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">الغياب</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">التأخر</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">عدد المخالفات</th></tr></thead><tbody>${rows}</tbody></table>`;
+      const table=`<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:auto;"><thead><tr style="background:#007AFF;color:white;"><th style="border:1px solid #007AFF;padding:6px;text-align:center;">التاريخ</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">الوحدة</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">الغياب</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">التأخر</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;min-width:150px;">المخالفات المسجلة</th></tr></thead><tbody>${rows}</tbody></table>`;
       const title=`تقرير مخالفات الطالب: ${selectedStudentForReport} — ${scopeLabel}`, sub=`<span>الفصل: ${cls}</span><span>الوحدة: ${scopeLabel}</span><span>تاريخ الإصدار: ${today}</span>`;
       const el=buildPdfElement(table,title,sub,'',getPdfSizes('singleStudent')); await exportPdf(el,`تقرير_مخالفات_${selectedStudentForReport}_${scopeLabel}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},margin:8});
     }
