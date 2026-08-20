@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "16.4";</script>
+  <script>const APP_VERSION = "16.5";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -104,7 +104,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.5rem;
-      will-change: transform;
+      transition: opacity 0.12s ease;
+    }
+    .bottom-controls.keyboard-active {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
     }
     #followupScreen .followup-table-container {
       margin-bottom: 10px;
@@ -3516,22 +3521,28 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     function fixBottomControlsPosition() {
-      const controls = document.querySelector('.bottom-controls');
-      if (!controls) return;
-      if (window.visualViewport) {
-        function updatePosition() {
-          const offset = window.innerHeight - window.visualViewport.height;
-          controls.style.transform = `translateY(${-offset}px)`;
-        }
-        window.visualViewport.addEventListener('resize', updatePosition);
-        updatePosition();
-        window.addEventListener('orientationchange', function() {
-          setTimeout(updatePosition, 300);
-        });
-        window.addEventListener('load', function() {
-          setTimeout(updatePosition, 500);
+      const controls = [...document.querySelectorAll('.bottom-controls')];
+      if (!controls.length) return;
+      const isTextEntry = element => element && (element.matches('input, textarea, select') || element.isContentEditable);
+      function updatePosition() {
+        const viewport = window.visualViewport;
+        const keyboardHeight = viewport ? Math.max(0, window.innerHeight - viewport.height) : 0;
+        const keyboardOpen = keyboardHeight > 120 && isTextEntry(document.activeElement);
+        controls.forEach(control => {
+          control.style.transform = '';
+          control.classList.toggle('keyboard-active', keyboardOpen);
         });
       }
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updatePosition);
+        window.visualViewport.addEventListener('scroll', updatePosition);
+      }
+      window.addEventListener('resize', updatePosition);
+      window.addEventListener('orientationchange', () => setTimeout(updatePosition, 300));
+      document.addEventListener('focusin', () => setTimeout(updatePosition, 0));
+      document.addEventListener('focusout', () => setTimeout(updatePosition, 180));
+      window.addEventListener('load', () => setTimeout(updatePosition, 500));
+      updatePosition();
     }
 
     // ===== تحديث رقم الإصدار في عنوان الصفحة وعنواني الشاشتين =====
