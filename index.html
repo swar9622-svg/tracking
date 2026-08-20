@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "17.3";</script>
+  <script>const APP_VERSION = "17.4";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -754,15 +754,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="modal-title" style="margin:0;">📐 تخصيص أحجام خطوط التقرير</div>
         <button class="btn-close-circle" onclick="closePdfSizeModal()">✕</button>
       </div>
-      <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px;font-weight:700;text-align:center;">القيم الافتراضية لهذا التقرير معروضة بجانب كل حقل.</div>
-      <div style="margin-bottom:12px;"><span class="field-label" id="pdfSizeTitleLabel">حجم عنوان الكشف (px):</span><input type="number" id="pdfSizeTitleInput" class="select-class-full" style="text-align:center;" min="6" max="60" step="1"></div>
-      <div style="margin-bottom:12px;"><span class="field-label" id="pdfSizeHeadersLabel">حجم عناوين الجدول (px):</span><input type="number" id="pdfSizeHeadersInput" class="select-class-full" style="text-align:center;" min="6" max="60" step="1"></div>
-      <div style="margin-bottom:12px;"><span class="field-label" id="pdfSizeNamesLabel">حجم أسماء الطلاب (px):</span><input type="number" id="pdfSizeNamesInput" class="select-class-full" style="text-align:center;" min="6" max="60" step="1"></div>
-      <div style="margin-bottom:12px;"><span class="field-label" id="pdfSizeDataLabel">حجم بيانات الجدول (px):</span><input type="number" id="pdfSizeDataInput" class="select-class-full" style="text-align:center;" min="6" max="60" step="1"></div>
-      <label id="pdfShowViolationNamesRow" style="display:none;align-items:center;justify-content:space-between;gap:12px;background:#F5EEF8;border:1px solid #D2B4DE;border-radius:0.7rem;padding:0.75rem 0.85rem;margin-bottom:12px;font-weight:900;color:#2C3E50;cursor:pointer;">
+      <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:7px;font-weight:700;text-align:center;">القيم الافتراضية لهذا التقرير معروضة بجانب كل حقل.</div>
+      <label id="pdfShowViolationNamesRow" style="display:none;align-items:center;justify-content:flex-start;direction:rtl;gap:8px;background:transparent;border:none;border-radius:0;padding:0;margin:0 0 7px;font-weight:900;color:#2C3E50;cursor:pointer;">
+        <input type="checkbox" id="pdfShowViolationNamesInput" style="width:21px;height:21px;accent-color:#8E44AD;cursor:pointer;flex:none;margin:0;">
         <span>إظهار أسماء المخالفات</span>
-        <input type="checkbox" id="pdfShowViolationNamesInput" style="width:21px;height:21px;accent-color:#8E44AD;cursor:pointer;flex:none;">
       </label>
+      <div style="margin-bottom:6px;"><span class="field-label" id="pdfSizeTitleLabel" style="margin-bottom:2px;">حجم عنوان الكشف (px):</span><input type="number" id="pdfSizeTitleInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
+      <div style="margin-bottom:6px;"><span class="field-label" id="pdfSizeHeadersLabel" style="margin-bottom:2px;">حجم عناوين الجدول (px):</span><input type="number" id="pdfSizeHeadersInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
+      <div style="margin-bottom:6px;"><span class="field-label" id="pdfSizeNamesLabel" style="margin-bottom:2px;">حجم أسماء الطلاب (px):</span><input type="number" id="pdfSizeNamesInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
+      <div style="margin-bottom:8px;"><span class="field-label" id="pdfSizeDataLabel" style="margin-bottom:2px;">حجم بيانات الجدول (px):</span><input type="number" id="pdfSizeDataInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
       <button type="button" onclick="resetPdfSizeModalDefaults()" style="width:100%;background-color:#8E44AD;color:white;border:none;padding:0.7rem;border-radius:0.625rem;font-weight:800;font-size:0.85rem;cursor:pointer;margin-bottom:10px;">🔄 الحجم الافتراضي لهذا التقرير</button>
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closePdfSizeModal()">إلغاء</button>
