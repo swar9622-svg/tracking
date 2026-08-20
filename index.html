@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "15.3";</script>
+  <script>const APP_VERSION = "15.4";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3229,12 +3229,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           renderedScopes.add(scope);
         }
         let rows = Array.from(document.querySelectorAll('#followupTableBody tr'));
-        let row = findVisibleStudentRow(rows, student);
+        // كشف المتابعة يرتب أسماء الفصل نفسه بالترتيب العربي؛ القراءة بالموقع تمنع تعذر المطابقة النصية للأسماء الطويلة.
+        const classStudents = [...(appData[cls] || [])].sort((a,b)=>a.localeCompare(b,'ar'));
+        const studentIndex = classStudents.findIndex(name => normalizeStudentName(name) === normalizeStudentName(student));
+        let row = studentIndex >= 0 ? rows[studentIndex] : null;
+        if(!row) row = findVisibleStudentRow(rows, student);
         // إعادة الرسم مرة واحدة؛ تعالج حالة تغير الفصل أو الوحدة أثناء تحضير أوراق متعددة.
         if(!row){
           renderFollowupTable(unit);
           rows = Array.from(document.querySelectorAll('#followupTableBody tr'));
-          row = findVisibleStudentRow(rows, student);
+          row = studentIndex >= 0 ? rows[studentIndex] : null;
+          if(!row) row = findVisibleStudentRow(rows, student);
         }
 
         const lessonCount = lessons.length;
