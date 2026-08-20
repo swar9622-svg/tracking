@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "16.0";</script>
+  <script>const APP_VERSION = "16.1";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -944,12 +944,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   <!-- ================= جميع الـ JavaScript ================= -->
   <script>
-    const VIOLATIONS_LIST = [
+    const DEFAULT_VIOLATION_NAMES = [
       "النوم اثناء الشرح","الحديث أثناء الشرح","الاكل اثناء الشرح",
       "عدم أداء الواجب","عدم احضار اللوازم الدراسية","العبث بممتلكات الفصل",
       "إثارة الفوضى","التنمر أو الإساءة للآخرين","الخروج من المقعد دون إذن",
       "إحضار أدوات غير مسموح بها","رمي النفايات"
     ];
+    const VIOLATION_DEFINITIONS_KEY = 'attendance_violation_definitions';
+    function createDefaultViolationDefinitions(){ return DEFAULT_VIOLATION_NAMES.map((name,index)=>({id:`violation_${index}`,name})); }
+    function normalizeViolationDefinitions(value){
+      const defaults=createDefaultViolationDefinitions();
+      if(!Array.isArray(value)||value.length!==defaults.length) return defaults;
+      return defaults.map((item,index)=>({id:item.id,name:typeof value[index]?.name==='string'&&value[index].name.trim()?value[index].name.trim():item.name}));
+    }
+    let VIOLATION_DEFINITIONS = normalizeViolationDefinitions(JSON.parse(localStorage.getItem(VIOLATION_DEFINITIONS_KEY)||'null'));
+    let VIOLATIONS_LIST=[];
+    function syncViolationNames(){ VIOLATIONS_LIST=VIOLATION_DEFINITIONS.map(item=>item.name); }
+    function getViolationById(id){ return VIOLATION_DEFINITIONS.find(item=>item.id===id); }
+    function createDefaultPenalties(){ const values={"غياب":1,"تأخر":0.5}; VIOLATION_DEFINITIONS.forEach(item=>values[item.id]=0.5); return values; }
+    syncViolationNames();
 
     let defaultData = {"ثالث 1":["أسعد","أحمد"],"ثالث 2":["عبدالملك","عبدالله"]};
     let defaultUnits = {
@@ -958,8 +971,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       "الوحدة الثالثة":{lessons:["درس 1","درس 2","درس 3"]},
       "الوحدة الرابعة":{lessons:["درس 1","درس 2","درس 3"]}
     };
-    let defaultPenalties = {"غياب":1,"تأخر":0.5};
-    VIOLATIONS_LIST.forEach(v=>defaultPenalties[v]=0.5);
+    let defaultPenalties = createDefaultPenalties();
 
     let appData = JSON.parse(localStorage.getItem('attendance_app_data')) || defaultData;
     let records = JSON.parse(localStorage.getItem('attendance_records')) || {};
@@ -1394,6 +1406,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       localStorage.setItem('attendance_units_data',JSON.stringify(unitsData));
       localStorage.setItem('attendance_followup_data',JSON.stringify(followupData));
       localStorage.setItem('attendance_penalties_data',JSON.stringify(penaltiesData));
+      localStorage.setItem(VIOLATION_DEFINITIONS_KEY,JSON.stringify(VIOLATION_DEFINITIONS));
       localStorage.setItem('attendance_period1_selected_units',JSON.stringify(period1SelectedUnits));
       localStorage.setItem('attendance_project_distribution_order',JSON.stringify(projectDistributionOrder));
       localStorage.setItem(PARTICIPATION_SETTINGS_KEY,JSON.stringify(participationSettings));
@@ -1412,6 +1425,28 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return records[date]&&records[date][cls] ? records[date][cls][student] : undefined;
     }
     function hasAttendanceData(record){ return !!(record&&(record.status||record.violations&&record.violations.length)); }
+    function migrateViolationStorage(){
+      let changed=false;
+      const knownIds=new Set(VIOLATION_DEFINITIONS.map(item=>item.id));
+      const legacyNames=new Map();
+      DEFAULT_VIOLATION_NAMES.forEach((name,index)=>legacyNames.set(name,`violation_${index}`));
+      VIOLATION_DEFINITIONS.forEach(item=>{ if(!legacyNames.has(item.name)) legacyNames.set(item.name,item.id); });
+      Object.keys(records||{}).forEach(date=>Object.keys(records[date]||{}).forEach(cls=>Object.values(records[date][cls]||{}).forEach(raw=>{
+        const convertRecord=record=>{
+          if(!record||!Array.isArray(record.violations)) return;
+          const converted=record.violations.map(value=>knownIds.has(value)?value:(legacyNames.get(value)||value));
+          if(converted.some((value,index)=>value!==record.violations[index])){ record.violations=converted; changed=true; }
+        };
+        if(raw&&typeof raw==='object'&&raw.units) Object.values(raw.units).forEach(convertRecord);
+        else convertRecord(raw);
+      })));
+      const legacyPenalties={...penaltiesData};
+      VIOLATION_DEFINITIONS.forEach(item=>{
+        if(penaltiesData[item.id]===undefined){ penaltiesData[item.id]=legacyPenalties[item.name]!==undefined?legacyPenalties[item.name]:0.5; changed=true; }
+      });
+      return changed;
+    }
+    function getViolationPenalty(id){ return penaltiesData[id]!==undefined?penaltiesData[id]:0.5; }
     function getCumulativeAttendanceRecord(raw){
       if(!raw) return emptyAttendanceRecord();
       if(typeof raw==='string') return normalizeAttendanceRecord(raw);
@@ -2415,9 +2450,45 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       saveData(); initUnitsModalSelect(); document.getElementById('modalUnitSelect').value=newName; loadUnitDetailsToModal(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); inp.value=''; document.getElementById('inlineAddUnitBox').style.display='none';
     }
 
-    function openPenaltyConfigModal(){ const cont=document.getElementById('penaltiesInputsContainer'); cont.innerHTML=''; const keys=["غياب","تأخر",...VIOLATIONS_LIST]; keys.forEach(k=>{ const val=penaltiesData[k]!==undefined?penaltiesData[k]:0.5; const row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;justify-content:space-between;background:#F9F9FB;padding:8px 12px;border-radius:10px;border:1px solid #E5E5EA'; row.innerHTML=`<span style="font-size:13px;font-weight:800;color:var(--text-primary);flex:1;">حسم ${k}</span><input type="number" step="0.1" min="0" max="10" id="penalty_input_${CSS.escape(k)}" value="${val}" style="width:80px;text-align:center;">`; cont.appendChild(row); }); document.getElementById('penaltyConfigModal').style.display='flex'; }
+    function escapeTextForHtml(value){ return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char])); }
+    function createPenaltyRow(key,label,index=null){
+      const val=penaltiesData[key]!==undefined?penaltiesData[key]:0.5;
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:8px;background:#F9F9FB;padding:8px 12px;border-radius:10px;border:1px solid #E5E5EA';
+      const nameArea=index===null?`<span style="font-size:13px;font-weight:800;color:var(--text-primary);flex:1;">${escapeTextForHtml(label)}</span>`:`<button type="button" title="تعديل اسم المخالفة" aria-label="تعديل اسم ${escapeTextForHtml(label)}" onclick="beginViolationNameEdit(${index})" style="border:none;background:transparent;color:var(--accent);font-size:17px;cursor:pointer;padding:2px 4px;">✏️</button><span id="violation_name_display_${index}" style="font-size:13px;font-weight:800;color:var(--text-primary);flex:1;min-width:0;word-break:break-word;">${escapeTextForHtml(label)}</span>`;
+      row.innerHTML=`${nameArea}<input type="number" step="0.1" min="0" max="10" id="penalty_input_${key}" value="${val}" style="width:80px;text-align:center;flex-shrink:0;">`;
+      return row;
+    }
+    function openPenaltyConfigModal(){
+      const cont=document.getElementById('penaltiesInputsContainer'); cont.innerHTML='';
+      cont.appendChild(createPenaltyRow('غياب','غياب'));
+      cont.appendChild(createPenaltyRow('تأخر','تأخر'));
+      VIOLATION_DEFINITIONS.forEach((item,index)=>cont.appendChild(createPenaltyRow(item.id,item.name,index)));
+      document.getElementById('penaltyConfigModal').style.display='flex';
+    }
+    function beginViolationNameEdit(index){
+      const item=VIOLATION_DEFINITIONS[index], display=document.getElementById(`violation_name_display_${index}`);
+      if(!item||!display) return;
+      display.innerHTML=`<div style="display:flex;align-items:center;gap:4px;min-width:0;"><input type="text" id="violation_name_edit_${index}" value="${escapeTextForHtml(item.name)}" style="flex:1;min-width:70px;padding:5px 6px;border:1px solid var(--accent);border-radius:6px;font-size:12px;"><button type="button" onclick="saveViolationName(${index})" style="border:none;background:#1E8449;color:white;border-radius:6px;padding:5px 7px;font-size:11px;font-weight:800;cursor:pointer;">حفظ</button><button type="button" onclick="cancelViolationNameEdit(${index})" style="border:none;background:#8E8E93;color:white;border-radius:6px;padding:5px 7px;font-size:11px;font-weight:800;cursor:pointer;">إلغاء</button></div>`;
+      const input=document.getElementById(`violation_name_edit_${index}`); if(input){ input.focus(); input.select(); }
+    }
+    function cancelViolationNameEdit(index){ const item=VIOLATION_DEFINITIONS[index], display=document.getElementById(`violation_name_display_${index}`); if(item&&display) display.textContent=item.name; }
+    function saveViolationName(index){
+      const item=VIOLATION_DEFINITIONS[index], input=document.getElementById(`violation_name_edit_${index}`);
+      if(!item||!input) return;
+      const newName=input.value.trim();
+      if(!newName){ alert('الرجاء إدخال اسم مخالفة صحيح.'); input.focus(); return; }
+      item.name=newName;
+      syncViolationNames();
+      saveData();
+      const display=document.getElementById(`violation_name_display_${index}`); if(display) display.textContent=newName;
+    }
     function closePenaltyConfigModal(){ document.getElementById('penaltyConfigModal').style.display='none'; }
-    function savePenaltyConfig(){ const keys=["غياب","تأخر",...VIOLATIONS_LIST]; keys.forEach(k=>{ const inp=document.getElementById(`penalty_input_${CSS.escape(k)}`); if(inp){ let num=parseFloat(inp.value); penaltiesData[k]=!isNaN(num)?num:0; } }); saveData(); closePenaltyConfigModal(); alert("✅ تم حفظ درجات الحسم بنجاح!"); }
+    function savePenaltyConfig(){
+      ['غياب','تأخر'].forEach(key=>{ const inp=document.getElementById(`penalty_input_${key}`); if(inp){ const num=parseFloat(inp.value); penaltiesData[key]=!isNaN(num)?num:0; } });
+      VIOLATION_DEFINITIONS.forEach(item=>{ const inp=document.getElementById(`penalty_input_${item.id}`); if(inp){ const num=parseFloat(inp.value); penaltiesData[item.id]=!isNaN(num)?num:0; } });
+      saveData(); closePenaltyConfigModal(); alert("✅ تم حفظ الدرجات بنجاح!");
+    }
     function loadClassTextarea(){ const cls=document.getElementById('modalClassSelect').value; document.getElementById('studentNamesTextarea').value=(cls&&appData[cls])?appData[cls].join('\n'):''; }
     function saveStudentsFromTextarea(){ const cls=document.getElementById('modalClassSelect').value; if(!cls) return; const names=document.getElementById('studentNamesTextarea').value.split('\n').map(n=>n.trim()).filter(n=>n!==''); appData[cls]=names; saveData(); document.getElementById('classSelect').value=cls; renderStudents(); if(document.getElementById('editStudentNameModal').style.display==='flex') renderEditStudentList(); closeManageModal(); }
     function toggleAddClassBox(){ const box=document.getElementById('inlineAddBox'); box.style.display=box.style.display==='flex'?'none':'flex'; if(box.style.display==='flex') document.getElementById('newClassInput').focus(); }
@@ -2516,7 +2587,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(rec.status==='غائب'){ alert('⚠️ الطالب مسجل كـ "غائب" في الوحدة المختارة، لا يمكن إضافة مخالفات له.'); return; }
       currentStudentForViolation=student; document.getElementById('violationModalTitle').innerText=`⚠️ مخالفات: ${student}${isPerUnitParticipationMode()?` — ${currentAttendanceUnit}`:''}`;
       const cont=document.getElementById('violationsContainer'); cont.innerHTML='';
-      VIOLATIONS_LIST.forEach((v,i)=>{ const checked=rec.violations.includes(v); const div=document.createElement('div'); div.className=`violation-item ${checked?'selected':''}`; div.onclick=()=>toggleViolationSelection(i); div.innerHTML=`<input type="checkbox" id="v_check_${i}" class="violation-checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggleViolationSelection(${i});"><span>${v}</span>`; cont.appendChild(div); });
+      VIOLATION_DEFINITIONS.forEach((item,i)=>{ const checked=rec.violations.includes(item.id); const div=document.createElement('div'); div.className=`violation-item ${checked?'selected':''}`; div.onclick=()=>toggleViolationSelection(i); div.innerHTML=`<input type="checkbox" id="v_check_${i}" class="violation-checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggleViolationSelection(${i});"><span>${escapeTextForHtml(item.name)}</span>`; cont.appendChild(div); });
       document.getElementById('violationModal').style.display='flex';
     }
 
@@ -2524,7 +2595,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function autoSaveStudentViolations(){
       if(!currentStudentForViolation) return;
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
-      const viols=[]; VIOLATIONS_LIST.forEach((v,i)=>{ if(document.getElementById(`v_check_${i}`)?.checked) viols.push(v); });
+      const viols=[]; VIOLATION_DEFINITIONS.forEach((item,i)=>{ if(document.getElementById(`v_check_${i}`)?.checked) viols.push(item.id); });
       if(viols.length>0&&!canRecordInCurrentAttendanceUnit(date,cls)) return;
       const rec=getMutableAttendanceRecord(date,cls,currentStudentForViolation);
       rec.violations=viols;
@@ -2569,8 +2640,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const stats={}; (appData[cls]||[]).forEach(s=>stats[s]=getStudentAttendanceStats(cls,s,unit)); return stats;
     }
     function buildViolationCounts(cls,unit='__all__'){
-      const counts={}; (appData[cls]||[]).forEach(s=>{ counts[s]={}; VIOLATIONS_LIST.forEach(v=>counts[s][v]=0); });
-      Object.keys(records).forEach(date=>{ (appData[cls]||[]).forEach(student=>{ getAttendanceRecordComponents(date,cls,student,unit).forEach(({record})=>{ record.violations.forEach(v=>{ if(counts[student]&&counts[student][v]!==undefined) counts[student][v]++; }); }); }); });
+      const counts={}; (appData[cls]||[]).forEach(s=>{ counts[s]={}; VIOLATION_DEFINITIONS.forEach(item=>counts[s][item.id]=0); });
+      Object.keys(records).forEach(date=>{ (appData[cls]||[]).forEach(student=>{ getAttendanceRecordComponents(date,cls,student,unit).forEach(({record})=>{ record.violations.forEach(id=>{ if(counts[student]&&counts[student][id]!==undefined) counts[student][id]++; }); }); }); });
       return counts;
     }
 
@@ -2589,8 +2660,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!cls||!appData[cls]){ cont.innerHTML='<div style="text-align:center;padding:10px;">لا يوجد فصل محدد</div>'; return; }
       const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames(), vioCounts=buildViolationCounts(cls,currentReportUnitSelection);
       let html=`<div style="font-size:11px;color:var(--text-secondary);font-weight:800;text-align:center;margin-bottom:6px;">نطاق التقرير: ${getAttendanceScopeLabel(currentReportUnitSelection)}</div><div class="table-responsive-wrapper"><table class="report-table"><thead><tr><th style="width:22px;padding:4px 2px;">#</th><th style="text-align:right;min-width:100px;padding:4px 6px;">اسم الطالب</th>`;
-      VIOLATIONS_LIST.forEach(v=>html+=`<th class="th-mobile-normal">${v}</th>`); html+=`<th style="min-width:45px;background:#6A1B9A;">الإجمالي</th></tr></thead><tbody>`;
-      students.forEach((s,i)=>{ let total=0; const color=dup.includes(s)?'color:#FF3B30;':''; html+=`<tr><td style="color:var(--text-secondary);font-weight:bold;font-size:11px;">${i+1}</td><td class="student-name-td" style="font-size:15px;font-weight:900;white-space:nowrap;${color}">${s}</td>`; VIOLATIONS_LIST.forEach(v=>{ const cnt=vioCounts[s][v]||0; total+=cnt; html+=`<td style="font-size:11px;padding:2px;">${cnt>0?`<b style="color:var(--purple);">${cnt}</b>`:'-'}</td>`; }); html+=`<td style="padding:2px;"><span class="badge-num badge-violation">${total}</span></td></tr>`; });
+      VIOLATION_DEFINITIONS.forEach(item=>html+=`<th class="th-mobile-normal">${escapeTextForHtml(item.name)}</th>`); html+=`<th style="min-width:45px;background:#6A1B9A;">الإجمالي</th></tr></thead><tbody>`;
+      students.forEach((s,i)=>{ let total=0; const color=dup.includes(s)?'color:#FF3B30;':''; html+=`<tr><td style="color:var(--text-secondary);font-weight:bold;font-size:11px;">${i+1}</td><td class="student-name-td" style="font-size:15px;font-weight:900;white-space:nowrap;${color}">${s}</td>`; VIOLATION_DEFINITIONS.forEach(item=>{ const cnt=vioCounts[s][item.id]||0; total+=cnt; html+=`<td style="font-size:11px;padding:2px;">${cnt>0?`<b style="color:var(--purple);">${cnt}</b>`:'-'}</td>`; }); html+=`<td style="padding:2px;"><span class="badge-num badge-violation">${total}</span></td></tr>`; });
       html+='</tbody></table></div>'; cont.innerHTML=html;
     }
 
@@ -2607,7 +2678,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         getAttendanceRecordComponents(date,cls,student,scope).forEach(({record})=>{
           if(record.status==='غائب') score-=penaltiesData["غياب"]!==undefined?penaltiesData["غياب"]:1;
           else if(record.status==='متأخر') score-=penaltiesData["تأخر"]!==undefined?penaltiesData["تأخر"]:0.5;
-          (record.violations||[]).forEach(v=>{ score-=penaltiesData[v]!==undefined?penaltiesData[v]:0.5; });
+          (record.violations||[]).forEach(id=>{ score-=getViolationPenalty(id); });
         });
       });
       return score<0?0:score;
@@ -2780,9 +2851,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         } else {
           const counts=buildViolationCounts(cls,currentReportUnitSelection);
           html = `<table style="width:100%;border-collapse:collapse;font-size:${sizes.data}px;"><thead><tr style="background:#007AFF;color:white;"><th style="border:1px solid #007AFF;padding:3px;text-align:center;">#</th><th style="border:1px solid #007AFF;padding:3px 6px;text-align:right;">اسم الطالب</th>`;
-          VIOLATIONS_LIST.forEach(v=>html += `<th style="border:1px solid #007AFF;padding:3px;text-align:center;vertical-align:middle;font-weight:bold;line-height:1.1;font-size:${sizes.headers}px;">${v}</th>`);
+          VIOLATION_DEFINITIONS.forEach(item=>html += `<th style="border:1px solid #007AFF;padding:3px;text-align:center;vertical-align:middle;font-weight:bold;line-height:1.1;font-size:${sizes.headers}px;">${escapeTextForHtml(item.name)}</th>`);
           html += `<th style="border:1px solid #007AFF;padding:3px;text-align:center;background:#6A1B9A;font-size:${sizes.data}px;">الإجمالي</th></tr></thead><tbody>`;
-          students.forEach((s,i)=>{ let total=0; html+=`<tr><td style="border:1px solid #D1D1D6;padding:3px;text-align:center;font-size:${sizes.data}px;">${i+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:3px 6px;text-align:right;font-size:${sizes.names}px;font-weight:900;">${s}</td>`; VIOLATIONS_LIST.forEach(v=>{ const cnt=counts[s][v]||0; total+=cnt; html+=`<td style="border:1px solid #D1D1D6;padding:3px;text-align:center;font-weight:${cnt>0?'900':'normal'};color:${cnt>0?'#AF52DE':'#888'};font-size:${sizes.data}px;">${cnt>0?cnt:'-'}</td>`; }); html+=`<td style="border:1px solid #D1D1D6;padding:3px;text-align:center;color:#AF52DE;font-weight:900;font-size:${sizes.data}px;">${total}</td></tr>`; }); html+='</tbody></table>';
+          students.forEach((s,i)=>{ let total=0; html+=`<tr><td style="border:1px solid #D1D1D6;padding:3px;text-align:center;font-size:${sizes.data}px;">${i+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:3px 6px;text-align:right;font-size:${sizes.names}px;font-weight:900;">${s}</td>`; VIOLATION_DEFINITIONS.forEach(item=>{ const cnt=counts[s][item.id]||0; total+=cnt; html+=`<td style="border:1px solid #D1D1D6;padding:3px;text-align:center;font-weight:${cnt>0?'900':'normal'};color:${cnt>0?'#AF52DE':'#888'};font-size:${sizes.data}px;">${cnt>0?cnt:'-'}</td>`; }); html+=`<td style="border:1px solid #D1D1D6;padding:3px;text-align:center;color:#AF52DE;font-weight:900;font-size:${sizes.data}px;">${total}</td></tr>`; }); html+='</tbody></table>';
         }
         const title = isSummary ? `التقرير الشامل للغياب والتأخر والمخالفات — ${scope}` : `التقرير التفصيلي لسجل المخالفات السلوكية — ${scope}`;
         const sub = `<span>الفصل: ${cls}</span><span>الوحدة: ${scope}</span><span>التاريخ: ${today}</span><span>إجمالي الطلاب: ${students.length}</span>`;
@@ -2987,8 +3058,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         csv += "م,اسم الطالب,الوحدة,الغياب,التأخر,مخالفات\n"; const stats=buildAttendanceSummaryStats(cls,currentReportUnitSelection);
         students.forEach((s,i)=>{ csv+=`${i+1},${s},${scope},${stats[s].absent},${stats[s].late},${stats[s].violations}\n`; });
       } else {
-        csv += "م,اسم الطالب,الوحدة,"; VIOLATIONS_LIST.forEach(v=>csv+=`${v},`); csv+="الإجمالي\n"; const counts=buildViolationCounts(cls,currentReportUnitSelection);
-        students.forEach((s,i)=>{ let total=0; csv+=`${i+1},${s},${scope},`; VIOLATIONS_LIST.forEach(v=>{ const cnt=counts[s][v]||0; total+=cnt; csv+=`${cnt},`; }); csv+=`${total}\n`; });
+        csv += "م,اسم الطالب,الوحدة,"; VIOLATION_DEFINITIONS.forEach(item=>csv+=`${item.name},`); csv+="الإجمالي\n"; const counts=buildViolationCounts(cls,currentReportUnitSelection);
+        students.forEach((s,i)=>{ let total=0; csv+=`${i+1},${s},${scope},`; VIOLATION_DEFINITIONS.forEach(item=>{ const cnt=counts[s][item.id]||0; total+=cnt; csv+=`${cnt},`; }); csv+=`${total}\n`; });
       }
       downloadFile(csv, `تقرير_${currentReportTab === 'summary' ? 'شامل' : 'المخالفات'}_${cls}_${scope}.csv`, 'text/csv;charset=utf-8;');
     }
@@ -3008,13 +3079,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ let notif={}; try{ const saved=localStorage.getItem('notification_export_settings'); if(saved) notif=JSON.parse(saved); }catch(e){} const data={appData,records,unitsData,followupData,penaltiesData,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings:notif,buttonColors}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ let notif={}; try{ const saved=localStorage.getItem('notification_export_settings'); if(saved) notif=JSON.parse(saved); }catch(e){} const data={appData,records,unitsData,followupData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings:notif,buttonColors}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
       reader.onload=function(ev){ try {
         const imported=JSON.parse(ev.target.result);
-        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; if(imported.followupData) followupData=imported.followupData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
+        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; if(imported.followupData) followupData=imported.followupData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
         if(imported.participationSettings&&typeof imported.participationSettings==='object') participationSettings={...participationSettings,...imported.participationSettings};
         currentAttendanceUnit=participationSettings.activeUnit||Object.keys(unitsData)[0]||'';
         if(imported.projectDistributionOrder){ projectDistributionOrder=imported.projectDistributionOrder; localStorage.setItem('attendance_project_distribution_order',JSON.stringify(projectDistributionOrder)); }
@@ -3030,7 +3101,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(()=>{ try { ['attendance_app_data','attendance_records','attendance_units_data','attendance_followup_data','attendance_penalties_data','attendance_period1_selected_units','attendance_student_number_map','attendance_font_settings','notification_export_settings','attendance_button_colors','attendance_project_distribution_order','attendance_participation_settings'].forEach(k=>localStorage.removeItem(k)); appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); saveData(); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(()=>{ try { ['attendance_app_data','attendance_records','attendance_units_data','attendance_followup_data','attendance_penalties_data','attendance_violation_definitions','attendance_period1_selected_units','attendance_student_number_map','attendance_font_settings','notification_export_settings','attendance_button_colors','attendance_project_distribution_order','attendance_participation_settings'].forEach(k=>localStorage.removeItem(k)); appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); saveData(); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
@@ -3473,6 +3544,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     document.querySelectorAll('.app-version-label').forEach(el => el.textContent = APP_VERSION);
 
     // ===== التهيئة النهائية =====
+    if(migrateViolationStorage()) saveData();
     loadStudentNumberMap();
     initClassSelects();
     renderAttendanceUnitsDropdown();
