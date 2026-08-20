@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "17.6";</script>
+  <script>const APP_VERSION = "17.7";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -90,6 +90,37 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .btn-status.active-late { background-color: var(--yellow); color: #FFFFFF; }
     .btn-status.active-violation { background-color: var(--purple); color: #FFFFFF; font-size: 0.6875rem; font-weight: 800; }
     .btn-status.disabled-btn { opacity: 0.4; cursor: not-allowed; }
+
+    /* تخطيطات أزرار كشف الغياب: تغيّر موضع الأزرار فقط ولا تمس دوال التسجيل. */
+    .attendance-layout-row .attendance-buttons { display:flex; flex-direction:row; }
+    .attendance-layout-split .attendance-buttons { width:6.1rem; display:grid; grid-template-columns:1fr 1fr; gap:0.25rem; }
+    .attendance-layout-split .btn-status { min-width:0; width:100%; }
+    .attendance-layout-split .btn-status:nth-child(3) { grid-column:1 / -1; }
+    .attendance-layout-round .attendance-buttons { gap:0.28rem; }
+    .attendance-layout-round .btn-status { width:2.1rem; min-width:2.1rem; height:2.1rem; border-radius:50%; padding:0; font-size:0; display:flex; align-items:center; justify-content:center; }
+    .attendance-layout-round .btn-status::after { font-size:0.78rem; font-weight:900; }
+    .attendance-layout-round .btn-status:nth-child(1)::after { content:attr(data-short); }
+    .attendance-layout-round .btn-status:nth-child(2)::after { content:attr(data-short); }
+    .attendance-layout-round .btn-status:nth-child(3)::after { content:attr(data-short); }
+    .attendance-layout-column .attendance-buttons { width:3.5rem; display:flex; flex-direction:column; gap:0.2rem; }
+    .attendance-layout-column .btn-status { width:100%; min-width:0; height:1.72rem; padding:0.12rem; font-size:0.6rem; }
+    .attendance-layout-column .student-card { align-items:center; }
+
+    /* بطاقات المعاينة لا تغيّر بيانات الطلاب؛ هي تمثيل مرئي للتخطيط فقط. */
+    .attendance-layout-picker { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; }
+    .attendance-layout-choice { border:2px solid #E5E5EA; border-radius:0.9rem; padding:0.55rem; background:#fff; text-align:right; cursor:pointer; transition:transform .15s,border-color .15s,box-shadow .15s; color:var(--text-primary); }
+    .attendance-layout-choice:active { transform:scale(.98); }
+    .attendance-layout-choice.selected { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,122,255,.13); }
+    .attendance-layout-choice strong { display:block; text-align:center; font-size:0.75rem; margin-top:0.42rem; }
+    .attendance-layout-choice small { display:block; text-align:center; color:var(--text-secondary); font-size:0.61rem; line-height:1.35; margin-top:0.14rem; }
+    .attendance-layout-preview { direction:rtl; min-height:3.5rem; border-radius:0.6rem; background:#F2F2F7; padding:0.38rem; display:flex; gap:0.28rem; align-items:center; }
+    .attendance-layout-preview .preview-name { flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:0.68rem; font-weight:900; }
+    .preview-actions { display:flex; gap:0.12rem; flex-shrink:0; }
+    .preview-action { display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.56rem; font-weight:900; border-radius:0.26rem; min-width:1.25rem; height:1.32rem; }
+    .preview-absent { background:#FF3B30; }.preview-late { background:#FF9500; }.preview-violation { background:#AF52DE; }
+    .preview-split .preview-actions { width:3.35rem; display:grid; grid-template-columns:1fr 1fr; gap:0.12rem; }.preview-split .preview-action { min-width:0; }.preview-split .preview-action:last-child { grid-column:1 / -1; }
+    .preview-round .preview-action { width:1.28rem; min-width:1.28rem; height:1.28rem; border-radius:50%; }
+    .preview-column .preview-actions { width:2.05rem; flex-direction:column; gap:0.08rem; }.preview-column .preview-action { height:0.8rem; min-width:0; font-size:0.45rem; }
 
     .bottom-controls {
       position: fixed;
@@ -695,7 +726,20 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div style="display:flex;flex-direction:column;gap:0.6rem;">
         <button class="btn-menu-option" style="background-color:#8E44AD;" onclick="closeDisplaySettingsModal();openFontSettingsModal();">⚙️ إعدادات الخط (الخطوط المختارة)</button>
         <button class="btn-menu-option" style="background-color:#007AFF;" onclick="closeDisplaySettingsModal();openButtonColorsModal();">🎨 إعدادات ألوان الأزرار</button>
+        <button class="btn-menu-option" style="background-color:#16A085;" onclick="closeDisplaySettingsModal();openAttendanceLayoutModal();">▦ تخطيطات أزرار كشف الغياب</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal" id="attendanceLayoutModal" style="z-index:116;">
+    <div class="modal-content" style="max-width:430px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="modal-title" style="margin:0;">▦ تخطيطات أزرار كشف الغياب</div>
+        <button class="btn-close-circle" onclick="closeAttendanceLayoutModal()">✕</button>
+      </div>
+      <div style="font-size:0.74rem;color:var(--text-secondary);font-weight:800;line-height:1.45;text-align:center;margin-bottom:10px;">اضغط على المعاينة لاختيار التخطيط. جميعها تستخدم أزرار الغياب والتأخر والمخالفات نفسها، لكنها تمنح الاسم مساحة مختلفة.</div>
+      <div id="attendanceLayoutPicker" class="attendance-layout-picker"></div>
+      <div style="margin-top:10px;padding:8px 10px;border-radius:0.65rem;background:#E8F8F5;color:#117A65;font-size:0.69rem;font-weight:800;line-height:1.45;text-align:center;">التخطيط الحالي محفوظ تلقائياً، ولا يغيّر سجلات الطلاب أو طريقة تسجيل الحالات.</div>
     </div>
   </div>
 
@@ -1069,6 +1113,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       'statReportBox': 'مربع تقرير عن طالب'
     };
 
+    const ATTENDANCE_BUTTON_LAYOUTS=['row','split','round','column'];
+    let attendanceButtonLayout='row';
+    function normalizeAttendanceButtonLayout(value){ return ATTENDANCE_BUTTON_LAYOUTS.includes(value)?value:'row'; }
+
     let buttonColors = JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS));
     // دمج القيم الافتراضية في حالة وجود مفاتيح مفقودة
     for (let key in DEFAULT_BUTTON_COLORS) {
@@ -1369,7 +1417,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         appData:cloneData(appData), records:cloneData(records), unitsData:cloneData(unitsData), followupData:cloneData(followupData),
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
-        fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), buttonColors:cloneData(buttonColors), pdfSizeSettings:cloneData(pdfSizeSettings),
+        fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), buttonColors:cloneData(buttonColors), attendanceButtonLayout, pdfSizeSettings:cloneData(pdfSizeSettings),
         savedAt:new Date().toISOString()
       };
     }
@@ -1415,6 +1463,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       notificationSettings=state.notificationSettings&&typeof state.notificationSettings==='object'?state.notificationSettings:{};
       buttonColors=state.buttonColors&&typeof state.buttonColors==='object'?state.buttonColors:cloneData(DEFAULT_BUTTON_COLORS);
       for(const key in DEFAULT_BUTTON_COLORS) if(!buttonColors[key]) buttonColors[key]=cloneData(DEFAULT_BUTTON_COLORS[key]);
+      attendanceButtonLayout=normalizeAttendanceButtonLayout(state.attendanceButtonLayout);
       pdfSizeSettings=state.pdfSizeSettings&&typeof state.pdfSizeSettings==='object'?state.pdfSizeSettings:{};
     }
     async function initializeIndexedDBStorage(){
@@ -1522,6 +1571,30 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     function openDisplaySettingsModal(){ document.getElementById('displaySettingsModal').style.display='flex'; }
     function closeDisplaySettingsModal(){ document.getElementById('displaySettingsModal').style.display='none'; }
+    const ATTENDANCE_LAYOUT_DETAILS={
+      row:{title:'ثلاثة أزرار في صف',note:'التصميم الحالي — مناسب عند الأسماء القصيرة.'},
+      split:{title:'مربعان + مخالفات أسفل',note:'غائب ومتأخر بجانب بعضهما، والمخالفات مستطيل أسفله.'},
+      round:{title:'ثلاث دوائر مختصرة',note:'غ · ت · م — تصميم مضغوط يزيد مساحة الاسم.'},
+      column:{title:'عمود جانبي',note:'الأزرار فوق بعضها — أكبر مساحة ممكنة للاسم.'}
+    };
+    function attendanceLayoutPreviewMarkup(layout){
+      const labels=layout==='round'?['غ','ت','م']:['غائب','متأخر','مخالفات'];
+      return `<div class="attendance-layout-preview preview-${layout}"><span class="preview-name">اسم طالب طويل للمعاينة</span><div class="preview-actions"><span class="preview-action preview-absent">${labels[0]}</span><span class="preview-action preview-late">${labels[1]}</span><span class="preview-action preview-violation">${labels[2]}</span></div></div>`;
+    }
+    function renderAttendanceLayoutPicker(){
+      const holder=document.getElementById('attendanceLayoutPicker'); if(!holder) return;
+      holder.innerHTML=ATTENDANCE_BUTTON_LAYOUTS.map(layout=>{ const d=ATTENDANCE_LAYOUT_DETAILS[layout], selected=attendanceButtonLayout===layout?'selected':''; return `<button type="button" class="attendance-layout-choice ${selected}" data-layout="${layout}" onclick="setAttendanceButtonLayout('${layout}')">${attendanceLayoutPreviewMarkup(layout)}<strong>${d.title}</strong><small>${d.note}</small></button>`; }).join('');
+    }
+    function openAttendanceLayoutModal(){ renderAttendanceLayoutPicker(); document.getElementById('attendanceLayoutModal').style.display='flex'; }
+    function closeAttendanceLayoutModal(){ document.getElementById('attendanceLayoutModal').style.display='none'; }
+    function applyAttendanceButtonLayout(){
+      const list=document.getElementById('studentList'); if(!list) return;
+      ATTENDANCE_BUTTON_LAYOUTS.forEach(layout=>list.classList.remove(`attendance-layout-${layout}`));
+      list.classList.add(`attendance-layout-${normalizeAttendanceButtonLayout(attendanceButtonLayout)}`);
+    }
+    function setAttendanceButtonLayout(layout){
+      attendanceButtonLayout=normalizeAttendanceButtonLayout(layout); renderStudents(); renderAttendanceLayoutPicker(); saveData();
+    }
     function openFontSettingsModal(){ fontSettingsDraft=cloneData(normalizeFontSettings(fontSettings)); initFontSelects(); document.getElementById('fontSettingsModal').style.display='flex'; }
     function closeFontSettingsModal(){ document.getElementById('fontSettingsModal').style.display='none'; fontSettingsDraft=null; }
     function initFontSelects() {
@@ -1825,6 +1898,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function renderStudents() {
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value, cont=document.getElementById('studentList');
       cont.innerHTML='';
+      applyAttendanceButtonLayout();
       if(!cls||!appData[cls]) return;
       const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames();
       let absent=0, late=0, totalV=0;
@@ -1838,9 +1912,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const card=document.createElement('div'); card.className='student-card';
         const nameColor=dup.includes(s)?'color:#FF3B30;':'';
         card.innerHTML=`<div class="student-name" style="${nameColor}">${s}</div><div class="attendance-buttons">
-          <button class="btn-status ${status==='غائب'?'active-absent':''}" onclick="setStatus('${CSS.escape(s)}','غائب')">غائب</button>
-          <button class="btn-status ${status==='متأخر'?'active-late':''}" onclick="setStatus('${CSS.escape(s)}','متأخر')">متأخر</button>
-          <button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${CSS.escape(s)}')">${vText}</button>
+          <button class="btn-status ${status==='غائب'?'active-absent':''}" data-short="غ" onclick="setStatus('${CSS.escape(s)}','غائب')">غائب</button>
+          <button class="btn-status ${status==='متأخر'?'active-late':''}" data-short="ت" onclick="setStatus('${CSS.escape(s)}','متأخر')">متأخر</button>
+          <button class="btn-status ${vClass} ${disabled}" data-short="م${vList.length>0?vList.length:''}" onclick="openViolationModal('${CSS.escape(s)}')">${vText}</button>
         </div>`;
         cont.appendChild(card);
       });
@@ -3237,7 +3311,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:2,storageBackend:'IndexedDB',appData,records,unitsData,followupData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,buttonColors,pdfSizeSettings}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ const data={backupVersion:2,storageBackend:'IndexedDB',appData,records,unitsData,followupData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,buttonColors,attendanceButtonLayout,pdfSizeSettings}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
@@ -3250,6 +3324,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         if(imported.studentNumberMap) queryStudentNumberMap=imported.studentNumberMap;
         if(imported.fontSettings) fontSettings=normalizeFontSettings(imported.fontSettings);
         if(imported.buttonColors) buttonColors=imported.buttonColors;
+        attendanceButtonLayout=normalizeAttendanceButtonLayout(imported.attendanceButtonLayout);
         if(imported.notificationSettings) notificationSettings=imported.notificationSettings;
         if(imported.pdfSizeSettings) pdfSizeSettings=imported.pdfSizeSettings;
         if(!(await saveData())) throw new Error('تعذر حفظ النسخة الاحتياطية المستوردة.'); initClassSelects(); renderStudents(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); applyFontSettings(); applyButtonColors(); alert("✅ تم استعادة النسخة الاحتياطية بنجاح!");
@@ -3260,7 +3335,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); attendanceButtonLayout='row'; fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
