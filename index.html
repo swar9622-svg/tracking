@@ -1437,9 +1437,30 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return getCumulativeAttendanceRecord(raw);
     }
 
+    // ينظف بقايا السجلات الفارغة؛ إذا أزيلت آخر حالة ينتهي ارتباط اليوم بالوحدة فوراً.
+    function cleanupEmptyAttendanceDay(date,cls){
+      if(!isPerUnitParticipationMode()||!records[date]||!records[date][cls]) return;
+      const dayClassRecords=records[date][cls];
+      Object.keys(dayClassRecords).forEach(student=>{
+        const raw=dayClassRecords[student];
+        if(!raw||typeof raw!=='object') return;
+        if(raw.units&&typeof raw.units==='object'){
+          Object.keys(raw.units).forEach(unit=>{
+            if(!hasAttendanceData(normalizeAttendanceRecord(raw.units[unit]))) delete raw.units[unit];
+          });
+          if(Object.keys(raw.units).length===0) delete raw.units;
+        }
+        if(!hasAttendanceData(raw)&&!raw.units) delete dayClassRecords[student];
+      });
+      if(Object.keys(dayClassRecords).length===0) delete records[date][cls];
+      if(records[date]&&Object.keys(records[date]).length===0) delete records[date];
+    }
+
     // للوحدة 10 درجات: أول تسجيل فعلي في اليوم يحدد وحدة ذلك اليوم لجميع الطلاب.
     function getAttendanceDayLockedUnit(date,cls){
-      if(!isPerUnitParticipationMode()||!records[date]||!records[date][cls]) return '';
+      if(!isPerUnitParticipationMode()) return '';
+      cleanupEmptyAttendanceDay(date,cls);
+      if(!records[date]||!records[date][cls]) return '';
       for(const raw of Object.values(records[date][cls])){
         if(!raw||typeof raw!=='object'||!raw.units||typeof raw.units!=='object') continue;
         for(const [unit,value] of Object.entries(raw.units)){
@@ -1584,6 +1605,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         if(Object.keys(raw.units).length===0) delete raw.units;
         if(!hasAttendanceData(raw)&&!raw.units) delete records[date][cls][student];
       } else if(!isPerUnitParticipationMode()&&!hasAttendanceData(raw)&&!(raw&&raw.units&&Object.keys(raw.units).length)) delete records[date][cls][student];
+      cleanupEmptyAttendanceDay(date,cls);
     }
 
     function initClassSelects() {
@@ -2515,6 +2537,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           const raw=records[date][cls][student];
           if(raw&&typeof raw==='object'&&raw.units){ delete raw.units[currentAttendanceUnit]; if(Object.keys(raw.units).length===0) delete raw.units; if(!hasAttendanceData(raw)&&!raw.units) delete records[date][cls][student]; }
         });
+        cleanupEmptyAttendanceDay(date,cls);
       } else delete records[date][cls];
       saveData(); renderStudents();
     }
