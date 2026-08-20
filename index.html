@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "14.6";</script>
+  <script>const APP_VERSION = "14.8";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3085,109 +3085,147 @@
     function showDuplicateNumbersModal(dups,map){ const cont=document.getElementById('duplicateNumbersContainer'); cont.innerHTML=''; let html=''; for(let num in dups){ const students=dups[num]; html+=`<div style="background:#f8d7da;padding:4px 8px;border-radius:6px;margin-bottom:6px;border:1px solid #f5c6cb;"><div style="font-weight:bold;color:#721c24;">الرقم المكرر: ${num}</div>`; students.forEach(s=>{ html+=`<div style="display:flex;align-items:center;gap:4px;margin:2px 0;"><span style="flex:1;font-weight:700;">${s}</span><input type="text" class="duplicate-number-input" data-student="${s}" value="${num}" style="width:80px;text-align:center;border:1px solid #ccc;border-radius:4px;padding:2px;"></div>`; }); html+=`</div>`; } cont.innerHTML=html; document.getElementById('duplicateNumbersModal').style.display='flex'; window._tempNumberMap=map; window._duplicates=dups; }
     function closeDuplicateNumbersModal(){ document.getElementById('duplicateNumbersModal').style.display='none'; window._tempNumberMap=null; window._duplicates=null; }
     function saveDuplicateNumbersAndExport(){ const inputs=document.querySelectorAll('.duplicate-number-input'), newMap={}; const checkboxes=document.querySelectorAll('#queryUnitCheckboxes input[type="checkbox"]'), selected=[]; checkboxes.forEach(cb=>{ if(cb.checked) selected.push(cb.value); }); inputs.forEach(inp=>{ const s=inp.dataset.student, val=inp.value.trim(); if(!val||val.length<5){ alert(`الرقم "${val}" غير صحيح للطالب ${s}. يجب أن يحتوي على 5 أرقام.`); return; } newMap[s]=val.slice(-5); queryStudentNumberMap[s]=val.slice(-5); }); const count={}; for(let s in newMap){ const num=newMap[s]; if(!count[num]) count[num]=[]; count[num].push(s); } for(let num in count){ if(count[num].length>1){ alert(`لا يزال هناك تكرار للرقم "${num}" بين الطلاب: ${count[num].join(', ')}. يرجى تعديله.`); return; } } saveStudentNumberMap(); closeDuplicateNumbersModal(); const filter=document.getElementById('queryClassSelect').value, allClasses=Object.keys(appData); let targets=(filter==='الكل')?allClasses:[filter]; let list=[]; targets.forEach(cls=>{ if(appData[cls]) appData[cls].forEach(s=>list.push({name:s,class:cls})); }); list.sort((a,b)=>a.name.localeCompare(b.name,'ar')); performQueryExport(targets,selected,newMap,list); }
+    // ===== تصدير بيانات الاستعلام (data.xlsx) =====
+    // صفحات الوحدات تنقل لقطة القيم المعروضة في كشف المتابعة، والخلاصة فقط تجمع هذه اللقطات وتقسمها على عدد الوحدات.
+    // ===== تصدير بيانات الاستعلام (data.xlsx) =====
+    // صفحات الوحدات تقرأ الخلايا الظاهرة في كشف المتابعة مباشرة؛ الخلاصة فقط تحسب متوسط القيم المصدرة.
     function performQueryExport(targets, selectedUnits, map, list) {
       const wb = XLSX.utils.book_new();
+      const unitSnapshots = {};
+      const classSelect = document.getElementById('followupClassSelect');
+      const savedClass = classSelect ? classSelect.value : '';
+      const savedActiveUnit = currentActiveUnit;
+      const renderedScopes = new Set();
+      const asNumber = value => Number.parseFloat(String(value).replace(/,/g,'')) || 0;
+      const cellText = cell => cell ? cell.textContent.trim() : '';
+      const inputValue = cell => {
+        const input = cell ? cell.querySelector('input') : null;
+        return input ? input.value : '';
+      };
 
-      // لكل وحدة مختارة، إنشاء ورقة
-      selectedUnits.forEach((unit, idx) => {
-        const unitObj = unitsData[unit] || {lessons: ["درس 1"]};
-        const lessons = unitObj.lessons;
-        const rows = [];
-        // رأس الأعمدة
-        const header = ['رقم', 'الاسم', 'الفصل'];
-        lessons.forEach(l => header.push(`واجب ${l}`));
-        header.push('الموزونه');
-        lessons.forEach(l => header.push(`نشاط ${l}`));
-        header.push('الموزونه');
-        header.push('غياب', 'تأخر', 'مخالفات', 'المشاركه', 'اختبار', 'مشروع');
-        header.push('خ واجب', 'خ نشاط', 'خ مشاركه', 'خ اختبار', 'المجموع');
-        rows.push(header);
+      // يبني لقطة للصف من خلايا كشف المتابعة؛ لا تستدعي هذه الدالة أي حساب درجات.
+      function readVisibleFollowupRow(cls, student, unit, lessons) {
+        const scope = `${cls}__${unit}`;
+        if(!renderedScopes.has(scope)){
+          if(classSelect) classSelect.value=cls;
+          renderFollowupTable(unit);
+          renderedScopes.add(scope);
+        }
+        const rows = Array.from(document.querySelectorAll('#followupTableBody tr'));
+        const row = rows.find(tr => cellText(tr.cells[1]) === student);
+        if(!row) throw new Error(`تعذر العثور على صف الطالب ${student} في كشف ${unit}`);
 
-        list.forEach(item => {
-          const s = item.name, cls = item.class;
-          const key = `${cls}_${unit}`;
-          const fData = followupData[key] || {};
-          const st = fData[s] || {hw:{}, act:{}, test1:'', test2:'', projectLink:''};
-          const raw = computeRawAverages(cls, s, unit);
-          const hwAvg = raw.hwAvg;
-          const actAvg = raw.actAvg;
-          const w = computeWeightedScores(cls, s, [unit]);
+        const lessonCount = lessons.length;
+        const hwStart = 2;
+        const hwAverage = hwStart + lessonCount;
+        const actStart = hwAverage + 1;
+        const actAverage = actStart + lessonCount;
+        const participation = actAverage + 1;
+        const test = participation + 1;
+        const project = participation + 2;
+        const finalHw = participation + 3;
+        const finalAct = participation + 4;
+        const finalParticipation = participation + 5;
+        const finalTest = participation + 6;
+        const total = participation + 7;
 
-          // إحصائيات الغياب والتأخر والمخالفات للوحدة في نمط «10 لكل وحدة».
-          const attendanceStats=getStudentAttendanceStats(cls,s,isPerUnitParticipationMode()?unit:'__all__');
-          const abs=attendanceStats.absent, late=attendanceStats.late, vio=attendanceStats.violations;
+        const attendance = getStudentAttendanceStats(cls, student, isPerUnitParticipationMode() ? unit : '__all__');
+        return {
+          hwInputs: lessons.map((_, index) => inputValue(row.cells[hwStart + index])),
+          hwAverage: cellText(row.cells[hwAverage]),
+          actInputs: lessons.map((_, index) => inputValue(row.cells[actStart + index])),
+          actAverage: cellText(row.cells[actAverage]),
+          absence: attendance.absent,
+          late: attendance.late,
+          violations: attendance.violations,
+          participation: cellText(row.cells[participation]),
+          test: inputValue(row.cells[test]),
+          project: inputValue(row.cells[project]),
+          finalHw: cellText(row.cells[finalHw]),
+          finalAct: cellText(row.cells[finalAct]),
+          finalParticipation: cellText(row.cells[finalParticipation]),
+          finalTest: cellText(row.cells[finalTest]),
+          total: cellText(row.cells[total])
+        };
+      }
 
-          const row = [];
-          row.push(map[s] || '');
-          row.push(s);
-          row.push(cls);
-          lessons.forEach(l => row.push(st.hw[l] !== undefined ? st.hw[l] : ''));
-          row.push(hwAvg.toFixed(2));
-          lessons.forEach(l => row.push(st.act[l] !== undefined ? st.act[l] : ''));
-          row.push(actAvg.toFixed(2));
-          row.push(abs);
-          row.push(late);
-          row.push(vio);
-          const part = calculateStudentParticipationScore(cls, s, unit);
-          row.push(part.toFixed(2));
-          row.push(st.test1 !== undefined ? st.test1 : '');
-          row.push(st.test2 !== undefined ? st.test2 : '');
-          row.push(w.hw.toFixed(2));
-          row.push(w.act.toFixed(2));
-          row.push(w.participation.toFixed(2));
-          row.push(w.test.toFixed(2));
-          row.push(w.total.toFixed(2));
-          rows.push(row);
-        });
-
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        XLSX.utils.book_append_sheet(wb, ws, unit);
-      });
-
-      // صفحة الخلاصة (المتوسطات لكل الطلاب عبر الوحدات المختارة)
-      const summaryHeader = ['رقم', 'اسم الطالب', 'الفصل', 'واجب', 'نشاط', 'مشاركه', 'اختبار', 'المجموع'];
-      const summaryRows = [summaryHeader];
-      list.forEach(item => {
-        const s = item.name, cls = item.class;
-        let sumHw=0, sumAct=0, sumPart=0, sumTest=0, sumTotal=0;
+      try {
         selectedUnits.forEach(unit => {
-          const w = computeWeightedScores(cls, s, [unit]);
-          sumHw += w.hw;
-          sumAct += w.act;
-          sumPart += w.participation;
-          sumTest += w.test;
-          sumTotal += w.total;
-        });
-        const n = selectedUnits.length || 1;
-        summaryRows.push([
-          map[s] || '',
-          s,
-          cls,
-          (sumHw/n).toFixed(2),
-          (sumAct/n).toFixed(2),
-          (sumPart/n).toFixed(2),
-          (sumTest/n).toFixed(2),
-          (sumTotal/n).toFixed(2)
-        ]);
-      });
-      const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
-      XLSX.utils.book_append_sheet(wb, wsSummary, 'خلاصة');
+          const unitObj = unitsData[unit] || {lessons: ['درس 1']};
+          const lessons = unitObj.lessons;
+          const rows = [];
+          const header = ['رقم', 'الاسم', 'الفصل'];
+          lessons.forEach(l => header.push(`واجب ${l}`));
+          header.push('الموزونه');
+          lessons.forEach(l => header.push(`نشاط ${l}`));
+          header.push('الموزونه');
+          header.push('غياب', 'تأخر', 'مخالفات', 'المشاركه', 'اختبار', 'مشروع');
+          header.push('خ واجب', 'خ نشاط', 'خ مشاركه', 'خ اختبار', 'المجموع');
+          rows.push(header);
+          unitSnapshots[unit] = {};
 
-      // حفظ الملف
-      const out = XLSX.write(wb, {bookType:'xlsx', type:'array'});
-      const blob = new Blob([out], {type:'application/octet-stream'});
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'data.xlsx';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-      alert(`✅ تم تصدير data.xlsx بنجاح! (${selectedUnits.length} وحدة + صفحة خلاصة)`);
-      closeQueryExportModal();
+          list.forEach(item => {
+            const snapshot = readVisibleFollowupRow(item.class, item.name, unit, lessons);
+            unitSnapshots[unit][`${item.class}__${item.name}`] = snapshot;
+            // صف الوحدة: نقل حرفي لقيم كشف المتابعة ولا توجد دوال حساب درجات هنا.
+            rows.push([
+              map[item.name] || '', item.name, item.class,
+              ...snapshot.hwInputs, snapshot.hwAverage,
+              ...snapshot.actInputs, snapshot.actAverage,
+              snapshot.absence, snapshot.late, snapshot.violations, snapshot.participation,
+              snapshot.test, snapshot.project,
+              snapshot.finalHw, snapshot.finalAct, snapshot.finalParticipation, snapshot.finalTest, snapshot.total
+            ]);
+          });
+
+          const ws = XLSX.utils.aoa_to_sheet(rows);
+          XLSX.utils.book_append_sheet(wb, ws, unit);
+        });
+
+        // الخلاصة: متوسط القيم النهائية المقروءة من صفحات الوحدات فقط.
+        const summaryHeader = ['رقم', 'اسم الطالب', 'الفصل', 'واجب', 'نشاط', 'مشاركه', 'اختبار', 'المجموع'];
+        const summaryRows = [summaryHeader];
+        list.forEach(item => {
+          let sumHw=0, sumAct=0, sumPart=0, sumTest=0, sumTotal=0;
+          selectedUnits.forEach(unit => {
+            const snapshot = unitSnapshots[unit][`${item.class}__${item.name}`];
+            sumHw += asNumber(snapshot.finalHw);
+            sumAct += asNumber(snapshot.finalAct);
+            sumPart += asNumber(snapshot.finalParticipation);
+            sumTest += asNumber(snapshot.finalTest);
+            sumTotal += asNumber(snapshot.total);
+          });
+          const n = selectedUnits.length || 1;
+          summaryRows.push([
+            map[item.name] || '', item.name, item.class,
+            (sumHw/n).toFixed(2),
+            (sumAct/n).toFixed(2),
+            (sumPart/n).toFixed(2),
+            (sumTest/n).toFixed(2),
+            (sumTotal/n).toFixed(2)
+          ]);
+        });
+        const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+        XLSX.utils.book_append_sheet(wb, wsSummary, 'خلاصة');
+
+        const out = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+        const blob = new Blob([out], {type:'application/octet-stream'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'data.xlsx';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      } finally {
+        // يعيد كشف المتابعة إلى ما كان يعرضه المستخدم قبل بدء التصدير.
+        if(classSelect && savedClass){
+          classSelect.value=savedClass;
+          renderFollowupTable(savedActiveUnit);
+        }
+      }
     }
 
-    // === دوال تصدير PDF للطالب ===
     async function exportSingleStudentPDF(){
       const cls=document.getElementById('classSelect').value, today=new Date().toLocaleDateString('ar-SA'), scope=currentStudentReportUnitSelection, scopeLabel=getAttendanceScopeLabel(scope);
       let rows=''; Object.keys(records).sort().forEach(d=>{ getAttendanceRecordComponents(d,cls,selectedStudentForReport,scope).forEach(({unit,record})=>{
