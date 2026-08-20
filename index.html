@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "17.4";</script>
+  <script>const APP_VERSION = "17.6";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -701,13 +701,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   <div class="modal" id="fontSettingsModal" style="z-index:116;">
     <div class="modal-content" style="max-width:400px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div class="modal-title" style="margin:0;">⚙️ إعدادات الخط</div>
         <button class="btn-close-circle" onclick="closeFontSettingsModal()">✕</button>
       </div>
-      <div style="margin-bottom:12px;"><span class="field-label">نوع الخط:</span><select id="fontFamilySelect" class="select-class-full"></select></div>
-      <div style="margin-bottom:12px;"><span class="field-label">حجم الخط (نسبة مئوية من التصميم):</span><select id="fontSizeSelect" class="select-class-full"><option value="0.8rem">تصغير جداً (-20%)</option><option value="0.9rem">تصغير (-10%)</option><option value="1rem">وسط (افتراضي)</option><option value="1.1rem">تكبير (+10%)</option><option value="1.2rem">تكبير جداً (+20%)</option></select></div>
-      <div style="margin-bottom:12px;"><span class="field-label">سماكة الخط:</span><select id="fontWeightSelect" class="select-class-full"><option value="400">عادي</option><option value="600">سميك</option><option value="700">سميك جداً</option><option value="800">أسود (ثقيل)</option></select></div>
+      <div style="font-size:0.75rem;color:var(--text-secondary);font-weight:800;text-align:center;line-height:1.45;margin-bottom:10px;">تخصيص الحجم هنا للنصوص فقط؛ لا يغيّر حجم الأزرار أو أبعاد خلايا الجداول.</div>
+      <div style="margin-bottom:8px;"><span class="field-label">نوع الخط:</span><select id="fontFamilySelect" class="select-class-full"></select></div>
+      <div style="margin-bottom:8px;"><span class="field-label">سماكة الخط:</span><select id="fontWeightSelect" class="select-class-full"><option value="400">عادي</option><option value="600">سميك</option><option value="700">سميك جداً</option><option value="800">أسود (ثقيل)</option></select></div>
+      <div style="margin-bottom:8px;"><span class="field-label">القسم:</span><select id="fontSectionSelect" class="select-class-full" onchange="onFontSectionChange()"></select></div>
+      <div style="margin-bottom:8px;"><span class="field-label" id="fontSectionSizeLabel">حجم خط القسم (px) — اتركه فارغاً لاستخدام الافتراضي:</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" id="fontSectionSizeInput" class="select-class-full" style="flex:1;min-width:0;margin-bottom:0;text-align:center;" min="10" max="26" step="0.25" inputmode="decimal" oninput="onFontSectionSizeInput()"><button type="button" onclick="resetCurrentSectionFontSize()" style="flex:none;background:#6C3483;color:white;border:none;border-radius:0.625rem;padding:0.65rem 0.7rem;font-size:0.8rem;font-weight:800;cursor:pointer;white-space:nowrap;">الافتراضي</button></div></div>
+      <button type="button" onclick="resetSectionFontSizes()" style="width:100%;background:#8E44AD;color:white;border:none;border-radius:0.625rem;padding:0.65rem;font-weight:800;font-size:0.82rem;cursor:pointer;margin:0 0 10px;">🔄 استعادة المقاسات الافتراضية للأقسام</button>
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closeFontSettingsModal()">إلغاء</button>
         <button class="btn-modal-save" onclick="saveFontSettings()">حفظ الإعدادات</button>
@@ -1408,7 +1411,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!['cumulative','per_unit'].includes(participationSettings.mode)) participationSettings.mode='cumulative';
       currentAttendanceUnit=participationSettings.activeUnit||currentActiveUnit;
       queryStudentNumberMap=state.studentNumberMap&&typeof state.studentNumberMap==='object'?state.studentNumberMap:{};
-      fontSettings=state.fontSettings&&typeof state.fontSettings==='object'?state.fontSettings:{family:'IBM+Plex+Sans+Arabic',size:'1rem',weight:'700'};
+      fontSettings=normalizeFontSettings(state.fontSettings);
       notificationSettings=state.notificationSettings&&typeof state.notificationSettings==='object'?state.notificationSettings:{};
       buttonColors=state.buttonColors&&typeof state.buttonColors==='object'?state.buttonColors:cloneData(DEFAULT_BUTTON_COLORS);
       for(const key in DEFAULT_BUTTON_COLORS) if(!buttonColors[key]) buttonColors[key]=cloneData(DEFAULT_BUTTON_COLORS[key]);
@@ -1459,39 +1462,99 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       {name:"Scheherazade New",value:"Scheherazade+New"},
       {name:"El Messiri",value:"El+Messiri"}
     ];
-    let fontSettings = {family:'IBM+Plex+Sans+Arabic',size:'1rem',weight:'700'};
+    // أحجام النصوص المقسمة: لا تُستخدم في padding أو width أو height، لذلك لا تغيّر حجم الأزرار أو الخلايا.
+    const SECTION_FONT_DEFAULTS={
+      mainTitle:14, attendanceControls:14, attendanceStats:16,
+      absenceStudentNames:14, followupControls:13,
+      followupStudentNames:14, followupTableText:13,
+      modalTitles:17, reportTablesText:11
+    };
+    const SECTION_FONT_LABELS={
+      mainTitle:'العنوان الرئيسي', attendanceControls:'الفصل والتاريخ والوحدة', attendanceStats:'أرقام وعناوين الغياب والتأخر والمخالفات',
+      absenceStudentNames:'الأسماء في كشف الغياب', followupControls:'الفصل والوحدة في كشف المتابعة',
+      followupStudentNames:'الأسماء في كشف المتابعة', followupTableText:'عناوين وقيم جدول المتابعة',
+      modalTitles:'عناوين النوافذ', reportTablesText:'جداول التقارير والملخص'
+    };
+    const SECTION_FONT_MIN=10, SECTION_FONT_MAX=26;
+    function normalizeSectionFontSize(value,fallback){
+      const parsed=typeof value==='string'?parseFloat(value):value;
+      if(!Number.isFinite(parsed)||parsed<SECTION_FONT_MIN||parsed>SECTION_FONT_MAX) return fallback;
+      return Math.round(parsed*100)/100;
+    }
+    function normalizeFontSettings(value){
+      const source=value&&typeof value==='object'?value:{};
+      const sections={};
+      Object.keys(SECTION_FONT_DEFAULTS).forEach(key=>{
+        const candidate=source.sections&&source.sections[key];
+        sections[key]=normalizeSectionFontSize(candidate,SECTION_FONT_DEFAULTS[key]);
+      });
+      return {family:source.family||'IBM+Plex+Sans+Arabic',size:'1rem',weight:source.weight||'700',sections};
+    }
+    let fontSettings = normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'});
+    let fontSettingsDraft=null;
 
     function applyFontSettings() {
+      fontSettings=normalizeFontSettings(fontSettings);
       const displayFamily = fontSettings.family.replace(/\+/g,' ');
-      const size = fontSettings.size;
       const weight = fontSettings.weight;
+      const s=fontSettings.sections;
       let fontLink = document.getElementById('dynamic-font-import');
       if(fontSettings.family==='system') { if(fontLink) fontLink.remove(); }
       else { if(!fontLink){ fontLink=document.createElement('link'); fontLink.id='dynamic-font-import'; fontLink.rel='stylesheet'; document.head.appendChild(fontLink); } fontLink.href=`https://fonts.googleapis.com/css2?family=${fontSettings.family}:wght@400;600;700;800&display=swap`; }
       const stack = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-      let css = fontSettings.family==='system' ?
-        `html{font-size:${size}!important}*{font-family:${stack}!important;font-weight:${weight}!important}input,select,button,textarea{font-family:inherit!important;font-weight:inherit!important}` :
-        `html{font-size:${size}!important}*{font-family:'${displayFamily}','Segoe UI',Tahoma,sans-serif!important;font-weight:${weight}!important}input,select,button,textarea{font-family:inherit!important;font-weight:inherit!important}`;
+      const familyCss=fontSettings.family==='system'?`*{font-family:${stack}!important;font-weight:${weight}!important}`:`*{font-family:'${displayFamily}','Segoe UI',Tahoma,sans-serif!important;font-weight:${weight}!important}`;
+      const sectionCss=`
+        /* النصوص فقط: لا padding أو width أو min-height هنا. */
+        #absenceScreen .header-title-box,#followupScreen .header-title-box{font-size:${s.mainTitle}px!important}
+        #absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{font-size:${s.attendanceControls}px!important}
+        #absenceScreen .stat-card:not(.student-report) .stat-number{font-size:${s.attendanceStats}px!important}
+        #absenceScreen .stat-card:not(.student-report) .stat-label{font-size:calc(${s.attendanceStats}px * .594)!important}
+        #absenceScreen .student-name{font-size:${s.absenceStudentNames}px!important}
+        #followupScreen .units-wrapper select{font-size:${s.followupControls}px!important}
+        #followupTable .student-name-td{font-size:${s.followupStudentNames}px!important}
+        #followupTable th,#followupTable td:not(.student-name-td),#followupTable input[type="number"]{font-size:${s.followupTableText}px!important}
+        .modal-title{font-size:${s.modalTitles}px!important}
+        .report-table th,.report-table td,#periodSummaryTable th,#periodSummaryTable td{font-size:${s.reportTablesText}px!important}
+      `;
       let styleTag = document.getElementById('dynamic-font-style');
       if(!styleTag){ styleTag=document.createElement('style'); styleTag.id='dynamic-font-style'; document.head.appendChild(styleTag); }
-      styleTag.innerHTML = css;
+      styleTag.innerHTML = `html{font-size:1rem!important}${familyCss}input,select,button,textarea{font-family:inherit!important;font-weight:inherit!important}${sectionCss}`;
     }
     function openDisplaySettingsModal(){ document.getElementById('displaySettingsModal').style.display='flex'; }
     function closeDisplaySettingsModal(){ document.getElementById('displaySettingsModal').style.display='none'; }
-    function openFontSettingsModal(){ initFontSelects(); document.getElementById('fontSettingsModal').style.display='flex'; }
-    function closeFontSettingsModal(){ document.getElementById('fontSettingsModal').style.display='none'; }
+    function openFontSettingsModal(){ fontSettingsDraft=cloneData(normalizeFontSettings(fontSettings)); initFontSelects(); document.getElementById('fontSettingsModal').style.display='flex'; }
+    function closeFontSettingsModal(){ document.getElementById('fontSettingsModal').style.display='none'; fontSettingsDraft=null; }
     function initFontSelects() {
-      const s=document.getElementById('fontFamilySelect'); s.innerHTML='';
-      AVAILABLE_FONTS.forEach(f=>{ s.innerHTML+=`<option value="${f.value}" ${fontSettings.family===f.value?'selected':''}>${f.name}</option>`; });
-      document.getElementById('fontSizeSelect').value=fontSettings.size;
-      document.getElementById('fontWeightSelect').value=fontSettings.weight;
+      const draft=fontSettingsDraft||normalizeFontSettings(fontSettings), family=document.getElementById('fontFamilySelect'), section=document.getElementById('fontSectionSelect');
+      family.innerHTML=''; AVAILABLE_FONTS.forEach(f=>{ family.innerHTML+=`<option value="${f.value}" ${draft.family===f.value?'selected':''}>${f.name}</option>`; });
+      document.getElementById('fontWeightSelect').value=draft.weight;
+      section.innerHTML=Object.entries(SECTION_FONT_LABELS).map(([key,label])=>`<option value="${key}">${label}</option>`).join('');
+      section.value='mainTitle'; updateFontSectionSizeControl();
     }
+    function updateFontSectionSizeControl(){
+      const draft=fontSettingsDraft||normalizeFontSettings(fontSettings), key=document.getElementById('fontSectionSelect').value, input=document.getElementById('fontSectionSizeInput'), fallback=SECTION_FONT_DEFAULTS[key];
+      document.getElementById('fontSectionSizeLabel').innerText=`حجم خط القسم: ${SECTION_FONT_LABELS[key]} (px — النص فقط)`;
+      input.value=draft.sections[key]===fallback?'':draft.sections[key];
+      input.placeholder=`الافتراضي: ${fallback}px`;
+    }
+    function onFontSectionChange(){ updateFontSectionSizeControl(); }
+    function onFontSectionSizeInput(){
+      if(!fontSettingsDraft) return;
+      const key=document.getElementById('fontSectionSelect').value, input=document.getElementById('fontSectionSizeInput'), raw=input.value.trim();
+      if(raw===''){ fontSettingsDraft.sections[key]=SECTION_FONT_DEFAULTS[key]; return; }
+      const parsed=normalizeSectionFontSize(raw,null);
+      if(parsed!==null) fontSettingsDraft.sections[key]=parsed;
+    }
+    function resetCurrentSectionFontSize(){
+      if(!fontSettingsDraft) return;
+      const key=document.getElementById('fontSectionSelect').value;
+      fontSettingsDraft.sections[key]=SECTION_FONT_DEFAULTS[key]; updateFontSectionSizeControl();
+    }
+    function resetSectionFontSizes(){ if(!fontSettingsDraft) return; fontSettingsDraft.sections=cloneData(SECTION_FONT_DEFAULTS); updateFontSectionSizeControl(); }
     function saveFontSettings() {
-      fontSettings.family=document.getElementById('fontFamilySelect').value;
-      fontSettings.size=document.getElementById('fontSizeSelect').value;
-      fontSettings.weight=document.getElementById('fontWeightSelect').value;
-      saveData();
-      applyFontSettings(); closeFontSettingsModal(); alert("✅ تم حفظ إعدادات الخط بنجاح!");
+      const draft=fontSettingsDraft||normalizeFontSettings(fontSettings);
+      fontSettings=normalizeFontSettings({family:document.getElementById('fontFamilySelect').value,weight:document.getElementById('fontWeightSelect').value,sections:draft.sections});
+      saveData(); applyFontSettings(); closeFontSettingsModal(); alert("✅ تم حفظ إعدادات الخط بنجاح!");
     }
     function saveData() {
       participationSettings.activeUnit=currentAttendanceUnit;
@@ -3185,7 +3248,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         currentAttendanceUnit=participationSettings.activeUnit||Object.keys(unitsData)[0]||'';
         if(imported.projectDistributionOrder) projectDistributionOrder=imported.projectDistributionOrder;
         if(imported.studentNumberMap) queryStudentNumberMap=imported.studentNumberMap;
-        if(imported.fontSettings) fontSettings=imported.fontSettings;
+        if(imported.fontSettings) fontSettings=normalizeFontSettings(imported.fontSettings);
         if(imported.buttonColors) buttonColors=imported.buttonColors;
         if(imported.notificationSettings) notificationSettings=imported.notificationSettings;
         if(imported.pdfSizeSettings) pdfSizeSettings=imported.pdfSizeSettings;
@@ -3197,7 +3260,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings={family:'IBM+Plex+Sans+Arabic',size:'1rem',weight:'700'}; notificationSettings={}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
