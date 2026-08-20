@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "15.9";</script>
+  <script>const APP_VERSION = "16.0";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1535,7 +1535,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       sel.style.opacity='1';
     }
     function onAttendanceUnitChange(unit){
-      if(!unit) return;
+      const select=document.getElementById('attendanceUnitSelect');
+      const previousUnit=currentAttendanceUnit;
+      if(!unit||unit===previousUnit){ if(select) select.value=previousUnit; return; }
+      const confirmed=confirm(`هل تريد تغيير وحدة كشف الغياب والمخالفات من «${previousUnit}» إلى «${unit}»؟\nتأكد من الوحدة قبل تسجيل أي غياب أو تأخر أو مخالفة.`);
+      if(!confirmed){ if(select) select.value=previousUnit; return; }
       currentAttendanceUnit=unit;
       participationSettings.activeUnit=unit;
       saveData();
