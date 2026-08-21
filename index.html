@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "18.6";</script>
+  <script>const APP_VERSION = "18.7";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -169,10 +169,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     /* زر فرز مدمج في رأس 17.9: لا يصنع صفاً جديداً ولا يغير ارتفاع الجدول. */
     .followup-compact-sort { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; margin-inline-start:0.18rem; padding:0.06rem 0.24rem; border:1px solid currentColor; border-radius:0.5rem; background:rgba(255,255,255,0.68); color:inherit; font-family:inherit; font-size:0.54rem; font-weight:900; line-height:1; cursor:pointer; white-space:nowrap; }
     .followup-compact-sort:active { transform:scale(.96); }
-    .followup-sort-under { display:block; margin-top:0.14rem; line-height:0; }
-    #followupHeaderSortLabel { display:none !important; }
+    .followup-sort-under { display:block; margin-top:0.14rem; line-height:0; text-align:center; }
+    #followupHeaderSortLabel { display:block !important; width:100%; margin-top:0.14rem; text-align:center; }
     .followup-sort-status { display:none; }
-    .followup-header-sort-label { display:inline-block; font-size:0.52rem; line-height:1.1; color:#075CB5; font-weight:900; white-space:normal; }
+    .followup-header-sort-label { font-size:0.90rem; line-height:1.1; color:#075CB5; font-weight:900; white-space:nowrap; }
     #followupTable.followup-focus-active [data-group] { display:none !important; }
     #followupTable.followup-focus-hw [data-group="name"], #followupTable.followup-focus-hw [data-group="hw"], #followupTable.followup-focus-hw [data-group="total"],
     #followupTable.followup-focus-act [data-group="name"], #followupTable.followup-focus-act [data-group="act"], #followupTable.followup-focus-act [data-group="total"],
@@ -2278,7 +2278,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       table.classList.remove('followup-focus-active','followup-focus-hw','followup-focus-act','followup-focus-participation','followup-focus-test','followup-focus-total');
       if(followupSortState.focus&&followupSortState.focus!=='name'){ table.classList.add('followup-focus-active',`followup-focus-${followupSortState.focus}`); }
       if(status) status.textContent='';
-      if(headerLabel){ const label=FOLLOWUP_SORT_LABELS[followupSortState.key]||FOLLOWUP_SORT_LABELS.name, direction=followupSortState.direction==='desc'?'تنازلي':'تصاعدي'; headerLabel.textContent=`ترتيب ${direction}: ${label}`; }
+      if(headerLabel){ const shortLabels={name:'الأسماء',hw:'واجبات',act:'أنشطة',participation:'مشاركة',test:'اختبار',total:'المجموع'}; const label=shortLabels[followupSortState.key]||'الأسماء', direction=followupSortState.direction==='desc'?'تنازلي':'تصاعدي'; headerLabel.textContent=`فرز ${direction}: ${label}`; }
     }
     function openFollowupSortModal(key){
       followupSortState.menuKey=FOLLOWUP_SORT_LABELS[key]?key:'name';
@@ -2311,7 +2311,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       // رأس 17.9 الأصلي مع أزرار فرز صغيرة مدمجة في المساحة نفسها.
       let headHtml = `<tr>
         <th rowspan="2" data-group="index" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;">#</th>
-        <th rowspan="2" data-group="name" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;text-align:right;min-width:120px;">اسم الطالب<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('name')" title="فرز الأسماء">فرز ↕</button></span><span id="followupHeaderSortLabel"></span></th>
+        <th rowspan="2" data-group="name" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;text-align:right;min-width:120px;">اسم الطالب<span id="followupHeaderSortLabel" class="followup-header-sort-label"></span><span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('name')" title="فرز الأسماء">فرز ↕</button></span></th>
         <th colspan="${lessons.length}" data-group="hw-details" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;position:relative;">الواجبات (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button></span></th>
         <th rowspan="2" data-group="hw" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;">الموزونه<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('hw')" title="فرز الموزونة للواجبات">فرز ↕</button></span></th>
         <th colspan="${lessons.length}" data-group="act-details" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
