@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "18.7";</script>
+  <script>const APP_VERSION = "19.2";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -387,7 +387,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (<span class="app-version-label"></span>)</div>
     </header>
     <div class="top-action-bar">
-      <button class="btn-period-main" onclick="openPeriodSummaryModal()">📌 الفترات</button>
+      <button class="btn-period-main" onclick="openGradesReportsMenu()">📊 تقارير الدرجات</button>
       <button class="btn-student-numbers" onclick="openGradesManageModal()">⚙️ إدارة الدرجات</button>
     </div>
     <div class="units-wrapper">
@@ -499,6 +499,47 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="btn-export-period" id="btnExportSingleStudentPDF" onclick="openPdfSizeModal('singleStudent')" style="background-color:var(--accent);margin-bottom:0;">📄 تصدير PDF</button>
         <button class="btn-export-period" id="btnExportSingleStudentCSV" onclick="exportSingleStudentCSV()" style="background-color:var(--green);margin-bottom:0;">📊 تصدير CSV</button>
       </div>
+    </div>
+  </div>
+
+  <!-- قائمة تقارير الدرجات: الفترات كما هي وتقرير جديد للطلاب الضعاف -->
+  <div class="modal" id="gradesReportsMenuModal" style="z-index:145;">
+    <div class="modal-content" style="max-width:390px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="modal-title" style="margin:0;font-size:1rem;">📊 تقارير الدرجات</div>
+        <button class="btn-close-circle" onclick="closeGradesReportsMenu()">✕</button>
+      </div>
+      <div style="font-size:0.78rem;color:var(--text-secondary);text-align:center;margin-bottom:12px;font-weight:700;">اختر التقرير المطلوب:</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn-action btn-report" onclick="openPeriodFromGradesMenu()" style="width:100%;margin:0;">📌 الفترات</button>
+        <button class="btn-action" onclick="openWeakStudentsReport()" style="width:100%;margin:0;background:#FFF3F3;color:#B42318;border:1px solid #FECACA;">⚠️ الطلاب الضعاف</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- تقرير الطلاب الضعاف من قيم جدول المتابعة -->
+  <div class="modal" id="weakStudentsModal" style="z-index:146;">
+    <div class="modal-content" style="max-width:760px;width:96%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="modal-title" style="margin:0;font-size:1rem;color:#B42318;">⚠️ الطلاب الضعاف</div>
+        <button class="btn-close-circle" onclick="closeWeakStudentsReport()">✕</button>
+      </div>
+      <div id="weakStudentsReportContext" style="display:none;"></div>
+      <div style="margin:0 0 7px 0;padding:8px 10px;background:#F2F2F7;border-radius:8px;">
+        <div id="weakStudentsUnitsChooser" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </div>
+      <div style="margin:0 0 8px 0;padding:8px 10px;background:#F2F2F7;border-radius:8px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:0.78rem;font-weight:800;">
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:900;"><span>الخلاصة</span><input id="weakStudentsSummaryToggle" type="checkbox" onchange="renderWeakStudentsReport()" style="width:18px;height:18px;accent-color:#1B4F72;"></label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>واجبات</span><input class="weak-column-toggle" type="checkbox" value="hw" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#117A65;"></label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>أنشطة</span><input class="weak-column-toggle" type="checkbox" value="act" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#7D6608;"></label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>مشاركة</span><input class="weak-column-toggle" type="checkbox" value="participation" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#512E5F;"></label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>اختبار</span><input class="weak-column-toggle" type="checkbox" value="test" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#78281F;"></label>
+      </div>
+      <div class="table-responsive-wrapper" style="max-height:52vh;overflow:auto;margin:0;">
+        <table class="followup-table" id="weakStudentsTable" style="width:100%;min-width:0;table-layout:auto;font-size:0.9rem;"><thead id="weakStudentsTableHead"></thead><tbody id="weakStudentsTableBody"></tbody></table>
+      </div>
+      <div id="weakStudentsEmptyMessage" style="display:none;text-align:center;color:#1E8449;font-weight:900;padding:18px 8px;">لا يوجد طلاب بدرجة أقل من النصف في الأقسام المحددة.</div>
+      <button class="btn-export-period" onclick="exportWeakStudentsPDF()" style="margin:10px 0 0 0;background:#007AFF;">📄 تصدير تقرير الطلاب الضعاف PDF</button>
     </div>
   </div>
 
@@ -1097,7 +1138,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       'dataBtn': 'النسخ الاحتياطي',
       'resetBtn': 'إعدادات العرض',
       'manageBtn': 'إدارة الأسماء والصفوف',
-      'periodBtn': 'الفترات',
+      'periodBtn': 'تقارير الدرجات',
       'numbersBtn': 'إدارة الدرجات',
       'unitsBtn': 'إدارة الوحدات',
       'exportPdfBtn': 'تصدير كشف الوحدة الحالية PDF',
@@ -2771,6 +2812,101 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         saveData(); initUnitsModalSelect(); currentActiveUnit=Object.keys(unitsData)[0]||"الوحدة الأولى"; if(!unitsData[currentAttendanceUnit]) currentAttendanceUnit=currentActiveUnit; loadUnitDetailsToModal(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); renderFollowupTable(currentActiveUnit); renderStudents();
       }
       closeConfirmModal();
+    }
+
+    let weakStudentsSelectedUnits=[];
+    let lastWeakStudentsReportState=null;
+    const WEAK_REPORT_COLUMNS={
+      hw:{label:'الواجبات',cap:'/10',threshold:5,bg:'#D4EFDF',color:'#117A65'},
+      act:{label:'الأنشطة',cap:'/20',threshold:10,bg:'#FCF3CF',color:'#7D6608'},
+      participation:{label:'المشاركة',cap:'/10',threshold:5,bg:'#EBDEF0',color:'#512E5F'},
+      test:{label:'الاختبار',cap:'/20',threshold:10,bg:'#FADBD8',color:'#78281F'}
+    };
+    function openGradesReportsMenu(){ document.getElementById('gradesReportsMenuModal').style.display='flex'; }
+    function closeGradesReportsMenu(){ document.getElementById('gradesReportsMenuModal').style.display='none'; }
+    function openPeriodFromGradesMenu(){ closeGradesReportsMenu(); openPeriodSummaryModal(); }
+
+    function openWeakStudentsReport(){
+      const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
+      const unit=document.getElementById('unitDropdownSelect').value||currentActiveUnit;
+      if(!cls||!appData[cls]||!unit||!unitsData[unit]){ alert('يرجى اختيار فصل ووحدة أولاً.'); return; }
+      closeGradesReportsMenu();
+      weakStudentsSelectedUnits=[unit];
+      document.getElementById('weakStudentsSummaryToggle').checked=false;
+      document.querySelectorAll('.weak-column-toggle').forEach(input=>input.checked=true);
+      document.getElementById('weakStudentsModal').style.display='flex';
+      renderWeakStudentsUnitsChooser();
+      renderWeakStudentsReport();
+    }
+    function closeWeakStudentsReport(){ document.getElementById('weakStudentsModal').style.display='none'; }
+    function renderWeakStudentsUnitsChooser(){
+      const cont=document.getElementById('weakStudentsUnitsChooser'); if(!cont) return;
+      cont.innerHTML='';
+      Object.keys(unitsData).forEach(unit=>{
+        const selected=weakStudentsSelectedUnits.includes(unit), btn=document.createElement('button');
+        btn.type='button'; btn.textContent=unit;
+        btn.style.cssText=`padding:5px 10px;border-radius:8px;border:${selected?'2px solid #1E8449':'1px solid #C7C7CC'};background:${selected?'#E8F8F5':'#FFFFFF'};color:${selected?'#117A65':'#3A3A3C'};font-weight:900;font-size:0.74rem;cursor:pointer;`;
+        btn.onclick=()=>toggleWeakStudentsUnit(unit); cont.appendChild(btn);
+      });
+    }
+    function toggleWeakStudentsUnit(unit){
+      const index=weakStudentsSelectedUnits.indexOf(unit);
+      if(index>=0){ if(weakStudentsSelectedUnits.length===1){ alert('يجب اختيار وحدة واحدة على الأقل.'); return; } weakStudentsSelectedUnits.splice(index,1); }
+      else weakStudentsSelectedUnits.push(unit);
+      renderWeakStudentsUnitsChooser(); renderWeakStudentsReport();
+    }
+    function getWeakReportRawScores(cls,student,units){
+      const sums={hw:0,act:0,participation:0,test:0};
+      units.forEach(unit=>{
+        const raw=computeRawAverages(cls,student,unit), key=`${cls}_${unit}`, st=(followupData[key]||{})[student]||{};
+        sums.hw+=raw.hwAvg; sums.act+=raw.actAvg; sums.participation+=calculateStudentParticipationScore(cls,student,unit); sums.test+=Math.min(parseFloat(st.test1)||0,20);
+      });
+      const n=units.length||1;
+      return {hw:sums.hw/n,act:sums.act/n,participation:sums.participation/n,test:sums.test/n,total:(sums.hw+sums.act+sums.participation+sums.test)/n};
+    }
+    function weakScoreCell(value, threshold){
+      const weak=value<threshold;
+      return weak
+        ? `<td style="text-align:center;background:#FFF1F2;color:#B42318;font-weight:900;font-size:0.9rem;padding:7px 5px;"><span style="display:block;font-size:0.62rem;line-height:1;color:#E11D48;margin-bottom:3px;">ضعف</span><span>${value.toFixed(2)}</span></td>`
+        : `<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;">${value.toFixed(2)}</td>`;
+    }
+    function renderWeakStudentsReport(){
+      const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
+      const summaryMode=!!document.getElementById('weakStudentsSummaryToggle').checked;
+      const activeColumns=[...document.querySelectorAll('.weak-column-toggle:checked')].map(input=>input.value);
+      const units=weakStudentsSelectedUnits.filter(unit=>unitsData[unit]);
+      if(!cls||!appData[cls]||units.length===0) return;
+      const context=document.getElementById('weakStudentsReportContext');
+      context.textContent=`الفصل: ${cls} — الوحدات: ${units.join('، ')} — ${summaryMode?'التقييم من درجات الخلاصة بعد المشروع':'التقييم من الدرجات الموزونة في جدول المتابعة'} — المتوسط من ${units.length} ${units.length===1?'وحدة':'وحدات'}`;
+      const head=document.getElementById('weakStudentsTableHead'), body=document.getElementById('weakStudentsTableBody'), empty=document.getElementById('weakStudentsEmptyMessage');
+      head.innerHTML=`<tr><th style="width:38px;font-size:0.86rem;padding:8px 4px;">#</th><th style="text-align:right;font-size:0.9rem;padding:8px 6px;white-space:nowrap;">اسم الطالب</th>${activeColumns.map(key=>{const c=WEAK_REPORT_COLUMNS[key]; return `<th style="background:${c.bg};color:${c.color};font-size:0.82rem;padding:7px 5px;">${c.label}<br><small>${c.cap}</small></th>`;}).join('')}<th style="background:#D5F5E3;color:#1E8449;font-size:0.84rem;padding:7px 5px;">المجموع الكلي<br><small>/60</small></th></tr>`;
+      body.innerHTML='';
+      if(activeColumns.length===0){ empty.textContent='فعّل قسماً واحداً على الأقل لفحص الدرجات.'; empty.style.display='block'; return; }
+      const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), weakRows=[];
+      students.forEach(student=>{
+        const scores=summaryMode?computeWeightedScores(cls,student,units):getWeakReportRawScores(cls,student,units);
+        if(activeColumns.some(key=>scores[key]<WEAK_REPORT_COLUMNS[key].threshold)) weakRows.push({student,scores});
+      });
+      weakRows.forEach((item,index)=>{
+        const s=item.scores;
+        body.innerHTML+=`<tr><td style="font-weight:900;color:var(--text-secondary);text-align:center;font-size:0.9rem;padding:8px 4px;">${index+1}</td><td class="student-name-td" style="font-weight:900;font-size:0.98rem;text-align:right;padding:8px 6px;white-space:nowrap;word-break:normal;">${escapeTextForHtml(item.student)}</td>${activeColumns.map(key=>weakScoreCell(s[key],WEAK_REPORT_COLUMNS[key].threshold)).join('')}<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;background:#D5F5E3;color:#1E8449;">${s.total.toFixed(2)}</td></tr>`;
+      });
+      lastWeakStudentsReportState={cls,units:[...units],summaryMode,activeColumns:[...activeColumns],weakRows:weakRows.map(item=>({student:item.student,scores:{...item.scores}}))};
+      empty.textContent='لا يوجد طلاب بدرجة أقل من النصف في الأقسام المحددة.';
+      empty.style.display=weakRows.length?'none':'block';
+    }
+    async function exportWeakStudentsPDF(){
+      if(!lastWeakStudentsReportState) renderWeakStudentsReport();
+      const state=lastWeakStudentsReportState;
+      if(!state||state.weakRows.length===0){ alert('لا يوجد طلاب ضعاف في الأقسام المحددة لتصديرهم.'); return; }
+      const {cls,units,summaryMode,activeColumns,weakRows}=state;
+      const headers=activeColumns.map(key=>{ const c=WEAK_REPORT_COLUMNS[key]; return `<th style="border:1px solid #D1D1D6;padding:5px;background:${c.bg};color:${c.color};">${c.label}<br><small>${c.cap}</small></th>`; }).join('');
+      const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const c=WEAK_REPORT_COLUMNS[key], weak=item.scores[key]<c.threshold; return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${item.scores[key].toFixed(2)}</td>`; }).join(''); return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;background:#D5F5E3;color:#1E8449;font-weight:900;">${item.scores.total.toFixed(2)}</td></tr>`; }).join('');
+      const html=`<table style="width:100%;border-collapse:collapse;direction:rtl;"><thead><tr style="background:#F2F2F7;"><th style="border:1px solid #D1D1D6;padding:5px;">#</th><th style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;">اسم الطالب</th>${headers}<th style="border:1px solid #D1D1D6;padding:5px;background:#D5F5E3;color:#1E8449;">المجموع الكلي<br><small>/60</small></th></tr></thead><tbody>${rows}</tbody></table>`;
+      const columnsLabel=activeColumns.map(key=>WEAK_REPORT_COLUMNS[key].label).join('، ');
+      const footer=`<div style="margin-top:9px;padding:7px 9px;border:1px solid #D1D1D6;border-radius:5px;background:#F8F9FA;font-size:0.64rem;font-weight:800;line-height:1.7;"><div><b>معلومات التقرير:</b></div><div>الفصل: ${escapeTextForHtml(cls)}</div><div>الوحدات المختارة: ${units.map(escapeTextForHtml).join('، ')} — المتوسط من ${units.length} ${units.length===1?'وحدة':'وحدات'}</div><div>الأعمدة المفحوصة: ${escapeTextForHtml(columnsLabel)}</div><div>طريقة التقييم: ${summaryMode?'درجات الخلاصة بعد توزيع المشروع':'الدرجات الموزونة في جدول المتابعة'}</div></div>`;
+      const element=buildPdfElement(html,'تقرير الطلاب الضعاف',`<span>عدد الطلاب الظاهرين: ${weakRows.length}</span><span>تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA')}</span>`,footer,{title:16,headers:10,names:11,data:10});
+      await exportPdf(element,`تقرير_الطلاب_الضعاف_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},margin:5});
     }
 
     function selectPeriodName(name){ selectedPeriodName=name; document.getElementById('periodNameFirstBtn').classList.toggle('selected-period-name',name==='الأولى'); document.getElementById('periodNameSecondBtn').classList.toggle('selected-period-name',name==='الثانية'); }
