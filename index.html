@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "18.2";</script>
+  <script>const APP_VERSION = "18.4";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -157,6 +157,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .followup-table th { background-color: #f8f9fa; color: #2c3e50; }
     .followup-header-cell { display:flex; min-height:4.5rem; height:100%; flex-direction:column; align-items:center; justify-content:space-between; gap:0; }
     .followup-header-title { display:block; line-height:1.05; }
+    /* تُحرّك العناوين فقط قرب رموزها؛ صف الرموز يبقى في موضع 18.2 نفسه. */
+    #followupTable th[data-group="name"] .followup-header-title, #followupTable th[data-group="participation"] .followup-header-title, #followupTable th[data-group="test-project"] .followup-header-title { transform:translateY(2.12rem); }
+    #followupTable th[data-group="test"] .followup-header-title { transform:translateY(1.80rem); }
+    #followupTable th[data-group="hw"] .followup-header-title, #followupTable th[data-group="act"] .followup-header-title, #followupTable th[data-group="total"] .followup-header-title { transform:translateY(1.02rem); }
     .followup-weighted-second { display:block; margin-top:0.24rem; }
     .followup-header-actions { height:1.35rem; margin-top:0.34rem; display:flex; align-items:center; justify-content:center; gap:0.18rem; }
     .followup-sort-trigger { display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; margin:0; padding:0.08rem 0.28rem; min-width:1.25rem; height:1.18rem; border:1px solid currentColor; border-radius:0.32rem; background:rgba(255,255,255,0.62); color:inherit; font-size:0.62rem; font-weight:900; line-height:1; cursor:pointer; white-space:nowrap; }
