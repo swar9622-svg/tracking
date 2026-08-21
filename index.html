@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "19.6";</script>
+  <script>const APP_VERSION = "19.9";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -182,11 +182,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     .student-name-td { cursor: pointer; }
     .followup-table tr.row-highlighted > td { box-shadow: inset 0 0 0 200px rgba(120,120,128,0.20); }
-    /* نافذة الطلاب الضعاف في وضع التوسيع: تمرير واحد مثل كشف المتابعة، من دون تثبيت للاسم أو الفلاتر. */
-    #weakStudentsModal.weak-students-expanded { padding:0.5rem; align-items:stretch; }
-    #weakStudentsModal.weak-students-expanded #weakStudentsModalContent { width:100% !important; max-width:none !important; height:calc(100vh - 1rem); height:calc(100dvh - 1rem); max-height:none !important; box-sizing:border-box; border-radius:1rem; overflow-y:auto; }
-    #weakStudentsModal.weak-students-expanded #weakStudentsTableWrapper { max-height:none !important; }
-    .weak-students-fullscreen-btn { font-size:1.15rem; line-height:1; }
+    /* شاشة الطلاب الضعاف: تمرير كامل طبيعي مثل كشف المتابعة ومن دون تثبيت للاسم أو الفلاتر. */
+    #weakStudentsScreen { min-height:100vh; padding-bottom:1.25rem; }
+    .weak-students-screen-header { background:var(--card-bg); padding:0.875rem 1rem; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+    .weak-students-screen-heading { flex:1; min-width:0; background:#FFF3F3; color:#B42318; border:1px solid #FECACA; border-radius:0.75rem; padding:0.75rem 0.6rem; text-align:center; font-size:0.94rem; font-weight:900; }
+    .weak-students-exit-btn { flex:0 0 auto; border:1px solid #D1D1D6; border-radius:0.75rem; background:#F2F2F7; color:#3A3A3C; padding:0.75rem 0.7rem; font-family:inherit; font-size:0.78rem; font-weight:900; cursor:pointer; }
+    .weak-students-exit-btn:active { opacity:0.7; }
+    .weak-students-screen-content { padding:0.75rem 0.875rem 1.25rem; }
+    #weakStudentsScreen #weakStudentsTableWrapper { max-height:none !important; overflow-x:auto; overflow-y:visible; }
     .import-icon-btn { display: inline-block; border: none; cursor: pointer; font-size: 0.7rem; padding: 0.1rem 0.25rem; border-radius: 0.25rem; margin-right: 0.2rem; line-height: 1.2; transition: opacity 0.15s; user-select: none; }
     .import-icon-btn:active { opacity: 0.6; }
     .import-icon-hw { background-color: #D4EFDF; color: #117A65; border: 1px solid #A9DFBF; }
@@ -522,23 +525,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </div>
   </div>
 
-  <!-- تقرير الطلاب الضعاف من قيم جدول المتابعة -->
-  <div class="modal" id="weakStudentsModal" style="z-index:146;">
-    <div class="modal-content" id="weakStudentsModalContent" style="max-width:760px;width:96%;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div class="modal-title" style="margin:0;font-size:1rem;color:#B42318;">⚠️ الطلاب الضعاف</div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <button class="btn-close-circle weak-students-fullscreen-btn" id="weakStudentsFullscreenBtn" onclick="toggleWeakStudentsFullscreen()" title="تكبير النافذة" aria-label="تكبير نافذة الطلاب الضعاف">⛶</button>
-          <button class="btn-close-circle" onclick="closeWeakStudentsReport()" title="إغلاق نافذة الطلاب الضعاف" aria-label="إغلاق نافذة الطلاب الضعاف">✕</button>
-        </div>
+  <!-- ===== الشاشة الثالثة: الطلاب الضعاف ===== -->
+  <div id="weakStudentsScreen" class="screen">
+    <header class="weak-students-screen-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="weak-students-screen-heading">⚠️ الطلاب الضعاف</div>
+        <button class="weak-students-exit-btn" onclick="closeWeakStudentsReport()" title="العودة إلى كشف المتابعة">خروج</button>
       </div>
+    </header>
+    <main class="weak-students-screen-content">
       <div id="weakStudentsReportContext" style="display:none;"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 7px 0;">
+        <select id="weakStudentsClassSelect" onchange="onWeakStudentsClassChange(this.value)" title="اختر الفصل" aria-label="اختر الفصل" style="flex:1;min-width:0;text-align:center;"></select>
+        <button class="btn-action" onclick="openWeakStudentsThresholdsModal()" style="flex:0 0 auto;min-height:2.45rem;padding:0.45rem 0.6rem;background:#1B4F72;font-size:0.74rem;">⚙️ حدود الضعف</button>
+      </div>
       <div style="margin:0 0 7px 0;padding:8px 10px;background:#F2F2F7;border-radius:8px;">
         <div id="weakStudentsUnitsChooser" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
       </div>
       <div style="margin:0 0 8px 0;padding:8px 10px;background:#F2F2F7;border-radius:8px;font-size:0.78rem;font-weight:800;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:900;"><span>الخلاصة</span><input id="weakStudentsSummaryToggle" type="checkbox" onchange="renderWeakStudentsReport()" style="width:18px;height:18px;accent-color:#1B4F72;"></label>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:900;"><span>الخلاصة</span><input id="weakStudentsSummaryToggle" type="checkbox" onchange="toggleWeakStudentsSummaryMode()" style="width:18px;height:18px;accent-color:#1B4F72;"></label>
           <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:900;color:#1E8449;"><span>المجموع</span><input id="weakStudentsTotalToggle" type="checkbox" onchange="toggleWeakStudentsTotalMode()" style="width:18px;height:18px;accent-color:#1E8449;"></label>
         </div>
         <div id="weakStudentsColumnsRow" style="display:flex;flex-wrap:wrap;gap:8px 12px;">
@@ -546,13 +552,30 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>أنشطة</span><input class="weak-column-toggle" type="checkbox" value="act" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#7D6608;"></label>
           <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>مشاركة</span><input class="weak-column-toggle" type="checkbox" value="participation" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#512E5F;"></label>
           <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>اختبار</span><input class="weak-column-toggle" type="checkbox" value="test" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#78281F;"></label>
+          <label data-weak-project-label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#1B4F72;"><span>المشروع</span><input id="weakStudentsProjectToggle" class="weak-project-toggle" type="checkbox" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#1B4F72;"></label>
         </div>
       </div>
-      <div class="table-responsive-wrapper" id="weakStudentsTableWrapper" style="max-height:52vh;overflow:auto;margin:0;">
+      <div class="table-responsive-wrapper" id="weakStudentsTableWrapper" style="margin:0;">
         <table class="followup-table" id="weakStudentsTable" style="width:100%;min-width:0;table-layout:auto;font-size:0.9rem;"><thead id="weakStudentsTableHead"></thead><tbody id="weakStudentsTableBody"></tbody></table>
       </div>
       <div id="weakStudentsEmptyMessage" style="display:none;text-align:center;color:#1E8449;font-weight:900;padding:18px 8px;">لا يوجد طلاب بدرجة أقل من النصف في الأقسام المحددة.</div>
       <button class="btn-export-period" onclick="openPdfSizeModal('weakStudents')" style="margin:10px 0 0 0;background:#007AFF;">📄 تصدير تقرير الطلاب الضعاف PDF</button>
+    </main>
+  </div>
+
+  <!-- إدارة حدود الضعف الخاصة بتقرير الطلاب الضعاف -->
+  <div class="modal" id="weakStudentsThresholdsModal" style="z-index:147;">
+    <div class="modal-content" style="max-width:430px;width:95%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="modal-title" style="margin:0;font-size:1rem;color:#1B4F72;">⚙️ حدود الضعف</div>
+        <button class="btn-close-circle" onclick="closeWeakStudentsThresholdsModal()" title="إغلاق">✕</button>
+      </div>
+      <div style="font-size:0.77rem;line-height:1.55;color:var(--text-secondary);font-weight:700;margin-bottom:10px;text-align:center;">يظهر الطالب ضعيفاً إذا كانت درجته أقل من الحد المحدد. أمّا المشروع فيُفحص من مربع المشروع ويظهر فقط عند عدم تنفيذه.</div>
+      <div id="weakStudentsThresholdsInputs" style="display:flex;flex-direction:column;gap:7px;"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn-modal-save" onclick="saveWeakStudentsThresholds()" style="flex:1;">💾 حفظ الحدود</button>
+        <button class="btn-modal-cancel" onclick="resetWeakStudentsThresholds()" style="flex:1;">↺ الافتراضي</button>
+      </div>
     </div>
   </div>
 
@@ -1111,6 +1134,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     const STUDENT_NUMBER_MAP_KEY = 'attendance_student_number_map';
     let currentImportType = 'hw';
     // حالة عرض جدول المتابعة مؤقتة: لا تمس درجات الطلاب أو بياناتهم المخزنة.
+    const DEFAULT_WEAK_STUDENTS_THRESHOLDS={hw:5,act:10,participation:5,test:10,total:30};
+    let weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS};
     let followupSortState={key:'name',direction:'asc',focus:null,menuKey:null};
     const FOLLOWUP_SORT_LABELS={name:'الأسماء',hw:'الموزونة للواجبات',act:'الموزونة للأنشطة',participation:'المشاركة',test:'الاختبار',total:'المجموع الكلي'};
     let importFileInput = null;
@@ -1470,7 +1495,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
         fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), buttonColors:cloneData(buttonColors), pdfSizeSettings:cloneData(pdfSizeSettings),
-        savedAt:new Date().toISOString()
+        weakStudentsThresholds:cloneData(weakStudentsThresholds), savedAt:new Date().toISOString()
       };
     }
     async function writeIndexedDBSnapshot(snapshot){
@@ -1516,6 +1541,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       buttonColors=state.buttonColors&&typeof state.buttonColors==='object'?state.buttonColors:cloneData(DEFAULT_BUTTON_COLORS);
       for(const key in DEFAULT_BUTTON_COLORS) if(!buttonColors[key]) buttonColors[key]=cloneData(DEFAULT_BUTTON_COLORS[key]);
       pdfSizeSettings=state.pdfSizeSettings&&typeof state.pdfSizeSettings==='object'?state.pdfSizeSettings:{};
+      weakStudentsThresholds=normalizeWeakStudentsThresholds(state.weakStudentsThresholds);
     }
     async function initializeIndexedDBStorage(){
       const state=await getIndexedDBState();
@@ -1952,14 +1978,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     function switchToFollowupScreen(){
       document.getElementById('absenceScreen').classList.remove('active-screen');
+      document.getElementById('weakStudentsScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.add('active-screen');
       initClassSelects(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); renderFollowupTable(currentActiveUnit); applyButtonColorsDelayed();
+      window.scrollTo(0,0);
     }
 
     function switchToAbsenceScreen(){
       document.getElementById('followupScreen').classList.remove('active-screen');
+      document.getElementById('weakStudentsScreen').classList.remove('active-screen');
       document.getElementById('absenceScreen').classList.add('active-screen');
       initClassSelects(); renderAttendanceUnitsDropdown(); renderStudents(); applyButtonColorsDelayed();
+      window.scrollTo(0,0);
     }
 
     function validateAndUpdate(el,type,lessonEnc,maxVal) {
@@ -2830,12 +2860,54 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let weakStudentsSelectedUnits=[];
     let lastWeakStudentsReportState=null;
     let weakStudentsPreviousColumnSelection=null;
+    let weakStudentsPreviousProjectSelection=null;
     const WEAK_REPORT_COLUMNS={
-      hw:{label:'الواجبات',cap:'/10',threshold:5,bg:'#D4EFDF',color:'#117A65'},
-      act:{label:'الأنشطة',cap:'/20',threshold:10,bg:'#FCF3CF',color:'#7D6608'},
-      participation:{label:'المشاركة',cap:'/10',threshold:5,bg:'#EBDEF0',color:'#512E5F'},
-      test:{label:'الاختبار',cap:'/20',threshold:10,bg:'#FADBD8',color:'#78281F'}
+      hw:{label:'الواجبات',cap:'/10',max:10,bg:'#D4EFDF',color:'#117A65'},
+      act:{label:'الأنشطة',cap:'/20',max:20,bg:'#FCF3CF',color:'#7D6608'},
+      participation:{label:'المشاركة',cap:'/10',max:10,bg:'#EBDEF0',color:'#512E5F'},
+      test:{label:'الاختبار',cap:'/20',max:20,bg:'#FADBD8',color:'#78281F'}
     };
+    const WEAK_PROJECT_COLUMN={key:'project',label:'المشروع',cap:'/20',max:20,bg:'#D6EAF8',color:'#1B4F72'};
+    const WEAK_THRESHOLD_FIELDS=[
+      {key:'hw',label:'الواجبات',max:10,color:'#117A65'}, {key:'act',label:'الأنشطة',max:20,color:'#7D6608'},
+      {key:'participation',label:'المشاركة',max:10,color:'#512E5F'}, {key:'test',label:'الاختبار',max:20,color:'#78281F'},
+      {key:'total',label:'المجموع الكلي',max:60,color:'#1E8449'}
+    ];
+    function normalizeWeakStudentsThresholds(value){
+      const incoming=value&&typeof value==='object'?value:{};
+      const out={...DEFAULT_WEAK_STUDENTS_THRESHOLDS};
+      WEAK_THRESHOLD_FIELDS.forEach(field=>{ const num=parseFloat(incoming[field.key]); if(Number.isFinite(num)&&num>=0&&num<=field.max) out[field.key]=num; });
+      return out;
+    }
+    function getWeakStudentsThreshold(key){ return normalizeWeakStudentsThresholds(weakStudentsThresholds)[key]; }
+    function openWeakStudentsThresholdsModal(){ renderWeakStudentsThresholdsInputs(); document.getElementById('weakStudentsThresholdsModal').style.display='flex'; }
+    function closeWeakStudentsThresholdsModal(){ document.getElementById('weakStudentsThresholdsModal').style.display='none'; }
+    function renderWeakStudentsThresholdsInputs(){
+      const cont=document.getElementById('weakStudentsThresholdsInputs'); if(!cont) return;
+      const values=normalizeWeakStudentsThresholds(weakStudentsThresholds);
+      cont.innerHTML=WEAK_THRESHOLD_FIELDS.map(field=>`<label style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid #E5E5EA;border-radius:8px;background:#F9F9FB;"><span style="font-weight:900;color:${field.color};font-size:0.84rem;">${field.label} <small style="color:var(--text-secondary);font-weight:700;">(من ${field.max})</small></span><input id="weakThreshold_${field.key}" type="number" min="0" max="${field.max}" step="0.25" value="${values[field.key]}" style="width:82px;text-align:center;padding:6px 4px;direction:ltr;"></label>`).join('');
+    }
+    function saveWeakStudentsThresholds(){
+      const next={...DEFAULT_WEAK_STUDENTS_THRESHOLDS};
+      for(const field of WEAK_THRESHOLD_FIELDS){ const input=document.getElementById(`weakThreshold_${field.key}`), value=parseFloat(input?.value); if(!Number.isFinite(value)||value<0||value>field.max){ alert(`أدخل حد ضعف صحيحاً لـ ${field.label} من 0 إلى ${field.max}.`); input?.focus(); return; } next[field.key]=value; }
+      weakStudentsThresholds=normalizeWeakStudentsThresholds(next); saveData(); closeWeakStudentsThresholdsModal(); renderWeakStudentsReport();
+    }
+    function resetWeakStudentsThresholds(){
+      WEAK_THRESHOLD_FIELDS.forEach(field=>{ const input=document.getElementById(`weakThreshold_${field.key}`); if(input) input.value=DEFAULT_WEAK_STUDENTS_THRESHOLDS[field.key]; });
+    }
+    function renderWeakStudentsClassSelect(selectedClass){
+      const select=document.getElementById('weakStudentsClassSelect'); if(!select) return;
+      const wanted=selectedClass||select.value||document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
+      select.innerHTML=Object.keys(appData).map(cls=>`<option value="${escapeTextForHtml(cls)}">${escapeTextForHtml(cls)}</option>`).join('');
+      if([...select.options].some(option=>option.value===wanted)) select.value=wanted;
+    }
+    function onWeakStudentsClassChange(cls){
+      const followupSelect=document.getElementById('followupClassSelect'), absenceSelect=document.getElementById('classSelect');
+      if([...followupSelect.options].some(option=>option.value===cls)) followupSelect.value=cls;
+      if([...absenceSelect.options].some(option=>option.value===cls)) absenceSelect.value=cls;
+      weakStudentsSelectedUnits=unitsData[currentActiveUnit]?[currentActiveUnit]:[Object.keys(unitsData)[0]].filter(Boolean);
+      renderWeakStudentsUnitsChooser(); renderWeakStudentsReport(); window.scrollTo(0,0);
+    }
     function openGradesReportsMenu(){ document.getElementById('gradesReportsMenuModal').style.display='flex'; }
     function closeGradesReportsMenu(){ document.getElementById('gradesReportsMenuModal').style.display='none'; }
     function openPeriodFromGradesMenu(){ closeGradesReportsMenu(); openPeriodSummaryModal(); }
@@ -2849,23 +2921,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       document.getElementById('weakStudentsSummaryToggle').checked=false;
       document.getElementById('weakStudentsTotalToggle').checked=false;
       document.querySelectorAll('.weak-column-toggle').forEach(input=>input.checked=true);
-      weakStudentsPreviousColumnSelection=null;
+      document.getElementById('weakStudentsProjectToggle').checked=true;
+      weakStudentsPreviousColumnSelection=null; weakStudentsPreviousProjectSelection=null;
       updateWeakStudentsTotalModeUI();
-      document.getElementById('weakStudentsModal').style.display='flex';
+      renderWeakStudentsClassSelect(cls);
+      document.getElementById('absenceScreen').classList.remove('active-screen');
+      document.getElementById('followupScreen').classList.remove('active-screen');
+      document.getElementById('weakStudentsScreen').classList.add('active-screen');
       renderWeakStudentsUnitsChooser();
       renderWeakStudentsReport();
+      window.scrollTo(0,0);
     }
     function closeWeakStudentsReport(){
-      const modal=document.getElementById('weakStudentsModal');
-      modal.style.display='none';
-      modal.classList.remove('weak-students-expanded');
-      const btn=document.getElementById('weakStudentsFullscreenBtn');
-      if(btn){ btn.textContent='⛶'; btn.title='تكبير النافذة'; btn.setAttribute('aria-label','تكبير نافذة الطلاب الضعاف'); }
-    }
-    function toggleWeakStudentsFullscreen(){
-      const modal=document.getElementById('weakStudentsModal'), btn=document.getElementById('weakStudentsFullscreenBtn');
-      const expanded=modal.classList.toggle('weak-students-expanded');
-      if(btn){ btn.textContent=expanded?'↙':'⛶'; btn.title=expanded?'إعادة النافذة إلى حجمها العادي':'تكبير النافذة'; btn.setAttribute('aria-label',btn.title); }
+      document.getElementById('weakStudentsScreen').classList.remove('active-screen');
+      document.getElementById('followupScreen').classList.add('active-screen');
+      renderFollowupTable(currentActiveUnit);
+      window.scrollTo(0,0);
     }
     function toggleWeakStudentsRowHighlight(nameCell){
       const row=nameCell.closest('tr');
@@ -2874,9 +2945,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(tbody) tbody.querySelectorAll('tr.row-highlighted').forEach(item=>item.classList.remove('row-highlighted'));
       if(!wasHighlighted) row.classList.add('row-highlighted');
     }
+    function toggleWeakStudentsSummaryMode(){
+      const summaryMode=document.getElementById('weakStudentsSummaryToggle').checked, projectInput=document.getElementById('weakStudentsProjectToggle');
+      if(summaryMode&&projectInput){ weakStudentsPreviousProjectSelection=projectInput.checked; projectInput.checked=false; }
+      else if(!summaryMode&&projectInput&&weakStudentsPreviousProjectSelection!==null){ projectInput.checked=weakStudentsPreviousProjectSelection; weakStudentsPreviousProjectSelection=null; }
+      updateWeakStudentsTotalModeUI(); renderWeakStudentsReport();
+    }
     function toggleWeakStudentsTotalMode(){
       const totalMode=document.getElementById('weakStudentsTotalToggle').checked;
-      const inputs=[...document.querySelectorAll('.weak-column-toggle')];
+      const inputs=[...document.querySelectorAll('.weak-column-toggle, .weak-project-toggle')];
       if(totalMode){
         weakStudentsPreviousColumnSelection=inputs.map(input=>({value:input.value,checked:input.checked}));
         inputs.forEach(input=>{ input.checked=true; input.disabled=true; });
@@ -2889,9 +2966,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       renderWeakStudentsReport();
     }
     function updateWeakStudentsTotalModeUI(){
-      const totalMode=!!document.getElementById('weakStudentsTotalToggle').checked;
+      const totalMode=!!document.getElementById('weakStudentsTotalToggle').checked, summaryMode=!!document.getElementById('weakStudentsSummaryToggle').checked;
       document.querySelectorAll('[data-weak-column-label]').forEach(label=>{ label.style.opacity=totalMode?'0.42':'1'; label.style.cursor=totalMode?'not-allowed':'pointer'; });
       document.querySelectorAll('.weak-column-toggle').forEach(input=>input.disabled=totalMode);
+      const projectLabel=document.querySelector('[data-weak-project-label]'), projectInput=document.getElementById('weakStudentsProjectToggle');
+      if(projectLabel){ projectLabel.style.opacity=(totalMode||summaryMode)?'0.42':'1'; projectLabel.style.cursor=(totalMode||summaryMode)?'not-allowed':'pointer'; }
+      if(projectInput) projectInput.disabled=totalMode||summaryMode;
     }
     function renderWeakStudentsUnitsChooser(){
       const cont=document.getElementById('weakStudentsUnitsChooser'); if(!cont) return;
@@ -2910,13 +2990,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       renderWeakStudentsUnitsChooser(); renderWeakStudentsReport();
     }
     function getWeakReportRawScores(cls,student,units){
-      const sums={hw:0,act:0,participation:0,test:0};
+      const sums={hw:0,act:0,participation:0,test:0}, projectByUnit={};
       units.forEach(unit=>{
-        const raw=computeRawAverages(cls,student,unit), key=`${cls}_${unit}`, st=(followupData[key]||{})[student]||{};
-        sums.hw+=raw.hwAvg; sums.act+=raw.actAvg; sums.participation+=calculateStudentParticipationScore(cls,student,unit); sums.test+=Math.min(parseFloat(st.test1)||0,20);
+        const raw=computeRawAverages(cls,student,unit), key=`${cls}_${unit}`, st=(followupData[key]||{})[student]||{}, project=Math.min(Math.max(parseFloat(st.test2)||0,0),20);
+        sums.hw+=raw.hwAvg; sums.act+=raw.actAvg; sums.participation+=calculateStudentParticipationScore(cls,student,unit); sums.test+=Math.min(parseFloat(st.test1)||0,20); projectByUnit[unit]=project;
       });
       const n=units.length||1;
-      return {hw:sums.hw/n,act:sums.act/n,participation:sums.participation/n,test:sums.test/n,total:(sums.hw+sums.act+sums.participation+sums.test)/n};
+      return {hw:sums.hw/n,act:sums.act/n,participation:sums.participation/n,test:sums.test/n,projectByUnit,total:(sums.hw+sums.act+sums.participation+sums.test)/n};
     }
     function weakScoreCell(value, threshold){
       const weak=value<threshold;
@@ -2924,41 +3004,58 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         ? `<td style="text-align:center;background:#FFF1F2;color:#B42318;font-weight:900;font-size:0.9rem;padding:7px 5px;"><span style="display:block;font-size:0.62rem;line-height:1;color:#E11D48;margin-bottom:3px;">ضعف</span><span>${value.toFixed(2)}</span></td>`
         : `<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;">${value.toFixed(2)}</td>`;
     }
+    function weakProjectUnitCell(value, pdf=false){
+      const done=value>0, border=pdf?'border:1px solid #D1D1D6;':'';
+      return done
+        ? `<td style="${border}text-align:center;background:#EBF7EF;color:#1E8449;font-weight:900;font-size:0.86rem;padding:7px 5px;"><span style="display:block;font-size:0.62rem;line-height:1;color:#1E8449;margin-bottom:3px;">نفذ</span><span>${value.toFixed(2)}</span></td>`
+        : `<td style="${border}text-align:center;background:#FFF1F2;color:#B42318;font-weight:900;font-size:0.86rem;padding:7px 5px;"><span style="display:block;font-size:0.62rem;line-height:1;color:#E11D48;margin-bottom:3px;">لم ينفذ</span><span>0.00</span></td>`;
+    }
+    function buildWeakStudentsTableHeader(activeColumns,projectSelected,units,pdf=false){
+      const border=pdf?'border:1px solid #D1D1D6;':'', pad=pdf?'padding:5px;':'padding:7px 5px;', namePad=pdf?'padding:5px;':'padding:8px 6px;', base=activeColumns.map(key=>{const c=WEAK_REPORT_COLUMNS[key]; return `<th style="${border}background:${c.bg};color:${c.color};font-size:0.82rem;${pad}">${c.label}<br><small>${c.cap}</small></th>`;}).join(''), baseMulti=activeColumns.map(key=>{const c=WEAK_REPORT_COLUMNS[key]; return `<th rowspan="2" style="${border}background:${c.bg};color:${c.color};font-size:0.82rem;${pad}">${c.label}<br><small>${c.cap}</small></th>`;}).join('');
+      const number=`<th style="${border}width:38px;font-size:0.86rem;${pdf?'padding:5px;':'padding:8px 4px;'}">#</th>`, name=`<th style="${border}text-align:right;font-size:0.9rem;${namePad}white-space:nowrap;">اسم الطالب</th>`, total=`<th style="${border}background:#D5F5E3;color:#1E8449;font-size:0.84rem;${pad}">المجموع الكلي<br><small>/60</small></th>`;
+      if(!projectSelected) return `<tr>${number}${name}${base}${total}</tr>`;
+      if(units.length===1) return `<tr>${number}${name}${base}<th style="${border}background:${WEAK_PROJECT_COLUMN.bg};color:${WEAK_PROJECT_COLUMN.color};font-size:0.82rem;${pad}">المشروع</th>${total}</tr>`;
+      const projectNumbers=units.map((_,index)=>`<th style="${border}background:${WEAK_PROJECT_COLUMN.bg};color:${WEAK_PROJECT_COLUMN.color};font-size:0.82rem;${pad}">${index+1}</th>`).join('');
+      return `<tr>${number.replace('<th ','<th rowspan="2" ')}${name.replace('<th ','<th rowspan="2" ')}${baseMulti}<th colspan="${units.length}" style="${border}background:${WEAK_PROJECT_COLUMN.bg};color:${WEAK_PROJECT_COLUMN.color};font-size:0.84rem;${pad}">المشروع</th>${total.replace('<th ','<th rowspan="2" ')}</tr><tr>${projectNumbers}</tr>`;
+    }
     function renderWeakStudentsReport(){
-      const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
+      const cls=document.getElementById('weakStudentsClassSelect').value||document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
       const summaryMode=!!document.getElementById('weakStudentsSummaryToggle').checked;
       const totalMode=!!document.getElementById('weakStudentsTotalToggle').checked;
       const activeColumns=totalMode?Object.keys(WEAK_REPORT_COLUMNS):[...document.querySelectorAll('.weak-column-toggle:checked')].map(input=>input.value);
+      const projectSelected=!summaryMode&&(totalMode||!!document.getElementById('weakStudentsProjectToggle').checked);
       const units=weakStudentsSelectedUnits.filter(unit=>unitsData[unit]);
       if(!cls||!appData[cls]||units.length===0) return;
       const context=document.getElementById('weakStudentsReportContext');
-      context.textContent=`الفصل: ${cls} — الوحدات: ${units.join('، ')} — ${summaryMode?'التقييم من درجات الخلاصة بعد المشروع':'التقييم من الدرجات الموزونة في جدول المتابعة'} — المتوسط من ${units.length} ${units.length===1?'وحدة':'وحدات'}`;
+      context.textContent=`الفصل: ${cls} — الوحدات: ${units.join('، ')} — ${summaryMode?'التقييم من درجات الخلاصة بعد المشروع':'التقييم من الدرجات الموزونة'} — المتوسط من ${units.length} ${units.length===1?'وحدة':'وحدات'}`;
       const head=document.getElementById('weakStudentsTableHead'), body=document.getElementById('weakStudentsTableBody'), empty=document.getElementById('weakStudentsEmptyMessage');
-      head.innerHTML=`<tr><th style="width:38px;font-size:0.86rem;padding:8px 4px;">#</th><th style="text-align:right;font-size:0.9rem;padding:8px 6px;white-space:nowrap;">اسم الطالب</th>${activeColumns.map(key=>{const c=WEAK_REPORT_COLUMNS[key]; return `<th style="background:${c.bg};color:${c.color};font-size:0.82rem;padding:7px 5px;">${c.label}<br><small>${c.cap}</small></th>`;}).join('')}<th style="background:#D5F5E3;color:#1E8449;font-size:0.84rem;padding:7px 5px;">المجموع الكلي<br><small>/60</small></th></tr>`;
+      head.innerHTML=buildWeakStudentsTableHeader(activeColumns,projectSelected,units);
       body.innerHTML='';
-      if(activeColumns.length===0){ empty.textContent='فعّل قسماً واحداً على الأقل لفحص الدرجات.'; empty.style.display='block'; return; }
+      if(activeColumns.length===0&&!projectSelected){ empty.textContent='فعّل قسماً واحداً على الأقل أو المشروع لفحص الدرجات.'; empty.style.display='block'; return; }
       const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), weakRows=[];
       students.forEach(student=>{
         const scores=summaryMode?computeWeightedScores(cls,student,units):getWeakReportRawScores(cls,student,units);
-        if(totalMode ? scores.total<30 : activeColumns.some(key=>scores[key]<WEAK_REPORT_COLUMNS[key].threshold)) weakRows.push({student,scores});
+        const sectionWeak=activeColumns.some(key=>scores[key]<getWeakStudentsThreshold(key));
+        const projectWeak=projectSelected&&units.some(unit=>(scores.projectByUnit?.[unit]||0)<=0);
+        if(totalMode ? scores.total<getWeakStudentsThreshold('total') : sectionWeak||projectWeak) weakRows.push({student,scores});
       });
       weakRows.forEach((item,index)=>{
         const s=item.scores;
-        const totalCell=totalMode?weakScoreCell(s.total,30):`<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;background:#D5F5E3;color:#1E8449;">${s.total.toFixed(2)}</td>`;
-        body.innerHTML+=`<tr><td style="font-weight:900;color:var(--text-secondary);text-align:center;font-size:0.9rem;padding:8px 4px;">${index+1}</td><td class="student-name-td" onclick="toggleWeakStudentsRowHighlight(this)" title="اضغط لتظليل صف الطالب" style="font-weight:900;font-size:0.98rem;text-align:right;padding:8px 6px;white-space:nowrap;word-break:normal;">${escapeTextForHtml(item.student)}</td>${activeColumns.map(key=>weakScoreCell(s[key],WEAK_REPORT_COLUMNS[key].threshold)).join('')}${totalCell}</tr>`;
+        const totalCell=totalMode?weakScoreCell(s.total,getWeakStudentsThreshold('total')):`<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;background:#D5F5E3;color:#1E8449;">${s.total.toFixed(2)}</td>`;
+        const projectCells=projectSelected?units.map(unit=>weakProjectUnitCell(s.projectByUnit?.[unit]||0)).join(''):'';
+        body.innerHTML+=`<tr><td style="font-weight:900;color:var(--text-secondary);text-align:center;font-size:0.9rem;padding:8px 4px;">${index+1}</td><td class="student-name-td" onclick="toggleWeakStudentsRowHighlight(this)" title="اضغط لتظليل صف الطالب" style="font-weight:900;font-size:0.98rem;text-align:right;padding:8px 6px;white-space:nowrap;word-break:normal;">${escapeTextForHtml(item.student)}</td>${activeColumns.map(key=>weakScoreCell(s[key],getWeakStudentsThreshold(key))).join('')}${projectCells}${totalCell}</tr>`;
       });
-      lastWeakStudentsReportState={cls,units:[...units],summaryMode,totalMode,activeColumns:[...activeColumns],weakRows:weakRows.map(item=>({student:item.student,scores:{...item.scores}}))};
-      empty.textContent=totalMode?'لا يوجد طلاب مجموعهم أقل من النصف في الوحدات المحددة.':'لا يوجد طلاب بدرجة أقل من النصف في الأقسام المحددة.';
+      lastWeakStudentsReportState={cls,units:[...units],summaryMode,totalMode,projectSelected,activeColumns:[...activeColumns],weakRows:weakRows.map(item=>({student:item.student,scores:{...item.scores,projectByUnit:{...(item.scores.projectByUnit||{})}}}))};
+      empty.textContent=totalMode?'لا يوجد طلاب مجموعهم أقل من حد الضعف المحدد في الوحدات المختارة.':'لا يوجد طلاب أقل من حدود الضعف المحددة أو لم ينفذوا المشروع في الوحدات المختارة.';
       empty.style.display=weakRows.length?'none':'block';
     }
     async function exportWeakStudentsPDF(){
       if(!lastWeakStudentsReportState) renderWeakStudentsReport();
       const state=lastWeakStudentsReportState;
       if(!state||state.weakRows.length===0){ alert('لا يوجد طلاب ضعاف في الأقسام المحددة لتصديرهم.'); return; }
-      const {cls,units,summaryMode,totalMode,activeColumns,weakRows}=state;
-      const headers=activeColumns.map(key=>{ const c=WEAK_REPORT_COLUMNS[key]; return `<th style="border:1px solid #D1D1D6;padding:5px;background:${c.bg};color:${c.color};">${c.label}<br><small>${c.cap}</small></th>`; }).join('');
-      const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const c=WEAK_REPORT_COLUMNS[key], weak=item.scores[key]<c.threshold; return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${item.scores[key].toFixed(2)}</td>`; }).join(''); const totalWeak=totalMode&&item.scores.total<30; const totalCell=`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${totalWeak?'background:#FFF1F2;color:#B42318;':'background:#D5F5E3;color:#1E8449;'}font-weight:900;">${totalWeak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${item.scores.total.toFixed(2)}</td>`; return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}${totalCell}</tr>`; }).join('');
-      const table=`<table style="width:100%;border-collapse:collapse;direction:rtl;"><thead><tr style="background:#F2F2F7;"><th style="border:1px solid #D1D1D6;padding:5px;">#</th><th style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;">اسم الطالب</th>${headers}<th style="border:1px solid #D1D1D6;padding:5px;background:#D5F5E3;color:#1E8449;">المجموع الكلي<br><small>/60</small></th></tr></thead><tbody>${rows}</tbody></table>`;
+      const {cls,units,summaryMode,totalMode,projectSelected,activeColumns,weakRows}=state;
+      const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const weak=item.scores[key]<getWeakStudentsThreshold(key); return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${item.scores[key].toFixed(2)}</td>`; }).join(''); const projectCells=projectSelected?units.map(unit=>weakProjectUnitCell(item.scores.projectByUnit?.[unit]||0,true)).join(''):''; const totalWeak=totalMode&&item.scores.total<getWeakStudentsThreshold('total'); const totalCell=`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${totalWeak?'background:#FFF1F2;color:#B42318;':'background:#D5F5E3;color:#1E8449;'}font-weight:900;">${totalWeak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${item.scores.total.toFixed(2)}</td>`; return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}${projectCells}${totalCell}</tr>`; }).join('');
+      const table=`<table style="width:100%;border-collapse:collapse;direction:rtl;"><thead>${buildWeakStudentsTableHeader(activeColumns,projectSelected,units,true)}</thead><tbody>${rows}</tbody></table>`;
       const columnsLabel=activeColumns.map(key=>WEAK_REPORT_COLUMNS[key].label).join('، ');
       const evaluationLabel=summaryMode?'الخلاصة':'الموزونة';
       const reportInfo=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;direction:rtl;white-space:nowrap;"><span style="flex:0 0 auto;text-align:right;">الفصل: ${escapeTextForHtml(cls)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center;">الوحدات: ${units.map(escapeTextForHtml).join('، ')}</span><span style="flex:0 0 auto;text-align:left;">${evaluationLabel}</span></div>`;
@@ -3541,7 +3638,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:2,storageBackend:'IndexedDB',appData,records,unitsData,followupData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,buttonColors,pdfSizeSettings}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ const data={backupVersion:2,storageBackend:'IndexedDB',appData,records,unitsData,followupData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,buttonColors,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
@@ -3556,6 +3653,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         if(imported.buttonColors) buttonColors=imported.buttonColors;
         if(imported.notificationSettings) notificationSettings=imported.notificationSettings;
         if(imported.pdfSizeSettings) pdfSizeSettings=imported.pdfSizeSettings;
+        if(imported.weakStudentsThresholds) weakStudentsThresholds=normalizeWeakStudentsThresholds(imported.weakStudentsThresholds);
         if(!(await saveData())) throw new Error('تعذر حفظ النسخة الاحتياطية المستوردة.'); initClassSelects(); renderStudents(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); applyFontSettings(); applyButtonColors(); alert("✅ تم استعادة النسخة الاحتياطية بنجاح!");
       } catch(err){ console.error(err); alert("❌ ملف النسخة الاحتياطي غير صالح!"); } }; reader.readAsText(file);
     }
@@ -3564,7 +3662,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
