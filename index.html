@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "17.9";</script>
+  <script>const APP_VERSION = "18.0";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -155,6 +155,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .student-name-tooltip.below::after { top: -6px; bottom: auto; border-right: none; border-bottom: none; border-left: 1.5px solid var(--accent); border-top: 1.5px solid var(--accent); transform: translateX(-50%) rotate(45deg); }
     .followup-table th, .followup-table td { border: 1px solid #ddd; padding: 0.5rem 0.375rem; white-space: nowrap; }
     .followup-table th { background-color: #f8f9fa; color: #2c3e50; }
+    .followup-sort-trigger { display:block; margin:0.2rem auto 0; padding:0.12rem 0.38rem; border:1px solid currentColor; border-radius:0.35rem; background:rgba(255,255,255,0.62); color:inherit; font-size:0.56rem; font-weight:900; line-height:1.15; cursor:pointer; white-space:nowrap; }
+    .followup-sort-trigger:active { transform:scale(.96); }
+    .followup-sort-status { margin:0 0.9375rem 0.4rem; min-height:1.65rem; padding:0.32rem 0.65rem; border-radius:0.5rem; background:#EEF6FF; border:1px solid #B3D7FF; color:#075CB5; font-size:0.71rem; font-weight:800; text-align:right; display:flex; align-items:center; gap:0.35rem; }
+    .followup-sort-status { display:none; }
+    .followup-header-sort-label { display:block; margin-top:0.18rem; font-size:0.52rem; line-height:1.2; color:#075CB5; font-weight:900; white-space:normal; }
+    #followupTable.followup-focus-active [data-group] { display:none !important; }
+    #followupTable.followup-focus-hw [data-group="name"], #followupTable.followup-focus-hw [data-group="hw"], #followupTable.followup-focus-hw [data-group="total"],
+    #followupTable.followup-focus-act [data-group="name"], #followupTable.followup-focus-act [data-group="act"], #followupTable.followup-focus-act [data-group="total"],
+    #followupTable.followup-focus-participation [data-group="name"], #followupTable.followup-focus-participation [data-group="participation"], #followupTable.followup-focus-participation [data-group="total"],
+    #followupTable.followup-focus-test [data-group="name"], #followupTable.followup-focus-test [data-group="test"], #followupTable.followup-focus-test [data-group="total"],
+    #followupTable.followup-focus-total [data-group="name"], #followupTable.followup-focus-total [data-group="total"] { display:table-cell !important; }
+
     .student-name-td { cursor: pointer; }
     .followup-table tr.row-highlighted > td { box-shadow: inset 0 0 0 200px rgba(120,120,128,0.20); }
     .import-icon-btn { display: inline-block; border: none; cursor: pointer; font-size: 0.7rem; padding: 0.1rem 0.25rem; border-radius: 0.25rem; margin-right: 0.2rem; line-height: 1.2; transition: opacity 0.15s; user-select: none; }
@@ -369,6 +381,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)"></select>
       <select id="unitDropdownSelect" class="unit-dropdown-select" onchange="onUnitDropdownChange(this.value)"></select>
     </div>
+    <div id="followupSortStatus" class="followup-sort-status"></div>
     <div class="followup-table-container">
       <table class="followup-table" id="followupTable">
         <thead id="followupTableHead"></thead>
@@ -700,6 +713,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </div>
   </div>
 
+  <div class="modal" id="followupSortModal" style="z-index:118;">
+    <div class="modal-content" style="max-width:390px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="modal-title" id="followupSortModalTitle" style="margin:0;">خيارات ترتيب العمود</div>
+        <button class="btn-close-circle" onclick="closeFollowupSortModal()">✕</button>
+      </div>
+      <div id="followupSortModalHint" style="font-size:0.72rem;color:var(--text-secondary);font-weight:800;text-align:center;line-height:1.45;margin-bottom:10px;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+        <button class="btn-modal-save" type="button" onclick="applyFollowupSort('asc')" style="margin:0;background:#1E8449;">↑ تصاعدي</button>
+        <button class="btn-modal-save" type="button" onclick="applyFollowupSort('desc')" style="margin:0;background:#922B21;">↓ تنازلي</button>
+      </div>
+      <button id="followupFocusButton" class="btn-modal-save" type="button" onclick="focusCurrentFollowupColumn()" style="width:100%;margin:0.7rem 0 0;background:#007AFF;">🔎 إظهار هذا العمود والمجموع فقط</button>
+      <button id="followupShowAllButton" class="btn-modal-cancel" type="button" onclick="clearFollowupFocus()" style="width:100%;margin:0.5rem 0 0;display:none;">↔️ إظهار جميع الأعمدة</button>
+    </div>
+  </div>
+
   <div class="modal" id="fontSettingsModal" style="z-index:116;">
     <div class="modal-content" style="max-width:400px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -1014,6 +1043,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let queryStudentNumberMap = {};
     const STUDENT_NUMBER_MAP_KEY = 'attendance_student_number_map';
     let currentImportType = 'hw';
+    // حالة عرض جدول المتابعة مؤقتة: لا تمس درجات الطلاب أو بياناتهم المخزنة.
+    let followupSortState={key:'name',direction:'asc',focus:null,menuKey:null};
+    const FOLLOWUP_SORT_LABELS={name:'الأسماء',hw:'الموزونة للواجبات',act:'الموزونة للأنشطة',participation:'المشاركة',test:'الاختبار',total:'المجموع الكلي'};
     let importFileInput = null;
 
     // ===== ألوان الأزرار =====
@@ -2202,39 +2234,92 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if (activeStudentNameTooltipInput !== input) showStudentNameTooltip(input);
     }, true);
 
+    // ===== فرز وتركيز أعمدة كشف المتابعة (عرض فقط، بلا تغيير في البيانات) =====
+    function getFollowupSortValue(cls,student,unitName,key){
+      const keyData=`${cls}_${unitName}`;
+      const studentData=(followupData[keyData]&&followupData[keyData][student])||{hw:{},act:{},test1:'',test2:''};
+      if(key==='name') return student;
+      if(key==='hw') return computeRawAverages(cls,student,unitName).hwAvg;
+      if(key==='act') return computeRawAverages(cls,student,unitName).actAvg;
+      if(key==='participation') return calculateStudentParticipationScore(cls,student,unitName);
+      if(key==='test') { const val=parseFloat(studentData.test1); return Number.isFinite(val)?val:null; }
+      if(key==='total') return computeWeightedScores(cls,student,[unitName]).total;
+      return null;
+    }
+    function getSortedFollowupStudents(cls,unitName){
+      const key=FOLLOWUP_SORT_LABELS[followupSortState.key]?followupSortState.key:'name';
+      const direction=followupSortState.direction==='desc'?'desc':'asc';
+      return [...(appData[cls]||[])].sort((a,b)=>{
+        const av=getFollowupSortValue(cls,a,unitName,key), bv=getFollowupSortValue(cls,b,unitName,key);
+        if(key==='name') return direction==='asc'?String(av).localeCompare(String(bv),'ar'):String(bv).localeCompare(String(av),'ar');
+        const aEmpty=av===null||av===undefined||Number.isNaN(av), bEmpty=bv===null||bv===undefined||Number.isNaN(bv);
+        if(aEmpty&&bEmpty) return a.localeCompare(b,'ar');
+        if(aEmpty) return 1; if(bEmpty) return -1;
+        if(av===bv) return a.localeCompare(b,'ar');
+        return direction==='asc'?av-bv:bv-av;
+      });
+    }
+    function getFollowupSortDescription(){ const key=followupSortState.key, label=FOLLOWUP_SORT_LABELS[key]||FOLLOWUP_SORT_LABELS.name, direction=followupSortState.direction==='desc'?'تنازلياً':'تصاعدياً'; return `الترتيب الحالي: ${direction} حسب ${label}${followupSortState.focus?` — عرض ${label} والمجموع الكلي فقط`:''}`; }
+    function applyFollowupTableFocus(){
+      const table=document.getElementById('followupTable'), status=document.getElementById('followupSortStatus'), headerLabel=document.getElementById('followupHeaderSortLabel'); if(!table) return;
+      table.classList.remove('followup-focus-active','followup-focus-hw','followup-focus-act','followup-focus-participation','followup-focus-test','followup-focus-total');
+      if(followupSortState.focus&&followupSortState.focus!=='name'){ table.classList.add('followup-focus-active',`followup-focus-${followupSortState.focus}`); }
+      if(status) status.textContent='';
+      if(headerLabel){ const label=FOLLOWUP_SORT_LABELS[followupSortState.key]||FOLLOWUP_SORT_LABELS.name, direction=followupSortState.direction==='desc'?'تنازلي':'تصاعدي'; headerLabel.textContent=`ترتيب ${direction}: ${label}`; }
+    }
+    function openFollowupSortModal(key){
+      followupSortState.menuKey=FOLLOWUP_SORT_LABELS[key]?key:'name';
+      const label=FOLLOWUP_SORT_LABELS[followupSortState.menuKey];
+      document.getElementById('followupSortModalTitle').textContent=`خيارات: ${label}`;
+      document.getElementById('followupSortModalHint').textContent=followupSortState.menuKey==='name'?'رتّب الأسماء أبجدياً تصاعدياً أو تنازلياً.':`رتّب الطلاب حسب ${label}، أو اعرض هذا العمود مع الاسم والمجموع الكلي فقط.`;
+      document.getElementById('followupFocusButton').style.display=followupSortState.menuKey==='name'?'none':'block';
+      document.getElementById('followupShowAllButton').style.display=followupSortState.focus?'block':'none';
+      document.getElementById('followupSortModal').style.display='flex';
+    }
+    function closeFollowupSortModal(){ document.getElementById('followupSortModal').style.display='none'; }
+    function applyFollowupSort(direction){
+      followupSortState.key=followupSortState.menuKey||'name'; followupSortState.direction=direction==='desc'?'desc':'asc';
+      closeFollowupSortModal(); renderFollowupTable(document.getElementById('unitDropdownSelect').value||currentActiveUnit);
+    }
+    function focusCurrentFollowupColumn(){
+      const key=followupSortState.menuKey; if(!key||key==='name') return;
+      followupSortState.key=key; followupSortState.focus=key; closeFollowupSortModal(); renderFollowupTable(document.getElementById('unitDropdownSelect').value||currentActiveUnit);
+    }
+    function clearFollowupFocus(){ followupSortState.focus=null; closeFollowupSortModal(); renderFollowupTable(document.getElementById('unitDropdownSelect').value||currentActiveUnit); }
+
     // ===== دوال المتابعة =====
     function renderFollowupTable(unitName) {
       const cls=document.getElementById('followupClassSelect').value;
       if(!cls||!appData[cls]) return;
       const unit=unitsData[unitName]||{lessons:["درس 1"]}, lessons=unit.lessons, key=`${cls}_${unitName}`;
       if(!followupData[key]) followupData[key]={};
-      const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames();
+      const students=getSortedFollowupStudents(cls,unitName), dup=getDuplicateNames();
 
       // بناء رأس الجدول مع العمودين الجديدين
       let headHtml = `<tr>
-        <th rowspan="2" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;">#</th>
-        <th rowspan="2" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;text-align:right;min-width:120px;">اسم الطالب</th>
-        <th colspan="${lessons.length}" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;position:relative;">الواجبات (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button></span></th>
-        <th rowspan="2" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;">الموزونه</th>
-        <th colspan="${lessons.length}" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
-        <th rowspan="2" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونه</th>
-        <th rowspan="2" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;">المشاركة</th>
-        <th colspan="2" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;position:relative;">الاختبارات والمشاريع (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span></th>
-        <th colspan="4" style="background:#D6EAF8;color:#1B4F72;text-align:center;">الموزونه + المشروع (الخلاصه)</th>
-        <th rowspan="2" style="background:#D5F5E3;color:#1E8449;vertical-align:middle;text-align:center;min-width:80px;">المجموع الكلي</th>
+        <th rowspan="2" data-group="index" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;">#</th>
+        <th rowspan="2" data-group="name" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;text-align:right;min-width:120px;">اسم الطالب<button class="followup-sort-trigger" onclick="openFollowupSortModal('name')">⇅ فرز</button><span id="followupHeaderSortLabel" class="followup-header-sort-label"></span></th>
+        <th colspan="${lessons.length}" data-group="hw-details" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;position:relative;">الواجبات (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button></span></th>
+        <th rowspan="2" data-group="hw" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;">الموزونة للواجبات<button class="followup-sort-trigger" onclick="openFollowupSortModal('hw')">⇅ فرز</button></th>
+        <th colspan="${lessons.length}" data-group="act-details" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
+        <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونة للأنشطة<button class="followup-sort-trigger" onclick="openFollowupSortModal('act')">⇅ فرز</button></th>
+        <th rowspan="2" data-group="participation" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;">المشاركة<button class="followup-sort-trigger" onclick="openFollowupSortModal('participation')">⇅ فرز</button></th>
+        <th colspan="2" data-group="test-details" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;position:relative;">الاختبارات والمشاريع (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span></th>
+        <th colspan="4" data-group="summary" style="background:#D6EAF8;color:#1B4F72;text-align:center;">الموزونه + المشروع (الخلاصه)</th>
+        <th rowspan="2" data-group="total" style="background:#D5F5E3;color:#1E8449;vertical-align:middle;text-align:center;min-width:80px;">المجموع الكلي<button class="followup-sort-trigger" onclick="openFollowupSortModal('total')">⇅ فرز</button></th>
       </tr>
       <tr>`;
       // الدروس
-      lessons.forEach(l=>{ headHtml+=`<th style="background:#EAFAF1;color:#117A65;font-size:11px;">${l}</th>`; });
+      lessons.forEach(l=>{ headHtml+=`<th data-group="hw-details" style="background:#EAFAF1;color:#117A65;font-size:11px;">${l}</th>`; });
       // لا يوجد عمود بين الواجبات والأنشطة في الصف الثاني (لأن العمود الجديد يمتد من الصف الأول)
-      lessons.forEach(l=>{ headHtml+=`<th style="background:#FEF9E7;color:#7D6608;font-size:11px;">${l}</th>`; });
+      lessons.forEach(l=>{ headHtml+=`<th data-group="act-details" style="background:#FEF9E7;color:#7D6608;font-size:11px;">${l}</th>`; });
       // لا يوجد عمود بين الأنشطة والمشاركة في الصف الثاني
-      headHtml+=`<th style="background:#FDEDEC;color:#78281F;font-size:11px;">الاختبار</th>
-        <th style="background:#FDEDEC;color:#78281F;font-size:11px;">المشروع <button class="import-icon-btn import-icon-test" onclick="openProjectLinksImportExport()" title="تصدير/استيراد روابط المشاريع">📁</button></th>
-        <th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الواجبات</th>
-        <th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الأنشطة</th>
-        <th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">المشاركة</th>
-        <th style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الاختبار</th>
+      headHtml+=`<th data-group="test" style="background:#FDEDEC;color:#78281F;font-size:11px;">الاختبار<button class="followup-sort-trigger" onclick="openFollowupSortModal('test')">⇅ فرز</button></th>
+        <th data-group="test-details" style="background:#FDEDEC;color:#78281F;font-size:11px;">المشروع <button class="import-icon-btn import-icon-test" onclick="openProjectLinksImportExport()" title="تصدير/استيراد روابط المشاريع">📁</button></th>
+        <th data-group="summary" style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الواجبات</th>
+        <th data-group="summary" style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الأنشطة</th>
+        <th data-group="summary" style="background:#EBF5FB;color:#1B4F72;font-size:11px;">المشاركة</th>
+        <th data-group="summary" style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الاختبار</th>
       </tr>`;
 
       document.getElementById('followupTableHead').innerHTML=headHtml;
@@ -2249,38 +2334,39 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const hwAvg = raw.hwAvg;
         const actAvg = raw.actAvg;
 
-        let rowHtml=`<td style="font-weight:bold;color:var(--text-secondary);">${idx+1}</td><td class="student-name-td" style="font-weight:900;font-size:14px;text-align:right;${nameColor}" onclick="toggleFollowupRowHighlight(this)">${student}</td>`;
+        let rowHtml=`<td data-group="index" style="font-weight:bold;color:var(--text-secondary);">${idx+1}</td><td data-group="name" class="student-name-td" style="font-weight:900;font-size:14px;text-align:right;${nameColor}" onclick="toggleFollowupRowHighlight(this)">${student}</td>`;
         // الواجبات
-        lessons.forEach(l=>{ let val=(stData.hw&&stData.hw[l]!==undefined)?stData.hw[l]:''; rowHtml+=`<td style="background:#EAFAF1;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="واجب" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'hw','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
+        lessons.forEach(l=>{ let val=(stData.hw&&stData.hw[l]!==undefined)?stData.hw[l]:''; rowHtml+=`<td data-group="hw-details" style="background:#EAFAF1;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="واجب" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'hw','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // عمود الموزونه (الواجبات)
-        rowHtml+=`<td style="background:#D4EFDF;font-weight:bold;text-align:center;font-size:0.8rem;">${hwAvg.toFixed(2)}</td>`;
+        rowHtml+=`<td data-group="hw" style="background:#D4EFDF;font-weight:bold;text-align:center;font-size:0.8rem;">${hwAvg.toFixed(2)}</td>`;
         // الأنشطة
-        lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
+        lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td data-group="act-details" style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // عمود الموزونه (الأنشطة)
-        rowHtml+=`<td style="background:#FCF3CF;font-weight:bold;text-align:center;font-size:0.8rem;">${actAvg.toFixed(2)}</td>`;
+        rowHtml+=`<td data-group="act" style="background:#FCF3CF;font-weight:bold;text-align:center;font-size:0.8rem;">${actAvg.toFixed(2)}</td>`;
         // مشاركة
         let part=calculateStudentParticipationScore(cls,student,unitName);
-        rowHtml+=`<td style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${part.toFixed(2)}</td>`;
+        rowHtml+=`<td data-group="participation" style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${part.toFixed(2)}</td>`;
         // اختبار ومشروع
         let t1=stData.test1!==undefined?stData.test1:'';
-        rowHtml+=`<td style="background:#FDEDEC;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${t1}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent('الاختبار')}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'test1','',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`;
+        rowHtml+=`<td data-group="test" style="background:#FDEDEC;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${t1}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent('الاختبار')}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'test1','',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`;
         let t2=stData.test2!==undefined?stData.test2:'';
         let link = stData.projectLink || '';
         let linkIcon = link ? '🔗' : '⛓️‍💥';
-        rowHtml+=`<td style="background:#FDEDEC;padding:4px;white-space:nowrap;">
+        rowHtml+=`<td data-group="test-details" style="background:#FDEDEC;padding:4px;white-space:nowrap;">
           <input type="number" step="0.5" min="0" max="20" value="${t2}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent('المشروع')}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'test2','',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية">
           <button class="project-link-btn" data-student="${encodeURIComponent(student)}" data-class="${encodeURIComponent(cls)}" data-unit="${encodeURIComponent(unitName)}" style="border:none;background:none;cursor:pointer;font-size:16px;padding:0 4px;" onclick="openProjectLinkModal('${encodeURIComponent(student)}','${encodeURIComponent(cls)}','${encodeURIComponent(unitName)}')">${linkIcon}</button>
         </td>`;
         // الأعمدة الأربعة الأخيرة (الموزونه + المشروع)
         const w=computeWeightedScores(cls,student,unitsForWeighted);
-        rowHtml+=`<td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.hw.toFixed(2)}</td>
-          <td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.act.toFixed(2)}</td>
-          <td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.participation.toFixed(2)}</td>
-          <td style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.test.toFixed(2)}</td>
-          <td style="background:#D5F5E3;font-weight:bold;color:#1E8449;text-align:center;">${w.total.toFixed(2)}</td>`;
+        rowHtml+=`<td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.hw.toFixed(2)}</td>
+          <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.act.toFixed(2)}</td>
+          <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.participation.toFixed(2)}</td>
+          <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.test.toFixed(2)}</td>
+          <td data-group="total" style="background:#D5F5E3;font-weight:bold;color:#1E8449;text-align:center;">${w.total.toFixed(2)}</td>`;
         let row=document.createElement('tr'); row.innerHTML=rowHtml; tbody.appendChild(row);
       });
-      // تطبيق الألوان على الأزرار بعد إعادة الرسم
+      // تطبيق حالة التركيز والألوان بعد إعادة الرسم
+      applyFollowupTableFocus();
       applyButtonColorsDelayed();
     }
 
