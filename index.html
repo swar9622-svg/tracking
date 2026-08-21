@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "18.4";</script>
+  <script>const APP_VERSION = "18.6";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -166,6 +166,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .followup-sort-trigger { display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; margin:0; padding:0.08rem 0.28rem; min-width:1.25rem; height:1.18rem; border:1px solid currentColor; border-radius:0.32rem; background:rgba(255,255,255,0.62); color:inherit; font-size:0.62rem; font-weight:900; line-height:1; cursor:pointer; white-space:nowrap; }
     .followup-sort-trigger:active { transform:scale(.96); }
     .followup-heading-import { margin:0 !important; vertical-align:middle; }
+    /* زر فرز مدمج في رأس 17.9: لا يصنع صفاً جديداً ولا يغير ارتفاع الجدول. */
+    .followup-compact-sort { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; margin-inline-start:0.18rem; padding:0.06rem 0.24rem; border:1px solid currentColor; border-radius:0.5rem; background:rgba(255,255,255,0.68); color:inherit; font-family:inherit; font-size:0.54rem; font-weight:900; line-height:1; cursor:pointer; white-space:nowrap; }
+    .followup-compact-sort:active { transform:scale(.96); }
+    .followup-sort-under { display:block; margin-top:0.14rem; line-height:0; }
+    #followupHeaderSortLabel { display:none !important; }
     .followup-sort-status { display:none; }
     .followup-header-sort-label { display:inline-block; font-size:0.52rem; line-height:1.1; color:#075CB5; font-weight:900; white-space:normal; }
     #followupTable.followup-focus-active [data-group] { display:none !important; }
@@ -2303,27 +2308,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!followupData[key]) followupData[key]={};
       const students=getSortedFollowupStudents(cls,unitName), dup=getDuplicateNames();
 
-      // بناء رأس الجدول مع العمودين الجديدين
+      // رأس 17.9 الأصلي مع أزرار فرز صغيرة مدمجة في المساحة نفسها.
       let headHtml = `<tr>
         <th rowspan="2" data-group="index" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;">#</th>
-        <th rowspan="2" data-group="name" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;text-align:right;min-width:120px;"><div class="followup-header-cell"><span class="followup-header-title">اسم الطالب</span><div class="followup-header-actions"><button class="followup-sort-trigger" onclick="openFollowupSortModal('name')" title="فرز">⇅</button><span id="followupHeaderSortLabel" class="followup-header-sort-label"></span></div></div></th>
+        <th rowspan="2" data-group="name" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;text-align:right;min-width:120px;">اسم الطالب<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('name')" title="فرز الأسماء">فرز ↕</button></span><span id="followupHeaderSortLabel"></span></th>
         <th colspan="${lessons.length}" data-group="hw-details" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;position:relative;">الواجبات (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button></span></th>
-        <th rowspan="2" data-group="hw" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;"><div class="followup-header-cell"><span class="followup-header-title">الموزونة<span class="followup-weighted-second">للواجبات</span></span><div class="followup-header-actions"><button class="followup-sort-trigger" onclick="openFollowupSortModal('hw')" title="فرز">⇅</button></div></div></th>
+        <th rowspan="2" data-group="hw" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;">الموزونه<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('hw')" title="فرز الموزونة للواجبات">فرز ↕</button></span></th>
         <th colspan="${lessons.length}" data-group="act-details" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
-        <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;"><div class="followup-header-cell"><span class="followup-header-title">الموزونة<span class="followup-weighted-second">للأنشطة</span></span><div class="followup-header-actions"><button class="followup-sort-trigger" onclick="openFollowupSortModal('act')" title="فرز">⇅</button></div></div></th>
-        <th rowspan="2" data-group="participation" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;"><div class="followup-header-cell"><span class="followup-header-title">المشاركة</span><div class="followup-header-actions"><button class="followup-sort-trigger" onclick="openFollowupSortModal('participation')" title="فرز">⇅</button></div></div></th>
-        <th rowspan="2" data-group="test" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;"><div class="followup-header-cell"><span class="followup-header-title">الاختبار <button class="import-icon-btn import-icon-test followup-heading-import" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span><div class="followup-header-actions"><button class="followup-sort-trigger" onclick="openFollowupSortModal('test')" title="فرز">⇅</button></div></div></th>
-        <th rowspan="2" data-group="test-project" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;"><div class="followup-header-cell"><span class="followup-header-title">المشروع</span><div class="followup-header-actions"><button class="import-icon-btn import-icon-test followup-heading-import" onclick="openProjectLinksImportExport()" title="تصدير/استيراد روابط المشاريع">📁</button></div></div></th>
+        <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونه<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('act')" title="فرز الموزونة للأنشطة">فرز ↕</button></span></th>
+        <th rowspan="2" data-group="participation" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;">المشاركة<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('participation')" title="فرز المشاركة">فرز ↕</button></span></th>
+        <th colspan="2" data-group="test-details" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;position:relative;">الاختبارات والمشاريع (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span></th>
         <th colspan="4" data-group="summary" style="background:#D6EAF8;color:#1B4F72;text-align:center;">الموزونه + المشروع (الخلاصه)</th>
-        <th rowspan="2" data-group="total" style="background:#D5F5E3;color:#1E8449;vertical-align:middle;text-align:center;"><div class="followup-header-cell"><span class="followup-header-title">المجموع<span class="followup-weighted-second">الكلي</span></span><div class="followup-header-actions"><button class="followup-sort-trigger" onclick="openFollowupSortModal('total')" title="فرز">⇅</button></div></div></th>
+        <th rowspan="2" data-group="total" style="background:#D5F5E3;color:#1E8449;vertical-align:middle;text-align:center;min-width:80px;">المجموع الكلي<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('total')" title="فرز المجموع الكلي">فرز ↕</button></span></th>
       </tr>
       <tr>`;
-      // الدروس
       lessons.forEach(l=>{ headHtml+=`<th data-group="hw-details" style="background:#EAFAF1;color:#117A65;font-size:11px;">${l}</th>`; });
-      // لا يوجد عمود بين الواجبات والأنشطة في الصف الثاني (لأن العمود الجديد يمتد من الصف الأول)
       lessons.forEach(l=>{ headHtml+=`<th data-group="act-details" style="background:#FEF9E7;color:#7D6608;font-size:11px;">${l}</th>`; });
-      // لا يوجد عمود بين الأنشطة والمشاركة في الصف الثاني
-      headHtml+=`<th data-group="summary" style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الواجبات</th>
+      headHtml+=`<th data-group="test" style="background:#FDEDEC;color:#78281F;font-size:11px;">الاختبار <button class="followup-compact-sort" onclick="openFollowupSortModal('test')" title="فرز الاختبار">فرز ↕</button></th>
+        <th data-group="test-project" style="background:#FDEDEC;color:#78281F;font-size:11px;">المشروع <button class="import-icon-btn import-icon-test" onclick="openProjectLinksImportExport()" title="تصدير/استيراد روابط المشاريع">📁</button></th>
+        <th data-group="summary" style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الواجبات</th>
         <th data-group="summary" style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الأنشطة</th>
         <th data-group="summary" style="background:#EBF5FB;color:#1B4F72;font-size:11px;">المشاركة</th>
         <th data-group="summary" style="background:#EBF5FB;color:#1B4F72;font-size:11px;">الاختبار</th>
