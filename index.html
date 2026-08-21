@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "19.2";</script>
+  <script>const APP_VERSION = "19.5";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -528,18 +528,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div style="margin:0 0 7px 0;padding:8px 10px;background:#F2F2F7;border-radius:8px;">
         <div id="weakStudentsUnitsChooser" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
       </div>
-      <div style="margin:0 0 8px 0;padding:8px 10px;background:#F2F2F7;border-radius:8px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:0.78rem;font-weight:800;">
-        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:900;"><span>الخلاصة</span><input id="weakStudentsSummaryToggle" type="checkbox" onchange="renderWeakStudentsReport()" style="width:18px;height:18px;accent-color:#1B4F72;"></label>
-        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>واجبات</span><input class="weak-column-toggle" type="checkbox" value="hw" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#117A65;"></label>
-        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>أنشطة</span><input class="weak-column-toggle" type="checkbox" value="act" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#7D6608;"></label>
-        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>مشاركة</span><input class="weak-column-toggle" type="checkbox" value="participation" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#512E5F;"></label>
-        <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>اختبار</span><input class="weak-column-toggle" type="checkbox" value="test" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#78281F;"></label>
+      <div style="margin:0 0 8px 0;padding:8px 10px;background:#F2F2F7;border-radius:8px;font-size:0.78rem;font-weight:800;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:900;"><span>الخلاصة</span><input id="weakStudentsSummaryToggle" type="checkbox" onchange="renderWeakStudentsReport()" style="width:18px;height:18px;accent-color:#1B4F72;"></label>
+          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:900;color:#1E8449;"><span>المجموع</span><input id="weakStudentsTotalToggle" type="checkbox" onchange="toggleWeakStudentsTotalMode()" style="width:18px;height:18px;accent-color:#1E8449;"></label>
+        </div>
+        <div id="weakStudentsColumnsRow" style="display:flex;flex-wrap:wrap;gap:8px 12px;">
+          <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>واجبات</span><input class="weak-column-toggle" type="checkbox" value="hw" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#117A65;"></label>
+          <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>أنشطة</span><input class="weak-column-toggle" type="checkbox" value="act" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#7D6608;"></label>
+          <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>مشاركة</span><input class="weak-column-toggle" type="checkbox" value="participation" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#512E5F;"></label>
+          <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>اختبار</span><input class="weak-column-toggle" type="checkbox" value="test" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#78281F;"></label>
+        </div>
       </div>
       <div class="table-responsive-wrapper" style="max-height:52vh;overflow:auto;margin:0;">
         <table class="followup-table" id="weakStudentsTable" style="width:100%;min-width:0;table-layout:auto;font-size:0.9rem;"><thead id="weakStudentsTableHead"></thead><tbody id="weakStudentsTableBody"></tbody></table>
       </div>
       <div id="weakStudentsEmptyMessage" style="display:none;text-align:center;color:#1E8449;font-weight:900;padding:18px 8px;">لا يوجد طلاب بدرجة أقل من النصف في الأقسام المحددة.</div>
-      <button class="btn-export-period" onclick="exportWeakStudentsPDF()" style="margin:10px 0 0 0;background:#007AFF;">📄 تصدير تقرير الطلاب الضعاف PDF</button>
+      <button class="btn-export-period" onclick="openPdfSizeModal('weakStudents')" style="margin:10px 0 0 0;background:#007AFF;">📄 تصدير تقرير الطلاب الضعاف PDF</button>
     </div>
   </div>
 
@@ -2816,6 +2821,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     let weakStudentsSelectedUnits=[];
     let lastWeakStudentsReportState=null;
+    let weakStudentsPreviousColumnSelection=null;
     const WEAK_REPORT_COLUMNS={
       hw:{label:'الواجبات',cap:'/10',threshold:5,bg:'#D4EFDF',color:'#117A65'},
       act:{label:'الأنشطة',cap:'/20',threshold:10,bg:'#FCF3CF',color:'#7D6608'},
@@ -2833,12 +2839,34 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       closeGradesReportsMenu();
       weakStudentsSelectedUnits=[unit];
       document.getElementById('weakStudentsSummaryToggle').checked=false;
+      document.getElementById('weakStudentsTotalToggle').checked=false;
       document.querySelectorAll('.weak-column-toggle').forEach(input=>input.checked=true);
+      weakStudentsPreviousColumnSelection=null;
+      updateWeakStudentsTotalModeUI();
       document.getElementById('weakStudentsModal').style.display='flex';
       renderWeakStudentsUnitsChooser();
       renderWeakStudentsReport();
     }
     function closeWeakStudentsReport(){ document.getElementById('weakStudentsModal').style.display='none'; }
+    function toggleWeakStudentsTotalMode(){
+      const totalMode=document.getElementById('weakStudentsTotalToggle').checked;
+      const inputs=[...document.querySelectorAll('.weak-column-toggle')];
+      if(totalMode){
+        weakStudentsPreviousColumnSelection=inputs.map(input=>({value:input.value,checked:input.checked}));
+        inputs.forEach(input=>{ input.checked=true; input.disabled=true; });
+      }else{
+        const previous=weakStudentsPreviousColumnSelection||[];
+        inputs.forEach(input=>{ const saved=previous.find(item=>item.value===input.value); input.disabled=false; if(saved) input.checked=saved.checked; });
+        weakStudentsPreviousColumnSelection=null;
+      }
+      updateWeakStudentsTotalModeUI();
+      renderWeakStudentsReport();
+    }
+    function updateWeakStudentsTotalModeUI(){
+      const totalMode=!!document.getElementById('weakStudentsTotalToggle').checked;
+      document.querySelectorAll('[data-weak-column-label]').forEach(label=>{ label.style.opacity=totalMode?'0.42':'1'; label.style.cursor=totalMode?'not-allowed':'pointer'; });
+      document.querySelectorAll('.weak-column-toggle').forEach(input=>input.disabled=totalMode);
+    }
     function renderWeakStudentsUnitsChooser(){
       const cont=document.getElementById('weakStudentsUnitsChooser'); if(!cont) return;
       cont.innerHTML='';
@@ -2873,7 +2901,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function renderWeakStudentsReport(){
       const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
       const summaryMode=!!document.getElementById('weakStudentsSummaryToggle').checked;
-      const activeColumns=[...document.querySelectorAll('.weak-column-toggle:checked')].map(input=>input.value);
+      const totalMode=!!document.getElementById('weakStudentsTotalToggle').checked;
+      const activeColumns=totalMode?Object.keys(WEAK_REPORT_COLUMNS):[...document.querySelectorAll('.weak-column-toggle:checked')].map(input=>input.value);
       const units=weakStudentsSelectedUnits.filter(unit=>unitsData[unit]);
       if(!cls||!appData[cls]||units.length===0) return;
       const context=document.getElementById('weakStudentsReportContext');
@@ -2885,28 +2914,31 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), weakRows=[];
       students.forEach(student=>{
         const scores=summaryMode?computeWeightedScores(cls,student,units):getWeakReportRawScores(cls,student,units);
-        if(activeColumns.some(key=>scores[key]<WEAK_REPORT_COLUMNS[key].threshold)) weakRows.push({student,scores});
+        if(totalMode ? scores.total<30 : activeColumns.some(key=>scores[key]<WEAK_REPORT_COLUMNS[key].threshold)) weakRows.push({student,scores});
       });
       weakRows.forEach((item,index)=>{
         const s=item.scores;
-        body.innerHTML+=`<tr><td style="font-weight:900;color:var(--text-secondary);text-align:center;font-size:0.9rem;padding:8px 4px;">${index+1}</td><td class="student-name-td" style="font-weight:900;font-size:0.98rem;text-align:right;padding:8px 6px;white-space:nowrap;word-break:normal;">${escapeTextForHtml(item.student)}</td>${activeColumns.map(key=>weakScoreCell(s[key],WEAK_REPORT_COLUMNS[key].threshold)).join('')}<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;background:#D5F5E3;color:#1E8449;">${s.total.toFixed(2)}</td></tr>`;
+        const totalCell=totalMode?weakScoreCell(s.total,30):`<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;background:#D5F5E3;color:#1E8449;">${s.total.toFixed(2)}</td>`;
+        body.innerHTML+=`<tr><td style="font-weight:900;color:var(--text-secondary);text-align:center;font-size:0.9rem;padding:8px 4px;">${index+1}</td><td class="student-name-td" style="font-weight:900;font-size:0.98rem;text-align:right;padding:8px 6px;white-space:nowrap;word-break:normal;">${escapeTextForHtml(item.student)}</td>${activeColumns.map(key=>weakScoreCell(s[key],WEAK_REPORT_COLUMNS[key].threshold)).join('')}${totalCell}</tr>`;
       });
-      lastWeakStudentsReportState={cls,units:[...units],summaryMode,activeColumns:[...activeColumns],weakRows:weakRows.map(item=>({student:item.student,scores:{...item.scores}}))};
-      empty.textContent='لا يوجد طلاب بدرجة أقل من النصف في الأقسام المحددة.';
+      lastWeakStudentsReportState={cls,units:[...units],summaryMode,totalMode,activeColumns:[...activeColumns],weakRows:weakRows.map(item=>({student:item.student,scores:{...item.scores}}))};
+      empty.textContent=totalMode?'لا يوجد طلاب مجموعهم أقل من النصف في الوحدات المحددة.':'لا يوجد طلاب بدرجة أقل من النصف في الأقسام المحددة.';
       empty.style.display=weakRows.length?'none':'block';
     }
     async function exportWeakStudentsPDF(){
       if(!lastWeakStudentsReportState) renderWeakStudentsReport();
       const state=lastWeakStudentsReportState;
       if(!state||state.weakRows.length===0){ alert('لا يوجد طلاب ضعاف في الأقسام المحددة لتصديرهم.'); return; }
-      const {cls,units,summaryMode,activeColumns,weakRows}=state;
+      const {cls,units,summaryMode,totalMode,activeColumns,weakRows}=state;
       const headers=activeColumns.map(key=>{ const c=WEAK_REPORT_COLUMNS[key]; return `<th style="border:1px solid #D1D1D6;padding:5px;background:${c.bg};color:${c.color};">${c.label}<br><small>${c.cap}</small></th>`; }).join('');
-      const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const c=WEAK_REPORT_COLUMNS[key], weak=item.scores[key]<c.threshold; return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${item.scores[key].toFixed(2)}</td>`; }).join(''); return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;background:#D5F5E3;color:#1E8449;font-weight:900;">${item.scores.total.toFixed(2)}</td></tr>`; }).join('');
-      const html=`<table style="width:100%;border-collapse:collapse;direction:rtl;"><thead><tr style="background:#F2F2F7;"><th style="border:1px solid #D1D1D6;padding:5px;">#</th><th style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;">اسم الطالب</th>${headers}<th style="border:1px solid #D1D1D6;padding:5px;background:#D5F5E3;color:#1E8449;">المجموع الكلي<br><small>/60</small></th></tr></thead><tbody>${rows}</tbody></table>`;
+      const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const c=WEAK_REPORT_COLUMNS[key], weak=item.scores[key]<c.threshold; return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${item.scores[key].toFixed(2)}</td>`; }).join(''); const totalWeak=totalMode&&item.scores.total<30; const totalCell=`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${totalWeak?'background:#FFF1F2;color:#B42318;':'background:#D5F5E3;color:#1E8449;'}font-weight:900;">${totalWeak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${item.scores.total.toFixed(2)}</td>`; return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}${totalCell}</tr>`; }).join('');
+      const table=`<table style="width:100%;border-collapse:collapse;direction:rtl;"><thead><tr style="background:#F2F2F7;"><th style="border:1px solid #D1D1D6;padding:5px;">#</th><th style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;">اسم الطالب</th>${headers}<th style="border:1px solid #D1D1D6;padding:5px;background:#D5F5E3;color:#1E8449;">المجموع الكلي<br><small>/60</small></th></tr></thead><tbody>${rows}</tbody></table>`;
       const columnsLabel=activeColumns.map(key=>WEAK_REPORT_COLUMNS[key].label).join('، ');
-      const footer=`<div style="margin-top:9px;padding:7px 9px;border:1px solid #D1D1D6;border-radius:5px;background:#F8F9FA;font-size:0.64rem;font-weight:800;line-height:1.7;"><div><b>معلومات التقرير:</b></div><div>الفصل: ${escapeTextForHtml(cls)}</div><div>الوحدات المختارة: ${units.map(escapeTextForHtml).join('، ')} — المتوسط من ${units.length} ${units.length===1?'وحدة':'وحدات'}</div><div>الأعمدة المفحوصة: ${escapeTextForHtml(columnsLabel)}</div><div>طريقة التقييم: ${summaryMode?'درجات الخلاصة بعد توزيع المشروع':'الدرجات الموزونة في جدول المتابعة'}</div></div>`;
-      const element=buildPdfElement(html,'تقرير الطلاب الضعاف',`<span>عدد الطلاب الظاهرين: ${weakRows.length}</span><span>تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA')}</span>`,footer,{title:16,headers:10,names:11,data:10});
-      await exportPdf(element,`تقرير_الطلاب_الضعاف_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},margin:5});
+      const evaluationLabel=summaryMode?'الخلاصة':'الموزونة';
+      const reportInfo=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;direction:rtl;white-space:nowrap;"><span style="flex:0 0 auto;text-align:right;">الفصل: ${escapeTextForHtml(cls)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center;">الوحدات: ${units.map(escapeTextForHtml).join('، ')}</span><span style="flex:0 0 auto;text-align:left;">${evaluationLabel}</span></div>`;
+      const sizes=getPdfSizes('weakStudents');
+      const element=buildPdfElement(table,'تقرير الطلاب الضعاف',reportInfo,'',sizes);
+      await exportPdf(element,`تقرير_الطلاب_الضعاف_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},margin:5});
     }
 
     function selectPeriodName(name){ selectedPeriodName=name; document.getElementById('periodNameFirstBtn').classList.toggle('selected-period-name',name==='الأولى'); document.getElementById('periodNameSecondBtn').classList.toggle('selected-period-name',name==='الثانية'); }
@@ -3186,7 +3218,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       reportViolations: { title: 16, headers: 9,  names: 13, data: 9  },
       followupCurrent:  { title: 16, headers: 10, names: 12, data: 10 },
       periodUnit:       { title: 16, headers: 8,  names: 10, data: 8  },
-      periodSummary:    { title: 16, headers: 10, names: 12, data: 10 }
+      periodSummary:    { title: 16, headers: 10, names: 12, data: 10 },
+      weakStudents:     { title: 16, headers: 9,  names: 10, data: 9  }
     };
     let pdfSizeSettings = {};
     let pendingPdfReportKey = null;
@@ -3195,7 +3228,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function openPdfSizeModal(key){ pendingPdfReportKey=key; const def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK, cur=getPdfSizes(key), custom=pdfSizeSettings[key]||{}; document.getElementById('pdfSizeTitleLabel').innerText=`حجم عنوان الكشف (px): (الافتراضي: ${def.title})`; document.getElementById('pdfSizeHeadersLabel').innerText=`حجم عناوين الجدول (px): (الافتراضي: ${def.headers})`; document.getElementById('pdfSizeNamesLabel').innerText=`حجم أسماء الطلاب (px): (الافتراضي: ${def.names})`; document.getElementById('pdfSizeDataLabel').innerText=`حجم بيانات الجدول (px): (الافتراضي: ${def.data})`; document.getElementById('pdfSizeTitleInput').value=cur.title; document.getElementById('pdfSizeHeadersInput').value=cur.headers; document.getElementById('pdfSizeNamesInput').value=cur.names; document.getElementById('pdfSizeDataInput').value=cur.data; const row=document.getElementById('pdfShowViolationNamesRow'), input=document.getElementById('pdfShowViolationNamesInput'); row.style.display=key==='singleStudent'?'flex':'none'; input.checked=key==='singleStudent'&&custom.showViolationNames===true; document.getElementById('pdfSizeSettingsModal').style.display='flex'; }
     function closePdfSizeModal(){ document.getElementById('pdfSizeSettingsModal').style.display='none'; pendingPdfReportKey=null; }
     function resetPdfSizeModalDefaults(){ if(!pendingPdfReportKey) return; const def=PDF_REPORT_DEFAULTS[pendingPdfReportKey]||PDF_SIZE_FALLBACK; document.getElementById('pdfSizeTitleInput').value=def.title; document.getElementById('pdfSizeHeadersInput').value=def.headers; document.getElementById('pdfSizeNamesInput').value=def.names; document.getElementById('pdfSizeDataInput').value=def.data; if(pendingPdfReportKey==='singleStudent') document.getElementById('pdfShowViolationNamesInput').checked=false; }
-    async function confirmPdfSizeExport(){ if(!pendingPdfReportKey) return; const key=pendingPdfReportKey, def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK; const t=parseFloat(document.getElementById('pdfSizeTitleInput').value), h=parseFloat(document.getElementById('pdfSizeHeadersInput').value), n=parseFloat(document.getElementById('pdfSizeNamesInput').value), d=parseFloat(document.getElementById('pdfSizeDataInput').value); const settings={title:isNaN(t)?def.title:t,headers:isNaN(h)?def.headers:h,names:isNaN(n)?def.names:n,data:isNaN(d)?def.data:d}; if(key==='singleStudent') settings.showViolationNames=document.getElementById('pdfShowViolationNamesInput').checked; pdfSizeSettings[key]=settings; saveData(); document.getElementById('pdfSizeSettingsModal').style.display='none'; try{ switch(key){ case'singleStudent':await exportSingleStudentPDF(); break; case'reportSummary':case'reportViolations':await generatePDF(); break; case'followupCurrent':await exportFollowupReportModalPDF(); break; case'periodUnit':await exportPeriodPDF(); break; case'periodSummary':await exportPeriodSummaryPDF(); break; } }finally{ pendingPdfReportKey=null; } }
+    async function confirmPdfSizeExport(){ if(!pendingPdfReportKey) return; const key=pendingPdfReportKey, def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK; const t=parseFloat(document.getElementById('pdfSizeTitleInput').value), h=parseFloat(document.getElementById('pdfSizeHeadersInput').value), n=parseFloat(document.getElementById('pdfSizeNamesInput').value), d=parseFloat(document.getElementById('pdfSizeDataInput').value); const settings={title:isNaN(t)?def.title:t,headers:isNaN(h)?def.headers:h,names:isNaN(n)?def.names:n,data:isNaN(d)?def.data:d}; if(key==='singleStudent') settings.showViolationNames=document.getElementById('pdfShowViolationNamesInput').checked; pdfSizeSettings[key]=settings; saveData(); document.getElementById('pdfSizeSettingsModal').style.display='none'; try{ switch(key){ case'singleStudent':await exportSingleStudentPDF(); break; case'reportSummary':case'reportViolations':await generatePDF(); break; case'followupCurrent':await exportFollowupReportModalPDF(); break; case'periodUnit':await exportPeriodPDF(); break; case'periodSummary':await exportPeriodSummaryPDF(); break; case'weakStudents':await exportWeakStudentsPDF(); break; } }finally{ pendingPdfReportKey=null; } }
 
     // ===== دوال التصدير =====
     async function exportFollowupReportModalPDF() {
