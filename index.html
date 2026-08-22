@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.12";</script>
+  <script>const APP_VERSION = "20.13";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3525,7 +3525,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const pageClone=sourcePage.cloneNode(true); pageClone.style.cssText='width:max-content;max-width:none;page-break-after:auto;break-after:auto;';
         pageClone.querySelectorAll('table').forEach(table=>{ table.style.width='max-content'; table.style.maxWidth='none'; });
         wrap.appendChild(pageClone); stage.appendChild(wrap); document.body.appendChild(stage);
-        const width=Math.ceil(Math.max(stage.scrollWidth,wrap.scrollWidth,pageClone.scrollWidth,1));
+        // Safari قد يضيف عرضاً وهمياً للمرحلة نفسها؛ نعتمد عرض الجدول فقط كي لا يدخل فراغ داخل الصورة.
+        const tableWidths=[...pageClone.querySelectorAll('table')].map(table=>Math.ceil(table.scrollWidth||table.getBoundingClientRect().width||0));
+        const width=Math.max(1,...tableWidths);
         stage.style.width=`${width}px`;
         return {stage,width};
       };
