@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.34";</script>
+  <script>const APP_VERSION = "20.35";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1324,6 +1324,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== ألوان الأزرار =====
     const DEFAULT_BUTTON_COLORS = {
+      // أزرار العناوين والتنقل الجديدة تظهر أولاً في إعدادات الألوان.
+      'navAbsenceBtn': { r: 255, g: 59, b: 48, a: 1 },
+      'navUnderstandingBtn': { r: 0, g: 122, b: 255, a: 1 },
+      'navFollowupBtn': { r: 88, g: 86, b: 214, a: 1 },
+      'understandingUnitPdfBtn': { r: 108, g: 52, b: 131, a: 1 },
+      'understandingMastered': { r: 30, g: 132, b: 73, a: 1 },
+      'understandingPartial': { r: 0, g: 122, b: 255, a: 1 },
+      'understandingSupport': { r: 217, g: 119, b: 6, a: 1 },
+      'understandingNotDone': { r: 192, g: 57, b: 43, a: 1 },
       'absentActive': { r: 255, g: 59, b: 48, a: 1 },
       'lateActive': { r: 255, g: 149, b: 0, a: 1 },
       'violationActive': { r: 175, g: 82, b: 222, a: 1 },
@@ -1341,8 +1350,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       'dateSelectBox': { r: 249, g: 249, b: 251, a: 1 },
       'followupClassSelectBox': { r: 255, g: 255, b: 255, a: 1 },
       'unitDropdownBox': { r: 255, g: 255, b: 255, a: 1 },
-      'absenceTitleBox': { r: 0, g: 122, b: 255, a: 1 },
-      'followupTitleBox': { r: 0, g: 122, b: 255, a: 1 },
       'statAbsentBox': { r: 249, g: 249, b: 251, a: 1 },
       'statLateBox': { r: 249, g: 249, b: 251, a: 1 },
       'statViolationBox': { r: 249, g: 249, b: 251, a: 1 },
@@ -1351,6 +1358,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // أسماء الأزرار المعروضة
     const BUTTON_NAMES = {
+      'navAbsenceBtn': 'عنوان التنقل: الغياب',
+      'navUnderstandingBtn': 'عنوان التنقل: تحقق',
+      'navFollowupBtn': 'عنوان التنقل: المتابعة',
+      'understandingUnitPdfBtn': 'تصدير PDF للوحدة كاملة',
+      'understandingMastered': 'تحقق: متقن',
+      'understandingPartial': 'تحقق: فهم جزئياً',
+      'understandingSupport': 'تحقق: يحتاج دعماً',
+      'understandingNotDone': 'تحقق: لم ينفذ',
       'absentActive': 'غائب (حالة نشطة)',
       'lateActive': 'متأخر (حالة نشطة)',
       'violationActive': 'مخالفات (حالة نشطة)',
@@ -1368,8 +1383,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       'dateSelectBox': 'قائمة التاريخ',
       'followupClassSelectBox': 'قائمة الفصل (كشف المتابعة)',
       'unitDropdownBox': 'قائمة الوحدة (كشف المتابعة)',
-      'absenceTitleBox': 'مستطيل العنوان الرئيسي - كشف الغياب والمخالفات',
-      'followupTitleBox': 'مستطيل العنوان الرئيسي - كشف المتابعة والدرجات',
       'statAbsentBox': 'مربع غياب اليوم',
       'statLateBox': 'مربع تأخر اليوم',
       'statViolationBox': 'مربع مخالفات اليوم',
@@ -1381,6 +1394,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     for (let key in DEFAULT_BUTTON_COLORS) {
       if (!buttonColors[key]) buttonColors[key] = { ...DEFAULT_BUTTON_COLORS[key] };
     }
+
+    function getButtonColorObject(key){ return buttonColors[key] || DEFAULT_BUTTON_COLORS[key]; }
+    function getButtonColorCss(key){ const c=getButtonColorObject(key); return `rgba(${c.r},${c.g},${c.b},${c.a})`; }
+    function getButtonTextColor(key){ const c=getButtonColorObject(key); return (c.r>200&&c.g>200&&c.b>200)?'#1C1C1E':'#FFFFFF'; }
 
     function applyButtonColors() {
       // تطبيق الألوان على الأزرار حسب المعرفات والكلاسات
@@ -1414,6 +1431,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const exportPdfBtn = document.querySelector('.btn-export-period:first-child'); // قد يكون هناك عدة أزرار، نأخذ الأول
       const exportCsvBtn = document.querySelectorAll('.btn-export-period')[1]; // الثاني
       const notifyBtn = document.querySelector('.btn-notify-light');
+      const understandingUnitPdfBtn = document.querySelector('.btn-understanding-unit-pdf');
+
+      // أزرار العناوين الثلاثة: تعود الأزرار غير النشطة إلى لونها الهادئ، ويأخذ النشط اللون المحدد.
+      document.querySelectorAll('.screen-navigation-btn').forEach(el=>{ el.style.backgroundColor=''; el.style.color=''; });
+      document.querySelectorAll('[data-screen-nav="absence"].is-active').forEach(el=>{ el.style.backgroundColor=getButtonColorCss('navAbsenceBtn'); el.style.color=getButtonTextColor('navAbsenceBtn'); });
+      document.querySelectorAll('[data-screen-nav="understanding"].is-active').forEach(el=>{ el.style.backgroundColor=getButtonColorCss('navUnderstandingBtn'); el.style.color=getButtonTextColor('navUnderstandingBtn'); });
+      document.querySelectorAll('[data-screen-nav="followup"].is-active').forEach(el=>{ el.style.backgroundColor=getButtonColorCss('navFollowupBtn'); el.style.color=getButtonTextColor('navFollowupBtn'); });
 
       if (reportBtn) {
         const c = buttonColors['reportBtn'];
@@ -1476,6 +1500,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         if (c.r > 200 && c.g > 200 && c.b > 200) notifyBtn.style.color = '#1C1C1E';
         else notifyBtn.style.color = 'white';
       }
+      if (understandingUnitPdfBtn) {
+        understandingUnitPdfBtn.style.backgroundColor=getButtonColorCss('understandingUnitPdfBtn');
+        understandingUnitPdfBtn.style.color=getButtonTextColor('understandingUnitPdfBtn');
+      }
 
       // 3. قوائم الفصل والتاريخ والوحدة
       const classSelectEl = document.getElementById('classSelect');
@@ -1500,24 +1528,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         unitDropdownSelectEl.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
       }
 
-      // 4. مستطيل العنوان الرئيسي في الشاشتين
-      const absenceTitleBox = document.querySelector('#absenceScreen .header-title-box');
-      const followupTitleBox = document.querySelector('#followupScreen .header-title-box');
-
-      if (absenceTitleBox) {
-        const c = buttonColors['absenceTitleBox'];
-        absenceTitleBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
-        if (c.r > 200 && c.g > 200 && c.b > 200) absenceTitleBox.style.color = '#1C1C1E';
-        else absenceTitleBox.style.color = 'white';
-      }
-      if (followupTitleBox) {
-        const c = buttonColors['followupTitleBox'];
-        followupTitleBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
-        if (c.r > 200 && c.g > 200 && c.b > 200) followupTitleBox.style.color = '#1C1C1E';
-        else followupTitleBox.style.color = 'white';
-      }
-
-      // 5. مربعات إحصائيات اليوم (غياب / تأخر / مخالفات / تقرير عن طالب)
+      // 4. مربعات إحصائيات اليوم (غياب / تأخر / مخالفات / تقرير عن طالب)
       const statAbsentBox = document.querySelector('.stat-card.absent');
       const statLateBox = document.querySelector('.stat-card.late');
       const statViolationBox = document.querySelector('.stat-card.violation');
@@ -2201,10 +2212,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     const UNDERSTANDING_STATUS_CONFIG={
-      mastered:{label:'متقن',score:10,color:'#1E8449',background:'#EAF7EE'},
-      partial:{label:'فهم جزئياً',score:7,color:'#007AFF',background:'#EAF3FF'},
-      support:{label:'يحتاج دعماً',score:4,color:'#D97706',background:'#FFF7E6'},
-      notDone:{label:'لم ينفذ',score:0,color:'#C0392B',background:'#FDEDEC'}
+      mastered:{label:'متقن',score:10,color:'#1E8449',colorKey:'understandingMastered',background:'#EAF7EE'},
+      partial:{label:'فهم جزئياً',score:7,color:'#007AFF',colorKey:'understandingPartial',background:'#EAF3FF'},
+      support:{label:'يحتاج دعماً',score:4,color:'#D97706',colorKey:'understandingSupport',background:'#FFF7E6'},
+      notDone:{label:'لم ينفذ',score:0,color:'#C0392B',colorKey:'understandingNotDone',background:'#FDEDEC'}
     };
     function refreshUnderstandingLessonSelect(preferredLesson=''){
       const unit=document.getElementById('understandingUnitSelect').value, lessonSelect=document.getElementById('understandingLessonSelect'), old=preferredLesson||lessonSelect.value;
@@ -2247,8 +2258,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const selected=states[student]||'notDone';
         const card=document.createElement('div'); card.className='student-card';
         const buttons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{
-          const active=selected===key;
-          return `<button class="btn-status" onclick="setUnderstandingStatus('${CSS.escape(student)}','${key}')" style="background:${active?config.color:'#FFFFFF'};color:${active?'#FFFFFF':config.color};border:1.3px solid ${config.color};font-weight:${active?'900':'800'};">${config.label}</button>`;
+          const active=selected===key, color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey);
+          return `<button class="btn-status understanding-status-${key}${active?' is-selected':''}" onclick="setUnderstandingStatus('${CSS.escape(student)}','${key}')" style="background:${active?color:'#FFFFFF'};color:${active?textColor:color};border:1.3px solid ${color};font-weight:${active?'900':'800'};">${config.label}</button>`;
         }).join('');
         card.innerHTML=`<div class="student-name">${student}</div><div class="understanding-buttons">${buttons}</div>`;
         cont.appendChild(card);
@@ -2309,6 +2320,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     function updateScreenNavigation(active){
       document.querySelectorAll('[data-screen-nav]').forEach(button=>button.classList.toggle('is-active',button.dataset.screenNav===active));
+      applyButtonColors();
     }
     function switchToUnderstandingScreen(){
       document.getElementById('absenceScreen').classList.remove('active-screen');
