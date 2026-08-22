@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "111";</script>
+  <script>const APP_VERSION = "112";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3518,6 +3518,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const titleBlock=element.querySelector('.pdf-report-title')?.parentElement;
       const subtitleBlock=titleBlock?.nextElementSibling;
       const baseCaptureOptions={...options.html2canvas,backgroundColor:'#ffffff',scrollX:0,scrollY:0};
+      // تُحسب نسبة التكبير مرة واحدة من الصفحة الأولى (المكتملة عادةً) وتُطبَّق على جميع الصفحات؛
+      // بذلك تمتلئ كل صفحة كاملة بنفس الكثافة، وإن كانت الصفحة الأخيرة أقل صفوفاً يبقى فراغ طبيعي أسفلها فقط بدل تكبيرها بشكل مختلف عن باقي الصفحات.
+      let verticalStretch=null;
       for(let index=0;index<sourcePages.length;index++){
         if(index>0) pdf.addPage(options.jsPDF.format,options.jsPDF.orientation);
         const stage=document.createElement('div');
@@ -3534,8 +3537,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const captureOptions={...baseCaptureOptions,width:measuredWidth,windowWidth:measuredWidth};
         const canvas=await window.html2canvas(stage,captureOptions);
         document.body.removeChild(stage);
-        // يملأ كل صفحة كامل العرض والارتفاع المتاحين للورقة (بلا هامش سفلي أو جانبي فارغ)، بنفس الشكل الذي يصدره محرر HTML.
-        pdf.addImage(canvas.toDataURL('image/jpeg',options.image?.quality??0.98),'JPEG',left,top,usableWidth,usableHeight,'page-'+index,'FAST');
+        const naturalHeight=canvas.height*usableWidth/canvas.width;
+        if(verticalStretch===null) verticalStretch=usableHeight/naturalHeight;
+        const drawWidth=usableWidth, drawHeight=Math.min(usableHeight,naturalHeight*verticalStretch), drawX=left;
+        pdf.addImage(canvas.toDataURL('image/jpeg',options.image?.quality??0.98),'JPEG',drawX,top,drawWidth,drawHeight,'page-'+index,'FAST');
       }
       return pdf.output('blob');
     }
