@@ -3171,8 +3171,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const table=buildExplicitPagedPdfTables(buildGradeSheetHeader(units,true),tableRows,sizes,'gradeSheet',orientation);
       const reportInfo=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;direction:rtl;white-space:nowrap;"><span style="flex:0 0 auto;text-align:right;">الفصل: ${escapeTextForHtml(cls)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center;">الوحدات: ${units.map(escapeTextForHtml).join('، ')}</span><span style="flex:0 0 auto;text-align:left;">الدرجة النهائية</span></div>`;
       const element=buildPdfElement(table,'كشف الدرجات',reportInfo,'',sizes);
-      // لا يستخدم المركّب اليدوي هنا: يحافظ html2pdf القياسي على ملء عرض A4 كما في كشف الوحدة الحالية.
-      element.dataset.pdfRenderMode='native';
+      // يُترك التصدير على مساره الافتراضي (نفس آلية تقرير الطلاب الضعاف): يحوّل كل صفحة إلى صورة مستقلة عبر html2canvas ثم يضيفها لملف PDF صفحةً صفحةً،
+      // فلا يعتمد على تفسير Safari/WebKit لفواصل CSS داخل جدول طويل، وهذا ما كان يسبب خلل التصدير في سفاري وسطح المكتب.
       await exportPdf(element,`كشف_الدرجات_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation},margin:5});
     }
 
@@ -3554,7 +3554,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const options = { ...defaultOpt, ...opt };
         if (opt.margin && typeof opt.margin === 'number') options.margin = [opt.margin, opt.margin, opt.margin, opt.margin];
         if (opt.jsPDF) options.jsPDF = { ...defaultOpt.jsPDF, ...opt.jsPDF };
-        // كشف الدرجات يستخدم المسار القياسي نفسه لكشف الوحدة الحالية؛ هذا المسار أثبت اتساقه في Safari.
+        // المسار الافتراضي لكل التقارير: يحاول أولاً التصدير الآمن لسفاري (صفحة=صورة)، وإن لم يكن الجدول مقسّماً لعدة صفحات (pdf-explicit-page) يسقط تلقائياً لمسار html2pdf القياسي.
         let pdf=element.dataset.pdfRenderMode==='native'?null:await exportExplicitPdfPages(element,options);
         if(!pdf) pdf=await html2pdf().set(options).from(element).outputPdf('blob');
         await deliverPdfBlob(pdf,filename);
