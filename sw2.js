@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v16-font-test';
+const CACHE_NAME = 'attendance-app-v17-dynamic-name-test';
 const urlsToCache = [
   './',
   './index.html',

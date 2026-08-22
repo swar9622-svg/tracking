@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.24-تجربة الخط";</script>
+  <script>const APP_VERSION = "20.25-تجربة عرض الاسم";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3378,8 +3378,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const logicalH=Math.round((pageH-topMm-bottomMm)*pxPerMm*getPdfTableHeight(sizes)/100), offsetX=Math.round((pageW-rightMm)*pxPerMm)-logicalW, offsetY=Math.round(topMm*pxPerMm), hiRes=2;
       const columnDefs=[{kind:'index',label:'#',cap:'',bg:'#F2F2F7',color:'#3A3A3C'},{kind:'name',label:'اسم الطالب',cap:'',bg:'#F2F2F7',color:'#202124'},...activeColumns.map(key=>({kind:'score',key,...WEAK_REPORT_COLUMNS[key]})),...(projectSelected?units.map((unit,index)=>({kind:'project',unit,label:units.length>1?String(index+1):'مشروع',cap:units.length>1?'':'',bg:WEAK_PROJECT_COLUMN.bg,color:WEAK_PROJECT_COLUMN.color})):[]),{kind:'total',label:'المجموع الكلي',cap:'/60',bg:'#D5F5E3',color:'#1E8449'}];
       const side=2*pxPerMm, contentW=logicalW-side*2;
-      const indexW=Math.max(34,Math.round(contentW*.055)), nameW=Math.max(160,Math.round(contentW*.43));
-      const dataW=Math.max(28,(contentW-indexW-nameW)/Math.max(1,columnDefs.length-2));
+      const indexW=Math.max(34,Math.round(contentW*.055));
+      // عرض الاسم يُقاس من أطول اسم بالخط المختار، فلا يأخذ مساحة ثابتة غير لازمة عند كثرة أعمدة المشاريع.
+      const nameFont=`${pdfProgramWeight} ${Math.max(10,Number(sizes.names||10)*1.2)}px ${pdfFontStack}`;
+      const measureCanvas=document.createElement('canvas'), measureCtx=measureCanvas.getContext('2d');
+      measureCtx.font=nameFont;
+      const longestNameWidth=Math.max(measureCtx.measureText('اسم الطالب').width,...weakRows.map(item=>measureCtx.measureText(String(item.student||'')).width))+18;
+      const dataColumnCount=Math.max(1,columnDefs.length-2);
+      const minimumDataW=Math.max(28,Math.round(Math.max(Number(sizes.headers||9),Number(sizes.data||9))*2.7));
+      const maximumNameW=Math.max(110,contentW-indexW-dataColumnCount*minimumDataW);
+      const nameW=Math.min(maximumNameW,Math.max(110,Math.ceil(longestNameWidth)));
+      const dataW=Math.max(minimumDataW,(contentW-indexW-nameW)/dataColumnCount);
       const colWidths=columnDefs.map((col,index)=>index===0?indexW:index===1?nameW:dataW);
       const titleH=Math.max(34,Math.round(Number(sizes.title||16)*2.1)), infoH=Math.max(28,Math.round(Number(sizes.data||9)*2.5)), headerH=Math.max(38,Math.round(Number(sizes.headers||9)*3.8)), rowH=Math.max(38,Math.round(Math.max(Number(sizes.names||10),Number(sizes.data||9))*4.0));
       const headerY=side+titleH+infoH, availableRows=Math.max(1,Math.floor((logicalH-headerY-headerH-side)/rowH));
