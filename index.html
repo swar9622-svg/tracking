@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.15";</script>
+  <script>const APP_VERSION = "20.16";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3344,12 +3344,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const state=lastWeakStudentsReportState;
       if(!state||state.weakRows.length===0){ alert('لا يوجد طلاب ضعاف في الأقسام المحددة لتصديرهم.'); return; }
       const {cls,units,summaryMode,totalMode,projectSelected,activeColumns,weakRows}=state;
+      const sizes=getPdfSizes('weakStudents');
       const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const weak=item.scores[key]<getWeakStudentsThreshold(key); return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${formatGrade(item.scores[key])}</td>`; }).join(''); const projectCells=projectSelected?units.map(unit=>weakProjectUnitCell(item.scores.projectByUnit?.[unit]||0,true)).join(''):''; const totalWeak=totalMode&&item.scores.total<getWeakStudentsThreshold('total'); const totalCell=`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${totalWeak?'background:#FFF1F2;color:#B42318;':'background:#D5F5E3;color:#1E8449;'}font-weight:900;">${totalWeak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${formatGrade(item.scores.total)}</td>`; return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}${projectCells}${totalCell}</tr>`; });
       const table=buildExplicitPagedPdfTables(buildWeakStudentsTableHeader(activeColumns,projectSelected,units,true),rows,sizes,'weakStudents','portrait');
       const columnsLabel=activeColumns.map(key=>WEAK_REPORT_COLUMNS[key].label).join('، ');
       const evaluationLabel=summaryMode?'الخلاصة':'الموزونة';
       const reportInfo=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;direction:rtl;white-space:nowrap;"><span style="flex:0 0 auto;text-align:right;">الفصل: ${escapeTextForHtml(cls)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center;">الوحدات: ${units.map(escapeTextForHtml).join('، ')}</span><span style="flex:0 0 auto;text-align:left;">${evaluationLabel}</span></div>`;
-      const sizes=getPdfSizes('weakStudents');
       const element=buildPdfElement(table,'تقرير الطلاب الضعاف',reportInfo,'',sizes);
       await exportPdf(element,`تقرير_الطلاب_الضعاف_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},margin:5});
     }
