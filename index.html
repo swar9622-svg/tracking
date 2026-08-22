@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.0";</script>
+  <script>const APP_VERSION = "20.3";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -199,6 +199,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .grade-sheet-screen-content { padding:0.75rem 0.875rem 1.25rem; }
     #gradeSheetTableWrapper { max-height:none !important; overflow-x:auto; overflow-y:visible; }
     #gradeSheetTable th, #gradeSheetTable td { white-space:nowrap; }
+    /* مفتاح iPhone لجبر الدرجات */
+    .grade-rounding-card { border:1px solid #D1D1D6; border-radius:12px; padding:11px 12px; background:#F9F9FB; transition:background .18s,border-color .18s; }
+    .grade-rounding-card.is-enabled { background:#ECF9F0; border-color:#86D5A3; }
+    .ios-grade-rounding-switch { position:relative; display:inline-block; width:51px; height:31px; flex:0 0 auto; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .ios-grade-rounding-switch input { opacity:0; width:0; height:0; position:absolute; }
+    .ios-grade-rounding-slider { position:absolute; inset:0; background:#C7C7CC; border-radius:999px; transition:.2s; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
+    .ios-grade-rounding-slider::before { content:''; position:absolute; width:27px; height:27px; right:2px; top:2px; background:#FFF; border-radius:50%; box-shadow:0 1px 3px rgba(0,0,0,.28); transition:.2s; }
+    .ios-grade-rounding-switch input:checked + .ios-grade-rounding-slider { background:#34C759; }
+    .ios-grade-rounding-switch input:checked + .ios-grade-rounding-slider::before { transform:translateX(-20px); }
+    .ios-grade-rounding-switch input:focus-visible + .ios-grade-rounding-slider { box-shadow:0 0 0 3px rgba(52,199,89,.25); }
     .import-icon-btn { display: inline-block; border: none; cursor: pointer; font-size: 0.7rem; padding: 0.1rem 0.25rem; border-radius: 0.25rem; margin-right: 0.2rem; line-height: 1.2; transition: opacity 0.15s; user-select: none; }
     .import-icon-btn:active { opacity: 0.6; }
     .import-icon-hw { background-color: #D4EFDF; color: #117A65; border: 1px solid #A9DFBF; }
@@ -992,6 +1002,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button type="button" class="btn-action" style="background-color:var(--accent);min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openPenaltyConfigModal();">⚙️ إدارة درجات المخالفات</button>
         <button type="button" class="btn-action" style="background-color:#5B2C6F;min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openParticipationModeModal();">⚙️ درجات المشاركة</button>
         <button type="button" class="btn-action" style="background-color:#8E44AD;min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openProjectGradesModal();">⚙️ إدارة درجات المشاريع</button>
+        <div id="gradeRoundingModeCard" class="grade-rounding-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div style="min-width:0;">
+              <div style="font-size:14px;font-weight:900;color:var(--text-primary);">⬆️ جبر الدرجات الموزونة لكل وحدة</div>
+              <div id="gradeRoundingModeStatus" style="font-size:11px;color:#666;margin-top:4px;line-height:1.45;">الحساب العادي: تبقى النتائج العشرية كما هي</div>
+            </div>
+            <label class="ios-grade-rounding-switch" title="تشغيل أو إيقاف جبر الدرجات">
+              <input id="gradeRoundingModeToggle" type="checkbox" onchange="toggleGradeRoundingMode(this.checked)">
+              <span class="ios-grade-rounding-slider"></span>
+            </label>
+          </div>
+        </div>
       </div>
       <div class="modal-actions" style="margin-top:16px;"><button class="btn-modal-cancel" onclick="closeGradesManageModal()">إغلاق</button></div>
     </div>
@@ -1150,6 +1172,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let currentActiveUnit = Object.keys(unitsData)[0] || "الوحدة الأولى";
     const PARTICIPATION_SETTINGS_KEY = 'attendance_participation_settings';
     let participationSettings = {mode:'cumulative', activeUnit:currentActiveUnit};
+    // الجبر اختياري ويطبّق على نواتج الحساب فقط، لا على الدرجات المدخلة أو بياناتها الأصلية.
+    let gradeRoundingSettings = {enabled:false};
+    function normalizeGradeRoundingSettings(value){ return {enabled:!!(value&&value.enabled)}; }
+    function applyWeightedGradeRounding(value, cap=Infinity){
+      let n=Number(value); if(!Number.isFinite(n)) n=0; n=Math.max(0,Math.min(n,cap));
+      return gradeRoundingSettings.enabled ? Math.min(Math.ceil(n-1e-9),cap) : n;
+    }
+    function formatGrade(value){
+      let n=Number(value); if(!Number.isFinite(n)) n=0;
+      // ضمان شامل: أي درجة محسوبة ومعروضة في كشف أو تقرير تتبع وضع الجبر نفسه.
+      const normalized=Math.round(applyWeightedGradeRounding(n)*100)/100;
+      return String(normalized);
+    }
     if(!participationSettings || typeof participationSettings !== 'object') participationSettings={mode:'cumulative',activeUnit:currentActiveUnit};
     if(!['cumulative','per_unit'].includes(participationSettings.mode)) participationSettings.mode='cumulative';
     let currentAttendanceUnit = participationSettings.activeUnit || currentActiveUnit;
@@ -1529,7 +1564,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
         fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), buttonColors:cloneData(buttonColors), pdfSizeSettings:cloneData(pdfSizeSettings),
-        weakStudentsThresholds:cloneData(weakStudentsThresholds), savedAt:new Date().toISOString()
+        weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), savedAt:new Date().toISOString()
       };
     }
     async function writeIndexedDBSnapshot(snapshot){
@@ -1576,6 +1611,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       for(const key in DEFAULT_BUTTON_COLORS) if(!buttonColors[key]) buttonColors[key]=cloneData(DEFAULT_BUTTON_COLORS[key]);
       pdfSizeSettings=state.pdfSizeSettings&&typeof state.pdfSizeSettings==='object'?state.pdfSizeSettings:{};
       weakStudentsThresholds=normalizeWeakStudentsThresholds(state.weakStudentsThresholds);
+      gradeRoundingSettings=normalizeGradeRoundingSettings(state.gradeRoundingSettings);
     }
     async function initializeIndexedDBStorage(){
       const state=await getIndexedDBState();
@@ -2054,7 +2090,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return DEFAULT_PROJECT_ORDER;
     }
 
-    function openGradesManageModal(){ document.getElementById('gradesManageModal').style.display='flex'; }
+    function updateGradeRoundingManageUI(){
+      const toggle=document.getElementById('gradeRoundingModeToggle'), card=document.getElementById('gradeRoundingModeCard'), status=document.getElementById('gradeRoundingModeStatus');
+      if(!toggle||!card||!status) return;
+      const enabled=gradeRoundingSettings.enabled;
+      toggle.checked=enabled; card.classList.toggle('is-enabled',enabled);
+      status.textContent=enabled?'مفعّل: تُجبر نواتج كل وحدة ومجاميعها إلى الأعلى':'الحساب العادي: تبقى النتائج العشرية كما هي';
+      status.style.color=enabled?'#117A65':'#666';
+    }
+    function refreshGradeRoundingViews(){
+      lastWeakStudentsReportState=null; lastGradeSheetState=null;
+      if(document.getElementById('followupScreen').classList.contains('active-screen')) renderFollowupTable(currentActiveUnit);
+      if(document.getElementById('weakStudentsScreen').classList.contains('active-screen')) renderWeakStudentsReport();
+      if(document.getElementById('gradeSheetScreen').classList.contains('active-screen')) renderGradeSheetReport();
+      if(document.getElementById('periodSummaryModal').style.display==='flex') renderPeriodSummaryTable();
+    }
+    function toggleGradeRoundingMode(enabled){
+      gradeRoundingSettings.enabled=typeof enabled==='boolean'?enabled:!gradeRoundingSettings.enabled;
+      updateGradeRoundingManageUI(); saveData(); refreshGradeRoundingViews();
+    }
+    function openGradesManageModal(){ updateGradeRoundingManageUI(); document.getElementById('gradesManageModal').style.display='flex'; }
     function closeGradesManageModal(){ document.getElementById('gradesManageModal').style.display='none'; }
 
     function openProjectGradesModal(){ document.getElementById('projectGradesModal').style.display='flex'; showProjectGradesUnitsView(); }
@@ -2161,8 +2216,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         pool-=add;
       });
 
-      const total = vals.participation+vals.test+vals.hw+vals.act;
-      return { participation:vals.participation, test:vals.test, hw:vals.hw, act:vals.act, total:total };
+      // الجبر، إن كان مفعلاً، يحدث بعد اكتمال توزيع المشروع داخل هذه الوحدة فقط.
+      const rounded={
+        participation:applyWeightedGradeRounding(vals.participation,caps.participation),
+        test:applyWeightedGradeRounding(vals.test,caps.test),
+        hw:applyWeightedGradeRounding(vals.hw,caps.hw),
+        act:applyWeightedGradeRounding(vals.act,caps.act)
+      };
+      rounded.total=applyWeightedGradeRounding(rounded.participation+rounded.test+rounded.hw+rounded.act,60);
+      return rounded;
     }
 
     function computeWeightedScores(className, studentName, unitsList) {
@@ -2173,7 +2235,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         sums.participation+=r.participation; sums.test+=r.test; sums.hw+=r.hw; sums.act+=r.act; sums.total+=r.total;
       });
       const n = unitsList.length||1;
-      return { participation:sums.participation/n, test:sums.test/n, hw:sums.hw/n, act:sums.act/n, total:sums.total/n };
+      // المتوسط النهائي مبني على درجات الوحدات بعد جبر كل وحدة على حدة، ثم يجبر الناتج النهائي عند التفعيل.
+      return {
+        participation:applyWeightedGradeRounding(sums.participation/n,10), test:applyWeightedGradeRounding(sums.test/n,20),
+        hw:applyWeightedGradeRounding(sums.hw/n,10), act:applyWeightedGradeRounding(sums.act/n,20),
+        total:applyWeightedGradeRounding(sums.total/n,60)
+      };
     }
 
     // درجات موزونة الوحدة بدون توزيع درجة المشروع (تُستخدم في جدول الدروس التفصيلي بإشعارات الطلاب)
@@ -2188,7 +2255,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       lessons.forEach(l=>{ let v=parseFloat(stData.act[l]); if(!isNaN(v)){ actSum+=v; actCnt++; } });
       const baseAct = actCnt>0 ? actSum/actCnt : 0;
       const caps = {hw:10, act:20};
-      return { hw: Math.min(baseHw, caps.hw), act: Math.min(baseAct, caps.act) };
+      return { hw: applyWeightedGradeRounding(baseHw,caps.hw), act: applyWeightedGradeRounding(baseAct,caps.act) };
     }
 
     // تعتيم لون HEX بنسبة معينة (تُستخدم لتلوين صف "موزونة الوحدة" بلون أغمق من لون الوحدة)
@@ -2212,9 +2279,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       lessons.forEach(l=>{ let v=parseFloat(stData.hw[l]); if(!isNaN(v)){ hwSum+=v; hwCnt++; } });
       let actSum=0, actCnt=0;
       lessons.forEach(l=>{ let v=parseFloat(stData.act[l]); if(!isNaN(v)){ actSum+=v; actCnt++; } });
+      // هذان المتوسطان يظهران قبل أعمدة الموزونة في كشف المتابعة، لذلك يشملهما الجبر أيضاً.
       return {
-        hwAvg: hwCnt>0 ? hwSum/hwCnt : 0,
-        actAvg: actCnt>0 ? actSum/actCnt : 0
+        hwAvg: applyWeightedGradeRounding(hwCnt>0 ? hwSum/hwCnt : 0,10),
+        actAvg: applyWeightedGradeRounding(actCnt>0 ? actSum/actCnt : 0,20)
       };
     }
 
@@ -2468,14 +2536,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         // الواجبات
         lessons.forEach(l=>{ let val=(stData.hw&&stData.hw[l]!==undefined)?stData.hw[l]:''; rowHtml+=`<td data-group="hw-details" style="background:#EAFAF1;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="واجب" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'hw','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // عمود الموزونه (الواجبات)
-        rowHtml+=`<td data-group="hw" style="background:#D4EFDF;font-weight:bold;text-align:center;font-size:0.8rem;">${hwAvg.toFixed(2)}</td>`;
+        rowHtml+=`<td data-group="hw" style="background:#D4EFDF;font-weight:bold;text-align:center;font-size:0.8rem;">${formatGrade(hwAvg)}</td>`;
         // الأنشطة
         lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td data-group="act-details" style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // عمود الموزونه (الأنشطة)
-        rowHtml+=`<td data-group="act" style="background:#FCF3CF;font-weight:bold;text-align:center;font-size:0.8rem;">${actAvg.toFixed(2)}</td>`;
+        rowHtml+=`<td data-group="act" style="background:#FCF3CF;font-weight:bold;text-align:center;font-size:0.8rem;">${formatGrade(actAvg)}</td>`;
         // مشاركة
         let part=calculateStudentParticipationScore(cls,student,unitName);
-        rowHtml+=`<td data-group="participation" style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${part.toFixed(2)}</td>`;
+        rowHtml+=`<td data-group="participation" style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${formatGrade(part)}</td>`;
         // اختبار ومشروع
         let t1=stData.test1!==undefined?stData.test1:'';
         rowHtml+=`<td data-group="test" style="background:#FDEDEC;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${t1}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent('الاختبار')}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'test1','',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`;
@@ -2488,11 +2556,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         </td>`;
         // الأعمدة الأربعة الأخيرة (الموزونه + المشروع)
         const w=computeWeightedScores(cls,student,unitsForWeighted);
-        rowHtml+=`<td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.hw.toFixed(2)}</td>
-          <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.act.toFixed(2)}</td>
-          <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.participation.toFixed(2)}</td>
-          <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${w.test.toFixed(2)}</td>
-          <td data-group="total" style="background:#D5F5E3;font-weight:bold;color:#1E8449;text-align:center;">${w.total.toFixed(2)}</td>`;
+        rowHtml+=`<td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${formatGrade(w.hw)}</td>
+          <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${formatGrade(w.act)}</td>
+          <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${formatGrade(w.participation)}</td>
+          <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${formatGrade(w.test)}</td>
+          <td data-group="total" style="background:#D5F5E3;font-weight:bold;color:#1E8449;text-align:center;">${formatGrade(w.total)}</td>`;
         let row=document.createElement('tr'); row.innerHTML=rowHtml; tbody.appendChild(row);
       });
       // تطبيق حالة التركيز والألوان بعد إعادة الرسم
@@ -2553,14 +2621,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const raw=computeRawAverages(cls,student,unit);
       const part=calculateStudentParticipationScore(cls,student,unit);
       const weighted=computeWeightedScores(cls,student,[unit]);
-      if(row.cells[hwAverage]) row.cells[hwAverage].textContent=raw.hwAvg.toFixed(2);
-      if(row.cells[actAverage]) row.cells[actAverage].textContent=raw.actAvg.toFixed(2);
-      if(row.cells[participation]) row.cells[participation].textContent=part.toFixed(2);
-      if(row.cells[finalHw]) row.cells[finalHw].textContent=weighted.hw.toFixed(2);
-      if(row.cells[finalAct]) row.cells[finalAct].textContent=weighted.act.toFixed(2);
-      if(row.cells[finalParticipation]) row.cells[finalParticipation].textContent=weighted.participation.toFixed(2);
-      if(row.cells[finalTest]) row.cells[finalTest].textContent=weighted.test.toFixed(2);
-      if(row.cells[total]) row.cells[total].textContent=weighted.total.toFixed(2);
+      if(row.cells[hwAverage]) row.cells[hwAverage].textContent=formatGrade(raw.hwAvg);
+      if(row.cells[actAverage]) row.cells[actAverage].textContent=formatGrade(raw.actAvg);
+      if(row.cells[participation]) row.cells[participation].textContent=formatGrade(part);
+      if(row.cells[finalHw]) row.cells[finalHw].textContent=formatGrade(weighted.hw);
+      if(row.cells[finalAct]) row.cells[finalAct].textContent=formatGrade(weighted.act);
+      if(row.cells[finalParticipation]) row.cells[finalParticipation].textContent=formatGrade(weighted.participation);
+      if(row.cells[finalTest]) row.cells[finalTest].textContent=formatGrade(weighted.test);
+      if(row.cells[total]) row.cells[total].textContent=formatGrade(weighted.total);
     }
 
     function updateFollowupValue(cls,unit,student,type,lesson,val,sourceInput=null) {
@@ -3039,7 +3107,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return `<tr>${baseTop}${unitTop}${finalTop}</tr><tr>${units.map((_,index)=>groupCells(index)).join('')}${groupCells(0,true)}</tr>`;
     }
     function gradeSheetScoreCell(value,cat,isEnd=false){
-      return `<td style="text-align:center;font-weight:900;font-size:0.84rem;padding:7px 5px;background:${cat.bg};color:${cat.key==='total'?cat.color:'var(--text-primary)'};${isEnd?'border-left:3px solid #8DA6B8;':''}">${Number(value||0).toFixed(2)}</td>`;
+      return `<td style="text-align:center;font-weight:900;font-size:0.84rem;padding:7px 5px;background:${cat.bg};color:${cat.key==='total'?cat.color:'var(--text-primary)'};${isEnd?'border-left:3px solid #8DA6B8;':''}">${formatGrade(Number(value||0))}</td>`;
     }
     function renderGradeSheetReport(){
       const cls=document.getElementById('gradeSheetClassSelect').value||document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
@@ -3060,7 +3128,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!lastGradeSheetState) renderGradeSheetReport(); const state=lastGradeSheetState;
       if(!state||state.rows.length===0){ alert('لا توجد درجات لتصديرها.'); return; }
       const {cls,units,rows}=state, sizes=getPdfSizes('gradeSheet'), orientation=units.length>=2?'landscape':'portrait';
-      const pdfCell=(value,cat,isEnd=false)=>`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;font-weight:900;background:${cat.bg};color:${cat.key==='total'?cat.color:'#202124'};${isEnd?'border-left:3px solid #0B5394;':''}">${Number(value||0).toFixed(2)}</td>`;
+      const pdfCell=(value,cat,isEnd=false)=>`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;font-weight:900;background:${cat.bg};color:${cat.key==='total'?cat.color:'#202124'};${isEnd?'border-left:3px solid #0B5394;':''}">${formatGrade(Number(value||0))}</td>`;
       const tableRows=rows.map((row,index)=>{const unitCells=row.unitScores.map(scores=>GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>pdfCell(scores[cat.key],cat,catIndex===4)).join('')).join(''), finalCells=GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>pdfCell(row.finalScores[cat.key],cat,catIndex===4)).join(''); return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(row.student)}</td>${unitCells}${finalCells}</tr>`;}).join('');
       const table=`<table style="width:100%;border-collapse:collapse;direction:rtl;"><thead>${buildGradeSheetHeader(units,true)}</thead><tbody>${tableRows}</tbody></table>`;
       const reportInfo=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;direction:rtl;white-space:nowrap;"><span style="flex:0 0 auto;text-align:right;">الفصل: ${escapeTextForHtml(cls)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center;">الوحدات: ${units.map(escapeTextForHtml).join('، ')}</span><span style="flex:0 0 auto;text-align:left;">الدرجة النهائية</span></div>`;
@@ -3126,19 +3194,24 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         sums.hw+=raw.hwAvg; sums.act+=raw.actAvg; sums.participation+=calculateStudentParticipationScore(cls,student,unit); sums.test+=Math.min(parseFloat(st.test1)||0,20); projectByUnit[unit]=project;
       });
       const n=units.length||1;
-      return {hw:sums.hw/n,act:sums.act/n,participation:sums.participation/n,test:sums.test/n,projectByUnit,total:(sums.hw+sums.act+sums.participation+sums.test)/n};
+      const final={
+        hw:applyWeightedGradeRounding(sums.hw/n,10), act:applyWeightedGradeRounding(sums.act/n,20),
+        participation:applyWeightedGradeRounding(sums.participation/n,10), test:applyWeightedGradeRounding(sums.test/n,20), projectByUnit
+      };
+      final.total=applyWeightedGradeRounding(final.hw+final.act+final.participation+final.test,60);
+      return final;
     }
     function weakScoreCell(value, threshold){
       const weak=value<threshold;
       return weak
-        ? `<td style="text-align:center;background:#FFF1F2;color:#B42318;font-weight:900;font-size:0.9rem;padding:7px 5px;"><span style="display:block;font-size:0.62rem;line-height:1;color:#E11D48;margin-bottom:3px;">ضعف</span><span>${value.toFixed(2)}</span></td>`
-        : `<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;">${value.toFixed(2)}</td>`;
+        ? `<td style="text-align:center;background:#FFF1F2;color:#B42318;font-weight:900;font-size:0.9rem;padding:7px 5px;"><span style="display:block;font-size:0.62rem;line-height:1;color:#E11D48;margin-bottom:3px;">ضعف</span><span>${formatGrade(value)}</span></td>`
+        : `<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;">${formatGrade(value)}</td>`;
     }
     function weakProjectUnitCell(value, pdf=false){
       const done=value>0, border=pdf?'border:1px solid #D1D1D6;':'';
       return done
-        ? `<td style="${border}text-align:center;background:#EBF7EF;color:#1E8449;font-weight:900;font-size:0.86rem;padding:7px 5px;"><span style="display:block;font-size:0.62rem;line-height:1;color:#1E8449;margin-bottom:3px;">نفذ</span><span>${value.toFixed(2)}</span></td>`
-        : `<td style="${border}text-align:center;background:#FFF1F2;color:#B42318;font-weight:900;font-size:0.86rem;padding:7px 5px;"><span style="display:block;font-size:0.62rem;line-height:1;color:#E11D48;margin-bottom:3px;">لم ينفذ</span><span>0.00</span></td>`;
+        ? `<td style="${border}text-align:center;background:#EBF7EF;color:#1E8449;font-weight:900;font-size:0.86rem;padding:7px 5px;"><span style="display:block;font-size:0.62rem;line-height:1;color:#1E8449;margin-bottom:3px;">نفذ</span><span>${formatGrade(value)}</span></td>`
+        : `<td style="${border}text-align:center;background:#FFF1F2;color:#B42318;font-weight:900;font-size:0.86rem;padding:7px 5px;"><span style="display:block;font-size:0.62rem;line-height:1;color:#E11D48;margin-bottom:3px;">لم ينفذ</span><span>${formatGrade(0)}</span></td>`;
     }
     function buildWeakStudentsTableHeader(activeColumns,projectSelected,units,pdf=false){
       const border=pdf?'border:1px solid #D1D1D6;':'', pad=pdf?'padding:5px;':'padding:7px 5px;', namePad=pdf?'padding:5px;':'padding:8px 6px;', base=activeColumns.map(key=>{const c=WEAK_REPORT_COLUMNS[key]; return `<th style="${border}background:${c.bg};color:${c.color};font-size:0.82rem;${pad}">${c.label}<br><small>${c.cap}</small></th>`;}).join(''), baseMulti=activeColumns.map(key=>{const c=WEAK_REPORT_COLUMNS[key]; return `<th rowspan="2" style="${border}background:${c.bg};color:${c.color};font-size:0.82rem;${pad}">${c.label}<br><small>${c.cap}</small></th>`;}).join('');
@@ -3171,7 +3244,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       });
       weakRows.forEach((item,index)=>{
         const s=item.scores;
-        const totalCell=totalMode?weakScoreCell(s.total,getWeakStudentsThreshold('total')):`<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;background:#D5F5E3;color:#1E8449;">${s.total.toFixed(2)}</td>`;
+        const totalCell=totalMode?weakScoreCell(s.total,getWeakStudentsThreshold('total')):`<td style="text-align:center;font-weight:900;font-size:0.9rem;padding:7px 5px;background:#D5F5E3;color:#1E8449;">${formatGrade(s.total)}</td>`;
         const projectCells=projectSelected?units.map(unit=>weakProjectUnitCell(s.projectByUnit?.[unit]||0)).join(''):'';
         body.innerHTML+=`<tr><td style="font-weight:900;color:var(--text-secondary);text-align:center;font-size:0.9rem;padding:8px 4px;">${index+1}</td><td class="student-name-td" onclick="toggleWeakStudentsRowHighlight(this)" title="اضغط لتظليل صف الطالب" style="font-weight:900;font-size:0.98rem;text-align:right;padding:8px 6px;white-space:nowrap;word-break:normal;">${escapeTextForHtml(item.student)}</td>${activeColumns.map(key=>weakScoreCell(s[key],getWeakStudentsThreshold(key))).join('')}${projectCells}${totalCell}</tr>`;
       });
@@ -3184,7 +3257,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const state=lastWeakStudentsReportState;
       if(!state||state.weakRows.length===0){ alert('لا يوجد طلاب ضعاف في الأقسام المحددة لتصديرهم.'); return; }
       const {cls,units,summaryMode,totalMode,projectSelected,activeColumns,weakRows}=state;
-      const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const weak=item.scores[key]<getWeakStudentsThreshold(key); return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${item.scores[key].toFixed(2)}</td>`; }).join(''); const projectCells=projectSelected?units.map(unit=>weakProjectUnitCell(item.scores.projectByUnit?.[unit]||0,true)).join(''):''; const totalWeak=totalMode&&item.scores.total<getWeakStudentsThreshold('total'); const totalCell=`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${totalWeak?'background:#FFF1F2;color:#B42318;':'background:#D5F5E3;color:#1E8449;'}font-weight:900;">${totalWeak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${item.scores.total.toFixed(2)}</td>`; return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}${projectCells}${totalCell}</tr>`; }).join('');
+      const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const weak=item.scores[key]<getWeakStudentsThreshold(key); return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${formatGrade(item.scores[key])}</td>`; }).join(''); const projectCells=projectSelected?units.map(unit=>weakProjectUnitCell(item.scores.projectByUnit?.[unit]||0,true)).join(''):''; const totalWeak=totalMode&&item.scores.total<getWeakStudentsThreshold('total'); const totalCell=`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${totalWeak?'background:#FFF1F2;color:#B42318;':'background:#D5F5E3;color:#1E8449;'}font-weight:900;">${totalWeak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${formatGrade(item.scores.total)}</td>`; return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}${projectCells}${totalCell}</tr>`; }).join('');
       const table=`<table style="width:100%;border-collapse:collapse;direction:rtl;"><thead>${buildWeakStudentsTableHeader(activeColumns,projectSelected,units,true)}</thead><tbody>${rows}</tbody></table>`;
       const columnsLabel=activeColumns.map(key=>WEAK_REPORT_COLUMNS[key].label).join('، ');
       const evaluationLabel=summaryMode?'الخلاصة':'الموزونة';
@@ -3199,7 +3272,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function closePeriodSummaryModal(){ document.getElementById('periodSummaryModal').style.display='none'; }
     function renderPeriodUnitsToggleBar(){ const cont=document.getElementById('periodUnitsToggleBar'); cont.innerHTML=''; const all=Object.keys(unitsData); if(period1SelectedUnits.length===0) period1SelectedUnits=[...all]; all.forEach(u=>{ const checked=period1SelectedUnits.includes(u); const btn=document.createElement('button'); btn.type='button'; btn.style.cssText=`padding:6px 12px;border-radius:8px;border:${checked?'2px solid #27ae60':'1px solid #ccc'};background:${checked?'#e8f8f5':'#f9f9fb'};color:${checked?'#117A65':'#333'};font-weight:bold;font-size:12px;cursor:pointer;`; btn.innerText=u; btn.onclick=()=>togglePeriodUnit(u); cont.appendChild(btn); }); }
     function togglePeriodUnit(u){ const idx=period1SelectedUnits.indexOf(u); if(idx>-1){ if(period1SelectedUnits.length>1) period1SelectedUnits.splice(idx,1); else{ alert("يجب اختيار وحدة واحدة على الأقل!"); return; } } else period1SelectedUnits.push(u); saveData(); renderPeriodUnitsToggleBar(); renderPeriodSummaryTable(); }
-    function renderPeriodSummaryTable(){ const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value; if(!cls||!appData[cls]) return; const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames(), units=period1SelectedUnits.length?period1SelectedUnits:Object.keys(unitsData); const thead=document.getElementById('periodSummaryTableHead'); thead.innerHTML=`<tr><th>#</th><th style="text-align:right;">اسم الطالب</th><th>الواجبات (موزونة)</th><th>الأنشطة (موزونة)</th><th>المشاركة</th><th>الاختبار/المشروع</th><th style="background:#1e8449;color:white;">المجموع الكلي</th></tr>`; const tbody=document.getElementById('periodSummaryTableBody'); tbody.innerHTML=''; students.forEach((s,i)=>{ const w=computeWeightedScores(cls,s,units); const color=dup.includes(s)?'color:#FF3B30;':''; tbody.innerHTML+=`<tr><td style="font-weight:bold;color:var(--text-secondary);">${i+1}</td><td class="student-name-td" style="font-weight:900;font-size:15px;text-align:right;${color}">${s}</td><td style="font-weight:bold;">${w.hw.toFixed(2)}</td><td style="font-weight:bold;">${w.act.toFixed(2)}</td><td style="font-weight:bold;background:#ebdef0;">${w.participation.toFixed(2)}</td><td style="font-weight:bold;">${w.test.toFixed(2)}</td><td style="font-weight:bold;color:#1e8449;background:#d5f5e3;">${w.total.toFixed(2)}</td></tr>`; }); }
+    function renderPeriodSummaryTable(){ const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value; if(!cls||!appData[cls]) return; const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames(), units=period1SelectedUnits.length?period1SelectedUnits:Object.keys(unitsData); const thead=document.getElementById('periodSummaryTableHead'); thead.innerHTML=`<tr><th>#</th><th style="text-align:right;">اسم الطالب</th><th>الواجبات (موزونة)</th><th>الأنشطة (موزونة)</th><th>المشاركة</th><th>الاختبار/المشروع</th><th style="background:#1e8449;color:white;">المجموع الكلي</th></tr>`; const tbody=document.getElementById('periodSummaryTableBody'); tbody.innerHTML=''; students.forEach((s,i)=>{ const w=computeWeightedScores(cls,s,units); const color=dup.includes(s)?'color:#FF3B30;':''; tbody.innerHTML+=`<tr><td style="font-weight:bold;color:var(--text-secondary);">${i+1}</td><td class="student-name-td" style="font-weight:900;font-size:15px;text-align:right;${color}">${s}</td><td style="font-weight:bold;">${formatGrade(w.hw)}</td><td style="font-weight:bold;">${formatGrade(w.act)}</td><td style="font-weight:bold;background:#ebdef0;">${formatGrade(w.participation)}</td><td style="font-weight:bold;">${formatGrade(w.test)}</td><td style="font-weight:bold;color:#1e8449;background:#d5f5e3;">${formatGrade(w.total)}</td></tr>`; }); }
 
     // ===== تقارير الطالب =====
     function openStudentReportSelectModal(){ const cls=document.getElementById('classSelect').value; if(!cls||!appData[cls]||appData[cls].length===0){ alert("يرجى اختيار فصل يحتوي على طلاب أولاً!"); return; } const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames(); const tbody=document.getElementById('studentReportSelectTableBody'); tbody.innerHTML=''; students.forEach((s,i)=>{ const color=dup.includes(s)?'color:#FF3B30;':''; tbody.innerHTML+=`<tr onclick="selectStudentForReportAction('${CSS.escape(s)}')" style="cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#F2F2F7'" onmouseout="this.style.background='transparent'"><td style="color:var(--text-secondary);font-weight:bold;">${i+1}</td><td class="student-name-td" style="font-size:15px;font-weight:900;padding:10px 8px;white-space:normal;word-break:break-word;${color}">${s}</td></tr>`; }); document.getElementById('studentReportSelectModal').style.display='flex'; }
@@ -3353,7 +3426,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function closeReportModal(){ document.getElementById('reportModal').style.display='none'; }
 
     // ===== تقارير المتابعة =====
-    function openFollowupReportModal(){ const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value; document.getElementById('followupReportModalTitle').innerText=`📈 تقارير كشوف المتابعة - ${cls} (${currentActiveUnit})`; const cont=document.getElementById('followupReportContent'); if(!cls||!appData[cls]){ cont.innerHTML='<div style="text-align:center;padding:10px;">لا يوجد فصل محدد</div>'; document.getElementById('followupReportModal').style.display='flex'; return; } const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames(), units=[currentActiveUnit]; let html='<div class="table-responsive-wrapper"><table class="report-table"><thead><tr><th>#</th><th style="text-align:right;">اسم الطالب</th><th>معدل الواجبات</th><th>معدل الأنشطة</th><th>المشاركة</th><th>الاختبار/المشروع</th><th style="background:#1e8449;">المجموع الكلي</th></tr></thead><tbody>'; students.forEach((s,i)=>{ const w=computeWeightedScores(cls,s,units), color=dup.includes(s)?'color:#FF3B30;':''; html+=`<tr><td style="color:var(--text-secondary);font-weight:bold;">${i+1}</td><td class="student-name-td" style="font-weight:900;font-size:15px;${color}">${s}</td><td><b>${w.hw.toFixed(2)}</b></td><td><b>${w.act.toFixed(2)}</b></td><td><b>${w.participation.toFixed(2)}</b></td><td><b>${w.test.toFixed(2)}</b></td><td><span class="badge-num" style="background:#d5f5e3;color:#1e8449;font-size:12px;">${w.total.toFixed(2)}</span></td></tr>`; }); html+='</tbody></table></div>'; cont.innerHTML=html; document.getElementById('followupReportModal').style.display='flex'; }
+    function openFollowupReportModal(){ const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value; document.getElementById('followupReportModalTitle').innerText=`📈 تقارير كشوف المتابعة - ${cls} (${currentActiveUnit})`; const cont=document.getElementById('followupReportContent'); if(!cls||!appData[cls]){ cont.innerHTML='<div style="text-align:center;padding:10px;">لا يوجد فصل محدد</div>'; document.getElementById('followupReportModal').style.display='flex'; return; } const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames(), units=[currentActiveUnit]; let html='<div class="table-responsive-wrapper"><table class="report-table"><thead><tr><th>#</th><th style="text-align:right;">اسم الطالب</th><th>معدل الواجبات</th><th>معدل الأنشطة</th><th>المشاركة</th><th>الاختبار/المشروع</th><th style="background:#1e8449;">المجموع الكلي</th></tr></thead><tbody>'; students.forEach((s,i)=>{ const w=computeWeightedScores(cls,s,units), color=dup.includes(s)?'color:#FF3B30;':''; html+=`<tr><td style="color:var(--text-secondary);font-weight:bold;">${i+1}</td><td class="student-name-td" style="font-weight:900;font-size:15px;${color}">${s}</td><td><b>${formatGrade(w.hw)}</b></td><td><b>${formatGrade(w.act)}</b></td><td><b>${formatGrade(w.participation)}</b></td><td><b>${formatGrade(w.test)}</b></td><td><span class="badge-num" style="background:#d5f5e3;color:#1e8449;font-size:12px;">${formatGrade(w.total)}</span></td></tr>`; }); html+='</tbody></table></div>'; cont.innerHTML=html; document.getElementById('followupReportModal').style.display='flex'; }
     function closeFollowupReportModal(){ document.getElementById('followupReportModal').style.display='none'; }
 
     function calculateStudentParticipationScore(cls,student,unitName=null){
@@ -3366,7 +3439,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           (record.violations||[]).forEach(id=>{ score-=getViolationPenalty(id); });
         });
       });
-      return score<0?0:score;
+      return applyWeightedGradeRounding(score<0?0:score,10);
     }
 
     async function exportPdf(element, filename, opt) {
@@ -3508,11 +3581,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           html += `<tr>
             <td style="border:1px solid #ddd;padding:4px;text-align:center;font-size:${sizes.data}px;">${i+1}</td>
             <td class="pdf-student-name-cell" style="border:1px solid #ddd;padding:4px;text-align:right;font-size:${sizes.names}px;font-weight:900;">${s}</td>
-            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${w.hw.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${w.act.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${w.participation.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${w.test.toFixed(2)}</td>
-            <td style="border:1px solid #1e8449;padding:4px;text-align:center;font-weight:bold;background:#d5f5e3;color:#1e8449;font-size:${sizes.data}px;">${w.total.toFixed(2)}</td>
+            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${formatGrade(w.hw)}</td>
+            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${formatGrade(w.act)}</td>
+            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${formatGrade(w.participation)}</td>
+            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${formatGrade(w.test)}</td>
+            <td style="border:1px solid #1e8449;padding:4px;text-align:center;font-weight:bold;background:#d5f5e3;color:#1e8449;font-size:${sizes.data}px;">${formatGrade(w.total)}</td>
           </tr>`;
         });
         html += '</tbody></table>';
@@ -3610,17 +3683,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             <td style="border:1px solid #ddd;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;color:#000;">${idx+1}</td>
             <td class="pdf-student-name-cell" style="border:1px solid #ddd;padding:3px;text-align:right;font-size:${sizes.names}px;font-weight:900;">${student}</td>
             ${hwCells}
-            <td style="border:1px solid #A9DFBF;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D4EFDF;color:#000;">${hwAvg.toFixed(2)}</td>
+            <td style="border:1px solid #A9DFBF;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D4EFDF;color:#000;">${formatGrade(hwAvg)}</td>
             ${actCells}
-            <td style="border:1px solid #F7DC6F;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#FCF3CF;color:#000;">${actAvg.toFixed(2)}</td>
-            <td style="border:1px solid #D2B4DE;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EBDEF0;color:#000;">${part.toFixed(2)}</td>
+            <td style="border:1px solid #F7DC6F;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#FCF3CF;color:#000;">${formatGrade(actAvg)}</td>
+            <td style="border:1px solid #D2B4DE;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EBDEF0;color:#000;">${formatGrade(part)}</td>
             <td style="border:1px solid #F5B7B1;padding:3px;text-align:center;font-size:${sizes.data}px;background:#FADBD8;color:#000;">${t1}</td>
             <td style="border:1px solid #F5B7B1;padding:3px;text-align:center;font-size:${sizes.data}px;background:#FADBD8;color:#000;">${t2}</td>
-            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D6EAF8;color:#000;">${w.hw.toFixed(2)}</td>
-            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D6EAF8;color:#000;">${w.act.toFixed(2)}</td>
-            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D6EAF8;color:#000;">${w.participation.toFixed(2)}</td>
-            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D6EAF8;color:#000;">${w.test.toFixed(2)}</td>
-            <td style="border:1px solid #A9DFBF;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:900;background:#D5F5E3;color:#000;">${w.total.toFixed(2)}</td>
+            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D6EAF8;color:#000;">${formatGrade(w.hw)}</td>
+            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D6EAF8;color:#000;">${formatGrade(w.act)}</td>
+            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D6EAF8;color:#000;">${formatGrade(w.participation)}</td>
+            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D6EAF8;color:#000;">${formatGrade(w.test)}</td>
+            <td style="border:1px solid #A9DFBF;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:900;background:#D5F5E3;color:#000;">${formatGrade(w.total)}</td>
           </tr>`;
         });
         const tableHtml = `<table style="width:100%;border-collapse:collapse;font-family:sans-serif;">${header}${rows}</table>`;
@@ -3658,11 +3731,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           html += `<tr>
             <td style="border:1px solid #ddd;padding:4px;text-align:center;font-size:${sizes.data}px;">${i+1}</td>
             <td class="pdf-student-name-cell" style="border:1px solid #ddd;padding:4px;text-align:right;font-size:${sizes.names}px;font-weight:900;">${s}</td>
-            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${w.hw.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${w.act.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;background:#ebdef0;font-size:${sizes.data}px;">${w.participation.toFixed(2)}</td>
-            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${w.test.toFixed(2)}</td>
-            <td style="border:1px solid #1e8449;padding:4px;text-align:center;font-weight:bold;background:#d5f5e3;color:#1e8449;font-size:${sizes.data}px;">${w.total.toFixed(2)}</td>
+            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${formatGrade(w.hw)}</td>
+            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${formatGrade(w.act)}</td>
+            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;background:#ebdef0;font-size:${sizes.data}px;">${formatGrade(w.participation)}</td>
+            <td style="border:1px solid #ddd;padding:4px;text-align:center;font-weight:bold;font-size:${sizes.data}px;">${formatGrade(w.test)}</td>
+            <td style="border:1px solid #1e8449;padding:4px;text-align:center;font-weight:bold;background:#d5f5e3;color:#1e8449;font-size:${sizes.data}px;">${formatGrade(w.total)}</td>
           </tr>`;
         });
         html += '</tbody></table>';
@@ -3709,19 +3782,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           let v = parseFloat(val);
           if (!isNaN(v)) { hwSum += v; hwCnt++; }
         });
-        csv += `${hwAvg.toFixed(2)},`;
+        csv += `${formatGrade(hwAvg)},`;
         lessons.forEach(l => {
           let val = st.act[l] !== undefined ? st.act[l] : '';
           csv += `${val},`;
           let v = parseFloat(val);
           if (!isNaN(v)) { actSum += v; actCnt++; }
         });
-        csv += `${actAvg.toFixed(2)},`;
+        csv += `${formatGrade(actAvg)},`;
         let part = calculateStudentParticipationScore(cls, s, currentActiveUnit);
         let t1 = st.test1 !== undefined ? st.test1 : '';
         let t2 = st.test2 !== undefined ? st.test2 : '';
-        csv += `${part.toFixed(2)},${t1},${t2},`;
-        csv += `${w.hw.toFixed(2)},${w.act.toFixed(2)},${w.participation.toFixed(2)},${w.test.toFixed(2)},${w.total.toFixed(2)}\n`;
+        csv += `${formatGrade(part)},${t1},${t2},`;
+        csv += `${formatGrade(w.hw)},${formatGrade(w.act)},${formatGrade(w.participation)},${formatGrade(w.test)},${formatGrade(w.total)}\n`;
       });
       downloadFile(csv, `كشف_متابعة_${cls}_${currentActiveUnit}.csv`, 'text/csv;charset=utf-8;');
     }
@@ -3734,7 +3807,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       let csv = "\uFEFFم,اسم الطالب,معدل الواجبات,معدل الأنشطة,المشاركة,الاختبار/المشروع,المجموع الكلي\n";
       students.forEach((s, i) => {
         const w = computeWeightedScores(cls, s, units);
-        csv += `${i+1},${s},${w.hw.toFixed(2)},${w.act.toFixed(2)},${w.participation.toFixed(2)},${w.test.toFixed(2)},${w.total.toFixed(2)}\n`;
+        csv += `${i+1},${s},${formatGrade(w.hw)},${formatGrade(w.act)},${formatGrade(w.participation)},${formatGrade(w.test)},${formatGrade(w.total)}\n`;
       });
       downloadFile(csv, `تقرير_متابعة_${cls}_${currentActiveUnit}.csv`, 'text/csv;charset=utf-8;');
     }
@@ -3762,7 +3835,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       let csv = "\uFEFFم,اسم الطالب,الواجبات (موزونة),الأنشطة (موزونة),المشاركة,الاختبار/المشروع,المجموع الكلي\n";
       students.forEach((s, i) => {
         const w = computeWeightedScores(cls, s, units);
-        csv += `${i+1},${s},${w.hw.toFixed(2)},${w.act.toFixed(2)},${w.participation.toFixed(2)},${w.test.toFixed(2)},${w.total.toFixed(2)}\n`;
+        csv += `${i+1},${s},${formatGrade(w.hw)},${formatGrade(w.act)},${formatGrade(w.participation)},${formatGrade(w.test)},${formatGrade(w.total)}\n`;
       });
       const period = selectedPeriodName === 'الأولى' ? 'الأولى' : 'الثانية';
       downloadFile(csv, `خلاصة_الفترة_${period}_${cls}.csv`, 'text/csv;charset=utf-8;');
@@ -3925,7 +3998,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           const lessonAct=lesson!==''&&block.act[lesson]!==undefined?block.act[lesson]:'';
           return `<tr style="background:${block.theme.body};"><td style="${cellStyle(block.theme)}">${lesson||'&nbsp;'}</td><td style="${cellStyle(block.theme)}">${lessonHw||'&nbsp;'}</td><td style="${cellStyle(block.theme)}">${lessonAct||'&nbsp;'}</td></tr>`;
         };
-        const weightedRow=block=>`<tr style="background:${block.theme.header};"><td style="border:1px solid ${block.theme.border};padding:2px;text-align:center;color:${block.theme.title};${notificationFontStyle}">الموزونة</td><td style="border:1px solid ${block.theme.border};padding:2px;text-align:center;color:${block.theme.title};${notificationFontStyle}">${(block.mozHw||0).toFixed(2)}</td><td style="border:1px solid ${block.theme.border};padding:2px;text-align:center;color:${block.theme.title};${notificationFontStyle}">${(block.mozAct||0).toFixed(2)}</td></tr>`;
+        const weightedRow=block=>`<tr style="background:${block.theme.header};"><td style="border:1px solid ${block.theme.border};padding:2px;text-align:center;color:${block.theme.title};${notificationFontStyle}">الموزونة</td><td style="border:1px solid ${block.theme.border};padding:2px;text-align:center;color:${block.theme.title};${notificationFontStyle}">${formatGrade(block.mozHw||0)}</td><td style="border:1px solid ${block.theme.border};padding:2px;text-align:center;color:${block.theme.title};${notificationFontStyle}">${formatGrade(block.mozAct||0)}</td></tr>`;
         let main='';
 
         if(tablePerUnit){
@@ -3989,12 +4062,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             return {unit:u,...stats,score};
           });
           partHtml=`<table style="width:100%;table-layout:fixed;border-collapse:collapse;font-size:${participationTableSize}px;direction:rtl;"><thead><tr><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#D6EAF8;font-weight:bold;white-space:nowrap;">الوحدة</th><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#FADBD8;font-weight:bold;white-space:nowrap;">الغياب</th><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#FCF3CF;font-weight:bold;white-space:nowrap;">التأخر</th><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#EBDEF0;font-weight:bold;white-space:nowrap;">المخالفات</th><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#D4EFDF;font-weight:bold;white-space:nowrap;">المشاركة</th></tr></thead><tbody>`;
-          participationRows.forEach(row=>{ partHtml+=`<tr><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;background:${getColor(row.unit)};white-space:nowrap;">${row.unit}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#C0392B;">${row.absent}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#F39C12;">${row.late}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#8E44AD;">${row.violations}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#1E8449;background:#D4EFDF;">${row.score.toFixed(2)}</td></tr>`; });
+          participationRows.forEach(row=>{ partHtml+=`<tr><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;background:${getColor(row.unit)};white-space:nowrap;">${row.unit}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#C0392B;">${row.absent}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#F39C12;">${row.late}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#8E44AD;">${row.violations}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#1E8449;background:#D4EFDF;">${formatGrade(row.score)}</td></tr>`; });
           partHtml+='</tbody></table>';
         } else {
           const cumulativeStats=getStudentAttendanceStats(cls,s,'__all__');
           const cumulativeScore=calculateStudentParticipationScore(cls,s,null);
-          partHtml=`<table style="width:100%;table-layout:fixed;border-collapse:collapse;font-size:${participationTableSize}px;direction:rtl;"><thead><tr><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#FADBD8;font-weight:bold;white-space:nowrap;">الغياب</th><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#FCF3CF;font-weight:bold;white-space:nowrap;">التأخر</th><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#EBDEF0;font-weight:bold;white-space:nowrap;">المخالفات</th><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#D4EFDF;font-weight:bold;white-space:nowrap;">درجة المشاركة</th></tr></thead><tbody><tr><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#C0392B;">${cumulativeStats.absent}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#F39C12;">${cumulativeStats.late}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#8E44AD;">${cumulativeStats.violations}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#1E8449;background:#D4EFDF;">${cumulativeScore.toFixed(2)}</td></tr></tbody></table>`;
+          partHtml=`<table style="width:100%;table-layout:fixed;border-collapse:collapse;font-size:${participationTableSize}px;direction:rtl;"><thead><tr><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#FADBD8;font-weight:bold;white-space:nowrap;">الغياب</th><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#FCF3CF;font-weight:bold;white-space:nowrap;">التأخر</th><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#EBDEF0;font-weight:bold;white-space:nowrap;">المخالفات</th><th style="border:1px solid #ccc;padding:3px;text-align:center;background:#D4EFDF;font-weight:bold;white-space:nowrap;">درجة المشاركة</th></tr></thead><tbody><tr><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#C0392B;">${cumulativeStats.absent}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#F39C12;">${cumulativeStats.late}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#8E44AD;">${cumulativeStats.violations}</td><td style="border:1px solid #ccc;padding:3px;text-align:center;font-weight:bold;color:#1E8449;background:#D4EFDF;">${formatGrade(cumulativeScore)}</td></tr></tbody></table>`;
         }
 
         let tests='';
@@ -4011,7 +4084,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         // 0 = عرضان متساويان. عند اختيار عرض للمشاركة، يأخذ الجدول الآخر المساحة المتبقية تلقائياً.
         let comb=`<div style="display:flex;flex-wrap:nowrap;align-items:flex-start;gap:5px;margin-top:4px;direction:rtl;"><div style="${participationWidthStyle}min-width:0;border:1px solid #5B2C6F;border-radius:4px;overflow:hidden;">${partHtml}</div><div style="flex:0 0 2px;align-self:stretch;background:#007AFF;opacity:0.72;margin:2px 0;border-radius:2px;"></div><div style="flex:1 1 0;min-width:0;border:1px solid #1B4F72;border-radius:4px;overflow:hidden;">${tests}</div></div>`;
 
-        let wHtml=`<table style="width:100%;border-collapse:collapse;margin-top:2px;font-size:${testsTableSize}px;border:2px solid #1E8449;"><tr style="background:#1E8449;color:white;"><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;">الموزونة + المشاريع</th><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;">الواجبات</th><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;">الأنشطة</th><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;">المشاركة</th><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;">الاختبارات</th><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;background:#27AE60;">المجموع</th></tr><tr><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;background:#E8F8F5;font-size:${textSize-1}px;">القيمة</td><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;font-size:${textSize}px;">${fHw.toFixed(2)}</td><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;font-size:${textSize}px;">${fAct.toFixed(2)}</td><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;font-size:${textSize}px;background:#F5EEF8;">${part.toFixed(2)}</td><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;font-size:${textSize}px;">${fTest.toFixed(2)}</td><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;font-size:${textSize+2}px;background:#D5F5E3;color:#1E8449;">${wScore.toFixed(2)}</td></tr><tr><td style="border:1px solid #1E8449;padding:1px;text-align:center;font-size:${textSize-3}px;color:#666;" colspan="6">(مجموع الوحدات المختارة: ${valid})</td></tr></table>`;
+        let wHtml=`<table style="width:100%;border-collapse:collapse;margin-top:2px;font-size:${testsTableSize}px;border:2px solid #1E8449;"><tr style="background:#1E8449;color:white;"><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;">الموزونة + المشاريع</th><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;">الواجبات</th><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;">الأنشطة</th><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;">المشاركة</th><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;">الاختبارات</th><th style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;background:#27AE60;">المجموع</th></tr><tr><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;background:#E8F8F5;font-size:${textSize-1}px;">القيمة</td><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;font-size:${textSize}px;">${formatGrade(fHw)}</td><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;font-size:${textSize}px;">${formatGrade(fAct)}</td><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;font-size:${textSize}px;background:#F5EEF8;">${formatGrade(part)}</td><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;font-size:${textSize}px;">${formatGrade(fTest)}</td><td style="border:1px solid #1E8449;padding:2px;text-align:center;font-weight:bold;font-size:${textSize+2}px;background:#D5F5E3;color:#1E8449;">${formatGrade(wScore)}</td></tr><tr><td style="border:1px solid #1E8449;padding:1px;text-align:center;font-size:${textSize-3}px;color:#666;" colspan="6">(مجموع الوحدات المختارة: ${valid})</td></tr></table>`;
 
         let all=main+comb+wHtml;
 
@@ -4099,20 +4172,20 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
         return {
           hwInputs: lessons.map(lesson => stData.hw && stData.hw[lesson] !== undefined ? stData.hw[lesson] : ''),
-          hwAverage: raw.hwAvg.toFixed(2),
+          hwAverage: formatGrade(raw.hwAvg),
           actInputs: lessons.map(lesson => stData.act && stData.act[lesson] !== undefined ? stData.act[lesson] : ''),
-          actAverage: raw.actAvg.toFixed(2),
+          actAverage: formatGrade(raw.actAvg),
           absence: attendance.absent,
           late: attendance.late,
           violations: attendance.violations,
-          participation: participation.toFixed(2),
+          participation: formatGrade(participation),
           test: stData.test1 !== undefined ? stData.test1 : '',
           project: stData.test2 !== undefined ? stData.test2 : '',
-          finalHw: weighted.hw.toFixed(2),
-          finalAct: weighted.act.toFixed(2),
-          finalParticipation: weighted.participation.toFixed(2),
-          finalTest: weighted.test.toFixed(2),
-          total: weighted.total.toFixed(2)
+          finalHw: formatGrade(weighted.hw),
+          finalAct: formatGrade(weighted.act),
+          finalParticipation: formatGrade(weighted.participation),
+          finalTest: formatGrade(weighted.test),
+          total: formatGrade(weighted.total)
         };
       }
 
@@ -4169,11 +4242,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           const n = availableUnits || 1;
           summaryRows.push([
             map[item.name] || '', item.name, item.class,
-            (sumHw/n).toFixed(2),
-            (sumAct/n).toFixed(2),
-            (sumPart/n).toFixed(2),
-            (sumTest/n).toFixed(2),
-            (sumTotal/n).toFixed(2)
+            formatGrade(sumHw/n),
+            formatGrade(sumAct/n),
+            formatGrade(sumPart/n),
+            formatGrade(sumTest/n),
+            formatGrade(sumTotal/n)
           ]);
         });
         const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
