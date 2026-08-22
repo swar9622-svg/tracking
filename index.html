@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.32";</script>
+  <script>const APP_VERSION = "20.33";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2766,8 +2766,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <th colspan="${lessons.length}" data-group="hw-details" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;position:relative;">الواجبات (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button></span></th>
         <th rowspan="2" data-group="hw" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;">الموزونه<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('hw')" title="فرز الموزونة للواجبات">فرز ↕</button></span></th>
         <th colspan="${lessons.length}" data-group="act-details" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
-        <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونة<br><small>/10</small><span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('act')" title="فرز موزونة الأنشطة والتحقق">فرز ↕</button></span></th>
         <th rowspan="2" data-group="act" style="background:#EAF3FF;color:#1D4ED8;text-align:center;vertical-align:middle;font-weight:800;">تحقق<br><small>/10</small></th>
+        <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونة<br><small>/20</small><span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('act')" title="فرز موزونة الأنشطة مع تحقق">فرز ↕</button></span></th>
         <th rowspan="2" data-group="participation" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;">المشاركة<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('participation')" title="فرز المشاركة">فرز ↕</button></span></th>
         <th colspan="2" data-group="test-details" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;position:relative;">الاختبارات والمشاريع (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span></th>
         <th colspan="4" data-group="summary" style="background:#D6EAF8;color:#1B4F72;text-align:center;">الموزونه + المشروع (الخلاصه)</th>
@@ -2794,7 +2794,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         // حساب الواجبات والأنشطة /10 والتحقق /10 قبل الخلاصة.
         const raw = computeRawAverages(cls, student, unitName);
         const hwAvg = raw.hwAvg;
-        const activityAvg = raw.activityAvg;
         const understandingScore = raw.understanding;
         const actAvg = raw.actAvg;
 
@@ -2805,8 +2804,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         rowHtml+=`<td data-group="hw" style="background:#D4EFDF;font-weight:bold;text-align:center;font-size:0.8rem;">${formatGrade(hwAvg)}</td>`;
         // الأنشطة المدخلة: لكل درس من 10 درجات.
         lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td data-group="act-details" style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
-        // الأنشطة /10 ثم تحقق /10؛ وموزونة الأنشطة النهائية تظهر في الخلاصة /20.
-        rowHtml+=`<td data-group="act" style="background:#FCF3CF;font-weight:bold;text-align:center;font-size:0.8rem;">${formatGrade(activityAvg)}</td><td data-group="act" style="background:#EAF3FF;color:#1D4ED8;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(understandingScore)}</td>`;
+        // تحقق /10 ثم الموزونة النهائية /20 = متوسط الأنشطة + تحقق، مطابقةً للخلاصة.
+        rowHtml+=`<td data-group="act" style="background:#EAF3FF;color:#1D4ED8;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(understandingScore)}</td><td data-group="act" style="background:#FCF3CF;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(actAvg)}</td>`;
         // مشاركة
         let part=calculateStudentParticipationScore(cls,student,unitName);
         rowHtml+=`<td data-group="participation" style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${formatGrade(part)}</td>`;
@@ -2877,9 +2876,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const lessons=(unitsData[unit] && unitsData[unit].lessons) || ['درس 1'];
       const lessonCount=lessons.length;
       const hwAverage=2+lessonCount;
-      const actAverage=hwAverage+1+lessonCount;
-      const understanding=actAverage+1;
-      const participation=understanding+1;
+      const understanding=hwAverage+1+lessonCount;
+      const actWeighted=understanding+1;
+      const participation=actWeighted+1;
       const finalHw=participation+3;
       const finalAct=participation+4;
       const finalParticipation=participation+5;
@@ -2889,8 +2888,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const part=calculateStudentParticipationScore(cls,student,unit);
       const weighted=computeWeightedScores(cls,student,[unit]);
       if(row.cells[hwAverage]) row.cells[hwAverage].textContent=formatGrade(raw.hwAvg);
-      if(row.cells[actAverage]) row.cells[actAverage].textContent=formatGrade(raw.activityAvg);
       if(row.cells[understanding]) row.cells[understanding].textContent=formatGrade(raw.understanding);
+      if(row.cells[actWeighted]) row.cells[actWeighted].textContent=formatGrade(raw.actAvg);
       if(row.cells[participation]) row.cells[participation].textContent=formatGrade(part);
       if(row.cells[finalHw]) row.cells[finalHw].textContent=formatGrade(weighted.hw);
       if(row.cells[finalAct]) row.cells[finalAct].textContent=formatGrade(weighted.act);
@@ -4153,8 +4152,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <th colspan="${lessons.length}" style="border:1px solid #A9DFBF;padding:4px;text-align:center;background:#D4EFDF;color:#000;">الواجبات</th>
           <th style="border:1px solid #A9DFBF;padding:4px;text-align:center;background:#D4EFDF;color:#000;">الموزونة</th>
           <th colspan="${lessons.length}" style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#000;">الأنشطة (10)</th>
-          <th style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#000;">الموزونة /10</th>
           <th style="border:1px solid #AED6F1;padding:4px;text-align:center;background:#EAF3FF;color:#000;">تحقق /10</th>
+          <th style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#000;">الموزونة /20</th>
           <th style="border:1px solid #D2B4DE;padding:4px;text-align:center;background:#EBDEF0;color:#000;">المشاركة</th>
           <th colspan="2" style="border:1px solid #F5B7B1;padding:4px;text-align:center;background:#FADBD8;color:#000;">الاختبارات والمشاريع</th>
           <th colspan="4" style="border:1px solid #AED6F1;padding:4px;text-align:center;background:#D6EAF8;color:#000;">الموزونة + المشروع</th>
@@ -4163,8 +4162,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         lessons.forEach(l => { header += `<th style="border:1px solid #A9DFBF;padding:2px;text-align:center;background:#EAFAF1;color:#000;">${l}</th>`; });
         header += `<th aria-label="خانة تكميلية للموزونة" style="border:1px solid #A9DFBF;padding:2px;text-align:center;background:#D4EFDF;color:#000;">&nbsp;</th>`;
         lessons.forEach(l => { header += `<th style="border:1px solid #F7DC6F;padding:2px;text-align:center;background:#FEF9E7;color:#000;">${l}</th>`; });
-        header += `<th aria-label="خانة تكميلية لموزونة الأنشطة" style="border:1px solid #F7DC6F;padding:2px;text-align:center;background:#FCF3CF;color:#000;">&nbsp;</th>
-          <th aria-label="خانة تكميلية لتحقق" style="border:1px solid #AED6F1;padding:2px;text-align:center;background:#EAF3FF;color:#000;">&nbsp;</th>
+        header += `<th aria-label="خانة تكميلية لتحقق" style="border:1px solid #AED6F1;padding:2px;text-align:center;background:#EAF3FF;color:#000;">&nbsp;</th>
+          <th aria-label="خانة تكميلية لموزونة الأنشطة" style="border:1px solid #F7DC6F;padding:2px;text-align:center;background:#FCF3CF;color:#000;">&nbsp;</th>
           <th aria-label="خانة تكميلية للمشاركة" style="border:1px solid #D2B4DE;padding:2px;text-align:center;background:#EBDEF0;color:#000;">&nbsp;</th>`;
         header += `<th style="border:1px solid #F5B7B1;padding:2px;text-align:center;background:#FDEDEC;color:#000;">الاختبار</th>
           <th style="border:1px solid #F5B7B1;padding:2px;text-align:center;background:#FDEDEC;color:#000;">المشروع</th>
@@ -4200,8 +4199,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             ${hwCells}
             <td style="border:1px solid #A9DFBF;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D4EFDF;color:#000;">${formatGrade(hwAvg)}</td>
             ${actCells}
-            <td style="border:1px solid #F7DC6F;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#FCF3CF;color:#000;">${formatGrade(activityAvg)}</td>
             <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EAF3FF;color:#1D4ED8;">${formatGrade(understandingScore)}</td>
+            <td style="border:1px solid #F7DC6F;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#FCF3CF;color:#7D6608;">${formatGrade(w.act)}</td>
             <td style="border:1px solid #D2B4DE;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EBDEF0;color:#000;">${formatGrade(part)}</td>
             <td style="border:1px solid #F5B7B1;padding:3px;text-align:center;font-size:${sizes.data}px;background:#FADBD8;color:#000;">${t1}</td>
             <td style="border:1px solid #F5B7B1;padding:3px;text-align:center;font-size:${sizes.data}px;background:#FADBD8;color:#000;">${t2}</td>
@@ -4282,7 +4281,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       lessons.forEach(l => csv += `واجب ${l},`);
       csv += "الموزونه,";
       lessons.forEach(l => csv += `نشاط ${l},`);
-      csv += "الموزونه,تحقق,";
+      csv += "تحقق,الموزونه,";
       csv += "المشاركة,اختبار الوحدة,المشروع,خ واجب,خ نشاط,خ مشاركه,خ اختبار,المجموع الكلي\n";
       students.forEach((s, i) => {
         const st = fData[s] || { hw: {}, act: {}, test1: '', test2: '', projectLink: '' };
@@ -4304,7 +4303,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           let val = st.act[l] !== undefined ? st.act[l] : '';
           csv += `${val},`;
         });
-        csv += `${formatGrade(activityAvg)},${formatGrade(understandingScore)},`;
+        csv += `${formatGrade(understandingScore)},${formatGrade(w.act)},`;
         let part = calculateStudentParticipationScore(cls, s, currentActiveUnit);
         let t1 = st.test1 !== undefined ? st.test1 : '';
         let t2 = st.test2 !== undefined ? st.test2 : '';
@@ -4689,8 +4688,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           hwInputs: lessons.map(lesson => stData.hw && stData.hw[lesson] !== undefined ? stData.hw[lesson] : ''),
           hwAverage: formatGrade(raw.hwAvg),
           actInputs: lessons.map(lesson => stData.act && stData.act[lesson] !== undefined ? stData.act[lesson] : ''),
-          activityAverage: formatGrade(raw.activityAvg),
           understanding: formatGrade(raw.understanding),
+          actAverage: formatGrade(raw.actAvg),
           absence: attendance.absent,
           late: attendance.late,
           violations: attendance.violations,
@@ -4714,7 +4713,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           lessons.forEach(l => header.push(`واجب ${l}`));
           header.push('الموزونه');
           lessons.forEach(l => header.push(`نشاط ${l}`));
-          header.push('الموزونه', 'تحقق');
+          header.push('تحقق', 'الموزونه');
           header.push('غياب', 'تأخر', 'مخالفات', 'المشاركه', 'اختبار', 'مشروع');
           header.push('خ واجب', 'خ نشاط', 'خ مشاركه', 'خ اختبار', 'المجموع');
           rows.push(header);
@@ -4727,7 +4726,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             rows.push([
               map[item.name] || '', item.name, item.class,
               ...snapshot.hwInputs, snapshot.hwAverage,
-              ...snapshot.actInputs, snapshot.activityAverage, snapshot.understanding,
+              ...snapshot.actInputs, snapshot.understanding, snapshot.actAverage,
               snapshot.absence, snapshot.late, snapshot.violations, snapshot.participation,
               snapshot.test, snapshot.project,
               snapshot.finalHw, snapshot.finalAct, snapshot.finalParticipation, snapshot.finalTest, snapshot.total
