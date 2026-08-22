@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.33";</script>
+  <script>const APP_VERSION = "20.34";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -391,14 +391,33 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .understanding-export-area{padding:0 0.875rem 0.9rem;}
     .understanding-export-area .btn-understanding-unit-pdf{width:100%;border:0;border-radius:0.7rem;padding:0.68rem 0.5rem;background:#6C3483;color:#FFFFFF;font-size:0.78rem;font-weight:900;cursor:pointer;box-shadow:0 2px 5px rgba(108,52,131,.22);}
     .understanding-export-area .btn-understanding-unit-pdf:active{opacity:.78;}
-    @media(max-width:360px){.understanding-controls select{font-size:0.62rem;}.understanding-buttons{flex-basis:132px;}.understanding-buttons .btn-status{font-size:0.53rem;}}
+
+    /* تنقل الشاشات الثلاث: الزر النشط يتمدد، والآخران يبقيان مربعين في موقعيهما. */
+    .screen-navigation{display:flex;direction:rtl;gap:0.35rem;align-items:center;padding:0.5rem 0.75rem 0.12rem;}
+    .screen-navigation-btn{height:2.55rem;flex:0 0 2.55rem;min-width:2.55rem;border:0;border-radius:0.72rem;background:#F2F2F7;color:#6E6E73;font-family:inherit;font-size:0.72rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;box-shadow:inset 0 0 0 1px #D1D1D6;transition:flex-basis .23s ease,flex-grow .23s ease,background .23s ease,color .23s ease,box-shadow .23s ease;}
+    .screen-navigation-btn:active{opacity:.76;transform:scale(.98);}
+    .screen-navigation-btn .screen-nav-short{display:block;font-size:0.82rem;line-height:1;}
+    .screen-navigation-btn .screen-nav-full{display:none;overflow:hidden;text-overflow:ellipsis;padding:0 0.6rem;}
+    .screen-navigation-btn.is-active{flex:1 1 auto;color:#FFF;box-shadow:0 2px 6px rgba(0,0,0,.16);}
+    .screen-navigation-btn.is-active .screen-nav-short{display:none;}
+    .screen-navigation-btn.is-active .screen-nav-full{display:block;}
+    .screen-navigation-btn.nav-absence.is-active{background:#FF3B30;}
+    .screen-navigation-btn.nav-understanding.is-active{background:#007AFF;}
+    .screen-navigation-btn.nav-followup.is-active{background:#5856D6;}
+    .screen-version-label{padding:0.08rem 0.75rem 0.35rem;text-align:center;color:#AEAEB2;font-size:0.53rem;font-weight:700;letter-spacing:.02em;line-height:1;}
+    @media(max-width:360px){.understanding-controls select{font-size:0.62rem;}.understanding-buttons{flex-basis:132px;}.understanding-buttons .btn-status{font-size:0.53rem;}.screen-navigation{gap:0.28rem;padding-inline:0.55rem;}.screen-navigation-btn{height:2.42rem;flex-basis:2.42rem;min-width:2.42rem;font-size:0.66rem;}}
   </style>
 </head>
 <body>
   <!-- ===== الشاشة الأولى ===== -->
   <div id="absenceScreen" class="screen active-screen">
     <header>
-      <div class="header-title-box" onclick="switchToUnderstandingScreen()">كشف الغياب والمخالفات (<span class="app-version-label"></span>)</div>
+      <div class="screen-navigation" aria-label="التنقل بين الكشوف">
+        <button class="screen-navigation-btn nav-absence is-active" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short">غ</span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
+        <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short">ت</span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
+        <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short">م</span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
+      </div>
+      <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar">
         <select id="classSelect" onchange="renderStudents()"></select>
         <input type="date" id="dateSelect" onchange="renderStudents()">
@@ -427,7 +446,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <!-- ===== الشاشة الثانية: تحقق من فهمك ===== -->
   <div id="understandingScreen" class="screen">
     <header>
-      <div class="header-title-box" onclick="switchToFollowupScreen()">✅ تحقق من فهمك (<span class="app-version-label"></span>)</div>
+      <div class="screen-navigation" aria-label="التنقل بين الكشوف">
+        <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short">غ</span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
+        <button class="screen-navigation-btn nav-understanding is-active" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short">ت</span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
+        <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short">م</span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
+      </div>
+      <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar understanding-controls">
         <select id="understandingClassSelect" onchange="renderUnderstandingScreen()" title="الفصل"></select>
         <select id="understandingUnitSelect" onchange="onUnderstandingUnitChange()" title="الوحدة"></select>
@@ -439,16 +463,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <div class="understanding-export-area">
       <button class="btn-understanding-unit-pdf" onclick="openPdfSizeModal('understandingUnit')">📄 تصدير PDF للوحدة كاملة</button>
     </div>
-    <div class="bottom-controls">
-      <button class="btn-action btn-data" onclick="switchToAbsenceScreen()">← كشف الغياب</button>
-      <button class="btn-action btn-report" onclick="switchToFollowupScreen()">كشوف المتابعة ←</button>
-    </div>
+
   </div>
 
   <!-- ===== الشاشة الثالثة ===== -->
   <div id="followupScreen" class="screen">
     <header>
-      <div class="header-title-box" onclick="switchToAbsenceScreen()">كشوف المتابعة و الدرجات (<span class="app-version-label"></span>)</div>
+      <div class="screen-navigation" aria-label="التنقل بين الكشوف">
+        <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short">غ</span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
+        <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short">ت</span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
+        <button class="screen-navigation-btn nav-followup is-active" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short">م</span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
+      </div>
+      <div class="screen-version-label"><span class="app-version-label"></span></div>
     </header>
     <div class="top-action-bar">
       <button class="btn-period-main" onclick="openGradesReportsMenu()">📊 تقارير الدرجات</button>
@@ -2281,12 +2307,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       });
       await deliverPdfBlob(pdf.output('blob'),`تحقق_من_فهمك_الوحدة_${context.cls}_${context.unit}.pdf`);
     }
+    function updateScreenNavigation(active){
+      document.querySelectorAll('[data-screen-nav]').forEach(button=>button.classList.toggle('is-active',button.dataset.screenNav===active));
+    }
     function switchToUnderstandingScreen(){
       document.getElementById('absenceScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.remove('active-screen');
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
       document.getElementById('gradeSheetScreen').classList.remove('active-screen');
       document.getElementById('understandingScreen').classList.add('active-screen');
+      updateScreenNavigation('understanding');
       initClassSelects(); refreshUnderstandingUnitSelect(); renderUnderstandingScreen(); window.scrollTo(0,0);
     }
     function switchToFollowupScreen(){
@@ -2295,6 +2325,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
       document.getElementById('gradeSheetScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.add('active-screen');
+      updateScreenNavigation('followup');
       initClassSelects(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); renderFollowupTable(currentActiveUnit); applyButtonColorsDelayed();
       window.scrollTo(0,0);
     }
@@ -2304,6 +2335,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
       document.getElementById('gradeSheetScreen').classList.remove('active-screen');
       document.getElementById('absenceScreen').classList.add('active-screen');
+      updateScreenNavigation('absence');
       initClassSelects(); renderAttendanceUnitsDropdown(); renderStudents(); applyButtonColorsDelayed();
       window.scrollTo(0,0);
     }
