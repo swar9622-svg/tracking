@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.31";</script>
+  <script>const APP_VERSION = "20.32";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2175,10 +2175,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     const UNDERSTANDING_STATUS_CONFIG={
-      mastered:{label:'متقن',color:'#1E8449',background:'#EAF7EE'},
-      partial:{label:'فهم جزئياً',color:'#007AFF',background:'#EAF3FF'},
-      support:{label:'يحتاج دعماً',color:'#D97706',background:'#FFF7E6'},
-      notDone:{label:'لم ينفذ',color:'#C0392B',background:'#FDEDEC'}
+      mastered:{label:'متقن',score:10,color:'#1E8449',background:'#EAF7EE'},
+      partial:{label:'فهم جزئياً',score:7,color:'#007AFF',background:'#EAF3FF'},
+      support:{label:'يحتاج دعماً',score:4,color:'#D97706',background:'#FFF7E6'},
+      notDone:{label:'لم ينفذ',score:0,color:'#C0392B',background:'#FDEDEC'}
     };
     function refreshUnderstandingLessonSelect(preferredLesson=''){
       const unit=document.getElementById('understandingUnitSelect').value, lessonSelect=document.getElementById('understandingLessonSelect'), old=preferredLesson||lessonSelect.value;
@@ -2423,8 +2423,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       showProjectGradesUnitsView();
     }
 
+    // متوسط الأنشطة المدخلة من 10، قبل دمج تحقق من الفهم.
+    function getActivityRawScore(className, studentName, unit){
+      const key=`${className}_${unit}`, stData=(followupData[key]||{})[studentName]||{act:{}};
+      const lessons=(unitsData[unit]||{lessons:[]}).lessons;
+      let sum=0,count=0;
+      lessons.forEach(lesson=>{ const value=parseFloat(stData.act?.[lesson]); if(Number.isFinite(value)){ sum+=Math.min(Math.max(value,0),10); count++; } });
+      return count>0?sum/count:0;
+    }
+    // تُحفظ الحالات بحسب الفصل والوحدة والدرس؛ عدم وجود ملاحظة يعني لم ينفذ = صفر.
+    function getUnderstandingScore(className, studentName, unit, applyRounding=true){
+      const lessons=(unitsData[unit]||{lessons:[]}).lessons;
+      if(!lessons.length) return 0;
+      let sum=0;
+      lessons.forEach(lesson=>{ const status=getUnderstandingLessonStates(className,unit,lesson)[studentName]||'notDone'; sum+=(UNDERSTANDING_STATUS_CONFIG[status]||UNDERSTANDING_STATUS_CONFIG.notDone).score; });
+      const raw=sum/lessons.length;
+      return applyRounding?applyWeightedGradeRounding(raw,10):raw;
+    }
+
     // ===== حساب الدرجة الموزونة لكل وحدة حسب أولوية توزيع درجات المشروع =====
-    // هذه الدالة تحسب الدرجات بعد إضافة المشروع (الخلاصة)
+    // الأنشطة المدخلة من 10 + تحقق من الفهم من 10 = قسم الأنشطة من 20.
     function computeUnitWeighted(className, studentName, unit){
       const key = `${className}_${unit}`;
       const stData = (followupData[key]||{})[studentName] || {hw:{},act:{},test1:'',test2:'',projectLink:''};
@@ -2434,9 +2452,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       lessons.forEach(l=>{ let v=parseFloat(stData.hw[l]); if(!isNaN(v)){ hwSum+=v; hwCnt++; } });
       const baseHw = hwCnt>0 ? hwSum/hwCnt : 0;
 
-      let actSum=0,actCnt=0;
-      lessons.forEach(l=>{ let v=parseFloat(stData.act[l]); if(!isNaN(v)){ actSum+=v; actCnt++; } });
-      const baseAct = actCnt>0 ? actSum/actCnt : 0;
+      const baseActivity=getActivityRawScore(className,studentName,unit);
+      const baseUnderstanding=getUnderstandingScore(className,studentName,unit,false);
+      const baseAct=baseActivity+baseUnderstanding;
 
       const baseTest = parseFloat(stData.test1)||0;
       const baseParticipation = calculateStudentParticipationScore(className, studentName, unit);
@@ -2495,11 +2513,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       let hwSum=0,hwCnt=0;
       lessons.forEach(l=>{ let v=parseFloat(stData.hw[l]); if(!isNaN(v)){ hwSum+=v; hwCnt++; } });
       const baseHw = hwCnt>0 ? hwSum/hwCnt : 0;
-      let actSum=0,actCnt=0;
-      lessons.forEach(l=>{ let v=parseFloat(stData.act[l]); if(!isNaN(v)){ actSum+=v; actCnt++; } });
-      const baseAct = actCnt>0 ? actSum/actCnt : 0;
+      const baseActivity=getActivityRawScore(className,studentName,unit);
+      const baseUnderstanding=getUnderstandingScore(className,studentName,unit,false);
       const caps = {hw:10, act:20};
-      return { hw: applyWeightedGradeRounding(baseHw,caps.hw), act: applyWeightedGradeRounding(baseAct,caps.act) };
+      return { hw: applyWeightedGradeRounding(baseHw,caps.hw), act: applyWeightedGradeRounding(baseActivity+baseUnderstanding,caps.act) };
     }
 
     // تعتيم لون HEX بنسبة معينة (تُستخدم لتلوين صف "موزونة الوحدة" بلون أغمق من لون الوحدة)
@@ -2521,12 +2538,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const lessons = (unitsData[unit]||{lessons:[]}).lessons;
       let hwSum=0, hwCnt=0;
       lessons.forEach(l=>{ let v=parseFloat(stData.hw[l]); if(!isNaN(v)){ hwSum+=v; hwCnt++; } });
-      let actSum=0, actCnt=0;
-      lessons.forEach(l=>{ let v=parseFloat(stData.act[l]); if(!isNaN(v)){ actSum+=v; actCnt++; } });
-      // هذان المتوسطان يظهران قبل أعمدة الموزونة في كشف المتابعة، لذلك يشملهما الجبر أيضاً.
+      const activityRaw=getActivityRawScore(className,studentName,unit);
+      const understandingRaw=getUnderstandingScore(className,studentName,unit,false);
+      // الأنشطة /10 والتحقق /10 يظهران منفصلين، ثم يجمعان في موزونة الأنشطة /20.
       return {
         hwAvg: applyWeightedGradeRounding(hwCnt>0 ? hwSum/hwCnt : 0,10),
-        actAvg: applyWeightedGradeRounding(actCnt>0 ? actSum/actCnt : 0,20)
+        activityAvg: applyWeightedGradeRounding(activityRaw,10),
+        understanding: applyWeightedGradeRounding(understandingRaw,10),
+        actAvg: applyWeightedGradeRounding(activityRaw+understandingRaw,20)
       };
     }
 
@@ -2746,8 +2765,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <th rowspan="2" data-group="name" style="background:#f8f9fa;color:#2c3e50;vertical-align:middle;text-align:right;min-width:120px;">اسم الطالب<span id="followupHeaderSortLabel" class="followup-header-sort-label"></span><span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('name')" title="فرز الأسماء">فرز ↕</button></span></th>
         <th colspan="${lessons.length}" data-group="hw-details" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;position:relative;">الواجبات (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button></span></th>
         <th rowspan="2" data-group="hw" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;">الموزونه<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('hw')" title="فرز الموزونة للواجبات">فرز ↕</button></span></th>
-        <th colspan="${lessons.length}" data-group="act-details" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
-        <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونه<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('act')" title="فرز الموزونة للأنشطة">فرز ↕</button></span></th>
+        <th colspan="${lessons.length}" data-group="act-details" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
+        <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونة<br><small>/10</small><span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('act')" title="فرز موزونة الأنشطة والتحقق">فرز ↕</button></span></th>
+        <th rowspan="2" data-group="act" style="background:#EAF3FF;color:#1D4ED8;text-align:center;vertical-align:middle;font-weight:800;">تحقق<br><small>/10</small></th>
         <th rowspan="2" data-group="participation" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;">المشاركة<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('participation')" title="فرز المشاركة">فرز ↕</button></span></th>
         <th colspan="2" data-group="test-details" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;position:relative;">الاختبارات والمشاريع (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span></th>
         <th colspan="4" data-group="summary" style="background:#D6EAF8;color:#1B4F72;text-align:center;">الموزونه + المشروع (الخلاصه)</th>
@@ -2771,9 +2791,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       students.forEach((student,idx)=>{
         if(!followupData[key][student]) followupData[key][student]={hw:{},act:{},test1:'',test2:'',projectLink:''};
         const stData=followupData[key][student], isDup=dup.includes(student), nameColor=isDup?'color:#FF3B30;':'';
-        // حساب متوسط الواجبات والأنشطة الخام (بدون مشروع)
+        // حساب الواجبات والأنشطة /10 والتحقق /10 قبل الخلاصة.
         const raw = computeRawAverages(cls, student, unitName);
         const hwAvg = raw.hwAvg;
+        const activityAvg = raw.activityAvg;
+        const understandingScore = raw.understanding;
         const actAvg = raw.actAvg;
 
         let rowHtml=`<td data-group="index" style="font-weight:bold;color:var(--text-secondary);">${idx+1}</td><td data-group="name" class="student-name-td" style="font-weight:900;font-size:14px;text-align:right;${nameColor}" onclick="toggleFollowupRowHighlight(this)">${student}</td>`;
@@ -2781,10 +2803,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         lessons.forEach(l=>{ let val=(stData.hw&&stData.hw[l]!==undefined)?stData.hw[l]:''; rowHtml+=`<td data-group="hw-details" style="background:#EAFAF1;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="واجب" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'hw','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // عمود الموزونه (الواجبات)
         rowHtml+=`<td data-group="hw" style="background:#D4EFDF;font-weight:bold;text-align:center;font-size:0.8rem;">${formatGrade(hwAvg)}</td>`;
-        // الأنشطة
-        lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td data-group="act-details" style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
-        // عمود الموزونه (الأنشطة)
-        rowHtml+=`<td data-group="act" style="background:#FCF3CF;font-weight:bold;text-align:center;font-size:0.8rem;">${formatGrade(actAvg)}</td>`;
+        // الأنشطة المدخلة: لكل درس من 10 درجات.
+        lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td data-group="act-details" style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
+        // الأنشطة /10 ثم تحقق /10؛ وموزونة الأنشطة النهائية تظهر في الخلاصة /20.
+        rowHtml+=`<td data-group="act" style="background:#FCF3CF;font-weight:bold;text-align:center;font-size:0.8rem;">${formatGrade(activityAvg)}</td><td data-group="act" style="background:#EAF3FF;color:#1D4ED8;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(understandingScore)}</td>`;
         // مشاركة
         let part=calculateStudentParticipationScore(cls,student,unitName);
         rowHtml+=`<td data-group="participation" style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${formatGrade(part)}</td>`;
@@ -2856,7 +2878,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const lessonCount=lessons.length;
       const hwAverage=2+lessonCount;
       const actAverage=hwAverage+1+lessonCount;
-      const participation=actAverage+1;
+      const understanding=actAverage+1;
+      const participation=understanding+1;
       const finalHw=participation+3;
       const finalAct=participation+4;
       const finalParticipation=participation+5;
@@ -2866,7 +2889,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const part=calculateStudentParticipationScore(cls,student,unit);
       const weighted=computeWeightedScores(cls,student,[unit]);
       if(row.cells[hwAverage]) row.cells[hwAverage].textContent=formatGrade(raw.hwAvg);
-      if(row.cells[actAverage]) row.cells[actAverage].textContent=formatGrade(raw.actAvg);
+      if(row.cells[actAverage]) row.cells[actAverage].textContent=formatGrade(raw.activityAvg);
+      if(row.cells[understanding]) row.cells[understanding].textContent=formatGrade(raw.understanding);
       if(row.cells[participation]) row.cells[participation].textContent=formatGrade(part);
       if(row.cells[finalHw]) row.cells[finalHw].textContent=formatGrade(weighted.hw);
       if(row.cells[finalAct]) row.cells[finalAct].textContent=formatGrade(weighted.act);
@@ -3030,7 +3054,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== استيراد/تصدير Excel =====
-    function openImportExportModal(type){ currentImportType=type; document.getElementById('importExportModalTitle').innerText={hw:'📥 الواجبات (10)',act:'📥 الأنشطة (20)',test:'📥 الاختبارات والمشاريع (20)'}[type]||'📥 استيراد/تصدير'; document.getElementById('importExportModal').style.display='flex'; }
+    function openImportExportModal(type){ currentImportType=type; document.getElementById('importExportModalTitle').innerText={hw:'📥 الواجبات (10)',act:'📥 الأنشطة (10)',test:'📥 الاختبارات والمشاريع (20)'}[type]||'📥 استيراد/تصدير'; document.getElementById('importExportModal').style.display='flex'; }
     function closeImportExportModal(){ document.getElementById('importExportModal').style.display='none'; }
     function triggerImportFile(){ closeImportExportModal(); document.getElementById('importFileInput').click(); }
     function handleImportFileUpload(e) {
@@ -3065,7 +3089,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             const st=followupData[key][name], row=rowMap[name]; if(!row) return;
             let up=false;
             if(type==='hw'){ for(let c=0;c<sysLessons.length;c++){ let v=row[c+1]; if(v!==undefined&&v!==null&&v!==''){ let num=parseFloat(v); if(!isNaN(num)){ st.hw[sysLessons[c]]=Math.min(num,10); up=true; } } } }
-            else if(type==='act'){ for(let c=0;c<sysLessons.length;c++){ let v=row[c+1]; if(v!==undefined&&v!==null&&v!==''){ let num=parseFloat(v); if(!isNaN(num)){ st.act[sysLessons[c]]=Math.min(num,20); up=true; } } } }
+            else if(type==='act'){ for(let c=0;c<sysLessons.length;c++){ let v=row[c+1]; if(v!==undefined&&v!==null&&v!==''){ let num=parseFloat(v); if(!isNaN(num)){ st.act[sysLessons[c]]=Math.min(num,10); up=true; } } } }
             else if(type==='test'){ if(row.length>=2){ let v=parseFloat(row[1]); if(!isNaN(v)&&v!==''){ st.test1=Math.min(v,20); up=true; } } if(row.length>=3){ let v=parseFloat(row[2]); if(!isNaN(v)&&v!==''){ st.test2=Math.min(v,20); up=true; } } if(row.length>=2&&row.length<3){ let v=parseFloat(row[1]); if(!isNaN(v)&&v!==''){ st.test1=Math.min(v,20); up=true; } } }
             if(up) updated++;
           });
@@ -3100,6 +3124,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const oldLessons=unitsData[uName].lessons||[], minLen=Math.min(oldLessons.length,newLessons.length), suffix=`_${uName}`;
       unitsData[uName].lessons=newLessons;
       for(let key in followupData){ if(key.endsWith(suffix)){ const stData=followupData[key]; for(let student in stData){ for(let i=0;i<minLen;i++){ const oldN=oldLessons[i], newN=newLessons[i]; if(oldN!==newN){ if(stData[student].hw&&stData[student].hw[oldN]!==undefined){ stData[student].hw[newN]=stData[student].hw[oldN]; delete stData[student].hw[oldN]; } if(stData[student].act&&stData[student].act[oldN]!==undefined){ stData[student].act[newN]=stData[student].act[oldN]; delete stData[student].act[oldN]; } } } } } }
+      Object.keys(understandingData||{}).forEach(cls=>{ const unitStates=understandingData[cls]?.[uName]; if(!unitStates) return; for(let i=0;i<minLen;i++){ const oldN=oldLessons[i], newN=newLessons[i]; if(oldN!==newN&&unitStates[oldN]!==undefined){ unitStates[newN]=unitStates[oldN]; delete unitStates[oldN]; } } });
       saveData(); renderFollowupTable(currentActiveUnit); closeUnitsManageModal(); alert("✅ تم حفظ تعديلات الوحدة ونقل الدرجات بنجاح!");
     }
     function openEditStudentNameModal(){ const cls=document.getElementById('modalClassSelect').value; if(!cls||!appData[cls]||appData[cls].length===0){ alert("لا يوجد طلاب في هذا الفصل لتعديل أسمائهم."); return; } renderEditStudentList(); document.getElementById('editStudentNameModal').style.display='flex'; }
@@ -3119,7 +3144,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function startEditName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; if(editingIndex!==-1&&editingIndex!==orig) cancelEditName(editingIndex); row.classList.add('editing'); row.querySelector('.student-edit-input').value=row.querySelector('.student-display-name').textContent; row.querySelector('.student-edit-input').focus(); row.querySelector('.student-edit-input').select(); editingIndex=orig; }
     function saveEditedName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; const inp=row.querySelector('.student-edit-input'), newName=inp.value.trim(), oldName=inp.dataset.originalName; if(!newName){ alert("الاسم لا يمكن أن يكون فارغاً!"); return; } if(newName===oldName){ cancelEditName(orig); return; } const cls=document.getElementById('modalClassSelect').value; if(appData[cls].includes(newName)){ alert(`الاسم "${newName}" موجود مسبقاً!`); return; } if(updateStudentNameInAllData(oldName,newName,cls)){ updateTextareaAfterRename(cls); renderEditStudentList(); alert(`✅ تم تعديل اسم "${oldName}" إلى "${newName}" بنجاح.`); editingIndex=-1; } else alert("❌ حدث خطأ أثناء التعديل."); }
     function cancelEditName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; row.classList.remove('editing'); if(editingIndex===orig) editingIndex=-1; }
-    function updateStudentNameInAllData(oldName,newName,cls){ let idx=appData[cls].indexOf(oldName); if(idx===-1) return false; appData[cls][idx]=newName; for(let date in records){ if(records[date]&&records[date][cls]&&records[date][cls][oldName]!==undefined){ records[date][cls][newName]=records[date][cls][oldName]; delete records[date][cls][oldName]; } } for(let key in followupData){ if(key.startsWith(cls+'_')){ if(followupData[key][oldName]!==undefined){ followupData[key][newName]=followupData[key][oldName]; delete followupData[key][oldName]; } } } saveData(); renderStudents(); return true; }
+    function updateStudentNameInAllData(oldName,newName,cls){ let idx=appData[cls].indexOf(oldName); if(idx===-1) return false; appData[cls][idx]=newName; for(let date in records){ if(records[date]&&records[date][cls]&&records[date][cls][oldName]!==undefined){ records[date][cls][newName]=records[date][cls][oldName]; delete records[date][cls][oldName]; } } for(let key in followupData){ if(key.startsWith(cls+'_')){ if(followupData[key][oldName]!==undefined){ followupData[key][newName]=followupData[key][oldName]; delete followupData[key][oldName]; } } } Object.values(understandingData?.[cls]||{}).forEach(unitStates=>Object.values(unitStates||{}).forEach(lessonStates=>{ if(lessonStates[oldName]!==undefined){ lessonStates[newName]=lessonStates[oldName]; delete lessonStates[oldName]; } })); saveData(); renderStudents(); return true; }
     function updateTextareaAfterRename(cls){ if(appData[cls]) document.getElementById('studentNamesTextarea').value=appData[cls].join('\n'); }
 
     function updateUnitName(){
@@ -3131,13 +3156,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(unitsData[newName]){ alert("هذا الاسم موجود مسبقاً لوحدة أخرى!"); return; }
       unitsData[newName]=unitsData[old]; delete unitsData[old];
       const newFollowup={}; for(let key in followupData){ if(key.endsWith('_'+old)) newFollowup[key.slice(0,-old.length)+newName]=followupData[key]; else newFollowup[key]=followupData[key]; } followupData=newFollowup;
+      Object.keys(understandingData||{}).forEach(cls=>{ if(understandingData[cls]?.[old]!==undefined){ understandingData[cls][newName]=understandingData[cls][old]; delete understandingData[cls][old]; } });
       renameAttendanceUnitInRecords(old,newName);
       period1SelectedUnits=period1SelectedUnits.map(u=>u===old?newName:u);
       if(currentActiveUnit===old) currentActiveUnit=newName;
       saveData(); initUnitsModalSelect(); document.getElementById('modalUnitSelect').value=newName; document.getElementById('unitNameEditInput').value=newName; loadUnitDetailsToModal(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); renderFollowupTable(currentActiveUnit); renderStudents(); alert(`✅ تم تغيير اسم الوحدة من "${old}" إلى "${newName}" مع نقل سجلاتها بنجاح!`);
     }
 
-    function updateLessonName(idx){ const inp=document.querySelector(`.lesson-name-input[data-index="${idx}"]`); if(!inp) return; const newName=inp.value.trim(); if(!newName){ alert("الرجاء إدخال اسم صحيح للدرس!"); return; } const sel=document.getElementById('modalUnitSelect'), unit=sel.value; if(!unit||!unitsData[unit]) return; const old=unitsData[unit].lessons[idx]; if(newName===old){ alert("الاسم الجديد مطابق للاسم القديم."); return; } unitsData[unit].lessons[idx]=newName; const suffix=`_${unit}`; for(let key in followupData){ if(key.endsWith(suffix)){ const stData=followupData[key]; for(let student in stData){ if(stData[student].hw&&stData[student].hw[old]!==undefined){ stData[student].hw[newName]=stData[student].hw[old]; delete stData[student].hw[old]; } if(stData[student].act&&stData[student].act[old]!==undefined){ stData[student].act[newName]=stData[student].act[old]; delete stData[student].act[old]; } } } } saveData(); loadUnitDetailsToModal(); renderFollowupTable(currentActiveUnit); alert(`✅ تم تغيير اسم الدرس من "${old}" إلى "${newName}" بنجاح!`); }
+    function updateLessonName(idx){ const inp=document.querySelector(`.lesson-name-input[data-index="${idx}"]`); if(!inp) return; const newName=inp.value.trim(); if(!newName){ alert("الرجاء إدخال اسم صحيح للدرس!"); return; } const sel=document.getElementById('modalUnitSelect'), unit=sel.value; if(!unit||!unitsData[unit]) return; const old=unitsData[unit].lessons[idx]; if(newName===old){ alert("الاسم الجديد مطابق للاسم القديم."); return; } unitsData[unit].lessons[idx]=newName; const suffix=`_${unit}`; for(let key in followupData){ if(key.endsWith(suffix)){ const stData=followupData[key]; for(let student in stData){ if(stData[student].hw&&stData[student].hw[old]!==undefined){ stData[student].hw[newName]=stData[student].hw[old]; delete stData[student].hw[old]; } if(stData[student].act&&stData[student].act[old]!==undefined){ stData[student].act[newName]=stData[student].act[old]; delete stData[student].act[old]; } } } } Object.keys(understandingData||{}).forEach(cls=>{ const unitStates=understandingData[cls]?.[unit]; if(unitStates?.[old]!==undefined){ unitStates[newName]=unitStates[old]; delete unitStates[old]; } }); saveData(); loadUnitDetailsToModal(); renderFollowupTable(currentActiveUnit); alert(`✅ تم تغيير اسم الدرس من "${old}" إلى "${newName}" بنجاح!`); }
     function initUnitsModalSelect(){ const sel=document.getElementById('modalUnitSelect'), val=sel.value; sel.innerHTML=''; Object.keys(unitsData).forEach(u=>{ sel.innerHTML+=`<option value="${u}">${u}</option>`; }); if(unitsData[val]) sel.value=val; document.getElementById('unitNameEditInput').value=sel.value||''; }
     function loadUnitDetailsToModal(){ const sel=document.getElementById('modalUnitSelect'), u=sel.value; if(!u||!unitsData[u]) return; const lessons=unitsData[u].lessons||[]; document.getElementById('unitLessonsCountInput').value=lessons.length; renderLessonNameInputs(lessons); document.getElementById('unitNameEditInput').value=u; }
     function generateLessonNameInputs(){ const count=parseInt(document.getElementById('unitLessonsCountInput').value)||1, sel=document.getElementById('modalUnitSelect'), u=sel.value, existing=unitsData[u]&&unitsData[u].lessons?unitsData[u].lessons:[]; let lessons=[]; for(let i=0;i<count;i++) lessons.push(existing[i]||`درس ${i+1}`); renderLessonNameInputs(lessons); }
@@ -4126,8 +4152,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <th rowspan="2" style="border:1px solid #D1D1D6;padding:4px;text-align:right;min-width:80px;background:#F8F9FA;color:#000;">اسم الطالب</th>
           <th colspan="${lessons.length}" style="border:1px solid #A9DFBF;padding:4px;text-align:center;background:#D4EFDF;color:#000;">الواجبات</th>
           <th style="border:1px solid #A9DFBF;padding:4px;text-align:center;background:#D4EFDF;color:#000;">الموزونة</th>
-          <th colspan="${lessons.length}" style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#000;">الأنشطة</th>
-          <th style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#000;">الموزونة</th>
+          <th colspan="${lessons.length}" style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#000;">الأنشطة (10)</th>
+          <th style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#000;">الموزونة /10</th>
+          <th style="border:1px solid #AED6F1;padding:4px;text-align:center;background:#EAF3FF;color:#000;">تحقق /10</th>
           <th style="border:1px solid #D2B4DE;padding:4px;text-align:center;background:#EBDEF0;color:#000;">المشاركة</th>
           <th colspan="2" style="border:1px solid #F5B7B1;padding:4px;text-align:center;background:#FADBD8;color:#000;">الاختبارات والمشاريع</th>
           <th colspan="4" style="border:1px solid #AED6F1;padding:4px;text-align:center;background:#D6EAF8;color:#000;">الموزونة + المشروع</th>
@@ -4136,7 +4163,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         lessons.forEach(l => { header += `<th style="border:1px solid #A9DFBF;padding:2px;text-align:center;background:#EAFAF1;color:#000;">${l}</th>`; });
         header += `<th aria-label="خانة تكميلية للموزونة" style="border:1px solid #A9DFBF;padding:2px;text-align:center;background:#D4EFDF;color:#000;">&nbsp;</th>`;
         lessons.forEach(l => { header += `<th style="border:1px solid #F7DC6F;padding:2px;text-align:center;background:#FEF9E7;color:#000;">${l}</th>`; });
-        header += `<th aria-label="خانة تكميلية للموزونة" style="border:1px solid #F7DC6F;padding:2px;text-align:center;background:#FCF3CF;color:#000;">&nbsp;</th>
+        header += `<th aria-label="خانة تكميلية لموزونة الأنشطة" style="border:1px solid #F7DC6F;padding:2px;text-align:center;background:#FCF3CF;color:#000;">&nbsp;</th>
+          <th aria-label="خانة تكميلية لتحقق" style="border:1px solid #AED6F1;padding:2px;text-align:center;background:#EAF3FF;color:#000;">&nbsp;</th>
           <th aria-label="خانة تكميلية للمشاركة" style="border:1px solid #D2B4DE;padding:2px;text-align:center;background:#EBDEF0;color:#000;">&nbsp;</th>`;
         header += `<th style="border:1px solid #F5B7B1;padding:2px;text-align:center;background:#FDEDEC;color:#000;">الاختبار</th>
           <th style="border:1px solid #F5B7B1;padding:2px;text-align:center;background:#FDEDEC;color:#000;">المشروع</th>
@@ -4151,7 +4179,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           const stData = fData[student] || { hw: {}, act: {}, test1: '', test2: '', projectLink: '' };
           const raw = computeRawAverages(cls, student, unitName);
           const hwAvg = raw.hwAvg;
-          const actAvg = raw.actAvg;
+          const activityAvg = raw.activityAvg;
+          const understandingScore = raw.understanding;
           const w = computeWeightedScores(cls, student, unitsList);
           let hwCells = '', actCells = '';
           lessons.forEach(l => {
@@ -4171,7 +4200,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             ${hwCells}
             <td style="border:1px solid #A9DFBF;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D4EFDF;color:#000;">${formatGrade(hwAvg)}</td>
             ${actCells}
-            <td style="border:1px solid #F7DC6F;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#FCF3CF;color:#000;">${formatGrade(actAvg)}</td>
+            <td style="border:1px solid #F7DC6F;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#FCF3CF;color:#000;">${formatGrade(activityAvg)}</td>
+            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EAF3FF;color:#1D4ED8;">${formatGrade(understandingScore)}</td>
             <td style="border:1px solid #D2B4DE;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EBDEF0;color:#000;">${formatGrade(part)}</td>
             <td style="border:1px solid #F5B7B1;padding:3px;text-align:center;font-size:${sizes.data}px;background:#FADBD8;color:#000;">${t1}</td>
             <td style="border:1px solid #F5B7B1;padding:3px;text-align:center;font-size:${sizes.data}px;background:#FADBD8;color:#000;">${t2}</td>
@@ -4252,13 +4282,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       lessons.forEach(l => csv += `واجب ${l},`);
       csv += "الموزونه,";
       lessons.forEach(l => csv += `نشاط ${l},`);
-      csv += "الموزونه,";
+      csv += "الموزونه,تحقق,";
       csv += "المشاركة,اختبار الوحدة,المشروع,خ واجب,خ نشاط,خ مشاركه,خ اختبار,المجموع الكلي\n";
       students.forEach((s, i) => {
         const st = fData[s] || { hw: {}, act: {}, test1: '', test2: '', projectLink: '' };
         const raw = computeRawAverages(cls, s, currentActiveUnit);
         const hwAvg = raw.hwAvg;
-        const actAvg = raw.actAvg;
+        const activityAvg = raw.activityAvg;
+        const understandingScore = raw.understanding;
         const w = computeWeightedScores(cls, s, units);
         csv += `${i+1},${s},`;
         let hwSum = 0, hwCnt = 0;
@@ -4272,10 +4303,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         lessons.forEach(l => {
           let val = st.act[l] !== undefined ? st.act[l] : '';
           csv += `${val},`;
-          let v = parseFloat(val);
-          if (!isNaN(v)) { actSum += v; actCnt++; }
         });
-        csv += `${formatGrade(actAvg)},`;
+        csv += `${formatGrade(activityAvg)},${formatGrade(understandingScore)},`;
         let part = calculateStudentParticipationScore(cls, s, currentActiveUnit);
         let t1 = st.test1 !== undefined ? st.test1 : '';
         let t2 = st.test2 !== undefined ? st.test2 : '';
@@ -4328,13 +4357,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:2,storageBackend:'IndexedDB',appData,records,unitsData,followupData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,buttonColors,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ const data={backupVersion:3,storageBackend:'IndexedDB',appData,records,unitsData,followupData,understandingData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,buttonColors,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
       reader.onload=async function(ev){ try {
         const imported=JSON.parse(ev.target.result);
-        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; if(imported.followupData) followupData=imported.followupData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
+        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
         if(imported.participationSettings&&typeof imported.participationSettings==='object') participationSettings={...participationSettings,...imported.participationSettings};
         currentAttendanceUnit=participationSettings.activeUnit||Object.keys(unitsData)[0]||'';
         if(imported.projectDistributionOrder) projectDistributionOrder=imported.projectDistributionOrder;
@@ -4352,7 +4381,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; understandingData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
@@ -4660,7 +4689,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           hwInputs: lessons.map(lesson => stData.hw && stData.hw[lesson] !== undefined ? stData.hw[lesson] : ''),
           hwAverage: formatGrade(raw.hwAvg),
           actInputs: lessons.map(lesson => stData.act && stData.act[lesson] !== undefined ? stData.act[lesson] : ''),
-          actAverage: formatGrade(raw.actAvg),
+          activityAverage: formatGrade(raw.activityAvg),
+          understanding: formatGrade(raw.understanding),
           absence: attendance.absent,
           late: attendance.late,
           violations: attendance.violations,
@@ -4684,7 +4714,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           lessons.forEach(l => header.push(`واجب ${l}`));
           header.push('الموزونه');
           lessons.forEach(l => header.push(`نشاط ${l}`));
-          header.push('الموزونه');
+          header.push('الموزونه', 'تحقق');
           header.push('غياب', 'تأخر', 'مخالفات', 'المشاركه', 'اختبار', 'مشروع');
           header.push('خ واجب', 'خ نشاط', 'خ مشاركه', 'خ اختبار', 'المجموع');
           rows.push(header);
@@ -4697,7 +4727,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             rows.push([
               map[item.name] || '', item.name, item.class,
               ...snapshot.hwInputs, snapshot.hwAverage,
-              ...snapshot.actInputs, snapshot.actAverage,
+              ...snapshot.actInputs, snapshot.activityAverage, snapshot.understanding,
               snapshot.absence, snapshot.late, snapshot.violations, snapshot.participation,
               snapshot.test, snapshot.project,
               snapshot.finalHw, snapshot.finalAct, snapshot.finalParticipation, snapshot.finalTest, snapshot.total
