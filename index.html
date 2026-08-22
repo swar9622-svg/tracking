@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.14";</script>
+  <script>const APP_VERSION = "20.15";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3174,12 +3174,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const pdf=new JsPdfCtor({unit:'mm',format:'a4',orientation});
       const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight(), pxPerMm=4;
       const logicalW=Math.round(pageW*pxPerMm), logicalH=Math.round(pageH*pxPerMm), hiRes=2;
-      const side=2*pxPerMm, indexW=Math.max(36,Math.round(logicalW*.038)), nameW=Math.max(170,Math.round(logicalW*.205));
+      const side=2*pxPerMm, indexW=Math.max(40,Math.round(logicalW*.035)), nameW=Math.max(190,Math.round(logicalW*.18));
       const groups=[...units.map((unit,index)=>({label:unit,color:GRADE_SHEET_UNIT_COLORS[index%GRADE_SHEET_UNIT_COLORS.length],unitIndex:index,final:false})),{label:'الدرجة النهائية',color:{bg:'#EAF2F8',color:'#0B5394',border:'#0B5394'},final:true}];
       const cellW=(logicalW-(side*2)-indexW-nameW)/(groups.length*GRADE_SHEET_CATEGORIES.length);
       const titleH=Math.max(34,Math.round(Number(sizes.title||16)*2.1)), infoH=Math.max(24,Math.round(Number(sizes.data||8)*2.5));
       const groupH=Math.max(30,Math.round(Number(sizes.headers||7)*2.6)), subH=Math.max(26,Math.round(Number(sizes.subheaders||7)*2.7));
-      const rowH=Math.max(24,Math.round(Math.max(Number(sizes.names||10),Number(sizes.data||8))*2.45));
+      // عامل ارتفاع ثابت يطابق كثافة محرر HTML، لكنه يعتمد فقط على حجم الخط المختار لا على قياس WebKit.
+      const rowH=Math.max(30,Math.floor(Math.max(Number(sizes.names||10),Number(sizes.data||8))*3.35));
       const topStart=side, headerY=topStart+titleH+infoH;
       const usableRows=Math.max(1,Math.floor((logicalH-headerY-groupH-subH-side)/rowH));
       const chosenRows=Math.floor(Number(sizes.rowsPerPage)||0), rowsPerPage=chosenRows>0?chosenRows:usableRows;
@@ -3203,7 +3204,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           const groupW=cellW*GRADE_SHEET_CATEGORIES.length; cursor-=groupW;
           drawRect(ctx,cursor,headerY,groupW,groupH,group.color.bg,group.color.border,2); drawCentered(ctx,group.label,cursor,headerY,groupW,groupH,`900 ${Math.max(11,Number(sizes.headers||7)*1.55)}px Arial`,group.color.color);
           let subX=cursor+groupW;
-          GRADE_SHEET_CATEGORIES.forEach((cat,catIndex)=>{subX-=cellW; drawRect(ctx,subX,headerY+groupH,cellW,subH,cat.bg,catIndex===4?group.color.border:'#D1D1D6',catIndex===4?2:1); drawCentered(ctx,cat.label,subX,headerY+groupH,cellW,subH,`700 ${Math.max(10,Number(sizes.subheaders||7)*1.45)}px Arial`,cat.color);});
+          GRADE_SHEET_CATEGORIES.forEach((cat,catIndex)=>{subX-=cellW; drawRect(ctx,subX,headerY+groupH,cellW,subH,cat.bg,catIndex===4?group.color.border:'#D1D1D6',catIndex===4?2:1); drawCentered(ctx,cat.label,subX,headerY+groupH,cellW,subH,`700 ${Math.max(8,Number(sizes.subheaders||7)*1.15)}px Arial`,cat.color);});
         });
         chunk.forEach((row,rowIndex)=>{
           const y=headerY+groupH+subH+rowIndex*rowH; let x=logicalW-side;
