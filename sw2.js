@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v17-dynamic-name-test';
+const CACHE_NAME = 'attendance-app-v18-note-entry-window';
 const urlsToCache = [
   './',
   './index.html',

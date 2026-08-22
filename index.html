@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.25";</script>
+  <script>const APP_VERSION = "20.26-فترة إدخال الملاحظات";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -843,6 +843,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div style="display:flex;flex-direction:column;gap:0.6rem;">
         <button class="btn-menu-option" style="background-color:#8E44AD;" onclick="closeDisplaySettingsModal();openFontSettingsModal();">⚙️ إعدادات الخط (الخطوط المختارة)</button>
         <button class="btn-menu-option" style="background-color:#007AFF;" onclick="closeDisplaySettingsModal();openButtonColorsModal();">🎨 إعدادات ألوان الأزرار</button>
+        <button class="btn-menu-option" style="background-color:#1E8449;" onclick="closeDisplaySettingsModal();openNoteEntryWindowModal();">🕒 فترة إدخال الملاحظات</button>
       </div>
     </div>
   </div>
@@ -860,6 +861,29 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <button id="followupFocusButton" class="btn-modal-save" type="button" onclick="focusCurrentFollowupColumn()" style="width:100%;margin:0.7rem 0 0;background:#007AFF;">🔎 إظهار هذا العمود والمجموع فقط</button>
       <button id="followupShowAllButton" class="btn-modal-cancel" type="button" onclick="clearFollowupFocus()" style="width:100%;margin:0.5rem 0 0;display:none;">↔️ إظهار جميع الأعمدة</button>
+    </div>
+  </div>
+
+  <div class="modal" id="noteEntryWindowModal" style="z-index:118;">
+    <div class="modal-content" style="max-width:400px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="modal-title" style="margin:0;">🕒 فترة إدخال الملاحظات</div>
+        <button class="btn-close-circle" onclick="closeNoteEntryWindowModal()">✕</button>
+      </div>
+      <div style="font-size:0.76rem;color:var(--text-secondary);font-weight:800;text-align:center;line-height:1.5;margin-bottom:11px;">خارج الفترة المحددة لا يمكن إضافة أو حذف الغياب أو التأخر أو المخالفات من كشف الغياب والمخالفات.</div>
+      <label style="display:flex;align-items:center;gap:9px;padding:10px 11px;background:#EAF7EE;border:1px solid #B7E0C1;border-radius:10px;font-weight:900;color:#166534;cursor:pointer;margin-bottom:10px;">
+        <input type="checkbox" id="noteEntryAlwaysOpenInput" style="width:20px;height:20px;accent-color:#1E8449;cursor:pointer;margin:0;" onchange="updateNoteEntryWindowInputsState()">
+        <span>تسجيل الملاحظات مفتوح دائماً</span>
+      </label>
+      <div id="noteEntryWindowTimesPanel" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:7px;">
+        <div><span class="field-label" style="margin-bottom:3px;">من</span><input type="time" id="noteEntryStartInput" class="select-class-full" style="text-align:center;margin-bottom:0;"></div>
+        <div><span class="field-label" style="margin-bottom:3px;">إلى</span><input type="time" id="noteEntryEndInput" class="select-class-full" style="text-align:center;margin-bottom:0;"></div>
+      </div>
+      <div id="noteEntryWindowHint" style="font-size:0.7rem;color:var(--text-secondary);font-weight:700;text-align:center;line-height:1.45;margin-bottom:12px;">مثال: من 07:00 إلى 14:00. ويمكن أن تمتد الفترة عبر منتصف الليل.</div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeNoteEntryWindowModal()">إلغاء</button>
+        <button class="btn-modal-save" onclick="saveNoteEntryWindowSettings()" style="background:#1E8449;">💾 حفظ الفترة</button>
+      </div>
     </div>
   </div>
 
@@ -1189,6 +1213,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let currentActiveUnit = Object.keys(unitsData)[0] || "الوحدة الأولى";
     const PARTICIPATION_SETTINGS_KEY = 'attendance_participation_settings';
     let participationSettings = {mode:'cumulative', activeUnit:currentActiveUnit};
+    // تظل الملاحظات مفتوحة افتراضياً بعد التحديث كي لا يتغير سلوك المستخدمين الحاليين.
+    const DEFAULT_NOTE_ENTRY_WINDOW={alwaysOpen:true,start:'07:00',end:'14:00'};
+    function normalizeNoteEntryWindow(value){
+      const validTime=time=>typeof time==='string'&&/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time)?time:null;
+      return {alwaysOpen:!(value&&value.alwaysOpen===false),start:validTime(value&&value.start)||DEFAULT_NOTE_ENTRY_WINDOW.start,end:validTime(value&&value.end)||DEFAULT_NOTE_ENTRY_WINDOW.end};
+    }
+    let noteEntryWindow={...DEFAULT_NOTE_ENTRY_WINDOW};
     // الجبر اختياري ويطبّق على نواتج الحساب فقط، لا على الدرجات المدخلة أو بياناتها الأصلية.
     let gradeRoundingSettings = {enabled:false};
     function normalizeGradeRoundingSettings(value){ return {enabled:!!(value&&value.enabled)}; }
@@ -1581,7 +1612,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
         fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), buttonColors:cloneData(buttonColors), pdfSizeSettings:cloneData(pdfSizeSettings),
-        weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), savedAt:new Date().toISOString()
+        weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), noteEntryWindow:cloneData(noteEntryWindow), savedAt:new Date().toISOString()
       };
     }
     async function writeIndexedDBSnapshot(snapshot){
@@ -1629,6 +1660,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       pdfSizeSettings=state.pdfSizeSettings&&typeof state.pdfSizeSettings==='object'?state.pdfSizeSettings:{};
       weakStudentsThresholds=normalizeWeakStudentsThresholds(state.weakStudentsThresholds);
       gradeRoundingSettings=normalizeGradeRoundingSettings(state.gradeRoundingSettings);
+      noteEntryWindow=normalizeNoteEntryWindow(state.noteEntryWindow);
     }
     async function initializeIndexedDBStorage(){
       const state=await getIndexedDBState();
@@ -1735,6 +1767,28 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     function openDisplaySettingsModal(){ document.getElementById('displaySettingsModal').style.display='flex'; }
     function closeDisplaySettingsModal(){ document.getElementById('displaySettingsModal').style.display='none'; }
+    function openNoteEntryWindowModal(){
+      const setting=normalizeNoteEntryWindow(noteEntryWindow);
+      document.getElementById('noteEntryAlwaysOpenInput').checked=setting.alwaysOpen;
+      document.getElementById('noteEntryStartInput').value=setting.start;
+      document.getElementById('noteEntryEndInput').value=setting.end;
+      updateNoteEntryWindowInputsState();
+      document.getElementById('noteEntryWindowModal').style.display='flex';
+    }
+    function closeNoteEntryWindowModal(){ document.getElementById('noteEntryWindowModal').style.display='none'; }
+    function updateNoteEntryWindowInputsState(){
+      const open=!!document.getElementById('noteEntryAlwaysOpenInput').checked, panel=document.getElementById('noteEntryWindowTimesPanel'), hint=document.getElementById('noteEntryWindowHint');
+      panel.style.opacity=open?'.45':'1'; panel.style.pointerEvents=open?'none':'auto';
+      document.getElementById('noteEntryStartInput').disabled=open; document.getElementById('noteEntryEndInput').disabled=open;
+      hint.textContent=open?'القفل الزمني غير مفعّل حالياً؛ يمكنك تحديد الفترة ثم إلغاء علامة «مفتوح دائماً».':'مثال: من 07:00 إلى 14:00. ويمكن أن تمتد الفترة عبر منتصف الليل.';
+    }
+    function saveNoteEntryWindowSettings(){
+      const alwaysOpen=!!document.getElementById('noteEntryAlwaysOpenInput').checked, start=document.getElementById('noteEntryStartInput').value, end=document.getElementById('noteEntryEndInput').value;
+      if(!alwaysOpen&&(!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(start)||!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(end))){ alert('اختر وقت البداية ووقت النهاية بصيغة صحيحة.'); return; }
+      if(!alwaysOpen&&start===end){ alert('اختر وقتين مختلفين، أو فعّل خيار «تسجيل الملاحظات مفتوح دائماً».'); return; }
+      noteEntryWindow=normalizeNoteEntryWindow({alwaysOpen,start,end}); saveData(); closeNoteEntryWindowModal();
+      alert(alwaysOpen?'✅ تم فتح تسجيل الملاحظات دائماً.':`✅ تم حفظ فترة إدخال الملاحظات: من ${noteEntryWindow.start} إلى ${noteEntryWindow.end}.`);
+    }
     function openFontSettingsModal(){ fontSettingsDraft=cloneData(normalizeFontSettings(fontSettings)); initFontSelects(); document.getElementById('fontSettingsModal').style.display='flex'; }
     function closeFontSettingsModal(){ document.getElementById('fontSettingsModal').style.display='none'; fontSettingsDraft=null; }
     function initFontSelects() {
@@ -1877,7 +1931,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       }
       return '';
     }
+    function getNoteEntryMinutes(time){ const [hours,minutes]=String(time||'00:00').split(':').map(Number); return hours*60+minutes; }
+    function isNoteEntryWindowOpen(now=new Date()){
+      if(noteEntryWindow.alwaysOpen) return true;
+      const start=getNoteEntryMinutes(noteEntryWindow.start), end=getNoteEntryMinutes(noteEntryWindow.end), current=now.getHours()*60+now.getMinutes();
+      if(start===end) return true;
+      return start<end ? current>=start&&current<=end : current>=start||current<=end;
+    }
+    function getNoteEntryWindowText(){ return noteEntryWindow.alwaysOpen?'مفتوح دائماً':`من ${noteEntryWindow.start} إلى ${noteEntryWindow.end}`; }
+    function ensureNoteEntryWindowOpen(){
+      if(isNoteEntryWindowOpen()) return true;
+      alert(`🔒 تسجيل الملاحظات مقفل الآن. الفترة المسموح بها: ${getNoteEntryWindowText()}.`);
+      return false;
+    }
     function canRecordInCurrentAttendanceUnit(date,cls){
+      if(!ensureNoteEntryWindowOpen()) return false;
       const lockedUnit=getAttendanceDayLockedUnit(date,cls);
       if(lockedUnit&&lockedUnit!==currentAttendanceUnit){
         alert(`⚠️ التاريخ ${date} مرتبط بالوحدة «${lockedUnit}» لأن فيه حالات مسجلة بالفعل. لا يمكن التسجيل في «${currentAttendanceUnit}» لهذا اليوم.`);
@@ -3488,6 +3556,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     // ===== دوال الحضور والمخالفات =====
     function setStatus(student,newStatus){
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
+      if(!ensureNoteEntryWindowOpen()) return;
       const currentRecord=getStudentDayRecord(date,cls,student,currentAttendanceUnit);
       const isAddingStatus=currentRecord.status!==newStatus;
       if(isAddingStatus&&!canRecordInCurrentAttendanceUnit(date,cls)) return;
@@ -3509,9 +3578,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       document.getElementById('violationModal').style.display='flex';
     }
 
-    function toggleViolationSelection(i){ const chk=document.getElementById(`v_check_${i}`); chk.checked=!chk.checked; chk.parentElement.classList.toggle('selected',chk.checked); autoSaveStudentViolations(); }
+    function toggleViolationSelection(i){
+      if(!ensureNoteEntryWindowOpen()) return;
+      const chk=document.getElementById(`v_check_${i}`); chk.checked=!chk.checked; chk.parentElement.classList.toggle('selected',chk.checked); autoSaveStudentViolations();
+    }
     function autoSaveStudentViolations(){
-      if(!currentStudentForViolation) return;
+      if(!currentStudentForViolation||!ensureNoteEntryWindowOpen()) return;
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
       const viols=[]; VIOLATION_DEFINITIONS.forEach((item,i)=>{ if(document.getElementById(`v_check_${i}`)?.checked) viols.push(item.id); });
       if(viols.length>0&&!canRecordInCurrentAttendanceUnit(date,cls)) return;
@@ -3523,6 +3595,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     function closeViolationModal(){ document.getElementById('violationModal').style.display='none'; currentStudentForViolation=''; }
     function resetToday(){
+      if(!ensureNoteEntryWindowOpen()) return;
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
       if(!records[date]||!records[date][cls]) return;
       if(isPerUnitParticipationMode()){
