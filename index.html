@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.28-تحقق من فهمك بالوحدة والدرس";</script>
+  <script>const APP_VERSION = "20.29";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -377,9 +377,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .color-btn-item .btn-name { font-weight: 700; font-size: 0.875rem; }
     .color-btn-item .color-preview { width: 2rem; height: 1.5rem; border-radius: 0.375rem; border: 1px solid #ccc; }
     .understanding-controls{gap:4px;margin-bottom:0.5rem;}
-    .understanding-controls select{flex:1;min-width:0;padding:0.42rem 0.2rem;font-size:0.68rem;}
+    .understanding-controls select{flex:1;min-width:0;padding:0.42rem 0.2rem;font-size:0.78rem;font-weight:900;}
+    #understandingClassSelect{background:#EAF7EE;border-color:#A9DFBF;color:#166534;}
+    #understandingUnitSelect{background:#EAF3FF;border-color:#AED6F1;color:#1D4ED8;}
+    #understandingLessonSelect{background:#FFF3E0;border-color:#F5CBA7;color:#B45309;}
     .understanding-buttons{display:grid;grid-template-columns:repeat(2,minmax(58px,1fr));gap:3px;flex:0 0 142px;}
-    .understanding-buttons .btn-status{width:100%;min-width:0;height:1.68rem;padding:0.18rem 0.1rem;font-size:0.58rem;line-height:1.05;}
+    .understanding-buttons .btn-status{width:100%;min-width:0;height:1.5rem;padding:0.12rem 0.1rem;font-size:0.58rem;line-height:1.02;}
     .understanding-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0 0.65rem 0.4rem;}
     .understanding-summary-item{border-radius:0.48rem;padding:0.26rem 0.1rem;text-align:center;font-size:0.57rem;font-weight:900;border:1px solid rgba(0,0,0,.08);line-height:1.12;}
     .understanding-summary-item b{display:block;font-size:0.8rem;}
@@ -429,6 +432,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </header>
     <main class="student-list" id="understandingStudentList"></main>
     <div class="bottom-controls">
+      <button class="btn-action" style="background:#C0392B;" onclick="openPdfSizeModal('understandingLesson')">📄 تصدير PDF للدرس</button>
+      <button class="btn-action" style="background:#6C3483;" onclick="openPdfSizeModal('understandingUnit')">📄 تصدير PDF للوحدة</button>
       <button class="btn-action btn-data" onclick="switchToAbsenceScreen()">← كشف الغياب</button>
       <button class="btn-action btn-report" onclick="switchToFollowupScreen()">كشوف المتابعة ←</button>
     </div>
@@ -2217,6 +2222,55 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         cont.appendChild(card);
       });
     }
+    function getUnderstandingPdfContext(scope){
+      const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, selectedLesson=document.getElementById('understandingLessonSelect').value;
+      if(!cls||!unit||!appData[cls]) return null;
+      const lessons=scope==='lesson'?[selectedLesson]:(unitsData[unit]?.lessons||[]);
+      if(!lessons.length||!selectedLesson) return null;
+      const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar'));
+      const rows=[];
+      lessons.forEach(lesson=>{ const states=getUnderstandingLessonStates(cls,unit,lesson); students.forEach(student=>rows.push({student,lesson,status:states[student]||'notDone'})); });
+      return {scope,cls,unit,selectedLesson,lessons,students,rows};
+    }
+    async function exportUnderstandingPDF(scope){
+      const context=getUnderstandingPdfContext(scope);
+      if(!context){ alert('اختر الفصل والوحدة والدرس أولاً.'); return; }
+      const sizes=getPdfSizes(scope==='lesson'?'understandingLesson':'understandingUnit');
+      const JsPdfCtor=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
+      if(!JsPdfCtor) throw new Error('مكتبة PDF غير متاحة.');
+      if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+      const pdfProgramFamily=fontSettings.family==='system'?'Arial':fontSettings.family.replace(/\+/g,' ');
+      const pdfProgramWeight=Math.min(800,Math.max(400,Number(fontSettings.weight)||700));
+      if(fontSettings.family!=='system'&&document.fonts) await Promise.all([400,600,700,800].map(weight=>document.fonts.load(`${weight} 16px "${pdfProgramFamily}"`))).catch(()=>{});
+      const pdfFontStack=fontSettings.family==='system'?'-apple-system, BlinkMacSystemFont, Arial, sans-serif':`"${pdfProgramFamily}", Arial, sans-serif`;
+      const pdf=new JsPdfCtor({unit:'mm',format:'a4',orientation:'portrait'}), [topMm,rightMm,bottomMm,leftMm]=getPdfMargins(sizes), pxPerMm=4;
+      const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight(), fullW=Math.round(pageW*pxPerMm), fullH=Math.round(pageH*pxPerMm);
+      const widthScale=Math.min(1,Math.max(.7,getPdfTableWidth(sizes)/100)), availableW=Math.round((pageW-leftMm-rightMm)*pxPerMm), logicalW=Math.round(availableW*widthScale), logicalH=Math.round((pageH-topMm-bottomMm)*pxPerMm*getPdfTableHeight(sizes)/100), offsetX=Math.round((pageW-rightMm)*pxPerMm)-logicalW, offsetY=Math.round(topMm*pxPerMm), hiRes=2;
+      const side=2*pxPerMm, contentW=logicalW-side*2, nameFont=`${pdfProgramWeight} ${Math.max(10,Number(sizes.names||10)*1.2)}px ${pdfFontStack}`;
+      const measureCanvas=document.createElement('canvas'), measureCtx=measureCanvas.getContext('2d'); measureCtx.font=nameFont;
+      const indexW=Math.max(32,Math.round(contentW*.055)), statusW=Math.max(125,Math.round(contentW*.24)), lessonW=scope==='unit'?Math.max(110,Math.round(contentW*.19)):0;
+      const maxNameW=Math.max(130,contentW-indexW-statusW-lessonW), measuredNameW=Math.max(measureCtx.measureText('اسم الطالب').width,...context.rows.map(row=>measureCtx.measureText(row.student).width))+18, nameW=Math.min(maxNameW,Math.max(130,Math.ceil(measuredNameW))), extraW=Math.max(0,contentW-indexW-statusW-lessonW-nameW), finalStatusW=statusW+extraW;
+      const columns=[{kind:'index',label:'#',w:indexW,bg:'#F2F2F7',color:'#3A3A3C'},{kind:'name',label:'اسم الطالب',w:nameW,bg:'#F2F2F7',color:'#202124'},...(scope==='unit'?[{kind:'lesson',label:'الدرس',w:lessonW,bg:'#FFF3E0',color:'#B45309'}]:[]),{kind:'status',label:'نتيجة التحقق',w:finalStatusW,bg:'#FDEDEC',color:'#C0392B'}];
+      const titleH=Math.max(34,Math.round(Number(sizes.title||16)*2.1)), infoH=Math.max(28,Math.round(Number(sizes.data||9)*2.5)), headerH=Math.max(34,Math.round(Number(sizes.headers||9)*3.3)), rowH=Math.max(34,Math.round(Math.max(Number(sizes.names||10),Number(sizes.data||9))*3.35));
+      const headerY=side+titleH+infoH, availableRows=Math.max(1,Math.floor((logicalH-headerY-headerH-side)/rowH)), requestedRows=Math.floor(Number(sizes.rowsPerPage)||0), rowsPerPage=requestedRows>0?Math.min(requestedRows,availableRows):availableRows, chunks=[];
+      for(let start=0;start<context.rows.length;start+=rowsPerPage) chunks.push(context.rows.slice(start,start+rowsPerPage));
+      const fit=(ctx,value,width)=>fitGradeSheetCanvasText(ctx,String(value??''),Math.max(4,width-10));
+      const rect=(ctx,x,y,w,h,fill,stroke='#D1D1D6')=>{ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.strokeRect(x,y,w,h);};
+      const center=(ctx,value,x,y,w,h,font,color)=>{ctx.save();ctx.direction='rtl';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=font;ctx.fillStyle=color;ctx.fillText(fit(ctx,value,w),x+w/2,y+h/2);ctx.restore();};
+      const right=(ctx,value,x,y,w,h,font,color)=>{ctx.save();ctx.direction='rtl';ctx.textAlign='right';ctx.textBaseline='middle';ctx.font=font;ctx.fillStyle=color;ctx.fillText(fit(ctx,value,w),x+w-6,y+h/2);ctx.restore();};
+      chunks.forEach((chunk,pageIndex)=>{
+        if(pageIndex>0) pdf.addPage('a4','portrait');
+        const canvas=document.createElement('canvas'); canvas.width=fullW*hiRes; canvas.height=fullH*hiRes; const ctx=canvas.getContext('2d'); ctx.scale(hiRes,hiRes); ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,fullW,fullH);ctx.translate(offsetX,offsetY);ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,logicalW,logicalH);
+        ctx.strokeStyle='#007AFF';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(side,side+titleH-4);ctx.lineTo(logicalW-side,side+titleH-4);ctx.stroke();
+        center(ctx,scope==='lesson'?'تقرير تحقق من فهمك — الدرس':'تقرير تحقق من فهمك — الوحدة',side,side,logicalW-side*2,titleH,`${pdfProgramWeight} ${Math.max(18,Number(sizes.title||16)*1.75)}px ${pdfFontStack}`,'#007AFF');
+        const info=scope==='lesson'?`الفصل: ${context.cls}     |     الوحدة: ${context.unit}     |     الدرس: ${context.selectedLesson}`:`الفصل: ${context.cls}     |     الوحدة: ${context.unit}     |     جميع الدروس: ${context.lessons.length}`;
+        right(ctx,info,side,side+titleH,logicalW-side*2,infoH,`${pdfProgramWeight} ${Math.max(10,Number(sizes.data||9)*1.18)}px ${pdfFontStack}`,'#3A3A3C');
+        let x=logicalW-side; columns.forEach(col=>{x-=col.w;rect(ctx,x,headerY,col.w,headerH,col.bg);center(ctx,col.label,x,headerY,col.w,headerH,`${pdfProgramWeight} ${Math.max(9,Number(sizes.headers||9)*1.08)}px ${pdfFontStack}`,col.color);});
+        chunk.forEach((row,rowIndex)=>{const y=headerY+headerH+rowIndex*rowH, status=UNDERSTANDING_STATUS_CONFIG[row.status]||UNDERSTANDING_STATUS_CONFIG.notDone;let cellX=logicalW-side;columns.forEach(col=>{cellX-=col.w;const fill=col.kind==='status'?status.background:'#FFFFFF', color=col.kind==='status'?status.color:(col.kind==='lesson'?'#B45309':'#202124');rect(ctx,cellX,y,col.w,rowH,fill);if(col.kind==='index') center(ctx,String(context.rows.indexOf(row)+1),cellX,y,col.w,rowH,`${pdfProgramWeight} ${Math.max(9,Number(sizes.data||9)*1.08)}px ${pdfFontStack}`,'#3A3A3C');else if(col.kind==='name') right(ctx,row.student,cellX,y,col.w,rowH,nameFont,color);else if(col.kind==='lesson') center(ctx,row.lesson,cellX,y,col.w,rowH,`${pdfProgramWeight} ${Math.max(9,Number(sizes.data||9)*1.08)}px ${pdfFontStack}`,color);else center(ctx,status.label,cellX,y,col.w,rowH,`${pdfProgramWeight} ${Math.max(9,Number(sizes.data||9)*1.08)}px ${pdfFontStack}`,color);});});
+        pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,pageW,pageH,`understanding-${scope}-${pageIndex}`,'FAST');
+      });
+      const kind=scope==='lesson'?'الدرس':'الوحدة'; await deliverPdfBlob(pdf.output('blob'),`تحقق_من_فهمك_${kind}_${context.cls}_${context.unit}.pdf`);
+    }
     function switchToUnderstandingScreen(){
       document.getElementById('absenceScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.remove('active-screen');
@@ -3963,7 +4017,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       periodUnit:       { title: 16, headers: 8,  subheaders: 8,  names: 10, data: 8  },
       periodSummary:    { title: 16, headers: 10, subheaders: 10, names: 12, data: 10 },
       weakStudents:     { title: 16, headers: 9,  subheaders: 9,  names: 10, data: 9, tableWidth: 100, sideMargin: 0, topMargin: 5, bottomMargin: 5 },
-      gradeSheet:       { title: 16, headers: 7,  subheaders: 7,  names: 10, data: 8  }
+      gradeSheet:       { title: 16, headers: 7,  subheaders: 7,  names: 10, data: 8  },
+      understandingLesson:{ title: 16, headers: 10, subheaders: 10, names: 11, data: 10, tableWidth: 100, sideMargin: 5, topMargin: 5, bottomMargin: 5 },
+      understandingUnit: { title: 16, headers: 9,  subheaders: 9,  names: 10, data: 9,  tableWidth: 100, sideMargin: 5, topMargin: 5, bottomMargin: 5 }
     };
     let pdfSizeSettings = {};
     let pendingPdfReportKey = null;
@@ -3976,7 +4032,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function openPdfSizeModal(key){ pendingPdfReportKey=key; const def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK, cur=getPdfSizes(key), custom=pdfSizeSettings[key]||{}; document.getElementById('pdfSizeTitleLabel').innerText=`حجم عنوان الكشف (px): (الافتراضي: ${def.title})`; document.getElementById('pdfSizeHeadersLabel').innerText=`حجم عناوين الجدول (px): (الافتراضي: ${def.headers})`; document.getElementById('pdfSizeSubheadersLabel').innerText=`حجم العناوين الفرعية (px): (الافتراضي: ${def.subheaders})`; document.getElementById('pdfSizeNamesLabel').innerText=`حجم أسماء الطلاب (px): (الافتراضي: ${def.names})`; document.getElementById('pdfSizeDataLabel').innerText=`حجم بيانات الجدول (px): (الافتراضي: ${def.data})`; document.getElementById('pdfSizeTitleInput').value=cur.title; document.getElementById('pdfSizeHeadersInput').value=cur.headers; document.getElementById('pdfSizeSubheadersInput').value=cur.subheaders; document.getElementById('pdfSizeNamesInput').value=cur.names; document.getElementById('pdfSizeDataInput').value=cur.data; document.getElementById('pdfRowsPerPageInput').value=cur.rowsPerPage||0; document.getElementById('pdfTableWidthInput').value=cur.tableWidth; document.getElementById('pdfTableHeightInput').value=cur.tableHeight; document.getElementById('pdfMarginSideInput').value=cur.sideMargin; document.getElementById('pdfMarginTopInput').value=cur.topMargin; document.getElementById('pdfMarginBottomInput').value=cur.bottomMargin; const row=document.getElementById('pdfShowViolationNamesRow'), input=document.getElementById('pdfShowViolationNamesInput'); row.style.display=key==='singleStudent'?'flex':'none'; input.checked=key==='singleStudent'&&custom.showViolationNames===true; setPdfSettingsTab('fonts'); document.getElementById('pdfSizeSettingsModal').style.display='flex'; }
     function closePdfSizeModal(){ document.getElementById('pdfSizeSettingsModal').style.display='none'; pendingPdfReportKey=null; }
     function resetPdfSizeModalDefaults(){ if(!pendingPdfReportKey) return; const def=PDF_REPORT_DEFAULTS[pendingPdfReportKey]||PDF_SIZE_FALLBACK; document.getElementById('pdfSizeTitleInput').value=def.title; document.getElementById('pdfSizeHeadersInput').value=def.headers; document.getElementById('pdfSizeSubheadersInput').value=def.subheaders; document.getElementById('pdfSizeNamesInput').value=def.names; document.getElementById('pdfSizeDataInput').value=def.data; document.getElementById('pdfRowsPerPageInput').value=def.rowsPerPage??0; document.getElementById('pdfTableWidthInput').value=def.tableWidth??100; document.getElementById('pdfTableHeightInput').value=def.tableHeight??100; document.getElementById('pdfMarginSideInput').value=def.sideMargin??5; document.getElementById('pdfMarginTopInput').value=def.topMargin??5; document.getElementById('pdfMarginBottomInput').value=def.bottomMargin??5; if(pendingPdfReportKey==='singleStudent') document.getElementById('pdfShowViolationNamesInput').checked=false; }
-    async function confirmPdfSizeExport(){ if(!pendingPdfReportKey) return; const key=pendingPdfReportKey, def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK; const value=id=>parseFloat(document.getElementById(id).value), clamp=(number,min,max,fallback)=>Number.isFinite(number)?Math.min(max,Math.max(min,number)):fallback; const t=value('pdfSizeTitleInput'), h=value('pdfSizeHeadersInput'), sh=value('pdfSizeSubheadersInput'), n=value('pdfSizeNamesInput'), d=value('pdfSizeDataInput'), rp=parseInt(document.getElementById('pdfRowsPerPageInput').value,10); const settings={title:clamp(t,6,60,def.title),headers:clamp(h,6,60,def.headers),subheaders:clamp(sh,6,60,def.subheaders),names:clamp(n,6,60,def.names),data:clamp(d,6,60,def.data),rowsPerPage:Number.isFinite(rp)&&rp>0?Math.min(80,rp):0,tableWidth:clamp(value('pdfTableWidthInput'),55,200,def.tableWidth??100),tableHeight:clamp(value('pdfTableHeightInput'),55,100,def.tableHeight??100),sideMargin:clamp(value('pdfMarginSideInput'),0,20,def.sideMargin??5),topMargin:clamp(value('pdfMarginTopInput'),0,20,def.topMargin??5),bottomMargin:clamp(value('pdfMarginBottomInput'),0,20,def.bottomMargin??5)}; if(key==='singleStudent') settings.showViolationNames=document.getElementById('pdfShowViolationNamesInput').checked; pdfSizeSettings[key]=settings; saveData(); document.getElementById('pdfSizeSettingsModal').style.display='none'; try{ switch(key){ case'singleStudent':await exportSingleStudentPDF(); break; case'reportSummary':case'reportViolations':await generatePDF(); break; case'followupCurrent':await exportFollowupReportModalPDF(); break; case'periodUnit':await exportPeriodPDF(); break; case'periodSummary':await exportPeriodSummaryPDF(); break; case'weakStudents':await exportWeakStudentsPDF(); break; case'gradeSheet':await exportGradeSheetPDF(); break; } }finally{ pendingPdfReportKey=null; } }
+    async function confirmPdfSizeExport(){ if(!pendingPdfReportKey) return; const key=pendingPdfReportKey, def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK; const value=id=>parseFloat(document.getElementById(id).value), clamp=(number,min,max,fallback)=>Number.isFinite(number)?Math.min(max,Math.max(min,number)):fallback; const t=value('pdfSizeTitleInput'), h=value('pdfSizeHeadersInput'), sh=value('pdfSizeSubheadersInput'), n=value('pdfSizeNamesInput'), d=value('pdfSizeDataInput'), rp=parseInt(document.getElementById('pdfRowsPerPageInput').value,10); const settings={title:clamp(t,6,60,def.title),headers:clamp(h,6,60,def.headers),subheaders:clamp(sh,6,60,def.subheaders),names:clamp(n,6,60,def.names),data:clamp(d,6,60,def.data),rowsPerPage:Number.isFinite(rp)&&rp>0?Math.min(80,rp):0,tableWidth:clamp(value('pdfTableWidthInput'),55,200,def.tableWidth??100),tableHeight:clamp(value('pdfTableHeightInput'),55,100,def.tableHeight??100),sideMargin:clamp(value('pdfMarginSideInput'),0,20,def.sideMargin??5),topMargin:clamp(value('pdfMarginTopInput'),0,20,def.topMargin??5),bottomMargin:clamp(value('pdfMarginBottomInput'),0,20,def.bottomMargin??5)}; if(key==='singleStudent') settings.showViolationNames=document.getElementById('pdfShowViolationNamesInput').checked; pdfSizeSettings[key]=settings; saveData(); document.getElementById('pdfSizeSettingsModal').style.display='none'; try{ switch(key){ case'singleStudent':await exportSingleStudentPDF(); break; case'reportSummary':case'reportViolations':await generatePDF(); break; case'followupCurrent':await exportFollowupReportModalPDF(); break; case'periodUnit':await exportPeriodPDF(); break; case'periodSummary':await exportPeriodSummaryPDF(); break; case'weakStudents':await exportWeakStudentsPDF(); break; case'gradeSheet':await exportGradeSheetPDF(); break; case'understandingLesson':await exportUnderstandingPDF('lesson'); break; case'understandingUnit':await exportUnderstandingPDF('unit'); break; } }finally{ pendingPdfReportKey=null; } }
 
     // ===== دوال التصدير =====
     async function exportFollowupReportModalPDF() {
