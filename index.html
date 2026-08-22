@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.39";</script>
+  <script>const APP_VERSION = "20.40";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -503,7 +503,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="modal-title" style="margin:0;font-size:1rem;color:#0B5394;">📊 التقرير الشامل لتحقق من فهمك</div>
         <button class="btn-close-circle" onclick="closeUnderstandingSummaryModal()" title="إغلاق">✕</button>
       </div>
-      <div style="font-size:0.75rem;line-height:1.55;color:var(--text-secondary);font-weight:700;text-align:center;margin-bottom:9px;">اختر وحدة واحدة أو أكثر. سيظهر في ملف PDF اسم الطالب، ولكل وحدة دروسها ثم مجموعها. تعرض الخلايا الدرجات الرقمية فقط: 10 أو 7 أو 4 أو 0.</div>
+      <div style="font-size:0.75rem;line-height:1.55;color:var(--text-secondary);font-weight:700;text-align:center;margin-bottom:9px;">اختر وحدة واحدة أو أكثر. سيظهر في ملف PDF اسم الطالب، ولكل وحدة دروسها ثم موزونتها، وفي آخر الجدول «الموزونة للكل» وهي متوسط موزونات الوحدات المختارة. تعرض خلايا الدروس الدرجات الرقمية فقط: 10 أو 7 أو 4 أو 0.</div>
       <div id="understandingSummaryUnitsChooser" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#F2F2F7;border-radius:8px;padding:8px;margin-bottom:10px;"></div>
       <button class="btn-export-period" onclick="openUnderstandingSummaryPdfSettings()" style="margin:0;background:#0B5394;">📄 تصدير التقرير الشامل PDF</button>
     </div>
@@ -2454,21 +2454,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const cls=document.getElementById('understandingClassSelect').value;
       const selectedUnits=understandingSummarySelectedUnits.filter(unit=>unitsData[unit]&&Array.isArray(unitsData[unit].lessons));
       if(!cls||!appData[cls]||!selectedUnits.length) return null;
-      const units=selectedUnits.map(unit=>({name:unit,lessons:(unitsData[unit].lessons||[]).filter(Boolean)}));
-      if(!units.some(unit=>unit.lessons.length)) return null;
+      const units=selectedUnits.map(unit=>({name:unit,lessons:(unitsData[unit].lessons||[]).filter(Boolean)})).filter(unit=>unit.lessons.length);
+      if(!units.length) return null;
       const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar'));
       const rows=students.map(student=>{
         const unitScores={};
         units.forEach(unit=>{
-          const lessons={}; let total=0;
+          const lessons={}; let sum=0;
           unit.lessons.forEach(lesson=>{
             const status=getUnderstandingLessonStates(cls,unit.name,lesson)[student]||'notDone';
             const config=UNDERSTANDING_STATUS_CONFIG[status]||UNDERSTANDING_STATUS_CONFIG.notDone;
-            lessons[lesson]={status,score:config.score}; total+=config.score;
+            lessons[lesson]={status,score:config.score}; sum+=config.score;
           });
-          unitScores[unit.name]={lessons,total};
+          // موزونة الوحدة هي متوسط دروس تحقق من فهمك من 10، لا مجموعها.
+          unitScores[unit.name]={lessons,weighted:sum/unit.lessons.length};
         });
-        return {student,unitScores};
+        const overallWeighted=units.reduce((sum,unit)=>sum+(unitScores[unit.name]?.weighted||0),0)/units.length;
+        return {student,unitScores,overallWeighted};
       });
       return {cls,units,students,rows};
     }
@@ -2487,7 +2489,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight(), fullW=Math.round(pageW*pxPerMm), fullH=Math.round(pageH*pxPerMm);
       const widthScale=Math.min(1,Math.max(.7,getPdfTableWidth(sizes)/100)), availableW=Math.round((pageW-leftMm-rightMm)*pxPerMm), logicalW=Math.round(availableW*widthScale), logicalH=Math.round((pageH-topMm-bottomMm)*pxPerMm*getPdfTableHeight(sizes)/100), offsetX=Math.round((pageW-rightMm)*pxPerMm)-logicalW, offsetY=Math.round(topMm*pxPerMm), hiRes=2;
       const side=2*pxPerMm, contentW=logicalW-side*2, dataColumns=[];
-      context.units.forEach(unit=>{ unit.lessons.forEach(lesson=>dataColumns.push({unit:unit.name,kind:'lesson',lesson,label:lesson,bg:'#FFF3E0',color:'#9A6700'})); dataColumns.push({unit:unit.name,kind:'total',label:'المجموع',bg:'#EAF3FF',color:'#0B5394'}); });
+      context.units.forEach(unit=>{ unit.lessons.forEach(lesson=>dataColumns.push({unit:unit.name,kind:'lesson',lesson,label:lesson,bg:'#FFF3E0',color:'#9A6700'})); dataColumns.push({unit:unit.name,kind:'unitWeighted',label:'الموزونة',bg:'#EAF3FF',color:'#0B5394'}); });
+      dataColumns.push({unit:null,kind:'overallWeighted',label:'الموزونة للكل',bg:'#E8F8F5',color:'#117A65'});
       const measureCanvas=document.createElement('canvas'), measureCtx=measureCanvas.getContext('2d'), nameFont=`${pdfProgramWeight} ${Math.max(10,Number(sizes.names||10)*1.13)}px ${pdfFontStack}`; measureCtx.font=nameFont;
       const indexW=Math.max(28,Math.round(contentW*.035)), measuredNameW=Math.max(measureCtx.measureText('اسم الطالب').width,...context.students.map(student=>measureCtx.measureText(student).width))+18, desiredNameW=Math.max(120,Math.ceil(measuredNameW)), minMetricW=Math.max(34,Math.round(contentW*.055)), remaining=Math.max(1,contentW-indexW-desiredNameW), metricW=Math.max(26,Math.min(minMetricW,remaining/dataColumns.length)), nameW=Math.max(92,contentW-indexW-metricW*dataColumns.length);
       const columns=[{kind:'index',label:'م',w:indexW,bg:'#F2F2F7',color:'#3A3A3C'},{kind:'name',label:'اسم الطالب',w:nameW,bg:'#F2F2F7',color:'#202124'},...dataColumns.map(column=>({...column,w:metricW}))];
@@ -2508,7 +2511,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         let x=logicalW-side;
         columns.slice(0,2).forEach(column=>{x-=column.w;rect(ctx,x,groupY,column.w,groupH+headerH,column.bg);center(ctx,column.label,x,groupY,column.w,groupH+headerH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.headers||9))}px ${pdfFontStack}`,column.color);});
         context.units.forEach(unit=>{ const groupColumns=columns.filter(column=>column.unit===unit.name), groupW=groupColumns.reduce((sum,column)=>sum+column.w,0); x-=groupW;rect(ctx,x,groupY,groupW,groupH,'#D6EAF8','#7FB3D5');center(ctx,unit.name,x,groupY,groupW,groupH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.headers||9))}px ${pdfFontStack}`,'#1B4F72'); let subX=x+groupW; groupColumns.forEach(column=>{subX-=column.w;rect(ctx,subX,headerY,column.w,headerH,column.bg);center(ctx,column.label,subX,headerY,column.w,headerH,`${pdfProgramWeight} ${Math.max(7,Number(sizes.subheaders||9)*.95)}px ${pdfFontStack}`,column.color);}); });
-        chunk.forEach((row,rowIndex)=>{ const y=headerY+headerH+rowIndex*rowH; let cellX=logicalW-side; columns.forEach(column=>{ cellX-=column.w; if(column.kind==='index'){rect(ctx,cellX,y,column.w,rowH,'#FFFFFF');center(ctx,String(context.students.indexOf(row.student)+1),cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#3A3A3C');} else if(column.kind==='name'){rect(ctx,cellX,y,column.w,rowH,'#FFFFFF');right(ctx,row.student,cellX,y,column.w,rowH,nameFont,'#202124');} else if(column.kind==='total'){const total=row.unitScores[column.unit]?.total??0;rect(ctx,cellX,y,column.w,rowH,'#EEF5FF');center(ctx,total,cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#0B5394');} else {const value=row.unitScores[column.unit]?.lessons?.[column.lesson]||{status:'notDone',score:0}, status=UNDERSTANDING_STATUS_CONFIG[value.status]||UNDERSTANDING_STATUS_CONFIG.notDone;rect(ctx,cellX,y,column.w,rowH,status.background);center(ctx,value.score,cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,status.color);}}); });
+        const overallColumn=columns.find(column=>column.kind==='overallWeighted');
+        if(overallColumn){ x-=overallColumn.w;rect(ctx,x,groupY,overallColumn.w,groupH+headerH,overallColumn.bg,'#A9DFBF');center(ctx,overallColumn.label,x,groupY,overallColumn.w,groupH+headerH,`${pdfProgramWeight} ${Math.max(7,Number(sizes.headers||9)*.92)}px ${pdfFontStack}`,overallColumn.color); }
+        chunk.forEach((row,rowIndex)=>{ const y=headerY+headerH+rowIndex*rowH; let cellX=logicalW-side; columns.forEach(column=>{ cellX-=column.w; if(column.kind==='index'){rect(ctx,cellX,y,column.w,rowH,'#FFFFFF');center(ctx,String(context.students.indexOf(row.student)+1),cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#3A3A3C');} else if(column.kind==='name'){rect(ctx,cellX,y,column.w,rowH,'#FFFFFF');right(ctx,row.student,cellX,y,column.w,rowH,nameFont,'#202124');} else if(column.kind==='unitWeighted'){const weighted=row.unitScores[column.unit]?.weighted??0;rect(ctx,cellX,y,column.w,rowH,'#EEF5FF');center(ctx,formatGrade(weighted),cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#0B5394');} else if(column.kind==='overallWeighted'){rect(ctx,cellX,y,column.w,rowH,'#E8F8F5');center(ctx,formatGrade(row.overallWeighted),cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#117A65');} else {const value=row.unitScores[column.unit]?.lessons?.[column.lesson]||{status:'notDone',score:0}, status=UNDERSTANDING_STATUS_CONFIG[value.status]||UNDERSTANDING_STATUS_CONFIG.notDone;rect(ctx,cellX,y,column.w,rowH,status.background);center(ctx,value.score,cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,status.color);}}); });
         pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,pageW,pageH,`understanding-summary-${pageIndex}`,'FAST');
       });
       await deliverPdfBlob(pdf.output('blob'),`التقرير_الشامل_تحقق_من_فهمك_${context.cls}.pdf`);
