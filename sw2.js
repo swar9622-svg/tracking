@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v15';
+const CACHE_NAME = 'attendance-app-v16-font-test';
 const urlsToCache = [
   './',
   './index.html',
@@ -29,14 +29,10 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const isHtmlRequest = event.request.mode === 'navigate' || event.request.url.endsWith('/') || event.request.url.endsWith('index.html');
   if (isHtmlRequest) {
-    event.respondWith(
-      fetch(event.request, {cache: 'no-store'})
-        .then(networkResponse => {
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
-          return networkResponse;
-        })
-        .catch(() => caches.match(event.request))
-    );
+    event.respondWith(fetch(event.request, {cache: 'no-store'}).then(networkResponse => {
+      caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
+      return networkResponse;
+    }).catch(() => caches.match(event.request)));
   } else {
     event.respondWith(caches.match(event.request).then(response => response || fetch(event.request)));
   }

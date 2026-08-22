@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.23";</script>
+  <script>const APP_VERSION = "20.24-تجربة الخط";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3361,6 +3361,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const JsPdfCtor=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
       if(!JsPdfCtor) throw new Error('مكتبة PDF غير متاحة.');
       if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+      // نسخة اختبار: يستخدم الرسم الثابت عائلة الخط والسماكة المختارين في البرنامج.
+      const pdfProgramFamily=fontSettings.family==='system'?'Arial':fontSettings.family.replace(/\+/g,' ');
+      const pdfProgramWeight=Math.min(800,Math.max(400,Number(fontSettings.weight)||700));
+      if(fontSettings.family!=='system'&&document.fonts){
+        await Promise.all([400,600,700,800].map(weight=>document.fonts.load(`${weight} 16px "${pdfProgramFamily}"`))).catch(()=>{});
+      }
+      const pdfFontStack=fontSettings.family==='system'?'-apple-system, BlinkMacSystemFont, Arial, sans-serif':`"${pdfProgramFamily}", Arial, sans-serif`;
       const pdf=new JsPdfCtor({unit:'mm',format:'a4',orientation:'portrait'});
       const [topMm,rightMm,bottomMm,leftMm]=getPdfMargins(sizes), pxPerMm=4;
       const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight();
@@ -3394,11 +3401,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const canvas=document.createElement('canvas'); canvas.width=fullW*hiRes; canvas.height=fullH*hiRes;
         const ctx=canvas.getContext('2d'); ctx.scale(hiRes,hiRes); ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,fullW,fullH);ctx.translate(offsetX,offsetY);ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,logicalW,logicalH);
         ctx.strokeStyle='#007AFF';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(side,side+titleH-4);ctx.lineTo(logicalW-side,side+titleH-4);ctx.stroke();
-        centerLines(ctx,['تقرير الطلاب الضعاف'],side,side,logicalW-side*2,titleH,`900 ${Math.max(18,Number(sizes.title||16)*1.75)}px Arial`,'#007AFF');
+        centerLines(ctx,['تقرير الطلاب الضعاف'],side,side,logicalW-side*2,titleH,`${pdfProgramWeight} ${Math.max(18,Number(sizes.title||16)*1.75)}px ${pdfFontStack}`,'#007AFF');
         const reportInfo=`الفصل: ${cls}     |     الوحدات: ${units.join('، ')}     |     ${summaryMode?'الخلاصة':'الموزونة'}`;
-        rightText(ctx,reportInfo,side,side+titleH,logicalW-side*2,infoH,`700 ${Math.max(10,Number(sizes.data||9)*1.2)}px Arial`,'#3A3A3C');
-        let x=logicalW-side; columnDefs.forEach((col,index)=>{ const w=colWidths[index]; x-=w;rect(ctx,x,headerY,w,headerH,col.bg);centerLines(ctx,col.cap?[col.label,col.cap]:[col.label],x,headerY,w,headerH,`900 ${Math.max(9,Number(sizes.headers||9)*1.1)}px Arial`,col.color); });
-        chunk.forEach((item,rowIndex)=>{ const displayItem={...item,index:weakRows.indexOf(item)}, y=headerY+headerH+rowIndex*rowH; let cellX=logicalW-side;columnDefs.forEach((col,index)=>{const w=colWidths[index];cellX-=w;const value=cellValue(displayItem,col);rect(ctx,cellX,y,w,rowH,value.bg);if(col.kind==='name') rightText(ctx,value.name,cellX,y,w,rowH,`900 ${Math.max(10,Number(sizes.names||10)*1.2)}px Arial`,value.color);else centerLines(ctx,value.lines,cellX,y,w,rowH,`900 ${Math.max(9,Number(sizes.data||9)*1.1)}px Arial`,value.color);}); });
+        rightText(ctx,reportInfo,side,side+titleH,logicalW-side*2,infoH,`${pdfProgramWeight} ${Math.max(10,Number(sizes.data||9)*1.2)}px ${pdfFontStack}`,'#3A3A3C');
+        let x=logicalW-side; columnDefs.forEach((col,index)=>{ const w=colWidths[index]; x-=w;rect(ctx,x,headerY,w,headerH,col.bg);centerLines(ctx,col.cap?[col.label,col.cap]:[col.label],x,headerY,w,headerH,`${pdfProgramWeight} ${Math.max(9,Number(sizes.headers||9)*1.1)}px ${pdfFontStack}`,col.color); });
+        chunk.forEach((item,rowIndex)=>{ const displayItem={...item,index:weakRows.indexOf(item)}, y=headerY+headerH+rowIndex*rowH; let cellX=logicalW-side;columnDefs.forEach((col,index)=>{const w=colWidths[index];cellX-=w;const value=cellValue(displayItem,col);rect(ctx,cellX,y,w,rowH,value.bg);if(col.kind==='name') rightText(ctx,value.name,cellX,y,w,rowH,`${pdfProgramWeight} ${Math.max(10,Number(sizes.names||10)*1.2)}px ${pdfFontStack}`,value.color);else centerLines(ctx,value.lines,cellX,y,w,rowH,`${pdfProgramWeight} ${Math.max(9,Number(sizes.data||9)*1.1)}px ${pdfFontStack}`,value.color);}); });
         pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,pageW,pageH,`weak-students-${pageIndex}`,'FAST');
       });
       await deliverPdfBlob(pdf.output('blob'),`تقرير_الطلاب_الضعاف_${cls}.pdf`);
