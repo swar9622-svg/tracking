@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.8";</script>
+  <script>const APP_VERSION = "20.9";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3515,16 +3515,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const styleText=element.querySelector('style')?.textContent||'';
       const titleBlock=element.querySelector('.pdf-report-title')?.parentElement;
       const subtitleBlock=titleBlock?.nextElementSibling;
-      const captureOptions={...options.html2canvas,backgroundColor:'#ffffff',scrollX:0,scrollY:0,windowWidth:Math.round(usableWidth*3.7795)};
+      const baseCaptureOptions={...options.html2canvas,backgroundColor:'#ffffff',scrollX:0,scrollY:0};
       for(let index=0;index<sourcePages.length;index++){
         if(index>0) pdf.addPage(options.jsPDF.format,options.jsPDF.orientation);
         const stage=document.createElement('div');
-        stage.style.cssText=`position:fixed;left:-20000px;top:0;width:${Math.round(usableWidth*3.7795)}px;background:#fff;direction:rtl;padding:0;z-index:-1;`;
+        // لا نفرض عرض ورقة A4 على الجدول قبل التصوير: Safari كان يقص الأعمدة اليسرى عند ذلك.
+        stage.style.cssText='position:fixed;left:-20000px;top:0;width:max-content;min-width:1px;background:#fff;direction:rtl;padding:0;z-index:-1;overflow:visible;';
         stage.innerHTML=`<style>${styleText}</style>`;
         if(index===0){ if(titleBlock) stage.appendChild(titleBlock.cloneNode(true)); if(subtitleBlock) stage.appendChild(subtitleBlock.cloneNode(true)); }
-        const wrap=document.createElement('div'); wrap.className='pdf-table-wrap'; wrap.style.cssText='width:100%;overflow:visible;';
-        const pageClone=sourcePages[index].cloneNode(true); pageClone.style.cssText='width:100%;page-break-after:auto;break-after:auto;';
+        const wrap=document.createElement('div'); wrap.className='pdf-table-wrap'; wrap.style.cssText='width:max-content;max-width:none;overflow:visible;';
+        const pageClone=sourcePages[index].cloneNode(true); pageClone.style.cssText='width:max-content;max-width:none;page-break-after:auto;break-after:auto;';
+        pageClone.querySelectorAll('table').forEach(table=>{ table.style.width='max-content'; table.style.maxWidth='none'; });
         wrap.appendChild(pageClone); stage.appendChild(wrap); document.body.appendChild(stage);
+        const measuredWidth=Math.ceil(Math.max(stage.scrollWidth,wrap.scrollWidth,pageClone.scrollWidth,1));
+        stage.style.width=`${measuredWidth}px`;
+        const captureOptions={...baseCaptureOptions,width:measuredWidth,windowWidth:measuredWidth};
         const canvas=await window.html2canvas(stage,captureOptions);
         document.body.removeChild(stage);
         const naturalHeight=canvas.height*usableWidth/canvas.width;
