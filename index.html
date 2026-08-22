@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.41";</script>
+  <script>const APP_VERSION = "20.42";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -386,12 +386,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .understanding-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:0 0.65rem 0.4rem;}
     .understanding-summary-item{border-radius:0.48rem;padding:0.26rem 0.1rem;text-align:center;font-size:0.57rem;font-weight:900;border:1px solid rgba(0,0,0,.08);line-height:1.12;}
     .understanding-summary-item b{display:block;font-size:0.8rem;}
-    .understanding-summary-remaining{border:1px dashed #6E6E73;border-radius:0.48rem;background:#F2F2F7;color:#3A3A3C;padding:0.22rem 0.08rem;font-family:inherit;font-size:0.57rem;font-weight:900;line-height:1.12;cursor:pointer;}
+    .understanding-remaining-control{position:relative;min-width:0;}
+    .understanding-summary-remaining{width:100%;border:1.4px solid #6E6E73;border-radius:0.48rem;background:#F2F2F7;color:#3A3A3C;padding:0.22rem 0.08rem;font-family:inherit;font-size:0.57rem;font-weight:900;line-height:1.12;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.68);}
     .understanding-summary-remaining b{display:block;font-size:0.8rem;}
     .understanding-summary-remaining:active{opacity:.78;transform:scale(.98);}
-    .understanding-remaining-menu{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:0.38rem;background:#F9F9FB;border:1px solid #E5E5EA;border-radius:0.55rem;}
-    .understanding-remaining-menu .btn-status{min-width:0;height:1.75rem;padding:0.1rem 0.05rem;font-size:0.55rem;line-height:1.05;}
-    @media(max-width:360px){.understanding-summary-item,.understanding-summary-remaining{font-size:0.50rem;}.understanding-remaining-menu .btn-status{font-size:0.48rem;}}
+    .understanding-summary-remaining .remaining-arrow{display:inline-block;margin-inline-start:0.12rem;font-size:0.52rem;vertical-align:0.08rem;}
+    .understanding-remaining-menu{position:absolute;z-index:55;top:calc(100% + 5px);right:0;min-width:9.4rem;display:flex;flex-direction:column;gap:4px;padding:0.42rem;background:#FFFFFF;border:1px solid #D1D1D6;border-radius:0.6rem;box-shadow:0 5px 14px rgba(0,0,0,.18);direction:rtl;}
+    .understanding-remaining-menu .btn-status{width:100%;min-width:0;height:1.85rem;padding:0.12rem 0.34rem;font-size:0.61rem;line-height:1.05;text-align:right;}
+    .understanding-remaining-menu .understanding-clear-all{width:100%;height:1.85rem;border:1.3px solid #C0392B;border-radius:0.4rem;background:#FFF5F5;color:#C0392B;font-family:inherit;font-size:0.61rem;font-weight:900;cursor:pointer;text-align:right;padding:0.12rem 0.34rem;}
+    .understanding-remaining-menu .understanding-clear-all:active{opacity:.78;}
+    @media(max-width:360px){.understanding-summary-item,.understanding-summary-remaining{font-size:0.50rem;}.understanding-remaining-menu{min-width:8.7rem;}.understanding-remaining-menu .btn-status,.understanding-remaining-menu .understanding-clear-all{font-size:0.54rem;}}
     #understandingScreen{padding-bottom:7rem;}
     #understandingScreen .student-list{padding-bottom:0.5rem;}
     .understanding-export-area{padding:0 0.875rem 0.9rem;}
@@ -2402,6 +2406,20 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       understandingRemainingMenuOpen=false;
       saveData(); renderUnderstandingScreen();
     }
+    function clearUnderstandingLessonStatuses(){
+      const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
+      if(!cls||!unit||!lesson) return;
+      const count=Object.keys(getUnderstandingLessonStates(cls,unit,lesson)).length;
+      if(!count){ understandingRemainingMenuOpen=false; renderUnderstandingScreen(); return; }
+      if(!confirm(`سيتم مسح جميع حالات تحقق من فهمك المسجلة في «${lesson}» وإعادته فارغاً.\n\nهل تريد المتابعة؟`)) return;
+      if(understandingData[cls]?.[unit]?.[lesson]!==undefined){
+        delete understandingData[cls][unit][lesson];
+        if(Object.keys(understandingData[cls][unit]).length===0) delete understandingData[cls][unit];
+        if(Object.keys(understandingData[cls]).length===0) delete understandingData[cls];
+      }
+      understandingRemainingMenuOpen=false;
+      saveData(); renderUnderstandingScreen();
+    }
     function renderUnderstandingScreen(){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value, cont=document.getElementById('understandingStudentList'), summary=document.getElementById('understandingSummary');
       cont.innerHTML=''; summary.innerHTML='';
@@ -2414,11 +2432,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       students.forEach(student=>{ const status=states[student]; if(status&&counts[status]!==undefined) counts[status]++; else counts.remaining++; });
       Object.entries(UNDERSTANDING_STATUS_CONFIG).forEach(([key,config])=>{ summary.innerHTML+=`<div class="understanding-summary-item" style="background:${config.background};color:${config.color};"><b>${counts[key]}</b>${config.label}</div>`; });
       const remainingColor=getButtonColorCss('understandingRemainingBtn'), remainingTextColor=getButtonTextColor('understandingRemainingBtn');
-      summary.innerHTML+=`<button type="button" class="understanding-summary-remaining" onclick="toggleUnderstandingRemainingMenu()" style="background:${understandingRemainingMenuOpen?remainingColor:'#F2F2F7'};color:${understandingRemainingMenuOpen?remainingTextColor:'#3A3A3C'};border-color:${remainingColor};"><b>${counts.remaining}</b>البقية</button>`;
-      if(understandingRemainingMenuOpen){
-        const remainingButtons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{ const color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey); return `<button class="btn-status understanding-status-${key}" onclick="applyUnderstandingStatusToRemaining('${key}')" style="background:#FFFFFF;color:${color};border:1.3px solid ${color};font-weight:800;">${config.label}</button>`; }).join('');
-        summary.innerHTML+=`<div class="understanding-remaining-menu">${remainingButtons}</div>`;
-      }
+      const remainingButtons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{ const color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey); return `<button class="btn-status understanding-status-${key}" onclick="applyUnderstandingStatusToRemaining('${key}')" style="background:${config.background};color:${color};border:1.3px solid ${color};font-weight:900;">${config.label}</button>`; }).join('');
+      summary.innerHTML+=`<div class="understanding-remaining-control"><button type="button" class="understanding-summary-remaining" onclick="toggleUnderstandingRemainingMenu()" aria-expanded="${understandingRemainingMenuOpen}" style="background:${understandingRemainingMenuOpen?remainingColor:'#F2F2F7'};color:${understandingRemainingMenuOpen?remainingTextColor:'#3A3A3C'};border-color:${remainingColor};"><b>${counts.remaining}</b>البقية <span class="remaining-arrow">${understandingRemainingMenuOpen?'▴':'▾'}</span></button>${understandingRemainingMenuOpen?`<div class="understanding-remaining-menu">${remainingButtons}<button type="button" class="understanding-clear-all" onclick="clearUnderstandingLessonStatuses()">مسح الكل</button></div>`:''}</div>`;
       students.forEach(student=>{
         const selected=states[student]||'';
         const card=document.createElement('div'); card.className='student-card';
