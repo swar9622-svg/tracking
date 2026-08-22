@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.22";</script>
+  <script>const APP_VERSION = "20.23";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3625,18 +3625,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const subtitleBlock=titleBlock?.nextElementSibling;
       const baseCaptureOptions={...options.html2canvas,backgroundColor:'#ffffff',scrollX:0,scrollY:0};
       const makeStage=(sourcePage,index)=>{
+        // العرض المرجعي يمنع تحويل جدول CSS ضيق إلى صورة مكبّرة، وبالتالي تبقى قيمة خط 8 قريبة من 8 فعلاً.
+        const targetWidth=Math.max(1,Math.round(usableWidth*96/25.4));
         const stage=document.createElement('div');
-        stage.style.cssText='position:fixed;left:-20000px;top:0;width:max-content;min-width:1px;background:#fff;direction:rtl;padding:0;z-index:-1;overflow:visible;';
+        stage.style.cssText=`position:fixed;left:-20000px;top:0;width:${targetWidth}px;min-width:${targetWidth}px;background:#fff;direction:rtl;padding:0;z-index:-1;overflow:visible;`;
         stage.innerHTML=`<style>${styleText}</style>`;
         if(index===0){ if(titleBlock) stage.appendChild(titleBlock.cloneNode(true)); if(subtitleBlock) stage.appendChild(subtitleBlock.cloneNode(true)); }
-        const wrap=document.createElement('div'); wrap.className='pdf-table-wrap'; wrap.style.cssText='width:max-content;max-width:none;overflow:visible;';
-        const pageClone=sourcePage.cloneNode(true); pageClone.style.cssText='width:max-content;max-width:none;page-break-after:auto;break-after:auto;';
-        pageClone.querySelectorAll('table').forEach(table=>{ table.style.width='max-content'; table.style.maxWidth='none'; });
+        const wrap=document.createElement('div'); wrap.className='pdf-table-wrap'; wrap.style.cssText=`width:${targetWidth}px;max-width:none;overflow:visible;`;
+        const pageClone=sourcePage.cloneNode(true); pageClone.style.cssText=`width:${targetWidth}px;max-width:none;page-break-after:auto;break-after:auto;`;
+        pageClone.querySelectorAll('table').forEach(table=>{ table.style.width='100%'; table.style.maxWidth='none'; table.style.tableLayout='auto'; });
         wrap.appendChild(pageClone); stage.appendChild(wrap); document.body.appendChild(stage);
-        // Safari قد يضيف عرضاً وهمياً للمرحلة نفسها؛ نعتمد عرض الجدول فقط كي لا يدخل فراغ داخل الصورة.
+        // للجداول الأعرض من A4 نأخذ عرضها الحقيقي؛ أما الجداول العادية فتملأ عرض A4 المرجعي.
         const tableWidths=[...pageClone.querySelectorAll('table')].map(table=>Math.ceil(table.scrollWidth||table.getBoundingClientRect().width||0));
-        const width=Math.max(1,...tableWidths);
-        stage.style.width=`${width}px`;
+        const width=Math.max(targetWidth,...tableWidths);
+        stage.style.width=`${width}px`; wrap.style.width=`${width}px`; pageClone.style.width=`${width}px`;
+        if(width>targetWidth) pageClone.querySelectorAll('table').forEach(table=>table.style.width='max-content');
         return {stage,width};
       };
       // الصفر: أضف الصفوف واحداً واحداً، وقس الارتفاع بعد العنوان والرأس والخطوط المختارة.
