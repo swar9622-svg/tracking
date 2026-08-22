@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.35";</script>
+  <script>const APP_VERSION = "20.36";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -396,12 +396,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .screen-navigation{display:flex;direction:rtl;gap:0.35rem;align-items:center;padding:0.5rem 0.75rem 0.12rem;}
     .screen-navigation-btn{height:2.55rem;flex:0 0 2.55rem;min-width:2.55rem;border:0;border-radius:0.72rem;background:#F2F2F7;color:#6E6E73;font-family:inherit;font-size:0.72rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;box-shadow:inset 0 0 0 1px #D1D1D6;transition:flex-basis .23s ease,flex-grow .23s ease,background .23s ease,color .23s ease,box-shadow .23s ease;}
     .screen-navigation-btn:active{opacity:.76;transform:scale(.98);}
-    .screen-navigation-btn .screen-nav-short{display:block;font-size:0.82rem;line-height:1;}
-    .screen-navigation-btn .screen-nav-full{display:none;overflow:hidden;text-overflow:ellipsis;padding:0 0.6rem;}
+    .screen-navigation-btn .screen-nav-short{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.02rem;font-size:0.46rem;line-height:0.94;}
+    .screen-navigation-btn .screen-nav-short b{font-size:0.84rem;line-height:0.78;}
+    .screen-navigation-btn .screen-nav-short small{font-size:0.46rem;font-weight:900;line-height:0.9;}
+    .screen-navigation-btn .screen-nav-full{display:none;overflow:hidden;text-overflow:ellipsis;padding:0 0.3rem;font-size:0.96rem;line-height:1.08;}
     .screen-navigation-btn.is-active{flex:1 1 auto;color:#FFF;box-shadow:0 2px 6px rgba(0,0,0,.16);}
     .screen-navigation-btn.is-active .screen-nav-short{display:none;}
     .screen-navigation-btn.is-active .screen-nav-full{display:block;}
-    .screen-navigation-btn.nav-absence.is-active{background:#FF3B30;}
+    .screen-navigation-btn.nav-absence.is-active{background:#34C759;}
     .screen-navigation-btn.nav-understanding.is-active{background:#007AFF;}
     .screen-navigation-btn.nav-followup.is-active{background:#5856D6;}
     .screen-version-label{padding:0.08rem 0.75rem 0.35rem;text-align:center;color:#AEAEB2;font-size:0.53rem;font-weight:700;letter-spacing:.02em;line-height:1;}
@@ -413,9 +415,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div id="absenceScreen" class="screen active-screen">
     <header>
       <div class="screen-navigation" aria-label="التنقل بين الكشوف">
-        <button class="screen-navigation-btn nav-absence is-active" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short">غ</span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
-        <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short">ت</span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
-        <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short">م</span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
+        <button class="screen-navigation-btn nav-absence is-active" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short"><b>غ</b><small>غياب</small></span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
+        <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short"><b>ت</b><small>تحقق</small></span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
+        <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><b>م</b><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar">
@@ -447,9 +449,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div id="understandingScreen" class="screen">
     <header>
       <div class="screen-navigation" aria-label="التنقل بين الكشوف">
-        <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short">غ</span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
-        <button class="screen-navigation-btn nav-understanding is-active" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short">ت</span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
-        <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short">م</span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
+        <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short"><b>غ</b><small>غياب</small></span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
+        <button class="screen-navigation-btn nav-understanding is-active" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short"><b>ت</b><small>تحقق</small></span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
+        <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><b>م</b><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar understanding-controls">
@@ -470,9 +472,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div id="followupScreen" class="screen">
     <header>
       <div class="screen-navigation" aria-label="التنقل بين الكشوف">
-        <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short">غ</span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
-        <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short">ت</span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
-        <button class="screen-navigation-btn nav-followup is-active" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short">م</span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
+        <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short"><b>غ</b><small>غياب</small></span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
+        <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short"><b>ت</b><small>تحقق</small></span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
+        <button class="screen-navigation-btn nav-followup is-active" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><b>م</b><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
     </header>
@@ -1325,7 +1327,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     // ===== ألوان الأزرار =====
     const DEFAULT_BUTTON_COLORS = {
       // أزرار العناوين والتنقل الجديدة تظهر أولاً في إعدادات الألوان.
-      'navAbsenceBtn': { r: 255, g: 59, b: 48, a: 1 },
+      'navAbsenceBtn': { r: 52, g: 199, b: 89, a: 1 },
       'navUnderstandingBtn': { r: 0, g: 122, b: 255, a: 1 },
       'navFollowupBtn': { r: 88, g: 86, b: 214, a: 1 },
       'understandingUnitPdfBtn': { r: 108, g: 52, b: 131, a: 1 },
@@ -1390,6 +1392,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     };
 
     let buttonColors = JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS));
+    let buttonColorDefaultsVersion = 1;
+    let buttonColorsMigrated = false;
+    function sameButtonColor(a,b){ return !!a&&!!b&&a.r===b.r&&a.g===b.g&&a.b===b.b&&Number(a.a)===Number(b.a); }
+    function migrateButtonColorDefaults(){
+      if(buttonColorDefaultsVersion>=1) return;
+      const previousAbsenceDefault={r:255,g:59,b:48,a:1};
+      // نحدث الأحمر الافتراضي القديم فقط؛ اللون الذي حدده المستخدم يظل محفوظاً كما هو.
+      if(sameButtonColor(buttonColors.navAbsenceBtn,previousAbsenceDefault)) buttonColors.navAbsenceBtn={...DEFAULT_BUTTON_COLORS.navAbsenceBtn};
+      buttonColorDefaultsVersion=1;
+      buttonColorsMigrated=true;
+    }
     // دمج القيم الافتراضية في حالة وجود مفاتيح مفقودة
     for (let key in DEFAULT_BUTTON_COLORS) {
       if (!buttonColors[key]) buttonColors[key] = { ...DEFAULT_BUTTON_COLORS[key] };
@@ -1687,7 +1700,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         appData:cloneData(appData), records:cloneData(records), unitsData:cloneData(unitsData), followupData:cloneData(followupData), understandingData:cloneData(understandingData),
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
-        fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), buttonColors:cloneData(buttonColors), pdfSizeSettings:cloneData(pdfSizeSettings),
+        fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
         weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), noteEntryWindow:cloneData(noteEntryWindow), savedAt:new Date().toISOString()
       };
     }
@@ -1733,7 +1746,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       fontSettings=normalizeFontSettings(state.fontSettings);
       notificationSettings=state.notificationSettings&&typeof state.notificationSettings==='object'?state.notificationSettings:{};
       buttonColors=state.buttonColors&&typeof state.buttonColors==='object'?state.buttonColors:cloneData(DEFAULT_BUTTON_COLORS);
+      buttonColorDefaultsVersion=Number(state.buttonColorDefaultsVersion)||0;
       for(const key in DEFAULT_BUTTON_COLORS) if(!buttonColors[key]) buttonColors[key]=cloneData(DEFAULT_BUTTON_COLORS[key]);
+      migrateButtonColorDefaults();
       pdfSizeSettings=state.pdfSizeSettings&&typeof state.pdfSizeSettings==='object'?state.pdfSizeSettings:{};
       weakStudentsThresholds=normalizeWeakStudentsThresholds(state.weakStudentsThresholds);
       gradeRoundingSettings=normalizeGradeRoundingSettings(state.gradeRoundingSettings);
@@ -1742,7 +1757,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     async function initializeIndexedDBStorage(){
       const state=await getIndexedDBState();
       indexedDBReady=true;
-      if(state) applyPersistentState(state);
+      if(state) { applyPersistentState(state); if(buttonColorsMigrated) await saveIndexedDBState(); }
       else await saveIndexedDBState();
     }
 
@@ -2810,7 +2825,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <th colspan="${lessons.length}" data-group="hw-details" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;position:relative;">الواجبات (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button></span></th>
         <th rowspan="2" data-group="hw" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;">الموزونه<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('hw')" title="فرز الموزونة للواجبات">فرز ↕</button></span></th>
         <th colspan="${lessons.length}" data-group="act-details" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
-        <th rowspan="2" data-group="act" style="background:#EAF3FF;color:#1D4ED8;text-align:center;vertical-align:middle;font-weight:800;">تحقق<br><small>/10</small></th>
+        <th rowspan="2" data-group="act" style="background:#FEF9E7;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">تحقق<br><small>من فهمك</small></th>
         <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونة<br><small>/20</small><span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('act')" title="فرز موزونة الأنشطة مع تحقق">فرز ↕</button></span></th>
         <th rowspan="2" data-group="participation" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;">المشاركة<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('participation')" title="فرز المشاركة">فرز ↕</button></span></th>
         <th colspan="2" data-group="test-details" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;position:relative;">الاختبارات والمشاريع (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span></th>
@@ -2849,7 +2864,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         // الأنشطة المدخلة: لكل درس من 10 درجات.
         lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td data-group="act-details" style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // تحقق /10 ثم الموزونة النهائية /20 = متوسط الأنشطة + تحقق، مطابقةً للخلاصة.
-        rowHtml+=`<td data-group="act" style="background:#EAF3FF;color:#1D4ED8;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(understandingScore)}</td><td data-group="act" style="background:#FCF3CF;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(actAvg)}</td>`;
+        rowHtml+=`<td data-group="act" style="background:#FEF9E7;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(understandingScore)}</td><td data-group="act" style="background:#FCF3CF;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(actAvg)}</td>`;
         // مشاركة
         let part=calculateStudentParticipationScore(cls,student,unitName);
         rowHtml+=`<td data-group="participation" style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${formatGrade(part)}</td>`;
@@ -4196,7 +4211,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <th colspan="${lessons.length}" style="border:1px solid #A9DFBF;padding:4px;text-align:center;background:#D4EFDF;color:#000;">الواجبات</th>
           <th style="border:1px solid #A9DFBF;padding:4px;text-align:center;background:#D4EFDF;color:#000;">الموزونة</th>
           <th colspan="${lessons.length}" style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#000;">الأنشطة (10)</th>
-          <th style="border:1px solid #AED6F1;padding:4px;text-align:center;background:#EAF3FF;color:#000;">تحقق /10</th>
+          <th style="border:1px solid #F9E79F;padding:4px;text-align:center;background:#FEF9E7;color:#7D6608;">تحقق<br><small>من فهمك</small></th>
           <th style="border:1px solid #F7DC6F;padding:4px;text-align:center;background:#FCF3CF;color:#000;">الموزونة /20</th>
           <th style="border:1px solid #D2B4DE;padding:4px;text-align:center;background:#EBDEF0;color:#000;">المشاركة</th>
           <th colspan="2" style="border:1px solid #F5B7B1;padding:4px;text-align:center;background:#FADBD8;color:#000;">الاختبارات والمشاريع</th>
@@ -4206,7 +4221,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         lessons.forEach(l => { header += `<th style="border:1px solid #A9DFBF;padding:2px;text-align:center;background:#EAFAF1;color:#000;">${l}</th>`; });
         header += `<th aria-label="خانة تكميلية للموزونة" style="border:1px solid #A9DFBF;padding:2px;text-align:center;background:#D4EFDF;color:#000;">&nbsp;</th>`;
         lessons.forEach(l => { header += `<th style="border:1px solid #F7DC6F;padding:2px;text-align:center;background:#FEF9E7;color:#000;">${l}</th>`; });
-        header += `<th aria-label="خانة تكميلية لتحقق" style="border:1px solid #AED6F1;padding:2px;text-align:center;background:#EAF3FF;color:#000;">&nbsp;</th>
+        header += `<th aria-label="خانة تكميلية لتحقق من فهمك" style="border:1px solid #F9E79F;padding:2px;text-align:center;background:#FEF9E7;color:#7D6608;">&nbsp;</th>
           <th aria-label="خانة تكميلية لموزونة الأنشطة" style="border:1px solid #F7DC6F;padding:2px;text-align:center;background:#FCF3CF;color:#000;">&nbsp;</th>
           <th aria-label="خانة تكميلية للمشاركة" style="border:1px solid #D2B4DE;padding:2px;text-align:center;background:#EBDEF0;color:#000;">&nbsp;</th>`;
         header += `<th style="border:1px solid #F5B7B1;padding:2px;text-align:center;background:#FDEDEC;color:#000;">الاختبار</th>
@@ -4243,7 +4258,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             ${hwCells}
             <td style="border:1px solid #A9DFBF;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#D4EFDF;color:#000;">${formatGrade(hwAvg)}</td>
             ${actCells}
-            <td style="border:1px solid #AED6F1;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EAF3FF;color:#1D4ED8;">${formatGrade(understandingScore)}</td>
+            <td style="border:1px solid #F9E79F;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#FEF9E7;color:#7D6608;">${formatGrade(understandingScore)}</td>
             <td style="border:1px solid #F7DC6F;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#FCF3CF;color:#7D6608;">${formatGrade(w.act)}</td>
             <td style="border:1px solid #D2B4DE;padding:3px;text-align:center;font-size:${sizes.data}px;font-weight:bold;background:#EBDEF0;color:#000;">${formatGrade(part)}</td>
             <td style="border:1px solid #F5B7B1;padding:3px;text-align:center;font-size:${sizes.data}px;background:#FADBD8;color:#000;">${t1}</td>
@@ -4325,7 +4340,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       lessons.forEach(l => csv += `واجب ${l},`);
       csv += "الموزونه,";
       lessons.forEach(l => csv += `نشاط ${l},`);
-      csv += "تحقق,الموزونه,";
+      csv += "تحقق من فهمك,الموزونه,";
       csv += "المشاركة,اختبار الوحدة,المشروع,خ واجب,خ نشاط,خ مشاركه,خ اختبار,المجموع الكلي\n";
       students.forEach((s, i) => {
         const st = fData[s] || { hw: {}, act: {}, test1: '', test2: '', projectLink: '' };
@@ -4400,7 +4415,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:3,storageBackend:'IndexedDB',appData,records,unitsData,followupData,understandingData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,buttonColors,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ const data={backupVersion:3,storageBackend:'IndexedDB',appData,records,unitsData,followupData,understandingData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
@@ -4413,6 +4428,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         if(imported.studentNumberMap) queryStudentNumberMap=imported.studentNumberMap;
         if(imported.fontSettings) fontSettings=normalizeFontSettings(imported.fontSettings);
         if(imported.buttonColors) buttonColors=imported.buttonColors;
+        buttonColorDefaultsVersion=Number(imported.buttonColorDefaultsVersion)||0;
+        for(const key in DEFAULT_BUTTON_COLORS) if(!buttonColors[key]) buttonColors[key]=cloneData(DEFAULT_BUTTON_COLORS[key]);
+        migrateButtonColorDefaults();
         if(imported.notificationSettings) notificationSettings=imported.notificationSettings;
         if(imported.pdfSizeSettings) pdfSizeSettings=imported.pdfSizeSettings;
         if(imported.weakStudentsThresholds) weakStudentsThresholds=normalizeWeakStudentsThresholds(imported.weakStudentsThresholds);
@@ -4757,7 +4775,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           lessons.forEach(l => header.push(`واجب ${l}`));
           header.push('الموزونه');
           lessons.forEach(l => header.push(`نشاط ${l}`));
-          header.push('تحقق', 'الموزونه');
+          header.push('تحقق من فهمك', 'الموزونه');
           header.push('غياب', 'تأخر', 'مخالفات', 'المشاركه', 'اختبار', 'مشروع');
           header.push('خ واجب', 'خ نشاط', 'خ مشاركه', 'خ اختبار', 'المجموع');
           rows.push(header);
