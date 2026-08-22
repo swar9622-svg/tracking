@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.27-تجربة تحقق من فهمك";</script>
+  <script>const APP_VERSION = "20.28-تحقق من فهمك بالوحدة والدرس";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -376,12 +376,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .color-btn-item:active { background: #E5E5EA; }
     .color-btn-item .btn-name { font-weight: 700; font-size: 0.875rem; }
     .color-btn-item .color-preview { width: 2rem; height: 1.5rem; border-radius: 0.375rem; border: 1px solid #ccc; }
-    .understanding-buttons{display:grid;grid-template-columns:repeat(2,minmax(66px,1fr));gap:4px;flex:0 0 164px;}
-    .understanding-buttons .btn-status{width:100%;min-width:0;height:2rem;padding:0.25rem 0.18rem;font-size:0.66rem;}
-    .understanding-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:0 0.65rem 0.45rem;}
-    .understanding-summary-item{border-radius:0.55rem;padding:0.34rem 0.15rem;text-align:center;font-size:0.63rem;font-weight:900;border:1px solid rgba(0,0,0,.08);line-height:1.25;}
-    .understanding-summary-item b{display:block;font-size:0.9rem;}
-    @media(max-width:360px){.understanding-buttons{flex-basis:150px;}.understanding-buttons .btn-status{font-size:0.61rem;}}
+    .understanding-controls{gap:4px;margin-bottom:0.5rem;}
+    .understanding-controls select{flex:1;min-width:0;padding:0.42rem 0.2rem;font-size:0.68rem;}
+    .understanding-buttons{display:grid;grid-template-columns:repeat(2,minmax(58px,1fr));gap:3px;flex:0 0 142px;}
+    .understanding-buttons .btn-status{width:100%;min-width:0;height:1.68rem;padding:0.18rem 0.1rem;font-size:0.58rem;line-height:1.05;}
+    .understanding-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0 0.65rem 0.4rem;}
+    .understanding-summary-item{border-radius:0.48rem;padding:0.26rem 0.1rem;text-align:center;font-size:0.57rem;font-weight:900;border:1px solid rgba(0,0,0,.08);line-height:1.12;}
+    .understanding-summary-item b{display:block;font-size:0.8rem;}
+    @media(max-width:360px){.understanding-controls select{font-size:0.62rem;}.understanding-buttons{flex-basis:132px;}.understanding-buttons .btn-status{font-size:0.53rem;}}
   </style>
 </head>
 <body>
@@ -418,9 +420,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div id="understandingScreen" class="screen">
     <header>
       <div class="header-title-box" onclick="switchToFollowupScreen()">✅ تحقق من فهمك (<span class="app-version-label"></span>)</div>
-      <div class="controls-bar">
-        <select id="understandingClassSelect" onchange="renderUnderstandingScreen()"></select>
-        <input type="date" id="understandingDateSelect" onchange="renderUnderstandingScreen()">
+      <div class="controls-bar understanding-controls">
+        <select id="understandingClassSelect" onchange="renderUnderstandingScreen()" title="الفصل"></select>
+        <select id="understandingUnitSelect" onchange="onUnderstandingUnitChange()" title="الوحدة"></select>
+        <select id="understandingLessonSelect" onchange="renderUnderstandingScreen()" title="الدرس"></select>
       </div>
       <div id="understandingSummary" class="understanding-summary"></div>
     </header>
@@ -2164,34 +2167,51 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       mastered:{label:'متقن',color:'#1E8449',background:'#EAF7EE'},
       partial:{label:'فهم جزئياً',color:'#007AFF',background:'#EAF3FF'},
       support:{label:'يحتاج دعماً',color:'#D97706',background:'#FFF7E6'},
-      notDone:{label:'لم ينفذ',color:'#6B7280',background:'#F2F2F7'}
+      notDone:{label:'لم ينفذ',color:'#C0392B',background:'#FDEDEC'}
     };
-    function getUnderstandingClassDay(date,cls,create=false){
-      if(create){ if(!understandingData[date]) understandingData[date]={}; if(!understandingData[date][cls]) understandingData[date][cls]={}; }
-      return understandingData[date]?.[cls]||{};
+    function refreshUnderstandingLessonSelect(preferredLesson=''){
+      const unit=document.getElementById('understandingUnitSelect').value, lessonSelect=document.getElementById('understandingLessonSelect'), old=preferredLesson||lessonSelect.value;
+      const lessons=unitsData[unit]?.lessons||[];
+      lessonSelect.innerHTML='';
+      lessons.forEach((lesson,index)=>{ lessonSelect.innerHTML+=`<option value="${escapeTextForHtml(lesson)}">${lesson||`درس ${index+1}`}</option>`; });
+      lessonSelect.disabled=lessons.length===0;
+      if(lessons.includes(old)) lessonSelect.value=old;
+    }
+    function refreshUnderstandingUnitSelect(preferredUnit=''){
+      const unitSelect=document.getElementById('understandingUnitSelect'), old=preferredUnit||unitSelect.value||currentActiveUnit, units=Object.keys(unitsData);
+      unitSelect.innerHTML=''; units.forEach(unit=>{ unitSelect.innerHTML+=`<option value="${escapeTextForHtml(unit)}">${unit}</option>`; });
+      unitSelect.disabled=units.length===0;
+      if(units.includes(old)) unitSelect.value=old;
+      refreshUnderstandingLessonSelect();
+    }
+    function onUnderstandingUnitChange(){ refreshUnderstandingLessonSelect(); renderUnderstandingScreen(); }
+    function getUnderstandingLessonStates(cls,unit,lesson,create=false){
+      if(create){ if(!understandingData[cls]) understandingData[cls]={}; if(!understandingData[cls][unit]) understandingData[cls][unit]={}; if(!understandingData[cls][unit][lesson]) understandingData[cls][unit][lesson]={}; }
+      return understandingData[cls]?.[unit]?.[lesson]||{};
     }
     function setUnderstandingStatus(student,status){
-      const cls=document.getElementById('understandingClassSelect').value, date=document.getElementById('understandingDateSelect').value;
-      if(!cls||!date) return;
-      const day=getUnderstandingClassDay(date,cls,true);
-      if(day[student]===status) delete day[student]; else day[student]=status;
-      if(Object.keys(day).length===0){ delete understandingData[date][cls]; if(Object.keys(understandingData[date]).length===0) delete understandingData[date]; }
+      const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
+      if(!cls||!unit||!lesson) return;
+      const states=getUnderstandingLessonStates(cls,unit,lesson,true);
+      // لم ينفذ هو الوضع الافتراضي، لذا لا يحتاج إلى تخزين مستقل لكل طالب.
+      if(status==='notDone'||states[student]===status) delete states[student]; else states[student]=status;
+      if(Object.keys(states).length===0){ delete understandingData[cls][unit][lesson]; if(Object.keys(understandingData[cls][unit]).length===0) delete understandingData[cls][unit]; if(Object.keys(understandingData[cls]).length===0) delete understandingData[cls]; }
       saveData(); renderUnderstandingScreen();
     }
     function renderUnderstandingScreen(){
-      const cls=document.getElementById('understandingClassSelect').value, date=document.getElementById('understandingDateSelect').value, cont=document.getElementById('understandingStudentList'), summary=document.getElementById('understandingSummary');
+      const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value, cont=document.getElementById('understandingStudentList'), summary=document.getElementById('understandingSummary');
       cont.innerHTML=''; summary.innerHTML='';
-      const counts={mastered:0,partial:0,support:0,notDone:0};
-      if(!cls||!appData[cls]) return;
-      const states=getUnderstandingClassDay(date,cls), students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar'));
-      students.forEach(student=>{ if(counts[states[student]]!==undefined) counts[states[student]]++; });
+      if(!cls||!unit||!lesson||!appData[cls]) return;
+      const states=getUnderstandingLessonStates(cls,unit,lesson), students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar'));
+      const counts={mastered:0,partial:0,support:0,notDone:students.length};
+      students.forEach(student=>{ const status=states[student]; if(status&&status!=='notDone'&&counts[status]!==undefined){ counts[status]++; counts.notDone--; } });
       Object.entries(UNDERSTANDING_STATUS_CONFIG).forEach(([key,config])=>{ summary.innerHTML+=`<div class="understanding-summary-item" style="background:${config.background};color:${config.color};"><b>${counts[key]}</b>${config.label}</div>`; });
       students.forEach(student=>{
-        const selected=states[student]||'';
+        const selected=states[student]||'notDone';
         const card=document.createElement('div'); card.className='student-card';
         const buttons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{
           const active=selected===key;
-          return `<button class="btn-status" onclick="setUnderstandingStatus('${CSS.escape(student)}','${key}')" style="background:${active?config.color:'#FFFFFF'};color:${active?'#FFFFFF':config.color};border:1.5px solid ${config.color};font-weight:${active?'900':'800'};">${config.label}</button>`;
+          return `<button class="btn-status" onclick="setUnderstandingStatus('${CSS.escape(student)}','${key}')" style="background:${active?config.color:'#FFFFFF'};color:${active?'#FFFFFF':config.color};border:1.3px solid ${config.color};font-weight:${active?'900':'800'};">${config.label}</button>`;
         }).join('');
         card.innerHTML=`<div class="student-name">${student}</div><div class="understanding-buttons">${buttons}</div>`;
         cont.appendChild(card);
@@ -2203,9 +2223,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
       document.getElementById('gradeSheetScreen').classList.remove('active-screen');
       document.getElementById('understandingScreen').classList.add('active-screen');
-      initClassSelects();
-      const dateInput=document.getElementById('understandingDateSelect'); if(!dateInput.value) dateInput.value=document.getElementById('dateSelect').value||new Date().toISOString().slice(0,10);
-      renderUnderstandingScreen(); window.scrollTo(0,0);
+      initClassSelects(); refreshUnderstandingUnitSelect(); renderUnderstandingScreen(); window.scrollTo(0,0);
     }
     function switchToFollowupScreen(){
       document.getElementById('absenceScreen').classList.remove('active-screen');
