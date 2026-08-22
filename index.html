@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.10";</script>
+  <script>const APP_VERSION = "20.11";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3171,8 +3171,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const table=buildExplicitPagedPdfTables(buildGradeSheetHeader(units,true),tableRows,sizes,'gradeSheet',orientation);
       const reportInfo=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;direction:rtl;white-space:nowrap;"><span style="flex:0 0 auto;text-align:right;">الفصل: ${escapeTextForHtml(cls)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center;">الوحدات: ${units.map(escapeTextForHtml).join('، ')}</span><span style="flex:0 0 auto;text-align:left;">الدرجة النهائية</span></div>`;
       const element=buildPdfElement(table,'كشف الدرجات',reportInfo,'',sizes);
-      // لا يستخدم المركّب اليدوي هنا: يحافظ html2pdf القياسي على ملء عرض A4 كما في كشف الوحدة الحالية.
-      element.dataset.pdfRenderMode='native';
+      // كشف الدرجات يستخدم صفحات مستقلة ثابتة؛ الصفوف تُقسم قبل التصدير والعرض يملأ A4 بالكامل.
+      element.dataset.pdfRenderMode='explicit';
       await exportPdf(element,`كشف_الدرجات_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation},margin:5});
     }
 
@@ -3535,8 +3535,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const canvas=await window.html2canvas(stage,captureOptions);
         document.body.removeChild(stage);
         const naturalHeight=canvas.height*usableWidth/canvas.width;
-        const scale=Math.min(1,usableHeight/naturalHeight);
-        const drawWidth=usableWidth*scale, drawHeight=naturalHeight*scale, drawX=left+(usableWidth-drawWidth)/2;
+        // الصفوف قُسمت مسبقاً حسب اختيار المستخدم؛ نملأ عرض A4 دائماً ولا نقلص الجدول مرة ثانية.
+        const drawWidth=usableWidth, drawHeight=naturalHeight, drawX=left;
         pdf.addImage(canvas.toDataURL('image/jpeg',options.image?.quality??0.98),'JPEG',drawX,top,drawWidth,drawHeight,'page-'+index,'FAST');
       }
       return pdf.output('blob');
@@ -3554,7 +3554,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const options = { ...defaultOpt, ...opt };
         if (opt.margin && typeof opt.margin === 'number') options.margin = [opt.margin, opt.margin, opt.margin, opt.margin];
         if (opt.jsPDF) options.jsPDF = { ...defaultOpt.jsPDF, ...opt.jsPDF };
-        // كشف الدرجات يستخدم المسار القياسي نفسه لكشف الوحدة الحالية؛ هذا المسار أثبت اتساقه في Safari.
+        // التقارير ذات الصفوف المقسمة تستخدم صفحات مستقلة؛ لا نعتمد على تجزئة Safari التلقائية.
         let pdf=element.dataset.pdfRenderMode==='native'?null:await exportExplicitPdfPages(element,options);
         if(!pdf) pdf=await html2pdf().set(options).from(element).outputPdf('blob');
         await deliverPdfBlob(pdf,filename);
