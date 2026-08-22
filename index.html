@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.36";</script>
+  <script>const APP_VERSION = "20.37";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -394,12 +394,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     /* تنقل الشاشات الثلاث: الزر النشط يتمدد، والآخران يبقيان مربعين في موقعيهما. */
     .screen-navigation{display:flex;direction:rtl;gap:0.35rem;align-items:center;padding:0.5rem 0.75rem 0.12rem;}
-    .screen-navigation-btn{height:2.55rem;flex:0 0 2.55rem;min-width:2.55rem;border:0;border-radius:0.72rem;background:#F2F2F7;color:#6E6E73;font-family:inherit;font-size:0.72rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;box-shadow:inset 0 0 0 1px #D1D1D6;transition:flex-basis .23s ease,flex-grow .23s ease,background .23s ease,color .23s ease,box-shadow .23s ease;}
+    .screen-navigation-btn{height:2.55rem;flex:0 0 3.28rem;min-width:3.28rem;border:0;border-radius:0.72rem;background:#F2F2F7;color:#6E6E73;font-family:inherit;font-size:0.72rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;box-shadow:inset 0 0 0 1px #D1D1D6;transition:flex-basis .23s ease,flex-grow .23s ease,background .23s ease,color .23s ease,box-shadow .23s ease;}
     .screen-navigation-btn:active{opacity:.76;transform:scale(.98);}
-    .screen-navigation-btn .screen-nav-short{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.02rem;font-size:0.46rem;line-height:0.94;}
-    .screen-navigation-btn .screen-nav-short b{font-size:0.84rem;line-height:0.78;}
-    .screen-navigation-btn .screen-nav-short small{font-size:0.46rem;font-weight:900;line-height:0.9;}
-    .screen-navigation-btn .screen-nav-full{display:none;overflow:hidden;text-overflow:ellipsis;padding:0 0.3rem;font-size:0.96rem;line-height:1.08;}
+    .screen-navigation-btn .screen-nav-short{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:0.12rem;font-size:0.63rem;font-weight:900;line-height:1;}
+    .screen-navigation-btn .screen-nav-short b{font-size:0.78rem;line-height:1;}
+    .screen-navigation-btn .screen-nav-short small{font-size:0.63rem;font-weight:900;line-height:1;}
+    .screen-navigation-btn .screen-nav-full{display:none;overflow:hidden;text-overflow:ellipsis;padding:0 0.15rem;font-size:1.06rem;font-weight:900;line-height:1.05;}
     .screen-navigation-btn.is-active{flex:1 1 auto;color:#FFF;box-shadow:0 2px 6px rgba(0,0,0,.16);}
     .screen-navigation-btn.is-active .screen-nav-short{display:none;}
     .screen-navigation-btn.is-active .screen-nav-full{display:block;}
@@ -407,7 +407,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .screen-navigation-btn.nav-understanding.is-active{background:#007AFF;}
     .screen-navigation-btn.nav-followup.is-active{background:#5856D6;}
     .screen-version-label{padding:0.08rem 0.75rem 0.35rem;text-align:center;color:#AEAEB2;font-size:0.53rem;font-weight:700;letter-spacing:.02em;line-height:1;}
-    @media(max-width:360px){.understanding-controls select{font-size:0.62rem;}.understanding-buttons{flex-basis:132px;}.understanding-buttons .btn-status{font-size:0.53rem;}.screen-navigation{gap:0.28rem;padding-inline:0.55rem;}.screen-navigation-btn{height:2.42rem;flex-basis:2.42rem;min-width:2.42rem;font-size:0.66rem;}}
+    .followup-understanding-column{background:#FEF9E7 !important;color:#7D6608 !important;}
+    @media(max-width:360px){.understanding-controls select{font-size:0.62rem;}.understanding-buttons{flex-basis:132px;}.understanding-buttons .btn-status{font-size:0.53rem;}.screen-navigation{gap:0.24rem;padding-inline:0.5rem;}.screen-navigation-btn{height:2.42rem;flex-basis:3rem;min-width:3rem;font-size:0.66rem;}.screen-navigation-btn .screen-nav-short{gap:0.08rem;}.screen-navigation-btn .screen-nav-short b{font-size:0.7rem;}.screen-navigation-btn .screen-nav-short small{font-size:0.56rem;}.screen-navigation-btn .screen-nav-full{font-size:0.9rem;}}
   </style>
 </head>
 <body>
@@ -2825,7 +2826,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <th colspan="${lessons.length}" data-group="hw-details" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;position:relative;">الواجبات (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button></span></th>
         <th rowspan="2" data-group="hw" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;">الموزونه<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('hw')" title="فرز الموزونة للواجبات">فرز ↕</button></span></th>
         <th colspan="${lessons.length}" data-group="act-details" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
-        <th rowspan="2" data-group="act" style="background:#FEF9E7;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">تحقق<br><small>من فهمك</small></th>
+        <th rowspan="2" data-group="act" class="followup-understanding-column" style="text-align:center;vertical-align:middle;font-weight:900;">تحقق<br><small>من فهمك</small></th>
         <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونة<br><small>/20</small><span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('act')" title="فرز موزونة الأنشطة مع تحقق">فرز ↕</button></span></th>
         <th rowspan="2" data-group="participation" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;">المشاركة<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('participation')" title="فرز المشاركة">فرز ↕</button></span></th>
         <th colspan="2" data-group="test-details" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;position:relative;">الاختبارات والمشاريع (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span></th>
@@ -2864,7 +2865,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         // الأنشطة المدخلة: لكل درس من 10 درجات.
         lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td data-group="act-details" style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // تحقق /10 ثم الموزونة النهائية /20 = متوسط الأنشطة + تحقق، مطابقةً للخلاصة.
-        rowHtml+=`<td data-group="act" style="background:#FEF9E7;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(understandingScore)}</td><td data-group="act" style="background:#FCF3CF;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(actAvg)}</td>`;
+        rowHtml+=`<td data-group="act" class="followup-understanding-column" style="font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(understandingScore)}</td><td data-group="act" style="background:#FCF3CF;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(actAvg)}</td>`;
         // مشاركة
         let part=calculateStudentParticipationScore(cls,student,unitName);
         rowHtml+=`<td data-group="participation" style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${formatGrade(part)}</td>`;
