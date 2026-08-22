@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.7";</script>
+  <script>const APP_VERSION = "20.8";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3480,6 +3480,61 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return applyWeightedGradeRounding(score<0?0:score,10);
     }
 
+    async function deliverPdfBlob(pdf, filename) {
+      const file = new File([pdf], filename, { type: 'application/pdf' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: filename, text: 'تقرير نظام المتابعة' });
+          return;
+        } catch (shareErr) {
+          if (shareErr.name === 'AbortError') return;
+        }
+      }
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(pdf);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+    }
+
+    // في Safari تُحوّل كل كتلة صفحة إلى صورة مستقلة ثم تُضاف إلى PDF صفحةً صفحةً.
+    // هكذا لا يعتمد التصدير على تفسير WebKit لفواصل CSS داخل جدول طويل.
+    async function exportExplicitPdfPages(element, options) {
+      const sourcePages=[...element.querySelectorAll('.pdf-explicit-page')];
+      if(sourcePages.length<2 || typeof window.html2canvas!=='function') return null;
+      const JsPdfCtor=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
+      if(!JsPdfCtor) return null;
+      if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+      const margin=Array.isArray(options.margin)?options.margin:[4,4,4,4];
+      const [top,right,bottom,left]=margin;
+      const pdf=new JsPdfCtor(options.jsPDF);
+      const pageWidth=pdf.internal.pageSize.getWidth(), pageHeight=pdf.internal.pageSize.getHeight();
+      const usableWidth=pageWidth-left-right, usableHeight=pageHeight-top-bottom;
+      const styleText=element.querySelector('style')?.textContent||'';
+      const titleBlock=element.querySelector('.pdf-report-title')?.parentElement;
+      const subtitleBlock=titleBlock?.nextElementSibling;
+      const captureOptions={...options.html2canvas,backgroundColor:'#ffffff',scrollX:0,scrollY:0,windowWidth:Math.round(usableWidth*3.7795)};
+      for(let index=0;index<sourcePages.length;index++){
+        if(index>0) pdf.addPage(options.jsPDF.format,options.jsPDF.orientation);
+        const stage=document.createElement('div');
+        stage.style.cssText=`position:fixed;left:-20000px;top:0;width:${Math.round(usableWidth*3.7795)}px;background:#fff;direction:rtl;padding:0;z-index:-1;`;
+        stage.innerHTML=`<style>${styleText}</style>`;
+        if(index===0){ if(titleBlock) stage.appendChild(titleBlock.cloneNode(true)); if(subtitleBlock) stage.appendChild(subtitleBlock.cloneNode(true)); }
+        const wrap=document.createElement('div'); wrap.className='pdf-table-wrap'; wrap.style.cssText='width:100%;overflow:visible;';
+        const pageClone=sourcePages[index].cloneNode(true); pageClone.style.cssText='width:100%;page-break-after:auto;break-after:auto;';
+        wrap.appendChild(pageClone); stage.appendChild(wrap); document.body.appendChild(stage);
+        const canvas=await window.html2canvas(stage,captureOptions);
+        document.body.removeChild(stage);
+        const naturalHeight=canvas.height*usableWidth/canvas.width;
+        const scale=Math.min(1,usableHeight/naturalHeight);
+        const drawWidth=usableWidth*scale, drawHeight=naturalHeight*scale, drawX=left+(usableWidth-drawWidth)/2;
+        pdf.addImage(canvas.toDataURL('image/jpeg',options.image?.quality??0.98),'JPEG',drawX,top,drawWidth,drawHeight,'page-'+index,'FAST');
+      }
+      return pdf.output('blob');
+    }
+
     async function exportPdf(element, filename, opt) {
       try {
         const defaultOpt = {
@@ -3490,32 +3545,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
         const options = { ...defaultOpt, ...opt };
-        if (opt.margin && typeof opt.margin === 'number') {
-          options.margin = [opt.margin, opt.margin, opt.margin, opt.margin];
-        }
-        if (opt.jsPDF) {
-          options.jsPDF = { ...defaultOpt.jsPDF, ...opt.jsPDF };
-        }
-
-        const pdf = await html2pdf().set(options).from(element).outputPdf('blob');
-        const file = new File([pdf], filename, { type: 'application/pdf' });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({ files: [file], title: filename, text: 'تقرير نظام المتابعة' });
-            return;
-          } catch (shareErr) {
-            if (shareErr.name === 'AbortError') return;
-          }
-        }
-
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(pdf);
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+        if (opt.margin && typeof opt.margin === 'number') options.margin = [opt.margin, opt.margin, opt.margin, opt.margin];
+        if (opt.jsPDF) options.jsPDF = { ...defaultOpt.jsPDF, ...opt.jsPDF };
+        let pdf=await exportExplicitPdfPages(element,options);
+        if(!pdf) pdf=await html2pdf().set(options).from(element).outputPdf('blob');
+        await deliverPdfBlob(pdf,filename);
       } catch (err) {
         console.error('Error exporting PDF:', err);
         alert('حدث خطأ أثناء تصدير PDF. حاول مرة أخرى.');
