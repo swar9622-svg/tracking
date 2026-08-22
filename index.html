@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.4";</script>
+  <script>const APP_VERSION = "20.5";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -200,7 +200,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #gradeSheetTableWrapper { max-height:none !important; overflow-x:auto; overflow-y:visible; }
     #gradeSheetTable th, #gradeSheetTable td { white-space:nowrap; }
     /* مفتاح iPhone لجبر الدرجات */
-    .grade-rounding-card { border:1px solid #D1D1D6; border-radius:12px; padding:11px 12px; background:#F9F9FB; transition:background .18s,border-color .18s; }
+    .grade-rounding-card { border:1px solid #D1D1D6; border-radius:12px; padding:8px 10px; background:#F9F9FB; transition:background .18s,border-color .18s; }
     .grade-rounding-card.is-enabled { background:#ECF9F0; border-color:#86D5A3; }
     .ios-grade-rounding-switch { position:relative; display:inline-block; width:51px; height:31px; flex:0 0 auto; cursor:pointer; -webkit-tap-highlight-color:transparent; }
     .ios-grade-rounding-switch input { opacity:0; width:0; height:0; position:absolute; }
@@ -1006,8 +1006,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div id="gradeRoundingModeCard" class="grade-rounding-card">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <div style="min-width:0;">
-              <div style="font-size:14px;font-weight:900;color:var(--text-primary);">⬆️ جبر الدرجات الموزونة لكل وحدة</div>
-              <div id="gradeRoundingModeStatus" style="font-size:11px;color:#666;margin-top:4px;line-height:1.45;">الحساب العادي: تبقى النتائج العشرية كما هي</div>
+              <div style="font-size:14px;font-weight:900;color:var(--text-primary);">⬆️ جبر الدرجات</div>
+              <div id="gradeRoundingModeStatus" style="font-size:11px;color:#666;margin-top:1px;line-height:1.2;">غير مفعّل</div>
             </div>
             <label class="ios-grade-rounding-switch" title="تشغيل أو إيقاف جبر الدرجات">
               <input id="gradeRoundingModeToggle" type="checkbox" onchange="toggleGradeRoundingMode(this.checked)">
@@ -2096,7 +2096,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!toggle||!card||!status) return;
       const enabled=gradeRoundingSettings.enabled;
       toggle.checked=enabled; card.classList.toggle('is-enabled',enabled);
-      status.textContent=enabled?'مفعّل: تُجبر نواتج كل وحدة ومجاميعها إلى الأعلى':'الحساب العادي: تبقى النتائج العشرية كما هي';
+      status.textContent=enabled?'مفعّل':'غير مفعّل';
       status.style.color=enabled?'#117A65':'#666';
     }
     function refreshGradeRoundingViews(){
@@ -3120,7 +3120,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const unitScores=units.map(unit=>computeUnitWeighted(cls,student,unit)), finalScores=computeWeightedScores(cls,student,units);
         const unitCells=unitScores.map(scores=>GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>gradeSheetScoreCell(scores[cat.key],cat,catIndex===4)).join('')).join('');
         const finalCells=GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>gradeSheetScoreCell(finalScores[cat.key],cat,catIndex===4)).join('');
-        body.innerHTML+=`<tr><td style="font-weight:900;color:var(--text-secondary);text-align:center;padding:8px 4px;">${index+1}</td><td class="student-name-td" style="font-weight:900;font-size:0.94rem;text-align:right;padding:8px 6px;">${escapeTextForHtml(student)}</td>${unitCells}${finalCells}</tr>`;
+        body.innerHTML+=`<tr><td style="font-weight:900;color:var(--text-secondary);text-align:center;padding:8px 4px;">${index+1}</td><td class="student-name-td" onclick="toggleWeakStudentsRowHighlight(this)" title="اضغط لتظليل صف الطالب" style="font-weight:900;font-size:0.94rem;text-align:right;padding:8px 6px;">${escapeTextForHtml(student)}</td>${unitCells}${finalCells}</tr>`;
         rows.push({student,unitScores,finalScores});
       });
       lastGradeSheetState={cls,units:[...units],rows}; empty.style.display='none';
@@ -3449,7 +3449,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           margin: [4, 4, 4, 4],
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 1.8, useCORS: true, scrollX: 0, scrollY: 0, logging: false },
-          pagebreak: { mode: ['avoid-all', 'css'] },
+          pagebreak: { mode: ['css', 'legacy'], avoid: ['tr'] },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
         const options = { ...defaultOpt, ...opt };
@@ -3517,14 +3517,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         .pdf-table-wrap thead tr:not(:first-child) th{font-size:${sz.subheaders}px!important}
         .pdf-table-wrap td{font-size:${sz.data}px!important}
         .pdf-table-wrap .pdf-student-name-cell{font-size:${sz.names}px!important}
-        .pdf-table-wrap tr, .pdf-table-wrap td, .pdf-table-wrap th, .pdf-table-wrap table {
-          page-break-inside: avoid !important;
-          break-inside: avoid !important;
-        }
-        .pdf-table-wrap {
-          page-break-inside: avoid !important;
-          break-inside: avoid !important;
-        }
+        .pdf-table-wrap { overflow:visible!important; page-break-inside:auto!important; break-inside:auto!important; }
+        .pdf-table-wrap table { page-break-inside:auto!important; break-inside:auto!important; }
+        .pdf-table-wrap thead { display:table-header-group!important; }
+        .pdf-table-wrap tr { page-break-inside:avoid!important; break-inside:avoid-page!important; }
+        .pdf-table-wrap td, .pdf-table-wrap th { break-inside:avoid!important; }
       `;
       div.innerHTML = `<style>${fontUrl}html{font-size:${px}px!important}${fontCss}${sizeCss}</style>
         <div style="text-align:center;border-bottom:2px solid #007AFF;padding-bottom:4px;margin-bottom:6px;">
