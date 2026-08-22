@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.3";</script>
+  <script>const APP_VERSION = "20.4";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -928,6 +928,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </label>
       <div style="margin-bottom:6px;"><span class="field-label" id="pdfSizeTitleLabel" style="margin-bottom:2px;">حجم عنوان الكشف (px):</span><input type="number" id="pdfSizeTitleInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
       <div style="margin-bottom:6px;"><span class="field-label" id="pdfSizeHeadersLabel" style="margin-bottom:2px;">حجم عناوين الجدول (px):</span><input type="number" id="pdfSizeHeadersInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
+      <div style="margin-bottom:6px;"><span class="field-label" id="pdfSizeSubheadersLabel" style="margin-bottom:2px;">حجم العناوين الفرعية (px):</span><input type="number" id="pdfSizeSubheadersInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
       <div style="margin-bottom:6px;"><span class="field-label" id="pdfSizeNamesLabel" style="margin-bottom:2px;">حجم أسماء الطلاب (px):</span><input type="number" id="pdfSizeNamesInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
       <div style="margin-bottom:8px;"><span class="field-label" id="pdfSizeDataLabel" style="margin-bottom:2px;">حجم بيانات الجدول (px):</span><input type="number" id="pdfSizeDataInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
       <button type="button" onclick="resetPdfSizeModalDefaults()" style="width:100%;background-color:#8E44AD;color:white;border:none;padding:0.7rem;border-radius:0.625rem;font-weight:800;font-size:0.85rem;cursor:pointer;margin-bottom:10px;">🔄 الحجم الافتراضي لهذا التقرير</button>
@@ -1005,8 +1006,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div id="gradeRoundingModeCard" class="grade-rounding-card">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <div style="min-width:0;">
-              <div style="font-size:12px;font-weight:900;color:var(--text-primary);">⬆️ جبر الدرجات الموزونة لكل وحدة</div>
-              <div id="gradeRoundingModeStatus" style="font-size:10px;color:#666;margin-top:4px;line-height:1.45;">الحساب العادي: تبقى النتائج العشرية كما هي</div>
+              <div style="font-size:14px;font-weight:900;color:var(--text-primary);">⬆️ جبر الدرجات الموزونة لكل وحدة</div>
+              <div id="gradeRoundingModeStatus" style="font-size:11px;color:#666;margin-top:4px;line-height:1.45;">الحساب العادي: تبقى النتائج العشرية كما هي</div>
             </div>
             <label class="ios-grade-rounding-switch" title="تشغيل أو إيقاف جبر الدرجات">
               <input id="gradeRoundingModeToggle" type="checkbox" onchange="toggleGradeRoundingMode(this.checked)">
@@ -2966,12 +2967,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let weakStudentsPreviousColumnSelection=null;
     let weakStudentsPreviousProjectSelection=null;
     const WEAK_REPORT_COLUMNS={
-      hw:{label:'الواجبات',cap:'/10',max:10,bg:'#D4EFDF',color:'#117A65'},
-      act:{label:'الأنشطة',cap:'/20',max:20,bg:'#FCF3CF',color:'#7D6608'},
-      participation:{label:'المشاركة',cap:'/10',max:10,bg:'#EBDEF0',color:'#512E5F'},
-      test:{label:'الاختبار',cap:'/20',max:20,bg:'#FADBD8',color:'#78281F'}
+      hw:{label:'واجب',cap:'/10',max:10,bg:'#D4EFDF',color:'#117A65'},
+      act:{label:'نشاط',cap:'/20',max:20,bg:'#FCF3CF',color:'#7D6608'},
+      participation:{label:'مشاركة',cap:'/10',max:10,bg:'#EBDEF0',color:'#512E5F'},
+      test:{label:'اختبار',cap:'/20',max:20,bg:'#FADBD8',color:'#78281F'}
     };
-    const WEAK_PROJECT_COLUMN={key:'project',label:'المشروع',cap:'/20',max:20,bg:'#D6EAF8',color:'#1B4F72'};
+    const WEAK_PROJECT_COLUMN={key:'project',label:'مشروع',cap:'/20',max:20,bg:'#D6EAF8',color:'#1B4F72'};
     const WEAK_THRESHOLD_FIELDS=[
       {key:'hw',label:'الواجبات',max:10,color:'#117A65'}, {key:'act',label:'الأنشطة',max:20,color:'#7D6608'},
       {key:'participation',label:'المشاركة',max:10,color:'#512E5F'}, {key:'test',label:'الاختبار',max:20,color:'#78281F'},
@@ -3046,11 +3047,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let gradeSheetSelectedUnits=[];
     let lastGradeSheetState=null;
     const GRADE_SHEET_CATEGORIES=[
-      {key:'hw',label:'الواجبات',cap:'/10',bg:'#D4EFDF',color:'#117A65'},
-      {key:'act',label:'الأنشطة',cap:'/20',bg:'#FCF3CF',color:'#7D6608'},
-      {key:'participation',label:'المشاركة',cap:'/10',bg:'#EBDEF0',color:'#512E5F'},
-      {key:'test',label:'الاختبار',cap:'/20',bg:'#FADBD8',color:'#78281F'},
-      {key:'total',label:'المجموع',cap:'/60',bg:'#D5F5E3',color:'#1E8449'}
+      {key:'hw',label:'واجب',cap:'/10',bg:'#D4EFDF',color:'#117A65'},
+      {key:'act',label:'نشاط',cap:'/20',bg:'#FCF3CF',color:'#7D6608'},
+      {key:'participation',label:'مشاركة',cap:'/10',bg:'#EBDEF0',color:'#512E5F'},
+      {key:'test',label:'اختبار',cap:'/20',bg:'#FADBD8',color:'#78281F'},
+      {key:'total',label:'مجموع',cap:'/60',bg:'#D5F5E3',color:'#1E8449'}
     ];
     const GRADE_SHEET_UNIT_COLORS=[
       {bg:'#EAF2F8',color:'#1B4F72',border:'#5DADE2'}, {bg:'#E8F8F5',color:'#117A65',border:'#58D68D'},
@@ -3513,6 +3514,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const sizeCss = `
         .pdf-report-title{font-size:${sz.title}px!important}
         .pdf-table-wrap th{font-size:${sz.headers}px!important}
+        .pdf-table-wrap thead tr:not(:first-child) th{font-size:${sz.subheaders}px!important}
         .pdf-table-wrap td{font-size:${sz.data}px!important}
         .pdf-table-wrap .pdf-student-name-cell{font-size:${sz.names}px!important}
         .pdf-table-wrap tr, .pdf-table-wrap td, .pdf-table-wrap th, .pdf-table-wrap table {
@@ -3537,25 +3539,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== إعدادات أحجام الخطوط الافتراضية =====
-    const PDF_SIZE_FALLBACK = { title: 16, headers: 11, names: 13, data: 11 };
+    const PDF_SIZE_FALLBACK = { title: 16, headers: 11, subheaders: 11, names: 13, data: 11 };
     const PDF_REPORT_DEFAULTS = {
-      singleStudent:    { title: 16, headers: 11, names: 11, data: 11 },
-      reportSummary:    { title: 16, headers: 11, names: 15, data: 11 },
-      reportViolations: { title: 16, headers: 9,  names: 13, data: 9  },
-      followupCurrent:  { title: 16, headers: 10, names: 12, data: 10 },
-      periodUnit:       { title: 16, headers: 8,  names: 10, data: 8  },
-      periodSummary:    { title: 16, headers: 10, names: 12, data: 10 },
-      weakStudents:     { title: 16, headers: 9,  names: 10, data: 9  },
-      gradeSheet:       { title: 16, headers: 7,  names: 10, data: 8  }
+      singleStudent:    { title: 16, headers: 11, subheaders: 11, names: 11, data: 11 },
+      reportSummary:    { title: 16, headers: 11, subheaders: 11, names: 15, data: 11 },
+      reportViolations: { title: 16, headers: 9,  subheaders: 9,  names: 13, data: 9  },
+      followupCurrent:  { title: 16, headers: 10, subheaders: 10, names: 12, data: 10 },
+      periodUnit:       { title: 16, headers: 8,  subheaders: 8,  names: 10, data: 8  },
+      periodSummary:    { title: 16, headers: 10, subheaders: 10, names: 12, data: 10 },
+      weakStudents:     { title: 16, headers: 9,  subheaders: 9,  names: 10, data: 9  },
+      gradeSheet:       { title: 16, headers: 7,  subheaders: 7,  names: 10, data: 8  }
     };
     let pdfSizeSettings = {};
     let pendingPdfReportKey = null;
 
-    function getPdfSizes(key){ const def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK, custom=pdfSizeSettings[key]||{}; return {title:custom.title!==undefined&&custom.title!==null?custom.title:def.title,headers:custom.headers!==undefined&&custom.headers!==null?custom.headers:def.headers,names:custom.names!==undefined&&custom.names!==null?custom.names:def.names,data:custom.data!==undefined&&custom.data!==null?custom.data:def.data}; }
-    function openPdfSizeModal(key){ pendingPdfReportKey=key; const def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK, cur=getPdfSizes(key), custom=pdfSizeSettings[key]||{}; document.getElementById('pdfSizeTitleLabel').innerText=`حجم عنوان الكشف (px): (الافتراضي: ${def.title})`; document.getElementById('pdfSizeHeadersLabel').innerText=`حجم عناوين الجدول (px): (الافتراضي: ${def.headers})`; document.getElementById('pdfSizeNamesLabel').innerText=`حجم أسماء الطلاب (px): (الافتراضي: ${def.names})`; document.getElementById('pdfSizeDataLabel').innerText=`حجم بيانات الجدول (px): (الافتراضي: ${def.data})`; document.getElementById('pdfSizeTitleInput').value=cur.title; document.getElementById('pdfSizeHeadersInput').value=cur.headers; document.getElementById('pdfSizeNamesInput').value=cur.names; document.getElementById('pdfSizeDataInput').value=cur.data; const row=document.getElementById('pdfShowViolationNamesRow'), input=document.getElementById('pdfShowViolationNamesInput'); row.style.display=key==='singleStudent'?'flex':'none'; input.checked=key==='singleStudent'&&custom.showViolationNames===true; document.getElementById('pdfSizeSettingsModal').style.display='flex'; }
+    function getPdfSizes(key){ const def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK, custom=pdfSizeSettings[key]||{}; return {title:custom.title!==undefined&&custom.title!==null?custom.title:def.title,headers:custom.headers!==undefined&&custom.headers!==null?custom.headers:def.headers,subheaders:custom.subheaders!==undefined&&custom.subheaders!==null?custom.subheaders:def.subheaders,names:custom.names!==undefined&&custom.names!==null?custom.names:def.names,data:custom.data!==undefined&&custom.data!==null?custom.data:def.data}; }
+    function openPdfSizeModal(key){ pendingPdfReportKey=key; const def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK, cur=getPdfSizes(key), custom=pdfSizeSettings[key]||{}; document.getElementById('pdfSizeTitleLabel').innerText=`حجم عنوان الكشف (px): (الافتراضي: ${def.title})`; document.getElementById('pdfSizeHeadersLabel').innerText=`حجم عناوين الجدول (px): (الافتراضي: ${def.headers})`; document.getElementById('pdfSizeSubheadersLabel').innerText=`حجم العناوين الفرعية (px): (الافتراضي: ${def.subheaders})`; document.getElementById('pdfSizeNamesLabel').innerText=`حجم أسماء الطلاب (px): (الافتراضي: ${def.names})`; document.getElementById('pdfSizeDataLabel').innerText=`حجم بيانات الجدول (px): (الافتراضي: ${def.data})`; document.getElementById('pdfSizeTitleInput').value=cur.title; document.getElementById('pdfSizeHeadersInput').value=cur.headers; document.getElementById('pdfSizeSubheadersInput').value=cur.subheaders; document.getElementById('pdfSizeNamesInput').value=cur.names; document.getElementById('pdfSizeDataInput').value=cur.data; const row=document.getElementById('pdfShowViolationNamesRow'), input=document.getElementById('pdfShowViolationNamesInput'); row.style.display=key==='singleStudent'?'flex':'none'; input.checked=key==='singleStudent'&&custom.showViolationNames===true; document.getElementById('pdfSizeSettingsModal').style.display='flex'; }
     function closePdfSizeModal(){ document.getElementById('pdfSizeSettingsModal').style.display='none'; pendingPdfReportKey=null; }
-    function resetPdfSizeModalDefaults(){ if(!pendingPdfReportKey) return; const def=PDF_REPORT_DEFAULTS[pendingPdfReportKey]||PDF_SIZE_FALLBACK; document.getElementById('pdfSizeTitleInput').value=def.title; document.getElementById('pdfSizeHeadersInput').value=def.headers; document.getElementById('pdfSizeNamesInput').value=def.names; document.getElementById('pdfSizeDataInput').value=def.data; if(pendingPdfReportKey==='singleStudent') document.getElementById('pdfShowViolationNamesInput').checked=false; }
-    async function confirmPdfSizeExport(){ if(!pendingPdfReportKey) return; const key=pendingPdfReportKey, def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK; const t=parseFloat(document.getElementById('pdfSizeTitleInput').value), h=parseFloat(document.getElementById('pdfSizeHeadersInput').value), n=parseFloat(document.getElementById('pdfSizeNamesInput').value), d=parseFloat(document.getElementById('pdfSizeDataInput').value); const settings={title:isNaN(t)?def.title:t,headers:isNaN(h)?def.headers:h,names:isNaN(n)?def.names:n,data:isNaN(d)?def.data:d}; if(key==='singleStudent') settings.showViolationNames=document.getElementById('pdfShowViolationNamesInput').checked; pdfSizeSettings[key]=settings; saveData(); document.getElementById('pdfSizeSettingsModal').style.display='none'; try{ switch(key){ case'singleStudent':await exportSingleStudentPDF(); break; case'reportSummary':case'reportViolations':await generatePDF(); break; case'followupCurrent':await exportFollowupReportModalPDF(); break; case'periodUnit':await exportPeriodPDF(); break; case'periodSummary':await exportPeriodSummaryPDF(); break; case'weakStudents':await exportWeakStudentsPDF(); break; case'gradeSheet':await exportGradeSheetPDF(); break; } }finally{ pendingPdfReportKey=null; } }
+    function resetPdfSizeModalDefaults(){ if(!pendingPdfReportKey) return; const def=PDF_REPORT_DEFAULTS[pendingPdfReportKey]||PDF_SIZE_FALLBACK; document.getElementById('pdfSizeTitleInput').value=def.title; document.getElementById('pdfSizeHeadersInput').value=def.headers; document.getElementById('pdfSizeSubheadersInput').value=def.subheaders; document.getElementById('pdfSizeNamesInput').value=def.names; document.getElementById('pdfSizeDataInput').value=def.data; if(pendingPdfReportKey==='singleStudent') document.getElementById('pdfShowViolationNamesInput').checked=false; }
+    async function confirmPdfSizeExport(){ if(!pendingPdfReportKey) return; const key=pendingPdfReportKey, def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK; const t=parseFloat(document.getElementById('pdfSizeTitleInput').value), h=parseFloat(document.getElementById('pdfSizeHeadersInput').value), sh=parseFloat(document.getElementById('pdfSizeSubheadersInput').value), n=parseFloat(document.getElementById('pdfSizeNamesInput').value), d=parseFloat(document.getElementById('pdfSizeDataInput').value); const settings={title:isNaN(t)?def.title:t,headers:isNaN(h)?def.headers:h,subheaders:isNaN(sh)?def.subheaders:sh,names:isNaN(n)?def.names:n,data:isNaN(d)?def.data:d}; if(key==='singleStudent') settings.showViolationNames=document.getElementById('pdfShowViolationNamesInput').checked; pdfSizeSettings[key]=settings; saveData(); document.getElementById('pdfSizeSettingsModal').style.display='none'; try{ switch(key){ case'singleStudent':await exportSingleStudentPDF(); break; case'reportSummary':case'reportViolations':await generatePDF(); break; case'followupCurrent':await exportFollowupReportModalPDF(); break; case'periodUnit':await exportPeriodPDF(); break; case'periodSummary':await exportPeriodSummaryPDF(); break; case'weakStudents':await exportWeakStudentsPDF(); break; case'gradeSheet':await exportGradeSheetPDF(); break; } }finally{ pendingPdfReportKey=null; } }
 
     // ===== دوال التصدير =====
     async function exportFollowupReportModalPDF() {
