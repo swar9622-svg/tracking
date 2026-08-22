@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.20";</script>
+  <script>const APP_VERSION = "20.21";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3356,21 +3356,59 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       empty.textContent=totalMode?'لا يوجد طلاب مجموعهم أقل من حد الضعف المحدد في الوحدات المختارة.':'لا يوجد طلاب أقل من حدود الضعف المحددة أو لم ينفذوا المشروع في الوحدات المختارة.';
       empty.style.display=weakRows.length?'none':'block';
     }
+    async function exportWeakStudentsDirectPDF(state,sizes){
+      const {cls,units,summaryMode,totalMode,projectSelected,activeColumns,weakRows}=state;
+      const JsPdfCtor=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
+      if(!JsPdfCtor) throw new Error('مكتبة PDF غير متاحة.');
+      if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+      const pdf=new JsPdfCtor({unit:'mm',format:'a4',orientation:'portrait'});
+      const [topMm,rightMm,bottomMm,leftMm]=getPdfMargins(sizes), pxPerMm=4;
+      const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight();
+      // تقرير الضعاف يُثبت عند عرض الصفحة: النسبة الأكبر من 100 لا توسّع رأساً دون الصفوف.
+      const widthScale=Math.min(1,Math.max(.70,getPdfTableWidth(sizes)/100));
+      const fullW=Math.round(pageW*pxPerMm), fullH=Math.round(pageH*pxPerMm);
+      const availableW=Math.round((pageW-leftMm-rightMm)*pxPerMm), logicalW=Math.round(availableW*widthScale);
+      const logicalH=Math.round((pageH-topMm-bottomMm)*pxPerMm), offsetX=Math.round((pageW-rightMm)*pxPerMm)-logicalW, offsetY=Math.round(topMm*pxPerMm), hiRes=2;
+      const columnDefs=[{kind:'index',label:'#',cap:'',bg:'#F2F2F7',color:'#3A3A3C'},{kind:'name',label:'اسم الطالب',cap:'',bg:'#F2F2F7',color:'#202124'},...activeColumns.map(key=>({kind:'score',key,...WEAK_REPORT_COLUMNS[key]})),...(projectSelected?units.map((unit,index)=>({kind:'project',unit,label:units.length>1?String(index+1):'مشروع',cap:units.length>1?'':'',bg:WEAK_PROJECT_COLUMN.bg,color:WEAK_PROJECT_COLUMN.color})):[]),{kind:'total',label:'المجموع الكلي',cap:'/60',bg:'#D5F5E3',color:'#1E8449'}];
+      const side=2*pxPerMm, contentW=logicalW-side*2;
+      const indexW=Math.max(34,Math.round(contentW*.055)), nameW=Math.max(160,Math.round(contentW*.43));
+      const dataW=Math.max(28,(contentW-indexW-nameW)/Math.max(1,columnDefs.length-2));
+      const colWidths=columnDefs.map((col,index)=>index===0?indexW:index===1?nameW:dataW);
+      const titleH=Math.max(34,Math.round(Number(sizes.title||16)*2.1)), infoH=Math.max(28,Math.round(Number(sizes.data||9)*2.5)), headerH=Math.max(38,Math.round(Number(sizes.headers||9)*3.8)), rowH=Math.max(38,Math.round(Math.max(Number(sizes.names||10),Number(sizes.data||9))*4.0));
+      const headerY=side+titleH+infoH, availableRows=Math.max(1,Math.floor((logicalH-headerY-headerH-side)/rowH));
+      const requestedRows=Math.floor(Number(sizes.rowsPerPage)||0), rowsPerPage=requestedRows>0?Math.min(requestedRows,availableRows):availableRows;
+      const chunks=[]; for(let start=0;start<weakRows.length;start+=rowsPerPage) chunks.push(weakRows.slice(start,start+rowsPerPage));
+      const fit=(ctx,value,width)=>fitGradeSheetCanvasText(ctx,String(value??''),Math.max(4,width-10));
+      const rect=(ctx,x,y,w,h,fill,stroke='#D1D1D6',line=1)=>{ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);ctx.strokeStyle=stroke;ctx.lineWidth=line;ctx.strokeRect(x,y,w,h);};
+      const centerLines=(ctx,lines,x,y,w,h,font,color)=>{const values=(Array.isArray(lines)?lines:[lines]).filter(value=>value!==''&&value!==null&&value!==undefined);ctx.save();ctx.direction='rtl';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=font;ctx.fillStyle=color;const fontPx=parseFloat((String(font).match(/(\d+(?:\.\d+)?)px/)||['','10'])[1]), gap=Math.max(11,fontPx*1.18), start=y+h/2-(values.length-1)*gap/2;values.forEach((value,i)=>ctx.fillText(fit(ctx,value,w),x+w/2,start+i*gap));ctx.restore();};
+      const rightText=(ctx,value,x,y,w,h,font,color)=>{ctx.save();ctx.direction='rtl';ctx.textAlign='right';ctx.textBaseline='middle';ctx.font=font;ctx.fillStyle=color;ctx.fillText(fit(ctx,value,w),x+w-6,y+h/2);ctx.restore();};
+      const cellValue=(item,col)=>{
+        if(col.kind==='index') return {lines:[String(item.index+1)],bg:'#FFFFFF',color:'#3A3A3C'};
+        if(col.kind==='name') return {name:item.student,bg:'#FFFFFF',color:'#202124'};
+        if(col.kind==='score'){ const value=Number(item.scores[col.key]||0), weak=value<getWeakStudentsThreshold(col.key); return {lines:weak?['ضعف',formatGrade(value)]:[formatGrade(value)],bg:weak?'#FFF1F2':'#FFFFFF',color:weak?'#B42318':'#202124'}; }
+        if(col.kind==='project'){ const value=Number(item.scores.projectByUnit?.[col.unit]||0), done=value>0; return {lines:done?['نفذ',formatGrade(value)]:['لم ينفذ','0'],bg:done?'#EBF7EF':'#FFF1F2',color:done?'#1E8449':'#B42318'}; }
+        const value=Number(item.scores.total||0), weak=totalMode&&value<getWeakStudentsThreshold('total'); return {lines:weak?['ضعف',formatGrade(value)]:[formatGrade(value)],bg:weak?'#FFF1F2':'#D5F5E3',color:weak?'#B42318':'#1E8449'};
+      };
+      chunks.forEach((chunk,pageIndex)=>{
+        if(pageIndex>0) pdf.addPage('a4','portrait');
+        const canvas=document.createElement('canvas'); canvas.width=fullW*hiRes; canvas.height=fullH*hiRes;
+        const ctx=canvas.getContext('2d'); ctx.scale(hiRes,hiRes); ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,fullW,fullH);ctx.translate(offsetX,offsetY);ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,logicalW,logicalH);
+        ctx.strokeStyle='#007AFF';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(side,side+titleH-4);ctx.lineTo(logicalW-side,side+titleH-4);ctx.stroke();
+        centerLines(ctx,['تقرير الطلاب الضعاف'],side,side,logicalW-side*2,titleH,`900 ${Math.max(18,Number(sizes.title||16)*1.75)}px Arial`,'#007AFF');
+        const reportInfo=`الفصل: ${cls}     |     الوحدات: ${units.join('، ')}     |     ${summaryMode?'الخلاصة':'الموزونة'}`;
+        rightText(ctx,reportInfo,side,side+titleH,logicalW-side*2,infoH,`700 ${Math.max(10,Number(sizes.data||9)*1.2)}px Arial`,'#3A3A3C');
+        let x=logicalW-side; columnDefs.forEach((col,index)=>{ const w=colWidths[index]; x-=w;rect(ctx,x,headerY,w,headerH,col.bg);centerLines(ctx,col.cap?[col.label,col.cap]:[col.label],x,headerY,w,headerH,`900 ${Math.max(9,Number(sizes.headers||9)*1.1)}px Arial`,col.color); });
+        chunk.forEach((item,rowIndex)=>{ const displayItem={...item,index:weakRows.indexOf(item)}, y=headerY+headerH+rowIndex*rowH; let cellX=logicalW-side;columnDefs.forEach((col,index)=>{const w=colWidths[index];cellX-=w;const value=cellValue(displayItem,col);rect(ctx,cellX,y,w,rowH,value.bg);if(col.kind==='name') rightText(ctx,value.name,cellX,y,w,rowH,`900 ${Math.max(10,Number(sizes.names||10)*1.2)}px Arial`,value.color);else centerLines(ctx,value.lines,cellX,y,w,rowH,`900 ${Math.max(9,Number(sizes.data||9)*1.1)}px Arial`,value.color);}); });
+        pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,pageW,pageH,`weak-students-${pageIndex}`,'FAST');
+      });
+      await deliverPdfBlob(pdf.output('blob'),`تقرير_الطلاب_الضعاف_${cls}.pdf`);
+    }
     async function exportWeakStudentsPDF(){
       if(!lastWeakStudentsReportState) renderWeakStudentsReport();
       const state=lastWeakStudentsReportState;
       if(!state||state.weakRows.length===0){ alert('لا يوجد طلاب ضعاف في الأقسام المحددة لتصديرهم.'); return; }
-      const {cls,units,summaryMode,totalMode,projectSelected,activeColumns,weakRows}=state;
-      const sizes=getPdfSizes('weakStudents');
-      const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const weak=item.scores[key]<getWeakStudentsThreshold(key); return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${formatGrade(item.scores[key])}</td>`; }).join(''); const projectCells=projectSelected?units.map(unit=>weakProjectUnitCell(item.scores.projectByUnit?.[unit]||0,true)).join(''):''; const totalWeak=totalMode&&item.scores.total<getWeakStudentsThreshold('total'); const totalCell=`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${totalWeak?'background:#FFF1F2;color:#B42318;':'background:#D5F5E3;color:#1E8449;'}font-weight:900;">${totalWeak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${formatGrade(item.scores.total)}</td>`; return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}${projectCells}${totalCell}</tr>`; }).join('');
-      // عرض موحّد للتقارير: 100 يملأ A4، والقيمة الأقل تصغّر الجدول بمحاذاة اليمين، والأكبر لا تُقصّ الأعمدة.
-      const tableWidth=`${getPdfTableWidth(sizes)}%`;
-      const table=`<table style="width:${tableWidth};margin-right:0;margin-left:auto;border-collapse:collapse;direction:rtl;"><thead>${buildWeakStudentsTableHeader(activeColumns,projectSelected,units,true)}</thead><tbody>${rows}</tbody></table>`;
-      const columnsLabel=activeColumns.map(key=>WEAK_REPORT_COLUMNS[key].label).join('، ');
-      const evaluationLabel=summaryMode?'الخلاصة':'الموزونة';
-      const reportInfo=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;direction:rtl;white-space:nowrap;"><span style="flex:0 0 auto;text-align:right;">الفصل: ${escapeTextForHtml(cls)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center;">الوحدات: ${units.map(escapeTextForHtml).join('، ')}</span><span style="flex:0 0 auto;text-align:left;">${evaluationLabel}</span></div>`;
-      const element=buildPdfElement(table,'تقرير الطلاب الضعاف',reportInfo,'',sizes);
-      await exportPdf(element,`تقرير_الطلاب_الضعاف_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},margin:getPdfMargins(sizes)});
+      try{ await exportWeakStudentsDirectPDF(state,getPdfSizes('weakStudents')); }
+      catch(error){ console.error('Direct weak-students PDF error:',error); alert('حدث خطأ أثناء تصدير تقرير الطلاب الضعاف.'); throw error; }
     }
 
     function selectPeriodName(name){ selectedPeriodName=name; document.getElementById('periodNameFirstBtn').classList.toggle('selected-period-name',name==='الأولى'); document.getElementById('periodNameSecondBtn').classList.toggle('selected-period-name',name==='الثانية'); }
