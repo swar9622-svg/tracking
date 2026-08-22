@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.7";</script>
+  <script>const APP_VERSION = "20.19";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -931,7 +931,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div style="margin-bottom:6px;"><span class="field-label" id="pdfSizeSubheadersLabel" style="margin-bottom:2px;">حجم العناوين الفرعية (px):</span><input type="number" id="pdfSizeSubheadersInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
       <div style="margin-bottom:6px;"><span class="field-label" id="pdfSizeNamesLabel" style="margin-bottom:2px;">حجم أسماء الطلاب (px):</span><input type="number" id="pdfSizeNamesInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
       <div style="margin-bottom:6px;"><span class="field-label" id="pdfSizeDataLabel" style="margin-bottom:2px;">حجم بيانات الجدول (px):</span><input type="number" id="pdfSizeDataInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="6" max="60" step="1"></div>
-      <div style="margin-bottom:8px;"><span class="field-label" id="pdfRowsPerPageLabel" style="margin-bottom:2px;">عدد الصفوف في كل صفحة PDF: (0 = الوضع الحالي)</span><input type="number" id="pdfRowsPerPageInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="0" max="80" step="1" inputmode="numeric"><div style="font-size:0.68rem;color:var(--text-secondary);font-weight:700;text-align:center;margin-top:3px;">عند إدخال رقم، يبدأ جدول جديد برأسه بعد هذا العدد من الصفوف.</div></div>
+      <div style="margin-bottom:8px;"><span class="field-label" id="pdfRowsPerPageLabel" style="margin-bottom:2px;">عدد الصفوف في كل صفحة PDF: (0 = تلقائي يملأ الصفحة)</span><input type="number" id="pdfRowsPerPageInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="0" max="80" step="1" inputmode="numeric"><div style="font-size:0.68rem;color:var(--text-secondary);font-weight:700;text-align:center;margin-top:3px;">عند وضع 0، يملأ التطبيق الصفحة تلقائياً حسب أحجام الخطوط؛ وعند إدخال رقم، يبدأ جدول جديد برأسه بعد هذا العدد من الصفوف.</div></div>
+      <div id="pdfWeakTableWidthRow" style="display:none;margin-bottom:6px;"><span class="field-label" style="margin-bottom:2px;">عرض جدول الطلاب الضعاف داخل الصفحة (%):</span><input type="number" id="pdfWeakTableWidthInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="55" max="100" step="1" inputmode="numeric"><div style="font-size:0.68rem;color:var(--text-secondary);font-weight:700;text-align:center;margin-top:3px;">100 يملأ عرض الصفحة ويزيل الفراغ الأيسر؛ 72 يعيد التصميم القديم المدمج.</div></div>
+      <div id="pdfWeakSideMarginRow" style="display:none;margin-bottom:8px;"><span class="field-label" style="margin-bottom:2px;">الهامش الجانبي للصفحة (مم):</span><input type="number" id="pdfWeakSideMarginInput" class="select-class-full" style="text-align:center;margin-bottom:0;" min="0" max="20" step="1" inputmode="numeric"><div style="font-size:0.68rem;color:var(--text-secondary);font-weight:700;text-align:center;margin-top:3px;">0 يعطي أكبر مساحة آمنة للجدول، مع بقاء إطار الصفحة الواضح.</div></div>
       <button type="button" onclick="resetPdfSizeModalDefaults()" style="width:100%;background-color:#8E44AD;color:white;border:none;padding:0.7rem;border-radius:0.625rem;font-weight:800;font-size:0.85rem;cursor:pointer;margin-bottom:10px;">🔄 الحجم الافتراضي لهذا التقرير</button>
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closePdfSizeModal()">إلغاء</button>
@@ -3111,17 +3113,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function gradeSheetScoreCell(value,cat,isEnd=false){
       return `<td style="text-align:center;font-weight:900;font-size:0.84rem;padding:7px 5px;background:${cat.bg};color:${cat.key==='total'?cat.color:'var(--text-primary)'};${isEnd?'border-left:3px solid #8DA6B8;':''}">${formatGrade(Number(value||0))}</td>`;
     }
-    // يقسم الصفوف صراحةً إلى جداول مستقلة، لذلك لا يعتمد PDF على اقتصاص جدول طويل تلقائياً.
+    // الصفر يعني قياساً فعلياً لاحقاً بعد بناء PDF، حتى يتكيف العدد مع طول الصف وحجم الخط والعنوان.
     function buildExplicitPagedPdfTables(headerHtml,rowHtmls,sizes,reportKey,orientation='portrait'){
-      const defaultRows=reportKey==='gradeSheet'?(orientation==='landscape'?20:18):20;
-      const largestFont=Math.max(8,Number(sizes?.headers)||0,Number(sizes?.subheaders)||0,Number(sizes?.names)||0,Number(sizes?.data)||0);
-      const automaticRows=Math.max(4,Math.floor(defaultRows*10/largestFont));
       const manualRows=Math.floor(Number(sizes?.rowsPerPage)||0);
-      const rowsPerPage=manualRows>0?manualRows:automaticRows;
+      const tableMarkup=rows=>`<table style="width:100%;border-collapse:collapse;direction:rtl;"><thead>${headerHtml}</thead><tbody>${rows.join('')}</tbody></table>`;
+      if(manualRows<=0) return `<section class="pdf-explicit-auto-page" style="width:100%;">${tableMarkup(rowHtmls)}</section>`;
       const pages=[];
-      for(let start=0;start<rowHtmls.length;start+=rowsPerPage){
-        const isLast=start+rowsPerPage>=rowHtmls.length;
-        pages.push(`<section class="pdf-explicit-page" style="width:100%;${isLast?'':'page-break-after:always;break-after:page;'}"><table style="width:100%;border-collapse:collapse;direction:rtl;"><thead>${headerHtml}</thead><tbody>${rowHtmls.slice(start,start+rowsPerPage).join('')}</tbody></table></section>`);
+      for(let start=0;start<rowHtmls.length;start+=manualRows){
+        const isLast=start+manualRows>=rowHtmls.length;
+        pages.push(`<section class="pdf-explicit-page" style="width:100%;${isLast?'':'page-break-after:always;break-after:page;'}">${tableMarkup(rowHtmls.slice(start,start+manualRows))}</section>`);
       }
       return pages.join('');
     }
@@ -3162,16 +3162,67 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       });
       lastGradeSheetState={cls,units:[...units],rows}; empty.style.display='none';
     }
+    function fitGradeSheetCanvasText(ctx,text,maxWidth){
+      let value=String(text??'');
+      if(ctx.measureText(value).width<=maxWidth) return value;
+      while(value.length>1&&ctx.measureText(`${value}…`).width>maxWidth) value=value.slice(0,-1);
+      return `${value}…`;
+    }
+    async function exportGradeSheetDirectPDF(state,sizes){
+      const {cls,units,rows}=state, orientation=units.length>=2?'landscape':'portrait';
+      const JsPdfCtor=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
+      if(!JsPdfCtor) throw new Error('مكتبة PDF غير متاحة.');
+      if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+      const pdf=new JsPdfCtor({unit:'mm',format:'a4',orientation});
+      const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight(), pxPerMm=4;
+      const logicalW=Math.round(pageW*pxPerMm), logicalH=Math.round(pageH*pxPerMm), hiRes=2;
+      const side=2*pxPerMm, indexW=Math.max(40,Math.round(logicalW*.035)), nameW=Math.max(190,Math.round(logicalW*.18));
+      const groups=[...units.map((unit,index)=>({label:unit,color:GRADE_SHEET_UNIT_COLORS[index%GRADE_SHEET_UNIT_COLORS.length],unitIndex:index,final:false})),{label:'الدرجة النهائية',color:{bg:'#EAF2F8',color:'#0B5394',border:'#0B5394'},final:true}];
+      const cellW=(logicalW-(side*2)-indexW-nameW)/(groups.length*GRADE_SHEET_CATEGORIES.length);
+      const titleH=Math.max(34,Math.round(Number(sizes.title||16)*2.1)), infoH=Math.max(24,Math.round(Number(sizes.data||8)*2.5));
+      const groupH=Math.max(30,Math.round(Number(sizes.headers||7)*2.6)), subH=Math.max(26,Math.round(Number(sizes.subheaders||7)*2.7));
+      // عامل ارتفاع ثابت يطابق كثافة محرر HTML، لكنه يعتمد فقط على حجم الخط المختار لا على قياس WebKit.
+      const rowH=Math.max(30,Math.floor(Math.max(Number(sizes.names||10),Number(sizes.data||8))*3.35));
+      const topStart=side, headerY=topStart+titleH+infoH;
+      const usableRows=Math.max(1,Math.floor((logicalH-headerY-groupH-subH-side)/rowH));
+      const chosenRows=Math.floor(Number(sizes.rowsPerPage)||0), rowsPerPage=chosenRows>0?chosenRows:usableRows;
+      const chunks=[]; for(let start=0;start<rows.length;start+=rowsPerPage) chunks.push(rows.slice(start,start+rowsPerPage));
+      const drawRect=(ctx,x,y,w,h,fill,stroke='#D1D1D6',line=1)=>{ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);ctx.strokeStyle=stroke;ctx.lineWidth=line;ctx.strokeRect(x,y,w,h);};
+      const drawCentered=(ctx,text,x,y,w,h,font,color)=>{ctx.save();ctx.direction='rtl';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=font;ctx.fillStyle=color;ctx.fillText(fitGradeSheetCanvasText(ctx,text,w-6),x+w/2,y+h/2);ctx.restore();};
+      const drawRight=(ctx,text,x,y,w,h,font,color)=>{ctx.save();ctx.direction='rtl';ctx.textAlign='right';ctx.textBaseline='middle';ctx.font=font;ctx.fillStyle=color;ctx.fillText(fitGradeSheetCanvasText(ctx,text,w-8),x+w-4,y+h/2);ctx.restore();};
+      chunks.forEach((chunk,pageIndex)=>{
+        if(pageIndex>0) pdf.addPage('a4',orientation);
+        const canvas=document.createElement('canvas'); canvas.width=logicalW*hiRes; canvas.height=logicalH*hiRes;
+        const ctx=canvas.getContext('2d'); ctx.scale(hiRes,hiRes); ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,logicalW,logicalH);
+        ctx.strokeStyle='#007AFF';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(side,topStart+titleH-4);ctx.lineTo(logicalW-side,topStart+titleH-4);ctx.stroke();
+        drawCentered(ctx,'كشف الدرجات',side,topStart,logicalW-side*2,titleH,`900 ${Math.max(20,Number(sizes.title||16)*1.8)}px Arial`,'#007AFF');
+        const info=`الفصل: ${cls}     |     الوحدات: ${units.join('، ')}     |     الدرجة النهائية`;
+        drawRight(ctx,info,side,topStart+titleH,logicalW-side*2,infoH,`700 ${Math.max(11,Number(sizes.data||8)*1.35)}px Arial`,'#3A3A3C');
+        let cursor=logicalW-side;
+        const fixedTop=headerY, fixedH=groupH+subH;
+        cursor-=indexW; drawRect(ctx,cursor,fixedTop,indexW,fixedH,'#F2F2F7'); drawCentered(ctx,'#',cursor,fixedTop,indexW,fixedH,`900 ${Math.max(11,Number(sizes.headers||7)*1.5)}px Arial`,'#3A3A3C');
+        cursor-=nameW; drawRect(ctx,cursor,fixedTop,nameW,fixedH,'#F2F2F7'); drawRight(ctx,'اسم الطالب',cursor,fixedTop,nameW,fixedH,`900 ${Math.max(12,Number(sizes.names||10)*1.35)}px Arial`,'#3A3A3C');
+        groups.forEach(group=>{
+          const groupW=cellW*GRADE_SHEET_CATEGORIES.length; cursor-=groupW;
+          drawRect(ctx,cursor,headerY,groupW,groupH,group.color.bg,group.color.border,2); drawCentered(ctx,group.label,cursor,headerY,groupW,groupH,`900 ${Math.max(11,Number(sizes.headers||7)*1.55)}px Arial`,group.color.color);
+          let subX=cursor+groupW;
+          GRADE_SHEET_CATEGORIES.forEach((cat,catIndex)=>{subX-=cellW; drawRect(ctx,subX,headerY+groupH,cellW,subH,cat.bg,catIndex===4?group.color.border:'#D1D1D6',catIndex===4?2:1); drawCentered(ctx,cat.label,subX,headerY+groupH,cellW,subH,`700 ${Math.max(8,Number(sizes.subheaders||7)*1.15)}px Arial`,cat.color);});
+        });
+        chunk.forEach((row,rowIndex)=>{
+          const y=headerY+groupH+subH+rowIndex*rowH; let x=logicalW-side;
+          x-=indexW; drawRect(ctx,x,y,indexW,rowH,'#FFFFFF'); drawCentered(ctx,String(rows.indexOf(row)+1),x,y,indexW,rowH,`700 ${Math.max(10,Number(sizes.data||8)*1.4)}px Arial`,'#3A3A3C');
+          x-=nameW; drawRect(ctx,x,y,nameW,rowH,'#FFFFFF'); drawRight(ctx,row.student,x,y,nameW,rowH,`900 ${Math.max(11,Number(sizes.names||10)*1.35)}px Arial`,'#202124');
+          groups.forEach(group=>{const scores=group.final?row.finalScores:row.unitScores[group.unitIndex]; GRADE_SHEET_CATEGORIES.forEach((cat,catIndex)=>{x-=cellW;drawRect(ctx,x,y,cellW,rowH,cat.bg,catIndex===4?group.color.border:'#D1D1D6',catIndex===4?2:1);drawCentered(ctx,formatGrade(Number(scores[cat.key]||0)),x,y,cellW,rowH,`900 ${Math.max(10,Number(sizes.data||8)*1.45)}px Arial`,cat.key==='total'?cat.color:'#202124');});});
+        });
+        pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,pageW,pageH,`grade-sheet-${pageIndex}`,'FAST');
+      });
+      await deliverPdfBlob(pdf.output('blob'),`كشف_الدرجات_${cls}.pdf`);
+    }
     async function exportGradeSheetPDF(){
       if(!lastGradeSheetState) renderGradeSheetReport(); const state=lastGradeSheetState;
       if(!state||state.rows.length===0){ alert('لا توجد درجات لتصديرها.'); return; }
-      const {cls,units,rows}=state, sizes=getPdfSizes('gradeSheet'), orientation=units.length>=2?'landscape':'portrait';
-      const pdfCell=(value,cat,isEnd=false)=>`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;font-weight:900;background:${cat.bg};color:${cat.key==='total'?cat.color:'#202124'};${isEnd?'border-left:3px solid #0B5394;':''}">${formatGrade(Number(value||0))}</td>`;
-      const tableRows=rows.map((row,index)=>{const unitCells=row.unitScores.map(scores=>GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>pdfCell(scores[cat.key],cat,catIndex===4)).join('')).join(''), finalCells=GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>pdfCell(row.finalScores[cat.key],cat,catIndex===4)).join(''); return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(row.student)}</td>${unitCells}${finalCells}</tr>`;});
-      const table=buildExplicitPagedPdfTables(buildGradeSheetHeader(units,true),tableRows,sizes,'gradeSheet',orientation);
-      const reportInfo=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;direction:rtl;white-space:nowrap;"><span style="flex:0 0 auto;text-align:right;">الفصل: ${escapeTextForHtml(cls)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center;">الوحدات: ${units.map(escapeTextForHtml).join('، ')}</span><span style="flex:0 0 auto;text-align:left;">الدرجة النهائية</span></div>`;
-      const element=buildPdfElement(table,'كشف الدرجات',reportInfo,'',sizes);
-      await exportPdf(element,`كشف_الدرجات_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation},margin:5});
+      try{ await exportGradeSheetDirectPDF(state,getPdfSizes('gradeSheet')); }
+      catch(error){ console.error('Direct grade-sheet PDF error:',error); alert('حدث خطأ أثناء تصدير كشف الدرجات.'); throw error; }
     }
 
     function toggleWeakStudentsRowHighlight(nameCell){
@@ -3295,14 +3346,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const state=lastWeakStudentsReportState;
       if(!state||state.weakRows.length===0){ alert('لا يوجد طلاب ضعاف في الأقسام المحددة لتصديرهم.'); return; }
       const {cls,units,summaryMode,totalMode,projectSelected,activeColumns,weakRows}=state;
-      const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const weak=item.scores[key]<getWeakStudentsThreshold(key); return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${formatGrade(item.scores[key])}</td>`; }).join(''); const projectCells=projectSelected?units.map(unit=>weakProjectUnitCell(item.scores.projectByUnit?.[unit]||0,true)).join(''):''; const totalWeak=totalMode&&item.scores.total<getWeakStudentsThreshold('total'); const totalCell=`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${totalWeak?'background:#FFF1F2;color:#B42318;':'background:#D5F5E3;color:#1E8449;'}font-weight:900;">${totalWeak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${formatGrade(item.scores.total)}</td>`; return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}${projectCells}${totalCell}</tr>`; });
-      const table=buildExplicitPagedPdfTables(buildWeakStudentsTableHeader(activeColumns,projectSelected,units,true),rows,sizes,'weakStudents','portrait');
+      const sizes=getPdfSizes('weakStudents');
+      const rows=weakRows.map((item,index)=>{ const cells=activeColumns.map(key=>{ const weak=item.scores[key]<getWeakStudentsThreshold(key); return `<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${weak?'background:#FFF1F2;color:#B42318;font-weight:900;':'font-weight:800;'}">${weak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${formatGrade(item.scores[key])}</td>`; }).join(''); const projectCells=projectSelected?units.map(unit=>weakProjectUnitCell(item.scores.projectByUnit?.[unit]||0,true)).join(''):''; const totalWeak=totalMode&&item.scores.total<getWeakStudentsThreshold('total'); const totalCell=`<td style="border:1px solid #D1D1D6;padding:5px;text-align:center;${totalWeak?'background:#FFF1F2;color:#B42318;':'background:#D5F5E3;color:#1E8449;'}font-weight:900;">${totalWeak?'<small style="display:block;color:#E11D48;">ضعف</small>':''}${formatGrade(item.scores.total)}</td>`; return `<tr><td style="border:1px solid #D1D1D6;padding:5px;text-align:center;">${index+1}</td><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px;text-align:right;white-space:nowrap;font-weight:900;">${escapeTextForHtml(item.student)}</td>${cells}${projectCells}${totalCell}</tr>`; }).join('');
+      // تقرير الضعاف القديم كان مدمجاً ومحاذياً لليمين عند قلة الأعمدة؛ التقرير العريض يبقى بعرض الصفحة حتى لا تضيق البيانات.
+      const tableWidth=`${Math.min(100,Math.max(55,Number(sizes.weakTableWidth)||100))}%`;
+      const table=`<table style="width:${tableWidth};margin-right:0;margin-left:auto;border-collapse:collapse;direction:rtl;"><thead>${buildWeakStudentsTableHeader(activeColumns,projectSelected,units,true)}</thead><tbody>${rows}</tbody></table>`;
       const columnsLabel=activeColumns.map(key=>WEAK_REPORT_COLUMNS[key].label).join('، ');
       const evaluationLabel=summaryMode?'الخلاصة':'الموزونة';
       const reportInfo=`<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;direction:rtl;white-space:nowrap;"><span style="flex:0 0 auto;text-align:right;">الفصل: ${escapeTextForHtml(cls)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center;">الوحدات: ${units.map(escapeTextForHtml).join('، ')}</span><span style="flex:0 0 auto;text-align:left;">${evaluationLabel}</span></div>`;
-      const sizes=getPdfSizes('weakStudents');
       const element=buildPdfElement(table,'تقرير الطلاب الضعاف',reportInfo,'',sizes);
-      await exportPdf(element,`تقرير_الطلاب_الضعاف_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},margin:5});
+      const weakSideMargin=Math.min(20,Math.max(0,Number(sizes.weakSideMargin)||0));
+      await exportPdf(element,`تقرير_الطلاب_الضعاف_${cls}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},margin:[5,weakSideMargin,5,weakSideMargin]});
     }
 
     function selectPeriodName(name){ selectedPeriodName=name; document.getElementById('periodNameFirstBtn').classList.toggle('selected-period-name',name==='الأولى'); document.getElementById('periodNameSecondBtn').classList.toggle('selected-period-name',name==='الثانية'); }
@@ -3480,6 +3534,90 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return applyWeightedGradeRounding(score<0?0:score,10);
     }
 
+    async function deliverPdfBlob(pdf, filename) {
+      const file = new File([pdf], filename, { type: 'application/pdf' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: filename, text: 'تقرير نظام المتابعة' });
+          return;
+        } catch (shareErr) {
+          if (shareErr.name === 'AbortError') return;
+        }
+      }
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(pdf);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+    }
+
+    // في Safari تُحوّل كل صفحة إلى صورة مستقلة؛ وعند الصفر نقيس الصفوف فعلياً قبل التقاطها.
+    async function exportExplicitPdfPages(element, options) {
+      let sourcePages=[...element.querySelectorAll('.pdf-explicit-page')];
+      const autoPage=element.querySelector('.pdf-explicit-auto-page');
+      if((!sourcePages.length&&!autoPage) || typeof window.html2canvas!=='function') return null;
+      const JsPdfCtor=(window.jspdf&&window.jspdf.jsPDF)||window.jsPDF;
+      if(!JsPdfCtor) return null;
+      if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+      const margin=Array.isArray(options.margin)?options.margin:[4,4,4,4];
+      const [top,right,bottom,left]=margin;
+      const pdf=new JsPdfCtor(options.jsPDF);
+      const pageWidth=pdf.internal.pageSize.getWidth(), pageHeight=pdf.internal.pageSize.getHeight();
+      const usableWidth=pageWidth-left-right, usableHeight=pageHeight-top-bottom;
+      const styleText=element.querySelector('style')?.textContent||'';
+      const titleBlock=element.querySelector('.pdf-report-title')?.parentElement;
+      const subtitleBlock=titleBlock?.nextElementSibling;
+      const baseCaptureOptions={...options.html2canvas,backgroundColor:'#ffffff',scrollX:0,scrollY:0};
+      const makeStage=(sourcePage,index)=>{
+        const stage=document.createElement('div');
+        stage.style.cssText='position:fixed;left:-20000px;top:0;width:max-content;min-width:1px;background:#fff;direction:rtl;padding:0;z-index:-1;overflow:visible;';
+        stage.innerHTML=`<style>${styleText}</style>`;
+        if(index===0){ if(titleBlock) stage.appendChild(titleBlock.cloneNode(true)); if(subtitleBlock) stage.appendChild(subtitleBlock.cloneNode(true)); }
+        const wrap=document.createElement('div'); wrap.className='pdf-table-wrap'; wrap.style.cssText='width:max-content;max-width:none;overflow:visible;';
+        const pageClone=sourcePage.cloneNode(true); pageClone.style.cssText='width:max-content;max-width:none;page-break-after:auto;break-after:auto;';
+        pageClone.querySelectorAll('table').forEach(table=>{ table.style.width='max-content'; table.style.maxWidth='none'; });
+        wrap.appendChild(pageClone); stage.appendChild(wrap); document.body.appendChild(stage);
+        // Safari قد يضيف عرضاً وهمياً للمرحلة نفسها؛ نعتمد عرض الجدول فقط كي لا يدخل فراغ داخل الصورة.
+        const tableWidths=[...pageClone.querySelectorAll('table')].map(table=>Math.ceil(table.scrollWidth||table.getBoundingClientRect().width||0));
+        const width=Math.max(1,...tableWidths);
+        stage.style.width=`${width}px`;
+        return {stage,width};
+      };
+      // الصفر: أضف الصفوف واحداً واحداً، وقس الارتفاع بعد العنوان والرأس والخطوط المختارة.
+      if(autoPage){
+        const autoTable=autoPage.querySelector('table'), autoBody=autoTable?.querySelector('tbody');
+        const rows=autoBody?[...autoBody.children]:[];
+        const generated=[]; let start=0, pageIndex=0;
+        while(start<rows.length){
+          const page=autoPage.cloneNode(true), body=page.querySelector('tbody'); body.innerHTML=''; let count=0;
+          for(let cursor=start;cursor<rows.length;cursor++){
+            body.appendChild(rows[cursor].cloneNode(true));
+            const probe=makeStage(page,pageIndex);
+            const heightMm=probe.stage.scrollHeight*usableWidth/probe.width;
+            probe.stage.remove();
+            if(heightMm>usableHeight&&count>0){ body.removeChild(body.lastElementChild); break; }
+            count++;
+            if(heightMm>usableHeight) break;
+          }
+          generated.push(page); start+=Math.max(1,count); pageIndex++;
+        }
+        sourcePages=generated;
+      }
+      for(let index=0;index<sourcePages.length;index++){
+        if(index>0) pdf.addPage(options.jsPDF.format,options.jsPDF.orientation);
+        const prepared=makeStage(sourcePages[index],index);
+        const captureOptions={...baseCaptureOptions,width:prepared.width,windowWidth:prepared.width};
+        const canvas=await window.html2canvas(prepared.stage,captureOptions);
+        prepared.stage.remove();
+        const naturalHeight=canvas.height*usableWidth/canvas.width;
+        const drawWidth=usableWidth, drawHeight=naturalHeight, drawX=left;
+        pdf.addImage(canvas.toDataURL('image/jpeg',options.image?.quality??0.98),'JPEG',drawX,top,drawWidth,drawHeight,'page-'+index,'FAST');
+      }
+      return pdf.output('blob');
+    }
+
     async function exportPdf(element, filename, opt) {
       try {
         const defaultOpt = {
@@ -3490,32 +3628,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
         const options = { ...defaultOpt, ...opt };
-        if (opt.margin && typeof opt.margin === 'number') {
-          options.margin = [opt.margin, opt.margin, opt.margin, opt.margin];
-        }
-        if (opt.jsPDF) {
-          options.jsPDF = { ...defaultOpt.jsPDF, ...opt.jsPDF };
-        }
-
-        const pdf = await html2pdf().set(options).from(element).outputPdf('blob');
-        const file = new File([pdf], filename, { type: 'application/pdf' });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({ files: [file], title: filename, text: 'تقرير نظام المتابعة' });
-            return;
-          } catch (shareErr) {
-            if (shareErr.name === 'AbortError') return;
-          }
-        }
-
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(pdf);
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+        if (opt.margin && typeof opt.margin === 'number') options.margin = [opt.margin, opt.margin, opt.margin, opt.margin];
+        if (opt.jsPDF) options.jsPDF = { ...defaultOpt.jsPDF, ...opt.jsPDF };
+        // التقارير ذات الصفوف المقسمة تستخدم صفحات مستقلة؛ لا نعتمد على تجزئة Safari التلقائية.
+        let pdf=element.dataset.pdfRenderMode==='native'?null:await exportExplicitPdfPages(element,options);
+        if(!pdf) pdf=await html2pdf().set(options).from(element).outputPdf('blob');
+        await deliverPdfBlob(pdf,filename);
       } catch (err) {
         console.error('Error exporting PDF:', err);
         alert('حدث خطأ أثناء تصدير PDF. حاول مرة أخرى.');
@@ -3582,17 +3700,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       followupCurrent:  { title: 16, headers: 10, subheaders: 10, names: 12, data: 10 },
       periodUnit:       { title: 16, headers: 8,  subheaders: 8,  names: 10, data: 8  },
       periodSummary:    { title: 16, headers: 10, subheaders: 10, names: 12, data: 10 },
-      weakStudents:     { title: 16, headers: 9,  subheaders: 9,  names: 10, data: 9  },
+      weakStudents:     { title: 16, headers: 9,  subheaders: 9,  names: 10, data: 9, weakTableWidth: 100, weakSideMargin: 0 },
       gradeSheet:       { title: 16, headers: 7,  subheaders: 7,  names: 10, data: 8  }
     };
     let pdfSizeSettings = {};
     let pendingPdfReportKey = null;
 
-    function getPdfSizes(key){ const def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK, custom=pdfSizeSettings[key]||{}; return {title:custom.title!==undefined&&custom.title!==null?custom.title:def.title,headers:custom.headers!==undefined&&custom.headers!==null?custom.headers:def.headers,subheaders:custom.subheaders!==undefined&&custom.subheaders!==null?custom.subheaders:def.subheaders,names:custom.names!==undefined&&custom.names!==null?custom.names:def.names,data:custom.data!==undefined&&custom.data!==null?custom.data:def.data,rowsPerPage:custom.rowsPerPage!==undefined&&custom.rowsPerPage!==null?custom.rowsPerPage:(def.rowsPerPage??0)}; }
-    function openPdfSizeModal(key){ pendingPdfReportKey=key; const def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK, cur=getPdfSizes(key), custom=pdfSizeSettings[key]||{}; document.getElementById('pdfSizeTitleLabel').innerText=`حجم عنوان الكشف (px): (الافتراضي: ${def.title})`; document.getElementById('pdfSizeHeadersLabel').innerText=`حجم عناوين الجدول (px): (الافتراضي: ${def.headers})`; document.getElementById('pdfSizeSubheadersLabel').innerText=`حجم العناوين الفرعية (px): (الافتراضي: ${def.subheaders})`; document.getElementById('pdfSizeNamesLabel').innerText=`حجم أسماء الطلاب (px): (الافتراضي: ${def.names})`; document.getElementById('pdfSizeDataLabel').innerText=`حجم بيانات الجدول (px): (الافتراضي: ${def.data})`; document.getElementById('pdfRowsPerPageLabel').innerText='عدد الصفوف في كل صفحة PDF: (0 = الوضع الحالي)'; document.getElementById('pdfSizeTitleInput').value=cur.title; document.getElementById('pdfSizeHeadersInput').value=cur.headers; document.getElementById('pdfSizeSubheadersInput').value=cur.subheaders; document.getElementById('pdfSizeNamesInput').value=cur.names; document.getElementById('pdfSizeDataInput').value=cur.data; document.getElementById('pdfRowsPerPageInput').value=cur.rowsPerPage||0; const row=document.getElementById('pdfShowViolationNamesRow'), input=document.getElementById('pdfShowViolationNamesInput'); row.style.display=key==='singleStudent'?'flex':'none'; input.checked=key==='singleStudent'&&custom.showViolationNames===true; document.getElementById('pdfSizeSettingsModal').style.display='flex'; }
+    function getPdfSizes(key){ const def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK, custom=pdfSizeSettings[key]||{}; return {title:custom.title!==undefined&&custom.title!==null?custom.title:def.title,headers:custom.headers!==undefined&&custom.headers!==null?custom.headers:def.headers,subheaders:custom.subheaders!==undefined&&custom.subheaders!==null?custom.subheaders:def.subheaders,names:custom.names!==undefined&&custom.names!==null?custom.names:def.names,data:custom.data!==undefined&&custom.data!==null?custom.data:def.data,rowsPerPage:custom.rowsPerPage!==undefined&&custom.rowsPerPage!==null?custom.rowsPerPage:(def.rowsPerPage??0),weakTableWidth:custom.weakTableWidth!==undefined&&custom.weakTableWidth!==null?custom.weakTableWidth:(def.weakTableWidth??100),weakSideMargin:custom.weakSideMargin!==undefined&&custom.weakSideMargin!==null?custom.weakSideMargin:(def.weakSideMargin??0)}; }
+    function openPdfSizeModal(key){ pendingPdfReportKey=key; const def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK, cur=getPdfSizes(key), custom=pdfSizeSettings[key]||{}; document.getElementById('pdfSizeTitleLabel').innerText=`حجم عنوان الكشف (px): (الافتراضي: ${def.title})`; document.getElementById('pdfSizeHeadersLabel').innerText=`حجم عناوين الجدول (px): (الافتراضي: ${def.headers})`; document.getElementById('pdfSizeSubheadersLabel').innerText=`حجم العناوين الفرعية (px): (الافتراضي: ${def.subheaders})`; document.getElementById('pdfSizeNamesLabel').innerText=`حجم أسماء الطلاب (px): (الافتراضي: ${def.names})`; document.getElementById('pdfSizeDataLabel').innerText=`حجم بيانات الجدول (px): (الافتراضي: ${def.data})`; document.getElementById('pdfRowsPerPageLabel').innerText='عدد الصفوف في كل صفحة PDF: (0 = تلقائي يملأ الصفحة)'; document.getElementById('pdfSizeTitleInput').value=cur.title; document.getElementById('pdfSizeHeadersInput').value=cur.headers; document.getElementById('pdfSizeSubheadersInput').value=cur.subheaders; document.getElementById('pdfSizeNamesInput').value=cur.names; document.getElementById('pdfSizeDataInput').value=cur.data; document.getElementById('pdfRowsPerPageInput').value=cur.rowsPerPage||0; const row=document.getElementById('pdfShowViolationNamesRow'), input=document.getElementById('pdfShowViolationNamesInput'); row.style.display=key==='singleStudent'?'flex':'none'; input.checked=key==='singleStudent'&&custom.showViolationNames===true; const weakWidthRow=document.getElementById('pdfWeakTableWidthRow'), weakMarginRow=document.getElementById('pdfWeakSideMarginRow'); weakWidthRow.style.display=key==='weakStudents'?'block':'none'; weakMarginRow.style.display=key==='weakStudents'?'block':'none'; if(key==='weakStudents'){ document.getElementById('pdfWeakTableWidthInput').value=cur.weakTableWidth; document.getElementById('pdfWeakSideMarginInput').value=cur.weakSideMargin; } document.getElementById('pdfSizeSettingsModal').style.display='flex'; }
     function closePdfSizeModal(){ document.getElementById('pdfSizeSettingsModal').style.display='none'; pendingPdfReportKey=null; }
-    function resetPdfSizeModalDefaults(){ if(!pendingPdfReportKey) return; const def=PDF_REPORT_DEFAULTS[pendingPdfReportKey]||PDF_SIZE_FALLBACK; document.getElementById('pdfSizeTitleInput').value=def.title; document.getElementById('pdfSizeHeadersInput').value=def.headers; document.getElementById('pdfSizeSubheadersInput').value=def.subheaders; document.getElementById('pdfSizeNamesInput').value=def.names; document.getElementById('pdfSizeDataInput').value=def.data; document.getElementById('pdfRowsPerPageInput').value=def.rowsPerPage??0; if(pendingPdfReportKey==='singleStudent') document.getElementById('pdfShowViolationNamesInput').checked=false; }
-    async function confirmPdfSizeExport(){ if(!pendingPdfReportKey) return; const key=pendingPdfReportKey, def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK; const t=parseFloat(document.getElementById('pdfSizeTitleInput').value), h=parseFloat(document.getElementById('pdfSizeHeadersInput').value), sh=parseFloat(document.getElementById('pdfSizeSubheadersInput').value), n=parseFloat(document.getElementById('pdfSizeNamesInput').value), d=parseFloat(document.getElementById('pdfSizeDataInput').value), rp=parseInt(document.getElementById('pdfRowsPerPageInput').value,10); const settings={title:isNaN(t)?def.title:t,headers:isNaN(h)?def.headers:h,subheaders:isNaN(sh)?def.subheaders:sh,names:isNaN(n)?def.names:n,data:isNaN(d)?def.data:d,rowsPerPage:Number.isFinite(rp)&&rp>0?Math.min(80,rp):0}; if(key==='singleStudent') settings.showViolationNames=document.getElementById('pdfShowViolationNamesInput').checked; pdfSizeSettings[key]=settings; saveData(); document.getElementById('pdfSizeSettingsModal').style.display='none'; try{ switch(key){ case'singleStudent':await exportSingleStudentPDF(); break; case'reportSummary':case'reportViolations':await generatePDF(); break; case'followupCurrent':await exportFollowupReportModalPDF(); break; case'periodUnit':await exportPeriodPDF(); break; case'periodSummary':await exportPeriodSummaryPDF(); break; case'weakStudents':await exportWeakStudentsPDF(); break; case'gradeSheet':await exportGradeSheetPDF(); break; } }finally{ pendingPdfReportKey=null; } }
+    function resetPdfSizeModalDefaults(){ if(!pendingPdfReportKey) return; const def=PDF_REPORT_DEFAULTS[pendingPdfReportKey]||PDF_SIZE_FALLBACK; document.getElementById('pdfSizeTitleInput').value=def.title; document.getElementById('pdfSizeHeadersInput').value=def.headers; document.getElementById('pdfSizeSubheadersInput').value=def.subheaders; document.getElementById('pdfSizeNamesInput').value=def.names; document.getElementById('pdfSizeDataInput').value=def.data; document.getElementById('pdfRowsPerPageInput').value=def.rowsPerPage??0; if(pendingPdfReportKey==='weakStudents'){ document.getElementById('pdfWeakTableWidthInput').value=def.weakTableWidth??100; document.getElementById('pdfWeakSideMarginInput').value=def.weakSideMargin??0; } if(pendingPdfReportKey==='singleStudent') document.getElementById('pdfShowViolationNamesInput').checked=false; }
+    async function confirmPdfSizeExport(){ if(!pendingPdfReportKey) return; const key=pendingPdfReportKey, def=PDF_REPORT_DEFAULTS[key]||PDF_SIZE_FALLBACK; const t=parseFloat(document.getElementById('pdfSizeTitleInput').value), h=parseFloat(document.getElementById('pdfSizeHeadersInput').value), sh=parseFloat(document.getElementById('pdfSizeSubheadersInput').value), n=parseFloat(document.getElementById('pdfSizeNamesInput').value), d=parseFloat(document.getElementById('pdfSizeDataInput').value), rp=parseInt(document.getElementById('pdfRowsPerPageInput').value,10), tw=parseFloat(document.getElementById('pdfWeakTableWidthInput').value), sm=parseFloat(document.getElementById('pdfWeakSideMarginInput').value); const settings={title:isNaN(t)?def.title:t,headers:isNaN(h)?def.headers:h,subheaders:isNaN(sh)?def.subheaders:sh,names:isNaN(n)?def.names:n,data:isNaN(d)?def.data:d,rowsPerPage:Number.isFinite(rp)&&rp>0?Math.min(80,rp):0}; if(key==='weakStudents'){ settings.weakTableWidth=Number.isFinite(tw)?Math.min(100,Math.max(55,tw)):(def.weakTableWidth??100); settings.weakSideMargin=Number.isFinite(sm)?Math.min(20,Math.max(0,sm)):(def.weakSideMargin??0); } if(key==='singleStudent') settings.showViolationNames=document.getElementById('pdfShowViolationNamesInput').checked; pdfSizeSettings[key]=settings; saveData(); document.getElementById('pdfSizeSettingsModal').style.display='none'; try{ switch(key){ case'singleStudent':await exportSingleStudentPDF(); break; case'reportSummary':case'reportViolations':await generatePDF(); break; case'followupCurrent':await exportFollowupReportModalPDF(); break; case'periodUnit':await exportPeriodPDF(); break; case'periodSummary':await exportPeriodSummaryPDF(); break; case'weakStudents':await exportWeakStudentsPDF(); break; case'gradeSheet':await exportGradeSheetPDF(); break; } }finally{ pendingPdfReportKey=null; } }
 
     // ===== دوال التصدير =====
     async function exportFollowupReportModalPDF() {
