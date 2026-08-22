@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.10";</script>
+  <script>const APP_VERSION = "111";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3534,10 +3534,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const captureOptions={...baseCaptureOptions,width:measuredWidth,windowWidth:measuredWidth};
         const canvas=await window.html2canvas(stage,captureOptions);
         document.body.removeChild(stage);
-        const naturalHeight=canvas.height*usableWidth/canvas.width;
-        const scale=Math.min(1,usableHeight/naturalHeight);
-        const drawWidth=usableWidth*scale, drawHeight=naturalHeight*scale, drawX=left+(usableWidth-drawWidth)/2;
-        pdf.addImage(canvas.toDataURL('image/jpeg',options.image?.quality??0.98),'JPEG',drawX,top,drawWidth,drawHeight,'page-'+index,'FAST');
+        // يملأ كل صفحة كامل العرض والارتفاع المتاحين للورقة (بلا هامش سفلي أو جانبي فارغ)، بنفس الشكل الذي يصدره محرر HTML.
+        pdf.addImage(canvas.toDataURL('image/jpeg',options.image?.quality??0.98),'JPEG',left,top,usableWidth,usableHeight,'page-'+index,'FAST');
       }
       return pdf.output('blob');
     }
