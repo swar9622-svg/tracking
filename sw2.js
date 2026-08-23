@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-69-fullwidth-followup-table';
+const CACHE_NAME = 'attendance-app-v20-70-followup-pinch-zoom';
 const urlsToCache = [
   './',
   './index.html',

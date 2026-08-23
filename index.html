@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.69";</script>
+  <script>const APP_VERSION = "20.70";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -148,6 +148,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       padding: 0;
       border-radius: 0;
       box-shadow: none;
+      touch-action: pan-x pan-y;
+      overscroll-behavior: contain;
     }
     #followupScreen .period-export-container {
       margin-bottom: 90px;
@@ -5377,6 +5379,43 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       downloadFile(csv,`تقرير_مخالفات_${selectedStudentForReport}_${scopeLabel}.csv`,'text/csv;charset=utf-8;');
     }
 
+    // ===== تكبير جدول المتابعة بإصبعين =====
+    function initFollowupTablePinchZoom(){
+      const container=document.querySelector('#followupScreen .followup-table-container');
+      const table=document.getElementById('followupTable');
+      if(!container||!table||container.dataset.pinchZoomReady==='1') return;
+      container.dataset.pinchZoomReady='1';
+      container.setAttribute('aria-label','جدول المتابعة: استخدم إصبعين للتكبير أو التصغير');
+      let zoom=1, startZoom=1, startDistance=0, pinching=false;
+      const minZoom=0.70, maxZoom=2.20;
+      const distance=touches=>Math.hypot(touches[0].clientX-touches[1].clientX,touches[0].clientY-touches[1].clientY);
+      const applyZoom=value=>{
+        zoom=Math.min(maxZoom,Math.max(minZoom,value));
+        table.style.zoom=String(zoom);
+        container.dataset.tableZoom=String(zoom);
+      };
+      const startPinch=event=>{
+        if(event.touches.length!==2) return;
+        pinching=true;
+        startDistance=distance(event.touches);
+        startZoom=zoom;
+        event.preventDefault();
+      };
+      const movePinch=event=>{
+        if(event.touches.length!==2) return;
+        if(!pinching){ startPinch(event); return; }
+        const currentDistance=distance(event.touches);
+        if(startDistance>0&&currentDistance>0) applyZoom(startZoom*(currentDistance/startDistance));
+        event.preventDefault();
+      };
+      const endPinch=event=>{ if(event.touches.length<2){ pinching=false; startDistance=0; } };
+      container.addEventListener('touchstart',startPinch,{passive:false});
+      container.addEventListener('touchmove',movePinch,{passive:false});
+      container.addEventListener('touchend',endPinch,{passive:true});
+      container.addEventListener('touchcancel',endPinch,{passive:true});
+      ['gesturestart','gesturechange','gestureend'].forEach(type=>container.addEventListener(type,event=>event.preventDefault(),{passive:false}));
+    }
+
     function fixBottomControlsPosition() {
       const controls = [...document.querySelectorAll('.bottom-controls')];
       if (!controls.length) return;
@@ -5430,6 +5469,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         applyFontSettings();
         updateStartupSettingsButton();
         updateScreenNavigation('absence');
+        initFollowupTablePinchZoom();
         fixBottomControlsPosition();
         if ('serviceWorker' in navigator) {
           const serviceWorkerUrl=`./sw2.js?v=${encodeURIComponent(APP_VERSION)}`;
