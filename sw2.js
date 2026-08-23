@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-67-horizontal-summary-rectangles';
+const CACHE_NAME = 'attendance-app-v20-68-unified-followup-header';
 const urlsToCache = [
   './',
   './index.html',

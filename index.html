@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.67";</script>
+  <script>const APP_VERSION = "20.68";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -163,6 +163,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .btn-period-main:active { opacity: 0.8; }
     .btn-student-numbers { flex: 1; background-color: #8E44AD; color: white; border: none; padding: 0.5625rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.375rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: background 0.2s; user-select: none; }
     .btn-student-numbers:active { opacity: 0.8; }
+    /* رأس المتابعة موحّد مع رأسي الغياب والتحقق: عنوان، ثم الأزرار، ثم الفصل والوحدة داخل الإطار الأبيض نفسه. */
+    #followupScreen header .top-action-bar{display:flex;gap:0.32rem;margin:0.05rem 0 0.38rem;}
+    #followupScreen header .top-action-bar .btn-period-main,#followupScreen header .top-action-bar .btn-student-numbers{min-width:0;padding:0.48rem 0.28rem;border-radius:0.62rem;font-size:0.76rem;}
+    #followupScreen header .units-wrapper{display:flex;align-items:center;gap:4px;margin:0;background:transparent;padding:0;border-radius:0;}
+    #followupScreen header .unit-dropdown-select{flex:1;min-width:0;padding:0.42rem 0.20rem;border-radius:0.62rem;border:1px solid #D1D1D6;font-size:0.78rem;font-weight:900;color:#1C1C1E;text-align:center;outline:none;}
+    #followupScreen header #followupClassSelect{background:#EAF7EE!important;border-color:#A9DFBF!important;color:#166534!important;}
+    #followupScreen header #unitDropdownSelect{background:#EAF3FF!important;border-color:#AED6F1!important;color:#1D4ED8!important;}
     .period-export-container { margin: 0.625rem 0.9375rem; text-align: center; display: flex; flex-direction: column; gap: 0.375rem; }
     .btn-export-period { background-color: #e67e22; color: white; border: none; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); user-select: none; }
     .btn-export-period:active { opacity: 0.8; }
@@ -571,15 +578,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="screen-navigation-btn nav-followup is-active" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
+      <div class="top-action-bar">
+        <button class="btn-period-main" onclick="openGradesReportsMenu()">📊 تقارير الدرجات</button>
+        <button class="btn-student-numbers" onclick="openGradesManageModal()">⚙️ إدارة الدرجات</button>
+      </div>
+      <div class="units-wrapper followup-controls">
+        <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)" title="الفصل"></select>
+        <select id="unitDropdownSelect" class="unit-dropdown-select" onchange="onUnitDropdownChange(this.value)" title="الوحدة"></select>
+      </div>
     </header>
-    <div class="top-action-bar">
-      <button class="btn-period-main" onclick="openGradesReportsMenu()">📊 تقارير الدرجات</button>
-      <button class="btn-student-numbers" onclick="openGradesManageModal()">⚙️ إدارة الدرجات</button>
-    </div>
-    <div class="units-wrapper">
-      <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)"></select>
-      <select id="unitDropdownSelect" class="unit-dropdown-select" onchange="onUnitDropdownChange(this.value)"></select>
-    </div>
     <div id="followupSortStatus" class="followup-sort-status"></div>
     <div class="followup-table-container">
       <table class="followup-table" id="followupTable">
