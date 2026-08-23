@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-66-support-label-alignment';
+const CACHE_NAME = 'attendance-app-v20-67-horizontal-summary-rectangles';
 const urlsToCache = [
   './',
   './index.html',
