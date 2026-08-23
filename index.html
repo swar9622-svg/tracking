@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.59";</script>
+  <script>const APP_VERSION = "20.60";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -83,6 +83,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .student-list { padding: 0.75rem 0.875rem 8.0rem 0.875rem; display: flex; flex-direction: column; gap: 0.5rem; }
     .student-card { background-color: var(--card-bg); border-radius: 0.75rem; padding: 0.625rem 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
     #absenceScreen .student-card { flex-wrap:wrap; position:relative; }
+    #absenceScreen .student-note-count-badge{position:absolute;top:-0.34rem;left:-0.30rem;z-index:5;display:flex;align-items:center;justify-content:center;min-width:1.16rem;height:1.16rem;padding:0 0.18rem;border:2px solid #FFF;border-radius:999px;background:#5856D6;color:#FFF;box-shadow:0 2px 7px rgba(88,86,214,.36);font-size:0.65rem;font-weight:900;line-height:1;direction:ltr;pointer-events:none;}
     .student-name { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); flex: 1; word-break: break-word; }
     #absenceScreen .student-name { cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
     #absenceScreen .student-name:active { opacity:.72; }
@@ -2387,10 +2388,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         totalV+=vList.length;
         const vText=vList.length>0?`مخالفات ${vList.length}`:'مخالفات';
         const vClass=vList.length>0?'active-violation':'', disabled=status==='غائب'?'disabled-btn':'';
+        const noteCount=getAttendanceStudentNotes(cls,s).length;
+        const noteCountBadge=noteCount?`<span class="student-note-count-badge" aria-label="${noteCount} ملاحظات">${noteCount}</span>`:'';
         const card=document.createElement('div'); card.className='student-card';
         const nameColor=dup.includes(s)?'color:#FF3B30;':'';
         const safeStudent=CSS.escape(s);
-        card.innerHTML=`<div class="student-name" style="${nameColor}" title="اضغط مرتين لعرض الإحصائية الكلية" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerup="handleAttendanceStudentNameTap(event,'${safeStudent}')">${s}</div><div class="attendance-buttons">
+        card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مرتين لعرض الإحصائية الكلية" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerup="handleAttendanceStudentNameTap(event,'${safeStudent}')">${s}</div><div class="attendance-buttons">
           <button class="btn-status ${status==='غائب'?'active-absent':''}" onclick="setStatus('${safeStudent}','غائب')">غائب</button>
           <button class="btn-status ${status==='متأخر'?'active-late':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button>
           <button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button>
