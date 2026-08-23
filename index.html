@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.65";</script>
+  <script>const APP_VERSION = "20.66";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -414,9 +414,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .understanding-buttons .btn-status{width:100%;min-width:0;height:1.5rem;padding:0.12rem 0.1rem;font-size:0.58rem;line-height:1.02;}
     #understandingScreen .student-card{position:relative;}
     #understandingScreen .student-excellence-star{position:absolute;top:-0.34rem;left:-0.28rem;z-index:5;width:1.34rem;height:1.34rem;border:2px solid #FFFFFF;border-radius:999px;background:#FFF4CC;color:#B77900;box-shadow:0 2px 7px rgba(183,121,0,.28);font-size:0.88rem;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;pointer-events:none;}
-    .understanding-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:0 0.42rem 0.42rem;overflow:hidden;}
+    .understanding-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:0 0 0.42rem;overflow:hidden;}
     .understanding-summary-item{min-height:2.82rem;box-sizing:border-box;border-radius:0.58rem;padding:0.22rem 0.02rem;text-align:center;font-size:0.50rem;font-weight:900;border:1px solid rgba(0,0,0,.08);line-height:1.12;min-width:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
     .understanding-summary-item b{display:block;font-size:0.74rem;margin-bottom:0.04rem;}
+    /* يصغّر عنوان يحتاج دعماً فقط؛ الرقم داخل b يحتفظ بحجمه المعتاد. */
+    #understandingScreen .understanding-summary-item.understanding-summary-support{font-size:0.60rem!important;white-space:nowrap;letter-spacing:-0.02em;}
     .understanding-remaining-control{min-width:0;min-height:2.82rem;}
     .understanding-summary-remaining{width:100%;height:100%;min-height:2.82rem;box-sizing:border-box;border:1.4px solid #6E6E73;border-radius:0.58rem;background:#F2F2F7;color:#3A3A3C;padding:0.20rem 0.02rem;font-family:inherit;font-size:0.50rem;font-weight:900;line-height:1.12;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.68);white-space:normal;overflow:hidden;}
     .understanding-summary-remaining b{display:block;font-size:0.74rem;margin-bottom:0.04rem;}
@@ -2618,7 +2620,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const states=getUnderstandingLessonStates(cls,unit,lesson), students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar'));
       const counts={mastered:0,partial:0,support:0,notDone:0,excellent:0,remaining:0};
       students.forEach(student=>{ const status=getUnderstandingStudentStatus(states,student); if(status&&counts[status]!==undefined) counts[status]++; else counts.remaining++; if(isUnderstandingStudentExcellent(states,student)) counts.excellent++; });
-      Object.entries(UNDERSTANDING_STATUS_CONFIG).forEach(([key,config])=>{ summary.innerHTML+=`<div class="understanding-summary-item" style="background:${config.background};color:${config.color};"><b>${counts[key]}</b>${config.label}</div>`; });
+      Object.entries(UNDERSTANDING_STATUS_CONFIG).forEach(([key,config])=>{ summary.innerHTML+=`<div class="understanding-summary-item${key==='support'?' understanding-summary-support':''}" style="background:${config.background};color:${config.color};"><b>${counts[key]}</b>${config.label}</div>`; });
       summary.innerHTML+=`<div class="understanding-summary-item" style="background:#FFF4CC;color:#B77900;border-color:#F3D58B;"><b>${counts.excellent}</b>★ متميز</div>`;
       const remainingColor=getButtonColorCss('understandingRemainingBtn'), remainingTextColor=getButtonTextColor('understandingRemainingBtn');
       const remainingButtons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{ const color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey); return `<button class="btn-status understanding-status-${key}" onclick="applyUnderstandingStatusToRemaining('${key}')" style="background:${config.background};color:${color};border:1.3px solid ${color};font-weight:900;">${config.label}</button>`; }).join('');
