@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.70";</script>
+  <script>const APP_VERSION = "20.71";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5387,10 +5387,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       container.dataset.pinchZoomReady='1';
       container.setAttribute('aria-label','جدول المتابعة: استخدم إصبعين للتكبير أو التصغير');
       let zoom=1, startZoom=1, startDistance=0, pinching=false;
-      const minZoom=0.70, maxZoom=2.20;
+      // نطاق صغير وآمن يمنع التكبير المفرط الذي قد يخل بتناسب الأعمدة مع الأسماء.
+      const minZoom=0.85, maxZoom=1.35, zoomStep=0.05;
       const distance=touches=>Math.hypot(touches[0].clientX-touches[1].clientX,touches[0].clientY-touches[1].clientY);
       const applyZoom=value=>{
-        zoom=Math.min(maxZoom,Math.max(minZoom,value));
+        const bounded=Math.min(maxZoom,Math.max(minZoom,Number.isFinite(value)?value:1));
+        zoom=Math.round(bounded/zoomStep)*zoomStep;
+        // عند الاقتراب من 100٪ يعود للحجم الطبيعي تماماً، فلا يبقى بين حالتي التكبير والتصغير.
+        if(Math.abs(zoom-1)<0.08) zoom=1;
         table.style.zoom=String(zoom);
         container.dataset.tableZoom=String(zoom);
       };
@@ -5408,7 +5412,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         if(startDistance>0&&currentDistance>0) applyZoom(startZoom*(currentDistance/startDistance));
         event.preventDefault();
       };
-      const endPinch=event=>{ if(event.touches.length<2){ pinching=false; startDistance=0; } };
+      const endPinch=event=>{
+        if(event.touches.length<2){
+          pinching=false;
+          startDistance=0;
+          // حماية احتياطية: أي قيمة غير صالحة تعود للحجم الطبيعي مباشرة.
+          if(!Number.isFinite(zoom)||zoom<minZoom||zoom>maxZoom) applyZoom(1);
+        }
+      };
       container.addEventListener('touchstart',startPinch,{passive:false});
       container.addEventListener('touchmove',movePinch,{passive:false});
       container.addEventListener('touchend',endPinch,{passive:true});
