@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.75";</script>
+  <script>const APP_VERSION = "20.76";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -85,8 +85,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #absenceScreen .student-card { flex-wrap:wrap; position:relative; }
     #absenceScreen .student-note-count-badge{position:absolute;top:-0.34rem;left:-0.30rem;z-index:5;display:flex;align-items:center;justify-content:center;min-width:1.16rem;height:1.16rem;padding:0 0.18rem;border:2px solid #FFF;border-radius:999px;background:#5856D6;color:#FFF;box-shadow:0 2px 7px rgba(88,86,214,.36);font-size:0.65rem;font-weight:900;line-height:1;direction:ltr;pointer-events:none;}
     .student-name { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); flex: 1; word-break: break-word; }
-    #absenceScreen .student-name { cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+    #absenceScreen .student-name { position:relative; cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
     #absenceScreen .student-name:active { opacity:.72; }
+    /* فقاعة إحصاءات الغياب: تظهر بالضغط المطول فقط وتعرض كل الوحدات. */
+    .attendance-summary-bubble{position:absolute;z-index:20;left:50%;bottom:calc(100% + 0.34rem);transform:translateX(-50%);display:flex;flex-direction:column;align-items:stretch;gap:2px;width:6.45rem;max-width:calc(100vw - 0.9rem);padding:0.24rem;border:1px solid #D1D1D6;border-radius:0.60rem;background:#FFFFFF;box-shadow:0 3px 10px rgba(0,0,0,.16);direction:rtl;pointer-events:none;user-select:none;-webkit-user-select:none;}
+    .attendance-summary-bubble::after{content:'';position:absolute;left:50%;bottom:-5px;width:9px;height:9px;background:#FFFFFF;border-right:1px solid #D1D1D6;border-bottom:1px solid #D1D1D6;transform:translateX(-50%) rotate(45deg);}
+    .attendance-summary-bubble > span{display:flex;align-items:center;justify-content:space-between;gap:0.25rem;min-width:0;border-radius:0.34rem;padding:0.22rem 0.30rem;font-size:0.54rem;font-weight:900;white-space:nowrap;line-height:1.04;}
+    .attendance-summary-bubble b{font-size:0.72rem;font-weight:900;}.attendance-summary-bubble .absent{background:#FFF0F0;color:#C0392B;}.attendance-summary-bubble .late{background:#FFF8E1;color:#B7770D;}.attendance-summary-bubble .violations{background:#F5EEF8;color:#7D3C98;}
     .attendance-buttons { display: flex; gap: 0.25rem; flex-shrink: 0; }
     .student-stats-bubble{display:none;order:3;flex:1 0 100%;gap:7px;margin-top:0.05rem;padding:0.4rem;background:#F8F9FB;border:1px solid #E5E5EA;border-radius:0.62rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.75);animation:student-stats-pop .18s ease-out both;}
     .student-stats-bubble.is-open{display:grid;}
@@ -2388,15 +2393,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       renderAttendanceUnitsDropdown();
     }
 
-    let openAttendanceStudentStats='', showAttendanceStudentNotes=false, lastAttendanceNameTap={student:'',at:0}, lastAttendanceStatsActivationAt=0;
+    let openAttendanceStudentStats='', showAttendanceStudentNotes=false, lastAttendanceNameTap={student:'',at:0};
+    let openAttendanceStudentSummary='';
     function getAttendanceStudentNotes(cls,student){ return Array.isArray(studentNotesData?.[cls]?.[student])?studentNotesData[cls][student]:[]; }
     function formatAttendanceStudentNoteDate(value){ try{return new Date(value).toLocaleDateString('ar-SA');}catch(_){return '';} }
     function getAttendanceStudentStatsMarkup(cls,student){
-      const stats=getStudentAttendanceStats(cls,student,'__all__'), notes=getAttendanceStudentNotes(cls,student);
-      const safeClass=CSS.escape(cls), safeStudent=CSS.escape(student);
+      const notes=getAttendanceStudentNotes(cls,student), safeClass=CSS.escape(cls), safeStudent=CSS.escape(student);
       const notesMarkup=notes.length?notes.slice().reverse().map(note=>`<div class="student-note-item"><div class="student-note-content"><span>${escapeTextForHtml(note.text||'')}</span><small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></div><button type="button" class="student-note-delete" title="حذف الملاحظة" onclick="deleteAttendanceStudentNote('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">حذف</button></div>`).join(''):'<div class="student-notes-empty">لا توجد ملاحظات محفوظة لهذا الطالب.</div>';
       const notesAreVisible=openAttendanceStudentStats===student&&showAttendanceStudentNotes;
-      return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite"><div class="student-stats-grid"><div class="student-stats-chip absent"><b>${stats.absent}</b>غياب</div><div class="student-stats-chip late"><b>${stats.late}</b>تأخر</div><div class="student-stats-chip violations"><b>${stats.violations}</b>مخالفات</div></div><div class="student-notes-section"><div class="student-note-entry"><textarea class="student-note-input" rows="1" placeholder="اكتب ملاحظة…" oninput="autoGrowAttendanceStudentNote(this)"></textarea><button type="button" class="student-note-save" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ</button></div><button type="button" class="student-notes-toggle" onclick="toggleAttendanceStudentNotes()">${notesAreVisible?'إخفاء الملاحظات':`إظهار الملاحظات (${notes.length})`}</button>${notesAreVisible?`<div class="student-notes-list">${notesMarkup}</div>`:''}</div></div>`;
+      return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite"><div class="student-notes-section" style="border-top:0;padding-top:0;"><div class="student-note-entry"><textarea class="student-note-input" rows="1" placeholder="اكتب ملاحظة…" oninput="autoGrowAttendanceStudentNote(this)"></textarea><button type="button" class="student-note-save" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ</button></div><button type="button" class="student-notes-toggle" onclick="toggleAttendanceStudentNotes()">${notesAreVisible?'إخفاء الملاحظات':`إظهار الملاحظات (${notes.length})`}</button>${notesAreVisible?`<div class="student-notes-list">${notesMarkup}</div>`:''}</div></div>`;
+    }
+    function getAttendanceStudentSummaryBubble(cls,student){
+      const stats=getStudentAttendanceStats(cls,student,'__all__');
+      return `<span class="attendance-summary-bubble" role="status"><span class="absent">غياب<b>${stats.absent}</b></span><span class="late">متأخر<b>${stats.late}</b></span><span class="violations">مخالفات<b>${stats.violations}</b></span></span>`;
     }
     function autoGrowAttendanceStudentNote(input){ input.style.height='auto'; input.style.height=`${Math.min(128,Math.max(31,input.scrollHeight))}px`; }
     function addAttendanceStudentNote(cls,student){
@@ -2417,24 +2426,48 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       saveData(); renderStudents();
     }
     function toggleAttendanceStudentNotes(){ showAttendanceStudentNotes=!showAttendanceStudentNotes; renderStudents(); }
-    function toggleAttendanceStudentStats(student){
+    function toggleAttendanceStudentNotesPanel(student){
       const closing=openAttendanceStudentStats===student;
       openAttendanceStudentStats=closing?'':student;
       showAttendanceStudentNotes=false;
-      lastAttendanceStatsActivationAt=Date.now();
       renderStudents();
     }
     function handleAttendanceStudentNameTap(event,student){
       const now=Date.now();
       if(event.type==='dblclick'){
-        if(now-lastAttendanceStatsActivationAt<450) return;
-        event.preventDefault(); toggleAttendanceStudentStats(student); return;
+        event.preventDefault(); toggleAttendanceStudentNotesPanel(student); return;
       }
       if(event.pointerType!=='touch') return;
       if(lastAttendanceNameTap.student===student&&now-lastAttendanceNameTap.at<420){
-        event.preventDefault(); lastAttendanceNameTap={student:'',at:0}; toggleAttendanceStudentStats(student);
+        event.preventDefault(); lastAttendanceNameTap={student:'',at:0}; toggleAttendanceStudentNotesPanel(student);
       }else lastAttendanceNameTap={student,at:now};
     }
+    let attendanceNameLongPressTimer=null, attendanceNameLongPressPoint=null, attendanceNameLongPressOpened=false;
+    function cancelAttendanceStudentNamePress(){ if(attendanceNameLongPressTimer){ clearTimeout(attendanceNameLongPressTimer); attendanceNameLongPressTimer=null; } attendanceNameLongPressPoint=null; }
+    function hideAttendanceStudentSummaryBubble(){
+      if(!openAttendanceStudentSummary) return;
+      openAttendanceStudentSummary='';
+      document.querySelector('#studentList .attendance-summary-bubble')?.remove();
+    }
+    function startAttendanceStudentNamePress(event,student){
+      if(event.pointerType==='mouse'&&event.button!==0) return;
+      if(event.pointerType==='touch'&&event.cancelable) event.preventDefault();
+      cancelAttendanceStudentNamePress();
+      attendanceNameLongPressPoint={x:event.clientX,y:event.clientY};
+      attendanceNameLongPressOpened=false;
+      attendanceNameLongPressTimer=setTimeout(()=>{ attendanceNameLongPressTimer=null; attendanceNameLongPressOpened=true; openAttendanceStudentSummary=student; renderStudents(); },560);
+    }
+    function moveAttendanceStudentNamePress(event){
+      if(!attendanceNameLongPressTimer||!attendanceNameLongPressPoint) return;
+      if(Math.hypot(event.clientX-attendanceNameLongPressPoint.x,event.clientY-attendanceNameLongPressPoint.y)>12) cancelAttendanceStudentNamePress();
+    }
+    function endAttendanceStudentNamePress(event,student){
+      const opened=attendanceNameLongPressOpened;
+      cancelAttendanceStudentNamePress();
+      if(opened){ event.preventDefault(); event.stopPropagation(); return; }
+      if(event.pointerType==='touch') handleAttendanceStudentNameTap(event,student);
+    }
+    document.addEventListener('pointerdown',()=>hideAttendanceStudentSummaryBubble(),true);
     document.addEventListener('click',event=>{
       if(!openAttendanceStudentStats||event.target.closest('.student-card')) return;
       openAttendanceStudentStats=''; showAttendanceStudentNotes=false; renderStudents();
@@ -2457,7 +2490,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const card=document.createElement('div'); card.className='student-card';
         const nameColor=dup.includes(s)?'color:#FF3B30;':'';
         const safeStudent=CSS.escape(s);
-        card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مرتين لعرض الإحصائية الكلية" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerup="handleAttendanceStudentNameTap(event,'${safeStudent}')">${s}</div><div class="attendance-buttons">
+        const summaryBubble=openAttendanceStudentSummary===s?getAttendanceStudentSummaryBubble(cls,s):'';
+        card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}</div><div class="attendance-buttons">
           <button class="btn-status ${status==='غائب'?'active-absent':''}" onclick="setStatus('${safeStudent}','غائب')">غائب</button>
           <button class="btn-status ${status==='متأخر'?'active-late':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button>
           <button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button>
