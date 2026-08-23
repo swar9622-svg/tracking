@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.74";</script>
+  <script>const APP_VERSION = "20.75";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2571,6 +2571,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(event.pointerType==='touch') handleUnderstandingStudentNameTap(event,student);
     }
     function getUnderstandingStudentAllUnitsStats(cls,student){
+      // الفقاعة تعرض كل ما سُجّل فعلياً حتى هذه اللحظة، بلا انتظار اكتمال الوحدة.
       const counts={mastered:0,partial:0,support:0,notDone:0,excellent:0};
       const completedUnits=[], pendingUnits=[];
       let scoreTotal=0, lessonCount=0;
@@ -2580,13 +2581,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const entries=lessons.map(lesson=>getUnderstandingEntryFromStates(getUnderstandingLessonStates(cls,unitName,lesson),student));
         const doneCount=entries.filter(entry=>Boolean(entry.status)).length;
         const info={name:unitName,total:lessons.length,done:doneCount,complete:doneCount===lessons.length};
-        if(!info.complete){ pendingUnits.push(info); return; }
-        completedUnits.push(info);
+        if(info.complete) completedUnits.push(info); else pendingUnits.push(info);
         entries.forEach(entry=>{
-          if(counts[entry.status]!==undefined) counts[entry.status]++;
+          // الخانة الفارغة ليست «لم ينفذ» ولا تدخل في الإحصائية.
+          if(entry.status){
+            if(counts[entry.status]!==undefined) counts[entry.status]++;
+            scoreTotal+=(UNDERSTANDING_STATUS_CONFIG[entry.status]||UNDERSTANDING_STATUS_CONFIG.notDone).score;
+            lessonCount++;
+          }
+          // التميز علامة مستقلة وتظهر حتى إن لم تُحدّد حالة التمرين.
           if(entry.excellent) counts.excellent++;
-          scoreTotal+=(UNDERSTANDING_STATUS_CONFIG[entry.status]||UNDERSTANDING_STATUS_CONFIG.notDone).score;
-          lessonCount++;
         });
       });
       return {counts,completedUnits,pendingUnits,lessonCount,average:lessonCount?scoreTotal/lessonCount:null};
