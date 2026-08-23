@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.68";</script>
+  <script>const APP_VERSION = "20.69";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -140,8 +140,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       visibility: hidden;
       pointer-events: none;
     }
+    /* جدول المتابعة بعرض الشاشة كاملاً: لا هامش أو حشو جانبي حول مساحة التمرير. */
     #followupScreen .followup-table-container {
-      margin-bottom: 10px;
+      margin: 0 0 10px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0;
+      border-radius: 0;
+      box-shadow: none;
     }
     #followupScreen .period-export-container {
       margin-bottom: 90px;
