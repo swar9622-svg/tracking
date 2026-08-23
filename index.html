@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.46";</script>
+  <script>const APP_VERSION = "20.47";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -423,10 +423,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .screen-navigation-btn.expand-from-left{transform-origin:left center;}
     .screen-navigation-btn.expand-from-right .screen-nav-full{transform:translateX(.82rem) scale(.92);}
     .screen-navigation-btn.expand-from-left .screen-nav-full{transform:translateX(-.82rem) scale(.92);}
-    .screen-navigation-btn.is-active{flex:1 1 auto;color:#FFF;box-shadow:0 3px 8px rgba(0,0,0,.17);animation:nav-active-settle .48s cubic-bezier(.16,1,.30,1) both;}
+    .screen-navigation.is-preparing .screen-navigation-btn,.screen-navigation.is-preparing .screen-navigation-btn *{transition:none!important;animation:none!important;}
+    .screen-navigation-btn.is-active{flex:1 1 auto;color:#FFF;box-shadow:0 3px 8px rgba(0,0,0,.17);pointer-events:none;cursor:default;}
+    .screen-navigation-btn.is-active.expand-from-right{animation:nav-reveal-from-right .48s cubic-bezier(.16,1,.30,1) both;}
+    .screen-navigation-btn.is-active.expand-from-left{animation:nav-reveal-from-left .48s cubic-bezier(.16,1,.30,1) both;}
     .screen-navigation-btn.is-active .screen-nav-short{opacity:0;transform:scale(.72);transition-delay:0s;}
     .screen-navigation-btn.is-active .screen-nav-full{opacity:1;transform:translateX(0) scale(1);transition-delay:.10s;}
-    @keyframes nav-active-settle{0%{transform:scaleX(.91)}60%{transform:scaleX(1.012)}100%{transform:scaleX(1)}}
+    @keyframes nav-reveal-from-right{0%{clip-path:inset(0 0 0 100%);filter:brightness(1.08)}70%{clip-path:inset(0 0 0 0);filter:brightness(1.02)}100%{clip-path:inset(0 0 0 0);filter:brightness(1)}}
+    @keyframes nav-reveal-from-left{0%{clip-path:inset(0 100% 0 0);filter:brightness(1.08)}70%{clip-path:inset(0 0 0 0);filter:brightness(1.02)}100%{clip-path:inset(0 0 0 0);filter:brightness(1)}}
     .screen-navigation-btn.nav-absence.is-active{background:#34C759;}
     .screen-navigation-btn.nav-understanding.is-active{background:#007AFF;}
     .screen-navigation-btn.nav-followup.is-active{background:#5856D6;}
@@ -2581,25 +2585,38 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return previous==='absence'?'left':'right';
     }
     function updateScreenNavigation(active){
+      const activeScreen=document.querySelector('.screen.active-screen');
+      const alreadySelected=active===lastScreenNavigation&&activeScreen?.querySelector(`[data-screen-nav="${active}"].is-active`);
+      if(alreadySelected) return;
       const previous=lastScreenNavigation, direction=getScreenNavigationExpandDirection(active,previous);
       lastScreenNavigation=active;
-      const activeScreen=document.querySelector('.screen.active-screen');
       const visibleButtons=activeScreen?[...activeScreen.querySelectorAll('[data-screen-nav]')]:[];
       const allButtons=[...document.querySelectorAll('[data-screen-nav]')];
-      // الشريط الظاهر يبدأ لحظةً بأزرار صغيرة، ثم يتمدد الزر المطلوب في الإطار التالي؛ وهكذا تظهر الحركة حتى مع وجود نسخة شريط مستقلة لكل شاشة.
-      visibleButtons.forEach(button=>button.classList.remove('is-active','expand-from-right','expand-from-left'));
+      const navigationBar=activeScreen?.querySelector('.screen-navigation');
+      // نجمد الشريط لحظةً في حالة الأزرار الصغيرة، ثم نكشف اللون من الحافة المطلوبة في إطار مستقل.
+      navigationBar?.classList.add('is-preparing');
+      visibleButtons.forEach(button=>{button.classList.remove('is-active','expand-from-right','expand-from-left');button.disabled=false;button.removeAttribute('aria-current');});
       allButtons.filter(button=>!visibleButtons.includes(button)).forEach(button=>button.classList.toggle('is-active',button.dataset.screenNav===active));
       const target=visibleButtons.find(button=>button.dataset.screenNav===active);
       if(target) target.classList.add(`expand-from-${direction}`);
       if(visibleButtons.length){
         void activeScreen.offsetWidth;
         requestAnimationFrame(()=>{
-          visibleButtons.forEach(button=>button.classList.toggle('is-active',button.dataset.screenNav===active));
-          applyButtonColors();
+          navigationBar?.classList.remove('is-preparing');
+          requestAnimationFrame(()=>{
+            visibleButtons.forEach(button=>{
+              const selected=button.dataset.screenNav===active;
+              button.classList.toggle('is-active',selected);
+              button.disabled=selected;
+              if(selected) button.setAttribute('aria-current','page'); else button.removeAttribute('aria-current');
+            });
+            applyButtonColors();
+          });
         });
       }else applyButtonColors();
     }
     function switchToUnderstandingScreen(){
+      if(document.getElementById('understandingScreen').classList.contains('active-screen')) return;
       document.getElementById('absenceScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.remove('active-screen');
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
@@ -2609,6 +2626,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       initClassSelects(); refreshUnderstandingUnitSelect(); renderUnderstandingScreen(); window.scrollTo(0,0);
     }
     function switchToFollowupScreen(){
+      if(document.getElementById('followupScreen').classList.contains('active-screen')) return;
       document.getElementById('absenceScreen').classList.remove('active-screen');
       document.getElementById('understandingScreen').classList.remove('active-screen');
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
@@ -2619,6 +2637,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       window.scrollTo(0,0);
     }
     function switchToAbsenceScreen(){
+      if(document.getElementById('absenceScreen').classList.contains('active-screen')) return;
       document.getElementById('followupScreen').classList.remove('active-screen');
       document.getElementById('understandingScreen').classList.remove('active-screen');
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
