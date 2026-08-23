@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.51";</script>
+  <script>const APP_VERSION = "20.52";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -98,7 +98,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .student-notes-section{border-top:1px solid #E5E5EA;padding-top:0.38rem;}
     .student-note-entry{display:flex;align-items:stretch;overflow:hidden;border:1px solid #C7C7CC;border-radius:0.52rem;background:#FFF;transition:border-color .15s,box-shadow .15s;}
     .student-note-entry:focus-within{border-color:#007AFF;box-shadow:0 0 0 2px rgba(0,122,255,.12);}
-    .student-note-input{display:block;flex:1;min-width:0;height:2.25rem;max-height:8rem;resize:none;box-sizing:border-box;border:0;background:transparent;color:#1C1C1E;padding:0.46rem 0.52rem;font-family:inherit;font-size:0.72rem;font-weight:700;line-height:1.35;outline:none;overflow-y:auto;}
+    .student-note-input{display:block;flex:1;min-width:0;height:1.95rem;max-height:8rem;resize:none;box-sizing:border-box;border:0;background:transparent;color:#1C1C1E;padding:0.25rem 0.48rem;font-family:inherit;font-size:0.72rem;font-weight:700;line-height:1.3;outline:none;overflow-y:auto;}
     .student-note-save{flex:none;width:3.85rem;border:0;border-right:1px solid #D8E8FA;background:#007AFF;color:#FFF;padding:0.35rem 0.22rem;font-family:inherit;font-size:0.66rem;font-weight:900;cursor:pointer;}
     .student-note-save:active{opacity:.76;}
     .student-notes-toggle{display:block;width:100%;margin-top:0.34rem;border:0;border-radius:0.48rem;background:#F0F5FB;color:#0B5394;padding:0.40rem;font-family:inherit;font-size:0.66rem;font-weight:900;cursor:pointer;}
@@ -2306,7 +2306,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const notesAreVisible=openAttendanceStudentStats===student&&showAttendanceStudentNotes;
       return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite"><div class="student-stats-grid"><div class="student-stats-chip absent"><b>${stats.absent}</b>غياب</div><div class="student-stats-chip late"><b>${stats.late}</b>تأخر</div><div class="student-stats-chip violations"><b>${stats.violations}</b>مخالفات</div></div><div class="student-notes-section"><div class="student-note-entry"><textarea class="student-note-input" rows="1" placeholder="اكتب ملاحظة…" oninput="autoGrowAttendanceStudentNote(this)"></textarea><button type="button" class="student-note-save" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ</button></div><button type="button" class="student-notes-toggle" onclick="toggleAttendanceStudentNotes()">${notesAreVisible?'إخفاء الملاحظات':`إظهار الملاحظات (${notes.length})`}</button>${notesAreVisible?`<div class="student-notes-list">${notesMarkup}</div>`:''}</div></div>`;
     }
-    function autoGrowAttendanceStudentNote(input){ input.style.height='auto'; input.style.height=`${Math.min(128,Math.max(36,input.scrollHeight))}px`; }
+    function autoGrowAttendanceStudentNote(input){ input.style.height='auto'; input.style.height=`${Math.min(128,Math.max(31,input.scrollHeight))}px`; }
     function addAttendanceStudentNote(cls,student){
       const input=document.querySelector('.student-stats-bubble.is-open .student-note-input'), text=String(input?.value||'').trim();
       if(!text){ if(input) input.focus(); return; }
