@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-64-excellence-rectangles';
+const CACHE_NAME = 'attendance-app-v20-65-aligned-excellence-summary';
 const urlsToCache = [
   './',
   './index.html',
