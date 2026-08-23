@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.52";</script>
+  <script>const APP_VERSION = "20.53";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5250,7 +5250,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         applyFontSettings();
         updateScreenNavigation('absence');
         fixBottomControlsPosition();
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw2.js').catch(err => console.error('❌ فشل تسجيل Service Worker:', err));
+        if ('serviceWorker' in navigator) {
+          const serviceWorkerUrl=`./sw2.js?v=${encodeURIComponent(APP_VERSION)}`;
+          navigator.serviceWorker.register(serviceWorkerUrl,{updateViaCache:'none'})
+            .then(registration=>registration.update().catch(()=>{}))
+            .catch(err => console.error('❌ فشل تسجيل Service Worker:', err));
+        }
       }catch(error){
         console.error('تعذر بدء التخزين المحلي:',error);
         alert('❌ تعذر فتح قاعدة البيانات المحلية. يرجى فتح التطبيق في Safari أو Chrome حديث ثم إعادة المحاولة.');
