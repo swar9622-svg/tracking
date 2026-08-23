@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.71";</script>
+  <script>const APP_VERSION = "20.72";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -458,7 +458,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .understanding-bulk-status-grid .btn-status{min-width:0;height:2rem;padding:0.12rem 0.06rem;font-size:0.58rem;line-height:1.05;}
     .understanding-summary-unit-btn{border:1.5px solid #A9CCE3;border-radius:0.55rem;background:#FFFFFF;color:#1B4F72;padding:0.38rem 0.65rem;font:inherit;font-size:0.76rem;font-weight:900;cursor:pointer;}
     .understanding-summary-unit-btn.is-selected{background:#D6EAF8;border-color:#1B4F72;box-shadow:inset 0 0 0 1px #1B4F72;}
-    @media(max-width:360px){.understanding-bulk-status-grid .btn-status{font-size:0.51rem;}}
+    /* بطاقة إحصائية الطالب في تحقق من فهمك. */
+    .understanding-stats-modal .modal-content{width:min(91vw,350px);padding:0.82rem;}
+    .understanding-stats-student{background:#F2F2F7;border:1px solid #E5E5EA;border-radius:0.62rem;padding:0.40rem 0.55rem;text-align:center;color:#1C1C1E;font-size:0.88rem;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .understanding-stats-score{display:flex;align-items:center;justify-content:center;gap:0.42rem;margin:0.55rem 0 0.48rem;padding:0.43rem;background:#E8F8F5;border:1px solid #A9DFBF;border-radius:0.62rem;color:#117A65;}
+    .understanding-stats-score span{font-size:0.67rem;font-weight:800;}.understanding-stats-score b{font-size:1.20rem;line-height:1;font-weight:900;}.understanding-stats-score small{font-size:0.60rem;font-weight:800;}.understanding-stats-score em{font-size:0.58rem;font-style:normal;font-weight:800;color:#388E5C;background:#FFFFFF;border-radius:999px;padding:0.12rem 0.34rem;}
+    .understanding-stats-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;}.understanding-stats-item{min-width:0;min-height:3.05rem;border:1px solid transparent;border-radius:0.54rem;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.02;padding:0.15rem 0.02rem;}.understanding-stats-item b{font-size:0.96rem;font-weight:900;margin-bottom:0.12rem;}.understanding-stats-item span{font-size:0.50rem;font-weight:900;white-space:nowrap;}.understanding-stats-item.mastered{background:#EAF7EE;color:#1E8449;border-color:#A9DFBF;}.understanding-stats-item.partial{background:#EAF3FF;color:#007AFF;border-color:#AED6F1;}.understanding-stats-item.support{background:#FFF7E6;color:#D97706;border-color:#F5CBA7;}.understanding-stats-item.notDone{background:#FDEDEC;color:#C0392B;border-color:#F5B7B1;}.understanding-stats-item.excellent{background:#FFF4CC;color:#B77900;border-color:#F3D58B;}
+    .understanding-stats-current{margin-top:0.52rem;padding:0.42rem 0.50rem;border-radius:0.60rem;background:#F9F9FB;border:1px solid #E5E5EA;color:#6E6E73;display:flex;align-items:center;justify-content:space-between;gap:0.35rem;font-size:0.61rem;font-weight:800;}.understanding-stats-current b{color:#1C1C1E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.understanding-stats-current .is-pending{color:#B45309;}.understanding-stats-current .is-complete{color:#117A65;}
+    @media(max-width:360px){.understanding-bulk-status-grid .btn-status{font-size:0.51rem;}.understanding-stats-item span{font-size:0.46rem;}.understanding-stats-score em{font-size:0.53rem;}}
 
     /* شريط ثابت وبسيط: لا توجد حركة، والعنوان الكامل يظهر دائماً للزر النشط منذ الفتح الأول. */
     .screen-navigation{display:flex;direction:rtl;gap:0.35rem;align-items:center;padding:0.5rem 0.75rem 0.12rem;}
@@ -574,6 +581,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div style="font-size:0.75rem;line-height:1.55;color:var(--text-secondary);font-weight:700;text-align:center;margin-bottom:9px;">اختر وحدة واحدة أو أكثر. سيظهر في ملف PDF اسم الطالب، ولكل وحدة دروسها ثم موزونتها، وفي آخر الجدول «الموزونة للكل» وهي متوسط موزونات الوحدات المختارة. تعرض خلايا الدروس الدرجات الرقمية فقط: 10 أو 7 أو 4 أو 0.</div>
       <div id="understandingSummaryUnitsChooser" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#F2F2F7;border-radius:8px;padding:8px;margin-bottom:10px;"></div>
       <button class="btn-export-period" onclick="openUnderstandingSummaryPdfSettings()" style="margin:0;background:#0B5394;">📄 تصدير التقرير الشامل PDF</button>
+    </div>
+  </div>
+
+  <!-- إحصائية الطالب عبر جميع وحدات تحقق من فهمك المكتملة. -->
+  <div class="modal understanding-stats-modal" id="understandingStudentStatsModal" style="z-index:170;" onclick="if(event.target===this) closeUnderstandingStudentStatsModal()">
+    <div class="modal-content">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.48rem;">
+        <div class="modal-title" style="margin:0;font-size:1rem;color:#0B5394;">إحصائية</div>
+        <button class="btn-close-circle" onclick="closeUnderstandingStudentStatsModal()" title="إغلاق">✕</button>
+      </div>
+      <div id="understandingStudentStatsContent"></div>
     </div>
   </div>
 
@@ -2536,6 +2554,70 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         event.preventDefault(); lastUnderstandingNameTap={student:'',at:0}; lastUnderstandingExcellenceAt=now; toggleUnderstandingExcellence(student);
       }else lastUnderstandingNameTap={student,at:now};
     }
+    let understandingNameLongPressTimer=null, understandingNameLongPressStudent='', understandingNameLongPressPoint=null, understandingNameLongPressOpened=false;
+    function cancelUnderstandingStudentNamePress(){
+      if(understandingNameLongPressTimer){ clearTimeout(understandingNameLongPressTimer); understandingNameLongPressTimer=null; }
+      understandingNameLongPressPoint=null;
+    }
+    function startUnderstandingStudentNamePress(event,student){
+      if(event.pointerType==='mouse'&&event.button!==0) return;
+      cancelUnderstandingStudentNamePress();
+      understandingNameLongPressStudent=student;
+      understandingNameLongPressPoint={x:event.clientX,y:event.clientY};
+      understandingNameLongPressOpened=false;
+      understandingNameLongPressTimer=setTimeout(()=>{
+        understandingNameLongPressTimer=null;
+        understandingNameLongPressOpened=true;
+        lastUnderstandingNameTap={student:'',at:0};
+        openUnderstandingStudentStatsModal(understandingNameLongPressStudent);
+      },560);
+    }
+    function moveUnderstandingStudentNamePress(event){
+      if(!understandingNameLongPressTimer||!understandingNameLongPressPoint) return;
+      if(Math.hypot(event.clientX-understandingNameLongPressPoint.x,event.clientY-understandingNameLongPressPoint.y)>12) cancelUnderstandingStudentNamePress();
+    }
+    function endUnderstandingStudentNamePress(event,student){
+      const opened=understandingNameLongPressOpened;
+      cancelUnderstandingStudentNamePress();
+      if(opened){ event.preventDefault(); event.stopPropagation(); return; }
+      if(event.pointerType==='touch') handleUnderstandingStudentNameTap(event,student);
+    }
+    function getUnderstandingStudentAllUnitsStats(cls,student){
+      const counts={mastered:0,partial:0,support:0,notDone:0,excellent:0};
+      const completedUnits=[], pendingUnits=[];
+      let scoreTotal=0, lessonCount=0;
+      Object.entries(unitsData||{}).forEach(([unitName,unitData])=>{
+        const lessons=(unitData?.lessons||[]).filter(Boolean);
+        if(!lessons.length) return;
+        const entries=lessons.map(lesson=>getUnderstandingEntryFromStates(getUnderstandingLessonStates(cls,unitName,lesson),student));
+        const doneCount=entries.filter(entry=>Boolean(entry.status)).length;
+        const info={name:unitName,total:lessons.length,done:doneCount,complete:doneCount===lessons.length};
+        if(!info.complete){ pendingUnits.push(info); return; }
+        completedUnits.push(info);
+        entries.forEach(entry=>{
+          if(counts[entry.status]!==undefined) counts[entry.status]++;
+          if(entry.excellent) counts.excellent++;
+          scoreTotal+=(UNDERSTANDING_STATUS_CONFIG[entry.status]||UNDERSTANDING_STATUS_CONFIG.notDone).score;
+          lessonCount++;
+        });
+      });
+      return {counts,completedUnits,pendingUnits,lessonCount,average:lessonCount?scoreTotal/lessonCount:null};
+    }
+    function openUnderstandingStudentStatsModal(student){
+      const cls=document.getElementById('understandingClassSelect').value, activeUnit=document.getElementById('understandingUnitSelect').value;
+      if(!cls||!student) return;
+      const stats=getUnderstandingStudentAllUnitsStats(cls,student), current=stats.pendingUnits.find(unit=>unit.name===activeUnit)||stats.completedUnits.find(unit=>unit.name===activeUnit);
+      const average=stats.average===null?'—':formatGrade(stats.average);
+      const items=[
+        ['mastered','متقن',stats.counts.mastered],['partial','جزئي',stats.counts.partial],['support','دعم',stats.counts.support],['notDone','لم ينفذ',stats.counts.notDone],['excellent','★ متميز',stats.counts.excellent]
+      ].map(([key,label,value])=>`<div class="understanding-stats-item ${key}"><b>${value}</b><span>${label}</span></div>`).join('');
+      const currentStatus=current?(current.complete?'مكتملة':`${current.done}/${current.total} دروس — لا تدخل`):'';
+      const currentHtml=current?`<div class="understanding-stats-current"><b>${escapeTextForHtml(current.name)}</b><span class="${current.complete?'is-complete':'is-pending'}">${currentStatus}</span></div>`:'<div class="understanding-stats-current"><b>الوحدة الحالية</b><span class="is-pending">لا توجد دروس</span></div>';
+      document.getElementById('understandingStudentStatsContent').innerHTML=`<div class="understanding-stats-student">${escapeTextForHtml(student)}</div><div class="understanding-stats-score"><span>متوسط</span><b>${average}<small>/10</small></b><em>${stats.completedUnits.length} وحدة مكتملة</em></div><div class="understanding-stats-grid">${items}</div>${currentHtml}`;
+      document.getElementById('understandingStudentStatsModal').style.display='flex';
+    }
+    function closeUnderstandingStudentStatsModal(){ document.getElementById('understandingStudentStatsModal').style.display='none'; }
+
     function setUnderstandingStatus(student,status){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
       if(!writeUnderstandingStatus(cls,unit,lesson,student,status)) return;
@@ -2649,7 +2731,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           return `<button class="btn-status understanding-status-${key}${active?' is-selected':''}" onclick="setUnderstandingStatus('${CSS.escape(student)}','${key}')" style="background:${active?color:'#FFFFFF'};color:${active?textColor:color};border:1.3px solid ${color};font-weight:${active?'900':'800'};">${config.label}</button>`;
         }).join('');
         const excellenceStar=excellent?'<span class="student-excellence-star" title="متميز — مكافأة مستقلة">★</span>':'';
-        card.innerHTML=`${excellenceStar}<div class="student-name" title="اضغط مرتين لإضافة أو إلغاء نجمة التميز" ondblclick="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')" onpointerup="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')">${student}</div><div class="understanding-buttons">${buttons}</div>`;
+        card.innerHTML=`${excellenceStar}<div class="student-name" title="اضغط مرتين للتميز، أو اضغط مطولاً للإحصائية" ondblclick="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')" onpointerdown="startUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointermove="moveUnderstandingStudentNamePress(event)" onpointerup="endUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointercancel="cancelUnderstandingStudentNamePress()" oncontextmenu="event.preventDefault()">${student}</div><div class="understanding-buttons">${buttons}</div>`;
         cont.appendChild(card);
       });
     }

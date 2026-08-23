@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-71-safe-followup-pinch-zoom';
+const CACHE_NAME = 'attendance-app-v20-72-understanding-student-stats';
 const urlsToCache = [
   './',
   './index.html',
