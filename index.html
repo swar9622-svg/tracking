@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.48";</script>
+  <script>const APP_VERSION = "20.49";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -87,13 +87,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #absenceScreen .student-name { cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
     #absenceScreen .student-name:active { opacity:.72; }
     .attendance-buttons { display: flex; gap: 0.25rem; flex-shrink: 0; }
-    .student-stats-bubble{display:none;order:3;flex:1 0 100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:0.05rem;padding:0.4rem;background:#F8F9FB;border:1px solid #E5E5EA;border-radius:0.62rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.75);animation:student-stats-pop .18s ease-out both;}
+    .student-stats-bubble{display:none;order:3;flex:1 0 100%;gap:7px;margin-top:0.05rem;padding:0.4rem;background:#F8F9FB;border:1px solid #E5E5EA;border-radius:0.62rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.75);animation:student-stats-pop .18s ease-out both;}
     .student-stats-bubble.is-open{display:grid;}
+    .student-stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;}
     .student-stats-chip{min-width:0;text-align:center;border-radius:0.46rem;padding:0.25rem 0.12rem;font-size:0.60rem;font-weight:800;line-height:1.1;}
     .student-stats-chip b{display:block;font-size:0.86rem;margin-bottom:1px;}
     .student-stats-chip.absent{background:#FFF0F0;color:#C0392B;}
     .student-stats-chip.late{background:#FFF8E1;color:#B7770D;}
     .student-stats-chip.violations{background:#F5EEF8;color:#7D3C98;}
+    .student-notes-section{border-top:1px solid #E5E5EA;padding-top:0.38rem;}
+    .student-notes-title{font-size:0.66rem;font-weight:900;color:#3A3A3C;margin:0 0 0.28rem;text-align:right;}
+    .student-note-input{display:block;width:100%;min-height:3.1rem;resize:vertical;box-sizing:border-box;border:1px solid #C7C7CC;border-radius:0.5rem;background:#FFF;color:#1C1C1E;padding:0.42rem 0.52rem;font-family:inherit;font-size:0.72rem;font-weight:700;line-height:1.35;outline:none;}
+    .student-note-input:focus{border-color:#007AFF;box-shadow:0 0 0 2px rgba(0,122,255,.12);}
+    .student-note-save{width:100%;margin-top:0.32rem;border:0;border-radius:0.48rem;background:#007AFF;color:#FFF;padding:0.42rem;font-family:inherit;font-size:0.68rem;font-weight:900;cursor:pointer;}
+    .student-note-save:active{opacity:.76;}
+    .student-notes-list{display:flex;flex-direction:column;gap:4px;margin-top:0.38rem;max-height:8.2rem;overflow-y:auto;padding-left:1px;}
+    .student-note-item{display:flex;gap:6px;align-items:flex-start;justify-content:space-between;background:#FFF;border:1px solid #E5E5EA;border-radius:0.45rem;padding:0.32rem 0.42rem;font-size:0.67rem;font-weight:700;color:#2C3E50;line-height:1.35;}
+    .student-note-item span{flex:1;white-space:pre-wrap;word-break:break-word;}
+    .student-note-item small{flex:none;color:#8E8E93;font-size:0.53rem;font-weight:700;white-space:nowrap;}
+    .student-notes-empty{font-size:0.61rem;color:#8E8E93;font-weight:700;text-align:center;padding:0.28rem;background:#FFFFFF;border-radius:0.42rem;border:1px dashed #D1D1D6;}
     @keyframes student-stats-pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
     .btn-status { padding: 0.25rem 0.375rem; border-radius: 0.5rem; border: none; font-size: 0.6875rem; font-weight: 700; cursor: pointer; background-color: var(--gray-btn); color: var(--gray-btn-text); transition: all 0.15s; min-width: 2.25rem; height: 2rem; user-select: none; }
     .btn-status:active { opacity: 0.7; }
@@ -1348,6 +1360,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let followupData = {};
     // تقويم تشخيصي مستقل: لا يدخل في درجات المتابعة أو المشاركة أو المجموع النهائي.
     let understandingData = {};
+    // ملاحظات كلية مستقلة لكل طالب: لا تغير الغياب أو التأخر أو الدرجات.
+    let studentNotesData = {};
     let penaltiesData = JSON.parse(JSON.stringify(defaultPenalties));
     let period1SelectedUnits = [];
     let selectedPeriodName = 'الأولى';
@@ -1787,7 +1801,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function buildPersistentState(){
       return {
         schemaVersion:1,
-        appData:cloneData(appData), records:cloneData(records), unitsData:cloneData(unitsData), followupData:cloneData(followupData), understandingData:cloneData(understandingData),
+        appData:cloneData(appData), records:cloneData(records), unitsData:cloneData(unitsData), followupData:cloneData(followupData), understandingData:cloneData(understandingData), studentNotesData:cloneData(studentNotesData),
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
         fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
@@ -1822,6 +1836,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(state.unitsData&&typeof state.unitsData==='object') unitsData=state.unitsData;
       if(state.followupData&&typeof state.followupData==='object') followupData=state.followupData;
       if(state.understandingData&&typeof state.understandingData==='object') understandingData=state.understandingData;
+      if(state.studentNotesData&&typeof state.studentNotesData==='object') studentNotesData=state.studentNotesData;
       if(state.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(state.violationDefinitions);
       syncViolationNames();
       defaultPenalties=createDefaultPenalties();
@@ -2289,9 +2304,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     let openAttendanceStudentStats='', lastAttendanceNameTap={student:'',at:0}, lastAttendanceStatsActivationAt=0;
+    function getAttendanceStudentNotes(cls,student){ return Array.isArray(studentNotesData?.[cls]?.[student])?studentNotesData[cls][student]:[]; }
+    function formatAttendanceStudentNoteDate(value){ try{return new Date(value).toLocaleDateString('ar-SA');}catch(_){return '';} }
     function getAttendanceStudentStatsMarkup(cls,student){
-      const stats=getStudentAttendanceStats(cls,student,'__all__');
-      return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite"><div class="student-stats-chip absent"><b>${stats.absent}</b>غياب</div><div class="student-stats-chip late"><b>${stats.late}</b>تأخر</div><div class="student-stats-chip violations"><b>${stats.violations}</b>مخالفات</div></div>`;
+      const stats=getStudentAttendanceStats(cls,student,'__all__'), notes=getAttendanceStudentNotes(cls,student);
+      const notesMarkup=notes.length?notes.slice().reverse().map(note=>`<div class="student-note-item"><span>${escapeTextForHtml(note.text||'')}</span><small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></div>`).join(''):'<div class="student-notes-empty">لا توجد ملاحظات محفوظة لهذا الطالب.</div>';
+      const safeClass=CSS.escape(cls), safeStudent=CSS.escape(student);
+      return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite"><div class="student-stats-grid"><div class="student-stats-chip absent"><b>${stats.absent}</b>غياب</div><div class="student-stats-chip late"><b>${stats.late}</b>تأخر</div><div class="student-stats-chip violations"><b>${stats.violations}</b>مخالفات</div></div><div class="student-notes-section"><div class="student-notes-title">ملاحظات الطالب</div><textarea class="student-note-input" rows="2" placeholder="اكتب ملاحظة للطالب ثم اضغط حفظ…"></textarea><button type="button" class="student-note-save" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ الملاحظة</button><div class="student-notes-list">${notesMarkup}</div></div></div>`;
+    }
+    function addAttendanceStudentNote(cls,student){
+      const input=document.querySelector('.student-stats-bubble.is-open .student-note-input'), text=String(input?.value||'').trim();
+      if(!text){ if(input) input.focus(); return; }
+      if(!studentNotesData[cls]) studentNotesData[cls]={};
+      if(!Array.isArray(studentNotesData[cls][student])) studentNotesData[cls][student]=[];
+      studentNotesData[cls][student].push({id:`note_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,text,createdAt:new Date().toISOString()});
+      saveData(); renderStudents();
     }
     function toggleAttendanceStudentStats(student){
       openAttendanceStudentStats=openAttendanceStudentStats===student?'':student;
@@ -3522,7 +3549,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function startEditName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; if(editingIndex!==-1&&editingIndex!==orig) cancelEditName(editingIndex); row.classList.add('editing'); row.querySelector('.student-edit-input').value=row.querySelector('.student-display-name').textContent; row.querySelector('.student-edit-input').focus(); row.querySelector('.student-edit-input').select(); editingIndex=orig; }
     function saveEditedName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; const inp=row.querySelector('.student-edit-input'), newName=inp.value.trim(), oldName=inp.dataset.originalName; if(!newName){ alert("الاسم لا يمكن أن يكون فارغاً!"); return; } if(newName===oldName){ cancelEditName(orig); return; } const cls=document.getElementById('modalClassSelect').value; if(appData[cls].includes(newName)){ alert(`الاسم "${newName}" موجود مسبقاً!`); return; } if(updateStudentNameInAllData(oldName,newName,cls)){ updateTextareaAfterRename(cls); renderEditStudentList(); alert(`✅ تم تعديل اسم "${oldName}" إلى "${newName}" بنجاح.`); editingIndex=-1; } else alert("❌ حدث خطأ أثناء التعديل."); }
     function cancelEditName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; row.classList.remove('editing'); if(editingIndex===orig) editingIndex=-1; }
-    function updateStudentNameInAllData(oldName,newName,cls){ let idx=appData[cls].indexOf(oldName); if(idx===-1) return false; appData[cls][idx]=newName; for(let date in records){ if(records[date]&&records[date][cls]&&records[date][cls][oldName]!==undefined){ records[date][cls][newName]=records[date][cls][oldName]; delete records[date][cls][oldName]; } } for(let key in followupData){ if(key.startsWith(cls+'_')){ if(followupData[key][oldName]!==undefined){ followupData[key][newName]=followupData[key][oldName]; delete followupData[key][oldName]; } } } Object.values(understandingData?.[cls]||{}).forEach(unitStates=>Object.values(unitStates||{}).forEach(lessonStates=>{ if(lessonStates[oldName]!==undefined){ lessonStates[newName]=lessonStates[oldName]; delete lessonStates[oldName]; } })); saveData(); renderStudents(); return true; }
+    function updateStudentNameInAllData(oldName,newName,cls){ let idx=appData[cls].indexOf(oldName); if(idx===-1) return false; appData[cls][idx]=newName; if(studentNotesData[cls]&&studentNotesData[cls][oldName]!==undefined){ studentNotesData[cls][newName]=studentNotesData[cls][oldName]; delete studentNotesData[cls][oldName]; } for(let date in records){ if(records[date]&&records[date][cls]&&records[date][cls][oldName]!==undefined){ records[date][cls][newName]=records[date][cls][oldName]; delete records[date][cls][oldName]; } } for(let key in followupData){ if(key.startsWith(cls+'_')){ if(followupData[key][oldName]!==undefined){ followupData[key][newName]=followupData[key][oldName]; delete followupData[key][oldName]; } } } Object.values(understandingData?.[cls]||{}).forEach(unitStates=>Object.values(unitStates||{}).forEach(lessonStates=>{ if(lessonStates[oldName]!==undefined){ lessonStates[newName]=lessonStates[oldName]; delete lessonStates[oldName]; } })); saveData(); renderStudents(); return true; }
     function updateTextareaAfterRename(cls){ if(appData[cls]) document.getElementById('studentNamesTextarea').value=appData[cls].join('\n'); }
 
     function updateUnitName(){
@@ -4740,13 +4767,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:3,storageBackend:'IndexedDB',appData,records,unitsData,followupData,understandingData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ const data={backupVersion:3,storageBackend:'IndexedDB',appData,records,unitsData,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
       reader.onload=async function(ev){ try {
         const imported=JSON.parse(ev.target.result);
-        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
+        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.studentNotesData&&typeof imported.studentNotesData==='object') studentNotesData=imported.studentNotesData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
         if(imported.participationSettings&&typeof imported.participationSettings==='object') participationSettings={...participationSettings,...imported.participationSettings};
         currentAttendanceUnit=participationSettings.activeUnit||Object.keys(unitsData)[0]||'';
         if(imported.projectDistributionOrder) projectDistributionOrder=imported.projectDistributionOrder;
@@ -4767,7 +4794,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; understandingData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
