@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.50";</script>
+  <script>const APP_VERSION = "20.51";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -101,6 +101,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .student-note-input{display:block;flex:1;min-width:0;height:2.25rem;max-height:8rem;resize:none;box-sizing:border-box;border:0;background:transparent;color:#1C1C1E;padding:0.46rem 0.52rem;font-family:inherit;font-size:0.72rem;font-weight:700;line-height:1.35;outline:none;overflow-y:auto;}
     .student-note-save{flex:none;width:3.85rem;border:0;border-right:1px solid #D8E8FA;background:#007AFF;color:#FFF;padding:0.35rem 0.22rem;font-family:inherit;font-size:0.66rem;font-weight:900;cursor:pointer;}
     .student-note-save:active{opacity:.76;}
+    .student-notes-toggle{display:block;width:100%;margin-top:0.34rem;border:0;border-radius:0.48rem;background:#F0F5FB;color:#0B5394;padding:0.40rem;font-family:inherit;font-size:0.66rem;font-weight:900;cursor:pointer;}
+    .student-notes-toggle:active{opacity:.72;}
     .student-notes-list{display:flex;flex-direction:column;gap:4px;margin-top:0.38rem;max-height:7.1rem;overflow-y:auto;padding-left:1px;}
     .student-note-item{display:flex;gap:6px;align-items:flex-start;background:#FFF;border:1px solid #E5E5EA;border-radius:0.45rem;padding:0.32rem 0.36rem;font-size:0.67rem;font-weight:700;color:#2C3E50;line-height:1.35;}
     .student-note-content{flex:1;min-width:0;}
@@ -438,20 +440,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .understanding-summary-unit-btn.is-selected{background:#D6EAF8;border-color:#1B4F72;box-shadow:inset 0 0 0 1px #1B4F72;}
     @media(max-width:360px){.understanding-bulk-status-grid .btn-status{font-size:0.51rem;}}
 
-    /* تنقل بسيط: يكبر الزر النشط بسلاسة مع ظهور عنوانه، من دون قصّ أو حركات متعارضة بين المتصفحات. */
+    /* شريط ثابت وبسيط: لا توجد حركة، والعنوان الكامل يظهر دائماً للزر النشط منذ الفتح الأول. */
     .screen-navigation{display:flex;direction:rtl;gap:0.35rem;align-items:center;padding:0.5rem 0.75rem 0.12rem;}
-    .screen-navigation-btn{height:2.55rem;flex:0 0 3.28rem;min-width:3.28rem;border:0;border-radius:0.72rem;background:#F2F2F7;color:#6E6E73;font-family:inherit;font-size:0.72rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;white-space:nowrap;box-shadow:inset 0 0 0 1px #D1D1D6;transition:flex-basis .36s ease,flex-grow .36s ease,background .22s ease,color .22s ease,box-shadow .36s ease;}
+    .screen-navigation-btn{height:2.55rem;flex:0 0 3.28rem;min-width:3.28rem;border:0;border-radius:0.72rem;background:#F2F2F7;color:#6E6E73;font-family:inherit;font-size:0.72rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;white-space:nowrap;box-shadow:inset 0 0 0 1px #D1D1D6;}
     .screen-navigation-btn:active{opacity:.82;}
-    .screen-navigation-btn .screen-nav-short{display:block;text-align:center;font-size:0.78rem;font-weight:900;line-height:1;opacity:1;transition:opacity .14s ease;}
+    .screen-navigation-btn .screen-nav-short{display:block;text-align:center;font-size:0.78rem;font-weight:900;line-height:1;}
     .screen-navigation-btn .screen-nav-short small{font:inherit;line-height:1;}
-    .screen-navigation-btn .screen-nav-full{display:block;position:absolute;overflow:hidden;text-overflow:ellipsis;padding:0 0.15rem;font-size:1.06rem;font-weight:900;line-height:1.05;opacity:0;transform:scale(.96);transition:opacity .18s ease,transform .24s ease;pointer-events:none;}
+    .screen-navigation-btn .screen-nav-full{display:none;overflow:hidden;text-overflow:ellipsis;padding:0 0.15rem;font-size:1.06rem;font-weight:900;line-height:1.05;}
     .screen-navigation-btn.is-active{flex:1 1 auto;color:#FFF;box-shadow:0 2px 6px rgba(0,0,0,.16);pointer-events:none;cursor:default;}
-    .screen-navigation-btn.is-active .screen-nav-short{opacity:0;}
-    .screen-navigation-btn.is-active.nav-title-visible .screen-nav-full{opacity:1;transform:scale(1);}
+    .screen-navigation-btn.is-active .screen-nav-short{display:none;}
+    .screen-navigation-btn.is-active .screen-nav-full{display:block;}
     .screen-navigation-btn.nav-absence.is-active{background:#34C759;}
     .screen-navigation-btn.nav-understanding.is-active{background:#007AFF;}
     .screen-navigation-btn.nav-followup.is-active{background:#5856D6;}
-    @media(prefers-reduced-motion:reduce){.screen-navigation-btn,.screen-navigation-btn .screen-nav-short,.screen-navigation-btn .screen-nav-full{transition:none!important;}}
     .screen-version-label{padding:0.08rem 0.75rem 0.35rem;text-align:center;color:#AEAEB2;font-size:0.53rem;font-weight:700;letter-spacing:.02em;line-height:1;}
     .followup-understanding-column{background:#FEF9E7 !important;color:#7D6608 !important;}
     @media(max-width:360px){.understanding-controls select{font-size:0.62rem;}.understanding-buttons{flex-basis:132px;}.understanding-buttons .btn-status{font-size:0.53rem;}.screen-navigation{gap:0.24rem;padding-inline:0.5rem;}.screen-navigation-btn{height:2.42rem;flex-basis:3rem;min-width:3rem;font-size:0.66rem;}.screen-navigation-btn .screen-nav-short{font-size:0.69rem;}.screen-navigation-btn .screen-nav-short small{font:inherit;}.screen-navigation-btn .screen-nav-full{font-size:0.9rem;}}
@@ -2295,14 +2296,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       renderAttendanceUnitsDropdown();
     }
 
-    let openAttendanceStudentStats='', lastAttendanceNameTap={student:'',at:0}, lastAttendanceStatsActivationAt=0;
+    let openAttendanceStudentStats='', showAttendanceStudentNotes=false, lastAttendanceNameTap={student:'',at:0}, lastAttendanceStatsActivationAt=0;
     function getAttendanceStudentNotes(cls,student){ return Array.isArray(studentNotesData?.[cls]?.[student])?studentNotesData[cls][student]:[]; }
     function formatAttendanceStudentNoteDate(value){ try{return new Date(value).toLocaleDateString('ar-SA');}catch(_){return '';} }
     function getAttendanceStudentStatsMarkup(cls,student){
       const stats=getStudentAttendanceStats(cls,student,'__all__'), notes=getAttendanceStudentNotes(cls,student);
       const safeClass=CSS.escape(cls), safeStudent=CSS.escape(student);
       const notesMarkup=notes.length?notes.slice().reverse().map(note=>`<div class="student-note-item"><div class="student-note-content"><span>${escapeTextForHtml(note.text||'')}</span><small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></div><button type="button" class="student-note-delete" title="حذف الملاحظة" onclick="deleteAttendanceStudentNote('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">حذف</button></div>`).join(''):'<div class="student-notes-empty">لا توجد ملاحظات محفوظة لهذا الطالب.</div>';
-      return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite"><div class="student-stats-grid"><div class="student-stats-chip absent"><b>${stats.absent}</b>غياب</div><div class="student-stats-chip late"><b>${stats.late}</b>تأخر</div><div class="student-stats-chip violations"><b>${stats.violations}</b>مخالفات</div></div><div class="student-notes-section"><div class="student-note-entry"><textarea class="student-note-input" rows="1" placeholder="اكتب ملاحظة…" oninput="autoGrowAttendanceStudentNote(this)"></textarea><button type="button" class="student-note-save" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ</button></div><div class="student-notes-list">${notesMarkup}</div></div></div>`;
+      const notesAreVisible=openAttendanceStudentStats===student&&showAttendanceStudentNotes;
+      return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite"><div class="student-stats-grid"><div class="student-stats-chip absent"><b>${stats.absent}</b>غياب</div><div class="student-stats-chip late"><b>${stats.late}</b>تأخر</div><div class="student-stats-chip violations"><b>${stats.violations}</b>مخالفات</div></div><div class="student-notes-section"><div class="student-note-entry"><textarea class="student-note-input" rows="1" placeholder="اكتب ملاحظة…" oninput="autoGrowAttendanceStudentNote(this)"></textarea><button type="button" class="student-note-save" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ</button></div><button type="button" class="student-notes-toggle" onclick="toggleAttendanceStudentNotes()">${notesAreVisible?'إخفاء الملاحظات':`إظهار الملاحظات (${notes.length})`}</button>${notesAreVisible?`<div class="student-notes-list">${notesMarkup}</div>`:''}</div></div>`;
     }
     function autoGrowAttendanceStudentNote(input){ input.style.height='auto'; input.style.height=`${Math.min(128,Math.max(36,input.scrollHeight))}px`; }
     function addAttendanceStudentNote(cls,student){
@@ -2322,8 +2324,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       else { delete studentNotesData[cls][student]; if(Object.keys(studentNotesData[cls]).length===0) delete studentNotesData[cls]; }
       saveData(); renderStudents();
     }
+    function toggleAttendanceStudentNotes(){ showAttendanceStudentNotes=!showAttendanceStudentNotes; renderStudents(); }
     function toggleAttendanceStudentStats(student){
-      openAttendanceStudentStats=openAttendanceStudentStats===student?'':student;
+      const closing=openAttendanceStudentStats===student;
+      openAttendanceStudentStats=closing?'':student;
+      showAttendanceStudentNotes=false;
       lastAttendanceStatsActivationAt=Date.now();
       renderStudents();
     }
@@ -2340,7 +2345,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     document.addEventListener('click',event=>{
       if(!openAttendanceStudentStats||event.target.closest('.student-card')) return;
-      openAttendanceStudentStats=''; renderStudents();
+      openAttendanceStudentStats=''; showAttendanceStudentNotes=false; renderStudents();
     });
     function renderStudents() {
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value, cont=document.getElementById('studentList');
@@ -2647,22 +2652,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     let lastScreenNavigation='absence';
     function updateScreenNavigation(active){
-      const activeScreen=document.querySelector('.screen.active-screen');
-      const alreadySelected=active===lastScreenNavigation&&activeScreen?.querySelector(`[data-screen-nav="${active}"].is-active`);
-      if(alreadySelected) return;
       lastScreenNavigation=active;
-      const visibleButtons=activeScreen?[...activeScreen.querySelectorAll('[data-screen-nav]')]:[];
-      const allButtons=[...document.querySelectorAll('[data-screen-nav]')];
-      visibleButtons.forEach(button=>{button.classList.remove('is-active','nav-title-visible');button.disabled=false;button.removeAttribute('aria-current');});
-      allButtons.filter(button=>!visibleButtons.includes(button)).forEach(button=>button.classList.toggle('is-active',button.dataset.screenNav===active));
-      const target=visibleButtons.find(button=>button.dataset.screenNav===active);
-      if(!target){ applyButtonColors(); return; }
-      void activeScreen.offsetWidth;
-      requestAnimationFrame(()=>{
-        target.classList.add('is-active'); target.disabled=true; target.setAttribute('aria-current','page');
-        applyButtonColors();
-        setTimeout(()=>{ if(target.classList.contains('is-active')) target.classList.add('nav-title-visible'); },90);
+      document.querySelectorAll('[data-screen-nav]').forEach(button=>{
+        const selected=button.dataset.screenNav===active;
+        button.classList.toggle('is-active',selected);
+        button.disabled=selected;
+        if(selected) button.setAttribute('aria-current','page'); else button.removeAttribute('aria-current');
       });
+      applyButtonColors();
     }
     function switchToUnderstandingScreen(){
       if(document.getElementById('understandingScreen').classList.contains('active-screen')) return;
@@ -5251,7 +5248,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         renderStudents();
         renderUnitsDropdown();
         applyFontSettings();
-        applyButtonColors();
+        updateScreenNavigation('absence');
         fixBottomControlsPosition();
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw2.js').catch(err => console.error('❌ فشل تسجيل Service Worker:', err));
       }catch(error){
