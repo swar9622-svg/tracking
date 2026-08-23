@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-60-note-count-badge';
+const CACHE_NAME = 'attendance-app-v20-61-excellence-stars';
 const urlsToCache = [
   './',
   './index.html',

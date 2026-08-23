@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.60";</script>
+  <script>const APP_VERSION = "20.61";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -412,6 +412,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #understandingLessonSelect{background:#FFF3E0;border-color:#F5CBA7;color:#B45309;}
     .understanding-buttons{display:grid;grid-template-columns:repeat(2,minmax(58px,1fr));gap:3px;flex:0 0 142px;}
     .understanding-buttons .btn-status{width:100%;min-width:0;height:1.5rem;padding:0.12rem 0.1rem;font-size:0.58rem;line-height:1.02;}
+    #understandingScreen .student-card{position:relative;}
+    #understandingScreen .student-excellence-star{position:absolute;top:-0.34rem;left:-0.28rem;z-index:5;width:1.34rem;height:1.34rem;border:2px solid #FFFFFF;border-radius:999px;background:#FFF4CC;color:#B77900;box-shadow:0 2px 7px rgba(183,121,0,.28);font-size:0.88rem;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;pointer-events:none;}
     .understanding-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:0 0.65rem 0.4rem;}
     .understanding-summary-item{border-radius:0.48rem;padding:0.26rem 0.1rem;text-align:center;font-size:0.57rem;font-weight:900;border:1px solid rgba(0,0,0,.08);line-height:1.12;}
     .understanding-summary-item b{display:block;font-size:0.8rem;}
@@ -1199,6 +1201,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button type="button" class="btn-action" style="background-color:var(--accent);min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openPenaltyConfigModal();">⚙️ إدارة درجات المخالفات</button>
         <button type="button" class="btn-action" style="background-color:#5B2C6F;min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openParticipationModeModal();">⚙️ درجات المشاركة</button>
         <button type="button" class="btn-action" style="background-color:#8E44AD;min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openProjectGradesModal();">⚙️ إدارة درجات المشاريع</button>
+        <button type="button" class="btn-action" style="background-color:#B77900;min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openExcellenceSettingsModal();">⭐ إدارة درجات التميز</button>
         <div id="gradeRoundingModeCard" class="grade-rounding-card">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <div style="min-width:0;">
@@ -1257,6 +1260,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <button type="button" class="btn-modal-cancel" style="flex:1;" onclick="resetProjectOrderSelection()">↺ إعادة تعيين</button>
           <button type="button" class="btn-modal-save" style="flex:1;" onclick="saveProjectDistributionOrder()">💾 حفظ الترتيب</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="excellenceSettingsModal" style="z-index:107;">
+    <div class="modal-content" style="max-height:88vh;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="modal-title" style="margin:0;">⭐ درجات التميز</div>
+        <button class="btn-close-circle" onclick="closeExcellenceSettingsModal()">✕</button>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);font-weight:700;text-align:center;line-height:1.65;margin-bottom:12px;">تُمنح نجمة التميز بالضغط مرتين على اسم الطالب في تحقق من فهمك، وهي مستقلة عن حالة حل التمارين.</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #F3D58B;background:#FFF9E8;border-radius:0.7rem;padding:10px 12px;margin-bottom:13px;">
+        <label for="excellencePointsInput" style="font-size:13px;font-weight:900;color:#7D6608;">درجة التميز لكل درس</label>
+        <input id="excellencePointsInput" type="number" min="0" max="10" step="0.5" inputmode="decimal" style="width:76px;text-align:center;border:1px solid #D4AC0D;border-radius:0.5rem;padding:7px;font:inherit;font-weight:900;color:#7D6608;background:#FFFFFF;">
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;font-weight:800;text-align:center;">ترتيب توزيع فائض الأنشطة: اضغط المربعات بالترتيب ليظهر 1 ثم 2 ثم 3 ثم 4.</div>
+      <div id="excellenceOrderBoxes" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px;"></div>
+      <div style="display:flex;gap:6px;">
+        <button type="button" class="btn-modal-cancel" style="flex:1;" onclick="resetExcellenceOrderSelection()">↺ إعادة تعيين</button>
+        <button type="button" class="btn-modal-save" style="flex:1;" onclick="saveExcellenceSettings()">💾 حفظ الإعدادات</button>
       </div>
     </div>
   </div>
@@ -1362,6 +1385,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let records = {};
     let unitsData = JSON.parse(JSON.stringify(defaultUnits));
     let projectDistributionOrder = {};
+    const EXCELLENCE_DEFAULT_SETTINGS={pointsPerLesson:3,distributionOrder:['participation','hw','test','note']};
+    const EXCELLENCE_DISTRIBUTION_CATEGORIES=[
+      {key:'participation',label:'المشاركة',cap:10,color:'#EBDEF0',accent:'#512E5F'},
+      {key:'hw',label:'الواجبات',cap:10,color:'#D4EFDF',accent:'#117A65'},
+      {key:'test',label:'الاختبار',cap:20,color:'#FADBD8',accent:'#78281F'},
+      {key:'note',label:'تهميش الباقي',cap:Infinity,color:'#FFF9E8',accent:'#B77900'}
+    ];
+    function normalizeExcellenceSettings(value){
+      const rawPoints=Number(value?.pointsPerLesson), pointsPerLesson=Number.isFinite(rawPoints)?Math.min(10,Math.max(0,rawPoints)):EXCELLENCE_DEFAULT_SETTINGS.pointsPerLesson;
+      const allowed=EXCELLENCE_DISTRIBUTION_CATEGORIES.map(item=>item.key), proposed=Array.isArray(value?.distributionOrder)?value.distributionOrder:[];
+      const distributionOrder=[...new Set(proposed.filter(key=>allowed.includes(key)))];
+      allowed.forEach(key=>{ if(!distributionOrder.includes(key)) distributionOrder.push(key); });
+      return {pointsPerLesson,distributionOrder:distributionOrder.slice(0,allowed.length)};
+    }
+    let excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS);
+    let excellenceOrderSelection=[];
     let followupData = {};
     // تقويم تشخيصي مستقل: لا يدخل في درجات المتابعة أو المشاركة أو المجموع النهائي.
     let understandingData = {};
@@ -1811,7 +1850,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         schemaVersion:1,
         appData:cloneData(appData), records:cloneData(records), unitsData:cloneData(unitsData), followupData:cloneData(followupData), understandingData:cloneData(understandingData), studentNotesData:cloneData(studentNotesData),
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
-        projectDistributionOrder:cloneData(projectDistributionOrder), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
+        projectDistributionOrder:cloneData(projectDistributionOrder), excellenceSettings:cloneData(excellenceSettings), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
         fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), startupSettings:cloneData(startupSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
         weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), noteEntryWindow:cloneData(noteEntryWindow), savedAt:new Date().toISOString()
       };
@@ -1851,6 +1890,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       penaltiesData=state.penaltiesData&&typeof state.penaltiesData==='object'?state.penaltiesData:defaultPenalties;
       if(state.period1SelectedUnits&&Array.isArray(state.period1SelectedUnits)) period1SelectedUnits=state.period1SelectedUnits;
       if(state.projectDistributionOrder&&typeof state.projectDistributionOrder==='object') projectDistributionOrder=state.projectDistributionOrder;
+      excellenceSettings=normalizeExcellenceSettings(state.excellenceSettings);
       currentActiveUnit=Object.keys(unitsData)[0]||'الوحدة الأولى';
       participationSettings=state.participationSettings&&typeof state.participationSettings==='object'?state.participationSettings:{mode:'cumulative',activeUnit:currentActiveUnit};
       if(!['cumulative','per_unit'].includes(participationSettings.mode)) participationSettings.mode='cumulative';
@@ -2432,17 +2472,50 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(create){ if(!understandingData[cls]) understandingData[cls]={}; if(!understandingData[cls][unit]) understandingData[cls][unit]={}; if(!understandingData[cls][unit][lesson]) understandingData[cls][unit][lesson]={}; }
       return understandingData[cls]?.[unit]?.[lesson]||{};
     }
+    function getUnderstandingEntryFromStates(states,student){
+      const value=states?.[student];
+      if(typeof value==='string') return {status:value,excellent:false};
+      if(value&&typeof value==='object') return {status:UNDERSTANDING_STATUS_CONFIG[value.status]?value.status:'',excellent:value.excellent===true};
+      return {status:'',excellent:false};
+    }
+    function getUnderstandingStudentStatus(states,student){ return getUnderstandingEntryFromStates(states,student).status; }
+    function isUnderstandingStudentExcellent(states,student){ return getUnderstandingEntryFromStates(states,student).excellent; }
+    function setUnderstandingEntryInStates(states,student,entry){
+      const normalized={status:UNDERSTANDING_STATUS_CONFIG[entry?.status]?entry.status:'',excellent:entry?.excellent===true};
+      if(!normalized.status&&!normalized.excellent) delete states[student]; else states[student]=normalized;
+    }
+    function cleanupUnderstandingLessonState(cls,unit,lesson){
+      const states=understandingData[cls]?.[unit]?.[lesson];
+      if(!states||Object.keys(states).length) return;
+      delete understandingData[cls][unit][lesson];
+      if(Object.keys(understandingData[cls][unit]).length===0) delete understandingData[cls][unit];
+      if(Object.keys(understandingData[cls]).length===0) delete understandingData[cls];
+    }
     function writeUnderstandingStatus(cls,unit,lesson,student,status){
       if(!cls||!unit||!lesson||!student||!UNDERSTANDING_STATUS_CONFIG[status]) return false;
-      const states=getUnderstandingLessonStates(cls,unit,lesson,true);
-      // لا توجد حالة افتراضية: اختيار الحالة نفسه هو الذي يُنشئ الإدخال، وإعادة ضغطها تحذفه.
-      if(states[student]===status) delete states[student]; else states[student]=status;
-      if(Object.keys(states).length===0){
-        delete understandingData[cls][unit][lesson];
-        if(Object.keys(understandingData[cls][unit]).length===0) delete understandingData[cls][unit];
-        if(Object.keys(understandingData[cls]).length===0) delete understandingData[cls];
-      }
+      const states=getUnderstandingLessonStates(cls,unit,lesson,true), entry=getUnderstandingEntryFromStates(states,student);
+      entry.status=entry.status===status?'':status;
+      setUnderstandingEntryInStates(states,student,entry); cleanupUnderstandingLessonState(cls,unit,lesson);
       return true;
+    }
+    function toggleUnderstandingExcellence(student){
+      const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
+      if(!cls||!unit||!lesson||!student) return;
+      const states=getUnderstandingLessonStates(cls,unit,lesson,true), entry=getUnderstandingEntryFromStates(states,student);
+      entry.excellent=!entry.excellent; setUnderstandingEntryInStates(states,student,entry); cleanupUnderstandingLessonState(cls,unit,lesson);
+      saveData(); renderUnderstandingScreen();
+    }
+    let lastUnderstandingNameTap={student:'',at:0}, lastUnderstandingExcellenceAt=0;
+    function handleUnderstandingStudentNameTap(event,student){
+      const now=Date.now();
+      if(event.type==='dblclick'){
+        if(now-lastUnderstandingExcellenceAt<450) return;
+        event.preventDefault(); lastUnderstandingExcellenceAt=now; toggleUnderstandingExcellence(student); return;
+      }
+      if(event.pointerType!=='touch') return;
+      if(lastUnderstandingNameTap.student===student&&now-lastUnderstandingNameTap.at<420){
+        event.preventDefault(); lastUnderstandingNameTap={student:'',at:0}; lastUnderstandingExcellenceAt=now; toggleUnderstandingExcellence(student);
+      }else lastUnderstandingNameTap={student,at:now};
     }
     function setUnderstandingStatus(student,status){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
@@ -2466,7 +2539,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       nameHeader.textContent=student; nameHeader.style.display='block';
       if(!lessons.length){ container.innerHTML='<div style="text-align:center;color:#C0392B;font-size:0.78rem;font-weight:800;padding:16px 4px;">لا توجد دروس مسجلة لهذه الوحدة.</div>'; return; }
       container.innerHTML=lessons.map((lesson,index)=>{
-        const selected=getUnderstandingLessonStates(cls,unit,lesson)[student]||'';
+        const selected=getUnderstandingStudentStatus(getUnderstandingLessonStates(cls,unit,lesson),student);
         const buttons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{
           const active=selected===key, color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey);
           return `<button class="btn-status understanding-status-${key}${active?' is-selected':''}" data-lesson="${escapeTextForHtml(lesson)}" onclick="setUnderstandingBulkStatus(this.dataset.lesson,'${key}')" style="background:${active?color:'#FFFFFF'};color:${active?textColor:color};border:1.3px solid ${color};font-weight:${active?'900':'800'};">${config.label}</button>`;
@@ -2513,9 +2586,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
       if(!cls||!unit||!lesson||!appData[cls]||!UNDERSTANDING_STATUS_CONFIG[status]) return;
       const states=getUnderstandingLessonStates(cls,unit,lesson,true);
-      const remaining=[...appData[cls]].filter(student=>!Object.prototype.hasOwnProperty.call(states,student));
+      const remaining=[...appData[cls]].filter(student=>!getUnderstandingStudentStatus(states,student));
       if(!remaining.length){ alert('لا يوجد طلاب بلا حالة مسجلة في هذا الدرس.'); understandingRemainingMenuOpen=false; renderUnderstandingScreen(); return; }
-      remaining.forEach(student=>{ states[student]=status; });
+      remaining.forEach(student=>{ const entry=getUnderstandingEntryFromStates(states,student); entry.status=status; setUnderstandingEntryInStates(states,student,entry); });
       understandingRemainingMenuOpen=false;
       saveData(); renderUnderstandingScreen();
     }
@@ -2542,20 +2615,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       understandingRemainingMenuKey=viewKey;
       const states=getUnderstandingLessonStates(cls,unit,lesson), students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar'));
       const counts={mastered:0,partial:0,support:0,notDone:0,remaining:0};
-      students.forEach(student=>{ const status=states[student]; if(status&&counts[status]!==undefined) counts[status]++; else counts.remaining++; });
+      students.forEach(student=>{ const status=getUnderstandingStudentStatus(states,student); if(status&&counts[status]!==undefined) counts[status]++; else counts.remaining++; });
       Object.entries(UNDERSTANDING_STATUS_CONFIG).forEach(([key,config])=>{ summary.innerHTML+=`<div class="understanding-summary-item" style="background:${config.background};color:${config.color};"><b>${counts[key]}</b>${config.label}</div>`; });
       const remainingColor=getButtonColorCss('understandingRemainingBtn'), remainingTextColor=getButtonTextColor('understandingRemainingBtn');
       const remainingButtons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{ const color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey); return `<button class="btn-status understanding-status-${key}" onclick="applyUnderstandingStatusToRemaining('${key}')" style="background:${config.background};color:${color};border:1.3px solid ${color};font-weight:900;">${config.label}</button>`; }).join('');
       summary.innerHTML+=`<div class="understanding-remaining-control"><button type="button" class="understanding-summary-remaining" onclick="toggleUnderstandingRemainingMenu()" aria-expanded="${understandingRemainingMenuOpen}" style="background:${understandingRemainingMenuOpen?remainingColor:'#F2F2F7'};color:${understandingRemainingMenuOpen?remainingTextColor:'#3A3A3C'};border-color:${remainingColor};"><b>${counts.remaining}</b>البقية <span class="remaining-arrow">${understandingRemainingMenuOpen?'▴':'▾'}</span></button></div>`;
       if(understandingRemainingMenuOpen) summary.innerHTML+=`<div class="understanding-remaining-menu">${remainingButtons}<button type="button" class="understanding-clear-all" onclick="clearUnderstandingLessonStatuses()">مسح الكل</button></div>`;
       students.forEach(student=>{
-        const selected=states[student]||'';
+        const selected=getUnderstandingStudentStatus(states,student), excellent=isUnderstandingStudentExcellent(states,student);
         const card=document.createElement('div'); card.className='student-card';
         const buttons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{
           const active=selected===key, color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey);
           return `<button class="btn-status understanding-status-${key}${active?' is-selected':''}" onclick="setUnderstandingStatus('${CSS.escape(student)}','${key}')" style="background:${active?color:'#FFFFFF'};color:${active?textColor:color};border:1.3px solid ${color};font-weight:${active?'900':'800'};">${config.label}</button>`;
         }).join('');
-        card.innerHTML=`<div class="student-name">${student}</div><div class="understanding-buttons">${buttons}</div>`;
+        const excellenceStar=excellent?'<span class="student-excellence-star" title="متميز — مكافأة مستقلة">★</span>':'';
+        card.innerHTML=`${excellenceStar}<div class="student-name" title="اضغط مرتين لإضافة أو إلغاء نجمة التميز" ondblclick="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')" onpointerup="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')">${student}</div><div class="understanding-buttons">${buttons}</div>`;
         cont.appendChild(card);
       });
     }
@@ -2568,7 +2642,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       // صف واحد لكل طالب، وكل درس يصبح خلية مستقلة في الصف نفسه.
       const rows=students.map(student=>{
         const statuses={};
-        lessons.forEach(lesson=>{ statuses[lesson]=getUnderstandingLessonStates(cls,unit,lesson)[student]||'notDone'; });
+        lessons.forEach(lesson=>{ statuses[lesson]=getUnderstandingStudentStatus(getUnderstandingLessonStates(cls,unit,lesson),student)||'notDone'; });
         return {student,statuses};
       });
       return {cls,unit,lessons,students,rows};
@@ -2624,9 +2698,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         units.forEach(unit=>{
           const lessons={}; let sum=0;
           unit.lessons.forEach(lesson=>{
-            const status=getUnderstandingLessonStates(cls,unit.name,lesson)[student]||'notDone';
+            const states=getUnderstandingLessonStates(cls,unit.name,lesson), status=getUnderstandingStudentStatus(states,student)||'notDone';
             const config=UNDERSTANDING_STATUS_CONFIG[status]||UNDERSTANDING_STATUS_CONFIG.notDone;
-            lessons[lesson]={status,score:config.score}; sum+=config.score;
+            const score=config.score+(isUnderstandingStudentExcellent(states,student)?normalizeExcellenceSettings(excellenceSettings).pointsPerLesson:0);
+            lessons[lesson]={status,score}; sum+=score;
           });
           // موزونة الوحدة هي متوسط دروس تحقق من فهمك من 10، لا مجموعها.
           unitScores[unit.name]={lessons,weighted:sum/unit.lessons.length};
@@ -2839,6 +2914,39 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       showProjectGradesUnitsView();
     }
 
+    function openExcellenceSettingsModal(){
+      excellenceSettings=normalizeExcellenceSettings(excellenceSettings);
+      excellenceOrderSelection=excellenceSettings.distributionOrder.slice();
+      document.getElementById('excellencePointsInput').value=excellenceSettings.pointsPerLesson;
+      renderExcellenceOrderBoxes();
+      document.getElementById('excellenceSettingsModal').style.display='flex';
+    }
+    function closeExcellenceSettingsModal(){ document.getElementById('excellenceSettingsModal').style.display='none'; }
+    function renderExcellenceOrderBoxes(){
+      const cont=document.getElementById('excellenceOrderBoxes'); if(!cont) return; cont.innerHTML='';
+      EXCELLENCE_DISTRIBUTION_CATEGORIES.forEach(category=>{
+        const position=excellenceOrderSelection.indexOf(category.key), number=position>=0?position+1:'', selected=position>=0;
+        const button=document.createElement('button'); button.type='button';
+        button.style.cssText=`min-height:86px;border-radius:0.7rem;border:2px solid ${selected?category.accent:'#D1D1D6'};background:${category.color};color:${category.accent};font-family:inherit;font-weight:900;font-size:0.8rem;cursor:pointer;padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;`;
+        button.innerHTML=`<span>${category.label}</span><span style="width:25px;height:25px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:${selected?category.accent:'#FFFFFF'};color:${selected?'#FFFFFF':category.accent};font-size:0.76rem;border:1px solid ${category.accent};">${number||'+'}</span>`;
+        button.onclick=()=>toggleExcellenceOrderBox(category.key); cont.appendChild(button);
+      });
+    }
+    function toggleExcellenceOrderBox(key){
+      const index=excellenceOrderSelection.indexOf(key);
+      if(index>=0) excellenceOrderSelection.splice(index,1);
+      else if(excellenceOrderSelection.length<EXCELLENCE_DISTRIBUTION_CATEGORIES.length) excellenceOrderSelection.push(key);
+      renderExcellenceOrderBoxes();
+    }
+    function resetExcellenceOrderSelection(){ excellenceOrderSelection=[]; renderExcellenceOrderBoxes(); }
+    function saveExcellenceSettings(){
+      const points=Number(document.getElementById('excellencePointsInput').value);
+      if(!Number.isFinite(points)||points<0||points>10){ alert('أدخل درجة التميز من 0 إلى 10.'); return; }
+      if(excellenceOrderSelection.length!==EXCELLENCE_DISTRIBUTION_CATEGORIES.length){ alert('يرجى تحديد ترتيب المستطيلات الأربعة كاملة.'); return; }
+      excellenceSettings=normalizeExcellenceSettings({pointsPerLesson:points,distributionOrder:excellenceOrderSelection});
+      saveData(); closeExcellenceSettingsModal(); refreshGradeRoundingViews();
+    }
+
     // متوسط الأنشطة المدخلة من 10، قبل دمج تحقق من الفهم.
     function getActivityRawScore(className, studentName, unit){
       const key=`${className}_${unit}`, stData=(followupData[key]||{})[studentName]||{act:{}};
@@ -2847,59 +2955,65 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       lessons.forEach(lesson=>{ const value=parseFloat(stData.act?.[lesson]); if(Number.isFinite(value)){ sum+=Math.min(Math.max(value,0),10); count++; } });
       return count>0?sum/count:0;
     }
-    // تُحفظ الحالات بحسب الفصل والوحدة والدرس؛ عدم وجود ملاحظة يعني لم ينفذ = صفر.
+    // حالات التمارين والتميز تحفظان لكل فصل ووحدة ودرس؛ النجمة تضيف درجة مستقلة حتى بلا حالة تمرين.
+    function getUnderstandingScoreDetails(className, studentName, unit){
+      const lessons=(unitsData[unit]||{lessons:[]}).lessons, settings=normalizeExcellenceSettings(excellenceSettings);
+      if(!lessons.length) return {raw:0,exerciseRaw:0,excellenceRaw:0,excellentLessons:0};
+      let sum=0,exerciseSum=0,excellentLessons=0;
+      lessons.forEach(lesson=>{
+        const states=getUnderstandingLessonStates(className,unit,lesson), status=getUnderstandingStudentStatus(states,studentName)||'notDone';
+        const exerciseScore=(UNDERSTANDING_STATUS_CONFIG[status]||UNDERSTANDING_STATUS_CONFIG.notDone).score;
+        const excellent=isUnderstandingStudentExcellent(states,studentName);
+        exerciseSum+=exerciseScore; if(excellent) excellentLessons++;
+        sum+=exerciseScore+(excellent?settings.pointsPerLesson:0);
+      });
+      return {raw:sum/lessons.length,exerciseRaw:exerciseSum/lessons.length,excellenceRaw:(excellentLessons*settings.pointsPerLesson)/lessons.length,excellentLessons};
+    }
     function getUnderstandingScore(className, studentName, unit, applyRounding=true){
-      const lessons=(unitsData[unit]||{lessons:[]}).lessons;
-      if(!lessons.length) return 0;
-      let sum=0;
-      lessons.forEach(lesson=>{ const status=getUnderstandingLessonStates(className,unit,lesson)[studentName]||'notDone'; sum+=(UNDERSTANDING_STATUS_CONFIG[status]||UNDERSTANDING_STATUS_CONFIG.notDone).score; });
-      const raw=sum/lessons.length;
-      return applyRounding?applyWeightedGradeRounding(raw,10):raw;
+      const raw=getUnderstandingScoreDetails(className,studentName,unit).raw;
+      return applyRounding?applyWeightedGradeRounding(raw,Infinity):raw;
     }
 
-    // ===== حساب الدرجة الموزونة لكل وحدة حسب أولوية توزيع درجات المشروع =====
-    // الأنشطة المدخلة من 10 + تحقق من الفهم من 10 = قسم الأنشطة من 20.
+    // ===== حساب الدرجة الموزونة لكل وحدة حسب تميز الدرس ثم أولوية المشروع =====
+    // الأنشطة المدخلة من 10 + تحقق من الفهم ودرجات التميز = قسم الأنشطة من 20.
     function computeUnitWeighted(className, studentName, unit){
       const key = `${className}_${unit}`;
       const stData = (followupData[key]||{})[studentName] || {hw:{},act:{},test1:'',test2:'',projectLink:''};
       const lessons = (unitsData[unit]||{lessons:[]}).lessons;
-
       let hwSum=0,hwCnt=0;
       lessons.forEach(l=>{ let v=parseFloat(stData.hw[l]); if(!isNaN(v)){ hwSum+=v; hwCnt++; } });
       const baseHw = hwCnt>0 ? hwSum/hwCnt : 0;
-
       const baseActivity=getActivityRawScore(className,studentName,unit);
-      const baseUnderstanding=getUnderstandingScore(className,studentName,unit,false);
-      const baseAct=baseActivity+baseUnderstanding;
-
-      const baseTest = parseFloat(stData.test1)||0;
-      const baseParticipation = calculateStudentParticipationScore(className, studentName, unit);
-      let pool = parseFloat(stData.test2)||0; // درجة المشروع (تُوزَّع حسب الأولوية)
-
+      const understandingDetails=getUnderstandingScoreDetails(className,studentName,unit);
+      const baseUnderstanding=understandingDetails.raw, baseAct=baseActivity+baseUnderstanding;
+      const baseTest = parseFloat(stData.test1)||0, baseParticipation = calculateStudentParticipationScore(className, studentName, unit);
       const caps = {participation:10, test:20, hw:10, act:20};
-      const vals = {
-        participation: Math.min(baseParticipation, caps.participation),
-        test: Math.min(baseTest, caps.test),
-        hw: Math.min(baseHw, caps.hw),
-        act: Math.min(baseAct, caps.act)
-      };
+      const vals={participation:Math.min(baseParticipation,caps.participation),test:Math.min(baseTest,caps.test),hw:Math.min(baseHw,caps.hw),act:Math.min(baseAct,caps.act)};
 
-      const order = getUnitDistributionOrder(unit);
-      order.forEach(cat=>{
-        if(pool<=0) return;
-        const capacity = caps[cat]-vals[cat];
-        if(capacity<=0) return;
-        const add = Math.min(pool, capacity);
-        vals[cat]+=add;
-        pool-=add;
+      // فائض التميز بعد بلوغ الأنشطة 20 يوزع أولاً بحسب ترتيب التميز المستقل.
+      let excellencePool=Math.max(0,baseAct-caps.act), excellenceUnallocated=0;
+      normalizeExcellenceSettings(excellenceSettings).distributionOrder.forEach(category=>{
+        if(excellencePool<=0) return;
+        if(category==='note'){ excellenceUnallocated+=excellencePool; excellencePool=0; return; }
+        const capacity=Math.max(0,caps[category]-vals[category]);
+        const add=Math.min(excellencePool,capacity); vals[category]+=add; excellencePool-=add;
       });
+      excellenceUnallocated+=excellencePool;
 
-      // الجبر، إن كان مفعلاً، يحدث بعد اكتمال توزيع المشروع داخل هذه الوحدة فقط.
+      // ثم توزع درجة المشروع كما كانت وفق إعداد المشاريع الخاص بالوحدة.
+      let projectPool=parseFloat(stData.test2)||0;
+      getUnitDistributionOrder(unit).forEach(category=>{
+        if(projectPool<=0) return;
+        const capacity=caps[category]-vals[category]; if(capacity<=0) return;
+        const add=Math.min(projectPool,capacity); vals[category]+=add; projectPool-=add;
+      });
       const rounded={
         participation:applyWeightedGradeRounding(vals.participation,caps.participation),
         test:applyWeightedGradeRounding(vals.test,caps.test),
         hw:applyWeightedGradeRounding(vals.hw,caps.hw),
-        act:applyWeightedGradeRounding(vals.act,caps.act)
+        act:applyWeightedGradeRounding(vals.act,caps.act),
+        excellenceUnallocated:Math.max(0,excellenceUnallocated),
+        excellenceLessons:understandingDetails.excellentLessons
       };
       rounded.total=applyWeightedGradeRounding(rounded.participation+rounded.test+rounded.hw+rounded.act,60);
       return rounded;
@@ -2907,18 +3021,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     function computeWeightedScores(className, studentName, unitsList) {
       if(!unitsList||unitsList.length===0) unitsList = Object.keys(unitsData);
-      const sums = {participation:0, test:0, hw:0, act:0, total:0};
-      unitsList.forEach(u=>{
-        const r = computeUnitWeighted(className, studentName, u);
-        sums.participation+=r.participation; sums.test+=r.test; sums.hw+=r.hw; sums.act+=r.act; sums.total+=r.total;
-      });
+      const sums = {participation:0, test:0, hw:0, act:0, total:0, excellenceUnallocated:0};
+      unitsList.forEach(u=>{ const r=computeUnitWeighted(className,studentName,u); sums.participation+=r.participation; sums.test+=r.test; sums.hw+=r.hw; sums.act+=r.act; sums.total+=r.total; sums.excellenceUnallocated+=r.excellenceUnallocated||0; });
       const n = unitsList.length||1;
-      // المتوسط النهائي مبني على درجات الوحدات بعد جبر كل وحدة على حدة، ثم يجبر الناتج النهائي عند التفعيل.
       return {
         participation:applyWeightedGradeRounding(sums.participation/n,10), test:applyWeightedGradeRounding(sums.test/n,20),
         hw:applyWeightedGradeRounding(sums.hw/n,10), act:applyWeightedGradeRounding(sums.act/n,20),
-        total:applyWeightedGradeRounding(sums.total/n,60)
+        total:applyWeightedGradeRounding(sums.total/n,60), excellenceUnallocated:sums.excellenceUnallocated/n
       };
+    }
+
+    function excellenceUnallocatedMarkup(value){
+      const amount=Number(value)||0;
+      return amount>0.0001?`<small class="excellence-unallocated-note" style="display:block;margin-top:2px;color:#B77900;font-size:0.60rem;font-style:italic;font-weight:900;line-height:1.05;white-space:nowrap;">+${formatGrade(amount)} تميز</small>`:'';
     }
 
     // درجات موزونة الوحدة بدون توزيع درجة المشروع (تُستخدم في جدول الدروس التفصيلي بإشعارات الطلاب)
@@ -3241,7 +3356,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${formatGrade(w.act)}</td>
           <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${formatGrade(w.participation)}</td>
           <td data-group="summary" style="background:#EBF5FB;font-weight:bold;color:#1B4F72;text-align:center;">${formatGrade(w.test)}</td>
-          <td data-group="total" style="background:#D5F5E3;font-weight:bold;color:#1E8449;text-align:center;">${formatGrade(w.total)}</td>`;
+          <td data-group="total" style="background:#D5F5E3;font-weight:bold;color:#1E8449;text-align:center;">${formatGrade(w.total)}${excellenceUnallocatedMarkup(w.excellenceUnallocated)}</td>`;
         let row=document.createElement('tr'); row.innerHTML=rowHtml; tbody.appendChild(row);
       });
       // تطبيق حالة التركيز والألوان بعد إعادة الرسم
@@ -3311,7 +3426,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(row.cells[finalAct]) row.cells[finalAct].textContent=formatGrade(weighted.act);
       if(row.cells[finalParticipation]) row.cells[finalParticipation].textContent=formatGrade(weighted.participation);
       if(row.cells[finalTest]) row.cells[finalTest].textContent=formatGrade(weighted.test);
-      if(row.cells[total]) row.cells[total].textContent=formatGrade(weighted.total);
+      if(row.cells[total]) row.cells[total].innerHTML=`${formatGrade(weighted.total)}${excellenceUnallocatedMarkup(weighted.excellenceUnallocated)}`;
     }
 
     function updateFollowupValue(cls,unit,student,type,lesson,val,sourceInput=null) {
@@ -3791,8 +3906,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const groupCells=(groupIndex,final=false)=>GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>`<th style="${border}background:${cat.bg};color:${cat.color};font-size:0.76rem;${pad}${catIndex===4?'border-left:3px solid '+(final?'#0B5394':GRADE_SHEET_UNIT_COLORS[groupIndex%GRADE_SHEET_UNIT_COLORS.length].border)+';':''}">${cat.label}<br><small>${cat.cap}</small></th>`).join('');
       return `<tr>${baseTop}${unitTop}${finalTop}</tr><tr>${units.map((_,index)=>groupCells(index)).join('')}${groupCells(0,true)}</tr>`;
     }
-    function gradeSheetScoreCell(value,cat,isEnd=false){
-      return `<td style="text-align:center;font-weight:900;font-size:0.84rem;padding:7px 5px;background:${cat.bg};color:${cat.key==='total'?cat.color:'var(--text-primary)'};${isEnd?'border-left:3px solid #8DA6B8;':''}">${formatGrade(Number(value||0))}</td>`;
+    function gradeSheetScoreCell(value,cat,isEnd=false,excellenceUnallocated=0){
+      const note=cat.key==='total'?excellenceUnallocatedMarkup(excellenceUnallocated):'';
+      return `<td style="text-align:center;font-weight:900;font-size:0.84rem;padding:7px 5px;background:${cat.bg};color:${cat.key==='total'?cat.color:'var(--text-primary)'};${isEnd?'border-left:3px solid #8DA6B8;':''}">${formatGrade(Number(value||0))}${note}</td>`;
     }
     // الصفر يعني قياساً فعلياً لاحقاً بعد بناء PDF، حتى يتكيف العدد مع طول الصف وحجم الخط والعنوان.
     function buildExplicitPagedPdfTables(headerHtml,rowHtmls,sizes,reportKey,orientation='portrait'){
@@ -3836,8 +3952,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), rows=[];
       students.forEach((student,index)=>{
         const unitScores=units.map(unit=>computeUnitWeighted(cls,student,unit)), finalScores=computeWeightedScores(cls,student,units);
-        const unitCells=unitScores.map(scores=>GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>gradeSheetScoreCell(scores[cat.key],cat,catIndex===4)).join('')).join('');
-        const finalCells=GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>gradeSheetScoreCell(finalScores[cat.key],cat,catIndex===4)).join('');
+        const unitCells=unitScores.map(scores=>GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>gradeSheetScoreCell(scores[cat.key],cat,catIndex===4,scores.excellenceUnallocated)).join('')).join('');
+        const finalCells=GRADE_SHEET_CATEGORIES.map((cat,catIndex)=>gradeSheetScoreCell(finalScores[cat.key],cat,catIndex===4,finalScores.excellenceUnallocated)).join('');
         body.innerHTML+=`<tr><td style="font-weight:900;color:var(--text-secondary);text-align:center;padding:8px 4px;">${index+1}</td><td class="student-name-td" onclick="toggleWeakStudentsRowHighlight(this)" title="اضغط لتظليل صف الطالب" style="font-weight:900;font-size:0.94rem;text-align:right;padding:8px 6px;">${escapeTextForHtml(student)}</td>${unitCells}${finalCells}</tr>`;
         rows.push({student,unitScores,finalScores});
       });
@@ -4779,7 +4895,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:3,storageBackend:'IndexedDB',appData,records,unitsData,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ const data={backupVersion:3,storageBackend:'IndexedDB',appData,records,unitsData,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
@@ -4789,6 +4905,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         if(imported.participationSettings&&typeof imported.participationSettings==='object') participationSettings={...participationSettings,...imported.participationSettings};
         currentAttendanceUnit=participationSettings.activeUnit||Object.keys(unitsData)[0]||'';
         if(imported.projectDistributionOrder) projectDistributionOrder=imported.projectDistributionOrder;
+        excellenceSettings=normalizeExcellenceSettings(imported.excellenceSettings);
         if(imported.studentNumberMap) queryStudentNumberMap=imported.studentNumberMap;
         if(imported.fontSettings) fontSettings=normalizeFontSettings(imported.fontSettings);
         if(imported.buttonColors) buttonColors=imported.buttonColors;
@@ -4807,7 +4924,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
