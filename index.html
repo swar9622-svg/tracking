@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.55";</script>
+  <script>const APP_VERSION = "20.56";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -459,11 +459,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     /* شاشة افتتاح مستقلة: لا يظهر التطبيق خلفها قبل اكتمالها. */
     body.startup-active{overflow:hidden!important;}
     body.startup-active > :not(#startupSplash){visibility:hidden!important;}
+    html.startup-disabled body.startup-active{overflow:auto!important;}
+    html.startup-disabled body.startup-active > :not(#startupSplash){visibility:visible!important;}
+    html.startup-disabled #startupSplash{display:none!important;}
     #startupSplash{position:fixed;inset:0;z-index:1000000;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 34%,rgba(0,122,255,.12) 0%,rgba(242,242,247,0) 55%),#F2F2F7;color:#1C1C1E;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,sans-serif;}
     #startupSplash .startup-inner{width:min(90vw,420px);display:flex;flex-direction:column;align-items:center;}#startupSplash .startup-icon-wrap{position:relative;width:96px;height:96px;margin-bottom:22px;}#startupSplash .startup-halo{position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(0,122,255,.28) 0%,rgba(0,122,255,0) 70%);opacity:0;animation:startup-halo .7s ease-out forwards .05s;}#startupSplash .startup-icon{position:relative;width:96px;height:96px;border-radius:24px;background:linear-gradient(150deg,#2B9BFF 0%,#007AFF 55%,#0A5FCC 100%);box-shadow:0 10px 26px rgba(0,122,255,.38),inset 0 1px 1px rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.4) rotate(-8deg);animation:startup-icon .55s cubic-bezier(.2,1.5,.35,1) forwards .05s;}#startupSplash .startup-icon svg{width:50px;height:50px;}#startupSplash .startup-icon path{fill:none;stroke:#FFF;stroke-linecap:round;stroke-linejoin:round;}#startupSplash .startup-icon .book{stroke-width:2.6;opacity:0;animation:startup-fade .3s ease-out forwards .42s;}#startupSplash .startup-icon .check{stroke-width:3.4;stroke-dasharray:26;stroke-dashoffset:26;animation:startup-check .35s ease-out forwards .55s;}#startupSplash .startup-badge{position:absolute;bottom:-6px;left:-6px;width:30px;height:30px;border-radius:50%;background:#34C759;border:3px solid #F2F2F7;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.3);animation:startup-badge .4s cubic-bezier(.2,1.6,.4,1) forwards .78s;}#startupSplash .startup-badge svg{width:14px;height:14px;fill:none;stroke:#FFF;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}#startupSplash .startup-chip-row{display:flex;gap:8px;margin-bottom:20px;height:30px;}#startupSplash .startup-chip{display:flex;align-items:center;gap:5px;padding:0 12px;height:30px;border-radius:15px;font-size:12px;font-weight:800;color:#FFF;opacity:0;transform:translateY(10px) scale(.85);animation:startup-chip .38s cubic-bezier(.2,1.4,.4,1) forwards;white-space:nowrap;}#startupSplash .startup-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.85);}#startupSplash .startup-chip:nth-child(1){background:#34C759;animation-delay:.95s;}#startupSplash .startup-chip:nth-child(2){background:#FF9500;animation-delay:1.05s;}#startupSplash .startup-chip:nth-child(3){background:#FF3B30;animation-delay:1.15s;}#startupSplash .startup-chip:nth-child(4){background:#AF52DE;animation-delay:1.25s;}#startupSplash .startup-title{background:#007AFF;color:#FFF;font-size:17px;font-weight:800;text-align:center;padding:12px 22px;border-radius:13px;box-shadow:0 4px 14px rgba(0,122,255,.35);opacity:0;transform:translateY(14px);animation:startup-title .45s cubic-bezier(.2,1.2,.4,1) forwards 1.4s;}#startupSplash .startup-subtitle{margin-top:10px;font-size:12.5px;font-weight:700;color:#8E8E93;opacity:0;animation:startup-fade .35s ease-out forwards 1.75s;}#startupSplash .startup-progress{margin-top:26px;width:150px;height:5px;border-radius:999px;background:#E2E2E8;overflow:hidden;opacity:0;animation:startup-fade .3s ease-out forwards 1.9s;}#startupSplash .startup-progress b{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#2B9BFF,#007AFF);animation:startup-progress 1s cubic-bezier(.3,.1,.2,1) forwards 1.95s;}#startupSplash.startup-leaving{animation:startup-out .42s cubic-bezier(.4,0,.2,1) forwards;}@keyframes startup-halo{to{opacity:1;transform:scale(1)}}@keyframes startup-icon{60%{opacity:1;transform:scale(1.08) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}@keyframes startup-fade{to{opacity:1}}@keyframes startup-check{to{stroke-dashoffset:0}}@keyframes startup-badge{60%{opacity:1;transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}@keyframes startup-chip{to{opacity:1;transform:translateY(0) scale(1)}}@keyframes startup-title{to{opacity:1;transform:translateY(0)}}@keyframes startup-progress{to{width:100%}}@keyframes startup-out{to{opacity:0;transform:scale(1.04);filter:blur(5px)}}@media(prefers-reduced-motion:reduce){#startupSplash *{animation-duration:.01ms!important;animation-delay:0ms!important;}}
   </style>
 </head>
 <body class="startup-active">
+  <script>try{if(localStorage.getItem('school_followup_startup_enabled')==='0')document.documentElement.classList.add('startup-disabled');}catch(_){}</script>
   <div id="startupSplash" aria-label="جاري فتح كشف المتابعة" role="status"><div class="startup-inner"><div class="startup-icon-wrap"><div class="startup-halo"></div><div class="startup-icon"><svg viewBox="0 0 50 50"><path class="book" d="M25 12 C21 9 14 8 9 9 L9 36 C14 35 21 36 25 39 C29 36 36 35 41 36 L41 9 C36 8 29 9 25 12 Z"/><path class="book" d="M25 12 L25 39"/><path class="check" d="M17 25 L23 31 L34 18"/></svg></div><div class="startup-badge"><svg viewBox="0 0 14 14"><path d="M3 7 L6 10 L11 4"/></svg></div></div><div class="startup-chip-row"><div class="startup-chip">حاضر</div><div class="startup-chip">متأخر</div><div class="startup-chip">غائب</div><div class="startup-chip">ملاحظة</div></div><div class="startup-title">📚 كشف المتابعة</div><div class="startup-subtitle">تابع حضور طلابك بسهولة ودقّة</div><div class="startup-progress"><b></b></div></div></div>
   <!-- ===== الشاشة الأولى ===== -->
   <div id="absenceScreen" class="screen active-screen">
@@ -995,9 +999,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="btn-menu-option" style="background-color:#007AFF;" onclick="closeDisplaySettingsModal();openButtonColorsModal();">🎨 إعدادات ألوان الأزرار</button>
         <button class="btn-menu-option" style="background-color:#1E8449;" onclick="closeDisplaySettingsModal();openNoteEntryWindowModal();">🕒 فترة إدخال الملاحظات</button>
         <button id="attendanceSoundsSettingsButton" class="btn-menu-option" style="background-color:#16A085;" onclick="toggleAttendanceSounds()">🔊 أصوات التفاعل: مفعّلة</button>
+        <button class="btn-menu-option" style="background-color:#2471A3;" onclick="closeDisplaySettingsModal();openAudioSettingsModal();">🎵 اختيار أصوات التفاعل</button>
+        <button id="startupSettingsButton" class="btn-menu-option" style="background-color:#5B2C6F;" onclick="toggleStartupAnimation()">✨ شاشة الافتتاح: مفعّلة</button>
       </div>
     </div>
   </div>
+
+  <div class="modal" id="audioSettingsModal" style="z-index:120;"><div class="modal-content" style="max-width:420px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div class="modal-title" style="margin:0;">🎵 اختيار أصوات التفاعل</div><button class="btn-close-circle" onclick="closeAudioSettingsModal()">✕</button></div><div style="font-size:.72rem;color:var(--text-secondary);font-weight:700;text-align:center;line-height:1.45;margin-bottom:10px;">اختر نغمة مستقلة لكل زر، ثم جرّبها من زر «تجربة».</div><label class="field-label" style="margin-bottom:3px;">مستوى الصوت</label><select id="audioVolumeSelect" class="select-class-full" style="margin-bottom:9px;"><option value="low">منخفض</option><option value="medium">متوسط</option><option value="high">عالٍ</option></select><div id="audioToneRows" style="display:flex;flex-direction:column;gap:7px;"></div><div class="modal-actions" style="margin-top:12px;"><button class="btn-modal-cancel" onclick="closeAudioSettingsModal()">إلغاء</button><button class="btn-modal-save" onclick="saveAudioSettings()" style="background:#2471A3;">💾 حفظ الأصوات</button></div></div></div>
 
   <div class="modal" id="followupSortModal" style="z-index:118;">
     <div class="modal-content" style="max-width:390px;">
@@ -1775,7 +1783,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     const APP_DB_STATE_KEY='primary';
     let indexedDBReady=false;
     let notificationSettings={};
-    let audioSettings={enabled:true};
+    const SOUND_LIBRARY={
+      soft:{label:'ناعم',from:540,to:500,duration:.11,type:'sine'},
+      bright:{label:'مشرق',from:680,to:860,duration:.12,type:'triangle'},
+      drop:{label:'هبوط',from:660,to:360,duration:.15,type:'triangle'},
+      alert:{label:'تنبيه',from:420,to:250,duration:.16,type:'square'},
+      pulse:{label:'نبضة',from:330,to:420,duration:.13,type:'sine'},
+      digital:{label:'رقمي',from:760,to:620,duration:.10,type:'square'},
+      bell:{label:'جرس',from:880,to:740,duration:.17,type:'sine'},
+      wood:{label:'نقرة',from:240,to:180,duration:.09,type:'triangle'},
+      glass:{label:'زجاجي',from:1040,to:1320,duration:.12,type:'sine'},
+      rise:{label:'صعود',from:360,to:720,duration:.16,type:'triangle'},
+      double:{label:'مزدوج',from:520,to:680,duration:.14,type:'sine'},
+      strong:{label:'قوي',from:260,to:150,duration:.18,type:'square'}
+    };
+    const AUDIO_EVENT_LABELS={absent:'غائب',late:'متأخر',violation:'مخالفات',clear:'عدم التفعيل'};
+    const AUDIO_DEFAULT_TONES={absent:'drop',late:'bright',violation:'alert',clear:'soft'};
+    const AUDIO_VOLUME_LEVELS={low:.055,medium:.09,high:.135};
+    let audioSettings={enabled:true,volume:'medium',tones:{...AUDIO_DEFAULT_TONES}};
+    let startupSettings={enabled:(()=>{ try{return localStorage.getItem('school_followup_startup_enabled')!=='0';}catch(_){return true;} })()};
     let indexedDBSaveQueue=Promise.resolve();
     let indexedDBPendingWrites=0;
 
@@ -1799,14 +1825,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         });
       } finally { db.close(); }
     }
-    function normalizeAudioSettings(value){ return {enabled:!(value&&value.enabled===false)}; }
+    function normalizeAudioSettings(value){ const source=value&&typeof value==='object'?value:{}, tones={}; Object.keys(AUDIO_EVENT_LABELS).forEach(key=>tones[key]=SOUND_LIBRARY[source.tones?.[key]]?source.tones[key]:AUDIO_DEFAULT_TONES[key]); return {enabled:source.enabled!==false,volume:['low','medium','high'].includes(source.volume)?source.volume:'medium',tones}; }
+    function normalizeStartupSettings(value){ return {enabled:!(value&&value.enabled===false)}; }
+    function persistStartupPreference(){ try{ localStorage.setItem('school_followup_startup_enabled',startupSettings.enabled?'1':'0'); }catch(_){} }
     function buildPersistentState(){
       return {
         schemaVersion:1,
         appData:cloneData(appData), records:cloneData(records), unitsData:cloneData(unitsData), followupData:cloneData(followupData), understandingData:cloneData(understandingData), studentNotesData:cloneData(studentNotesData),
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
-        fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), audioSettings:cloneData(audioSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
+        fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), audioSettings:cloneData(audioSettings), startupSettings:cloneData(startupSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
         weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), noteEntryWindow:cloneData(noteEntryWindow), savedAt:new Date().toISOString()
       };
     }
@@ -1853,6 +1881,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       fontSettings=normalizeFontSettings(state.fontSettings);
       notificationSettings=state.notificationSettings&&typeof state.notificationSettings==='object'?state.notificationSettings:{};
       audioSettings=normalizeAudioSettings(state.audioSettings);
+      if(Object.prototype.hasOwnProperty.call(state,'startupSettings')){ startupSettings=normalizeStartupSettings(state.startupSettings); persistStartupPreference(); }
       buttonColors=state.buttonColors&&typeof state.buttonColors==='object'?state.buttonColors:cloneData(DEFAULT_BUTTON_COLORS);
       buttonColorDefaultsVersion=Number(state.buttonColorDefaultsVersion)||0;
       for(const key in DEFAULT_BUTTON_COLORS) if(!buttonColors[key]) buttonColors[key]=cloneData(DEFAULT_BUTTON_COLORS[key]);
@@ -1966,8 +1995,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       styleTag.innerHTML = `html{font-size:1rem!important}${familyCss}input,select,button,textarea{font-family:inherit!important;font-weight:inherit!important}${sectionCss}`;
     }
     function updateAttendanceSoundsSettingsButton(){ const button=document.getElementById('attendanceSoundsSettingsButton'); if(!button) return; const enabled=audioSettings&&audioSettings.enabled!==false; button.textContent=enabled?'🔊 أصوات التفاعل: مفعّلة':'🔇 أصوات التفاعل: متوقفة'; button.style.backgroundColor=enabled?'#16A085':'#8E8E93'; }
+    function updateStartupSettingsButton(){ const button=document.getElementById('startupSettingsButton'); if(!button) return; const enabled=startupSettings&&startupSettings.enabled!==false; button.textContent=enabled?'✨ شاشة الافتتاح: مفعّلة':'◻️ شاشة الافتتاح: متوقفة'; button.style.backgroundColor=enabled?'#5B2C6F':'#8E8E93'; }
     function toggleAttendanceSounds(){ audioSettings=normalizeAudioSettings(audioSettings); audioSettings.enabled=!audioSettings.enabled; saveData(); updateAttendanceSoundsSettingsButton(); }
-    function openDisplaySettingsModal(){ updateAttendanceSoundsSettingsButton(); document.getElementById('displaySettingsModal').style.display='flex'; }
+    function toggleStartupAnimation(){ startupSettings=normalizeStartupSettings(startupSettings); startupSettings.enabled=!startupSettings.enabled; persistStartupPreference(); document.documentElement.classList.toggle('startup-disabled',!startupSettings.enabled); saveData(); updateStartupSettingsButton(); }
+    function openAudioSettingsModal(){ audioSettings=normalizeAudioSettings(audioSettings); document.getElementById('audioVolumeSelect').value=audioSettings.volume; const rows=document.getElementById('audioToneRows'); rows.innerHTML=Object.keys(AUDIO_EVENT_LABELS).map(key=>`<div style="display:grid;grid-template-columns:minmax(76px,.72fr) minmax(0,1fr) 68px;gap:6px;align-items:center;"><span style="font-size:.76rem;font-weight:900;color:var(--text-primary);">${AUDIO_EVENT_LABELS[key]}</span><select id="audioTone_${key}" class="select-class-full" style="margin:0;padding:.48rem .35rem;font-size:.75rem;">${Object.entries(SOUND_LIBRARY).map(([id,tone])=>`<option value="${id}" ${audioSettings.tones[key]===id?'selected':''}>${tone.label}</option>`).join('')}</select><button class="btn-modal-save" type="button" style="margin:0;padding:.48rem .25rem;background:#5B2C6F;font-size:.73rem;" onclick="previewAudioTone('${key}')">تجربة</button></div>`).join(''); document.getElementById('audioSettingsModal').style.display='flex'; }
+    function closeAudioSettingsModal(){ document.getElementById('audioSettingsModal').style.display='none'; }
+    function previewAudioTone(key){ const toneId=document.getElementById(`audioTone_${key}`).value; playAttendanceSound(key,true,toneId); }
+    function saveAudioSettings(){ const tones={}; Object.keys(AUDIO_EVENT_LABELS).forEach(key=>tones[key]=document.getElementById(`audioTone_${key}`).value); audioSettings=normalizeAudioSettings({enabled:audioSettings.enabled,volume:document.getElementById('audioVolumeSelect').value,tones}); saveData(); closeAudioSettingsModal(); }
+    function openDisplaySettingsModal(){ updateAttendanceSoundsSettingsButton(); updateStartupSettingsButton(); document.getElementById('displaySettingsModal').style.display='flex'; }
     function closeDisplaySettingsModal(){ document.getElementById('displaySettingsModal').style.display='none'; }
     function openNoteEntryWindowModal(){
       const setting=normalizeNoteEntryWindow(noteEntryWindow);
@@ -4138,25 +4173,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== أصوات تفاعل الحضور: نغمات مولّدة محلياً بلا ملفات خارجية =====
     let attendanceAudioContext=null;
-    function playAttendanceSound(kind){
+    function playAttendanceSound(kind,force=false,forcedToneId=''){
       try{
-        if(audioSettings&&audioSettings.enabled===false) return;
+        audioSettings=normalizeAudioSettings(audioSettings);
+        if(!force&&audioSettings.enabled===false) return;
         const AudioCtx=window.AudioContext||window.webkitAudioContext;
         if(!AudioCtx) return;
         attendanceAudioContext=attendanceAudioContext||new AudioCtx();
-        const tones={
-          absent:{from:480,to:280,duration:0.18,type:'triangle',volume:0.115},
-          late:{from:720,to:900,duration:0.13,type:'triangle',volume:0.095},
-          violation:{from:320,to:210,duration:0.15,type:'square',volume:0.075},
-          clear:{from:520,to:360,duration:0.12,type:'sine',volume:0.085}
-        }, tone=tones[kind]||tones.clear;
+        const tone=SOUND_LIBRARY[forcedToneId||audioSettings.tones[kind]]||SOUND_LIBRARY.soft;
+        const volume=AUDIO_VOLUME_LEVELS[audioSettings.volume]||AUDIO_VOLUME_LEVELS.medium;
         const startTone=()=>{
           const now=attendanceAudioContext.currentTime, oscillator=attendanceAudioContext.createOscillator(), gain=attendanceAudioContext.createGain();
           oscillator.type=tone.type;
           oscillator.frequency.setValueAtTime(tone.from,now);
           oscillator.frequency.exponentialRampToValueAtTime(Math.max(1,tone.to),now+tone.duration);
           gain.gain.setValueAtTime(0.0001,now);
-          gain.gain.exponentialRampToValueAtTime(tone.volume,now+0.01);
+          gain.gain.exponentialRampToValueAtTime(volume,now+0.01);
           gain.gain.exponentialRampToValueAtTime(0.0001,now+tone.duration);
           oscillator.connect(gain).connect(attendanceAudioContext.destination);
           oscillator.start(now); oscillator.stop(now+tone.duration+0.025);
@@ -4792,7 +4824,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:3,storageBackend:'IndexedDB',appData,records,unitsData,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,audioSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ const data={backupVersion:3,storageBackend:'IndexedDB',appData,records,unitsData,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,audioSettings,startupSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
@@ -4810,6 +4842,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         migrateButtonColorDefaults();
         if(imported.notificationSettings) notificationSettings=imported.notificationSettings;
         audioSettings=normalizeAudioSettings(imported.audioSettings);
+        startupSettings=normalizeStartupSettings(imported.startupSettings); persistStartupPreference();
         if(imported.pdfSizeSettings) pdfSizeSettings=imported.pdfSizeSettings;
         if(imported.weakStudentsThresholds) weakStudentsThresholds=normalizeWeakStudentsThresholds(imported.weakStudentsThresholds);
         if(!(await saveData())) throw new Error('تعذر حفظ النسخة الاحتياطية المستوردة.'); initClassSelects(); renderStudents(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); applyFontSettings(); applyButtonColors(); alert("✅ تم استعادة النسخة الاحتياطية بنجاح!");
@@ -4820,7 +4853,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; audioSettings={enabled:true}; pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; audioSettings=normalizeAudioSettings({enabled:true}); startupSettings={enabled:true}; persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
@@ -5284,6 +5317,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function finishStartupSplash(){
       const splash=document.getElementById('startupSplash');
       if(!splash) return;
+      startupSettings=normalizeStartupSettings(startupSettings);
+      if(!startupSettings.enabled){ document.documentElement.classList.add('startup-disabled'); document.body.classList.remove('startup-active'); splash.remove(); return; }
+      document.documentElement.classList.remove('startup-disabled');
       const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const close=()=>{ document.body.classList.remove('startup-active'); splash.classList.add('startup-leaving'); setTimeout(()=>splash.remove(),460); };
       setTimeout(close,reduced?120:2450);
@@ -5303,6 +5339,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         renderStudents();
         renderUnitsDropdown();
         applyFontSettings();
+        updateAttendanceSoundsSettingsButton(); updateStartupSettingsButton();
         updateScreenNavigation('absence');
         fixBottomControlsPosition();
         if ('serviceWorker' in navigator) {
