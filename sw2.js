@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-73-understanding-stats-bubble';
+const CACHE_NAME = 'attendance-app-v20-74-vertical-understanding-stats-bubble';
 const urlsToCache = [
   './',
   './index.html',
