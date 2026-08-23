@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v18-note-entry-window';
+const CACHE_NAME = 'attendance-app-v20-59-startup-icon-offline';
 const urlsToCache = [
   './',
   './index.html',
@@ -21,7 +21,7 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(caches.keys().then(cacheNames => Promise.all(
-    cacheNames.map(cache => cache !== CACHE_NAME ? caches.delete(cache) : undefined)
+    cacheNames.map(cacheName => cacheName !== CACHE_NAME ? caches.delete(cacheName) : undefined)
   )));
   self.clients.claim();
 });
@@ -29,10 +29,12 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const isHtmlRequest = event.request.mode === 'navigate' || event.request.url.endsWith('/') || event.request.url.endsWith('index.html');
   if (isHtmlRequest) {
-    event.respondWith(fetch(event.request, {cache: 'no-store'}).then(networkResponse => {
-      caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
-      return networkResponse;
-    }).catch(() => caches.match(event.request)));
+    event.respondWith(
+      fetch(event.request, {cache: 'no-store'}).then(networkResponse => {
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
+        return networkResponse;
+      }).catch(() => caches.match(event.request).then(response => response || caches.match('./index.html')))
+    );
   } else {
     event.respondWith(caches.match(event.request).then(response => response || fetch(event.request)));
   }
