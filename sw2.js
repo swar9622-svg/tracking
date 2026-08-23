@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-61-excellence-stars';
+const CACHE_NAME = 'attendance-app-v20-62-excellence-activity-priority';
 const urlsToCache = [
   './',
   './index.html',

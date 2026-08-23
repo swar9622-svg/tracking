@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.61";</script>
+  <script>const APP_VERSION = "20.62";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1275,7 +1275,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <label for="excellencePointsInput" style="font-size:13px;font-weight:900;color:#7D6608;">درجة التميز لكل درس</label>
         <input id="excellencePointsInput" type="number" min="0" max="10" step="0.5" inputmode="decimal" style="width:76px;text-align:center;border:1px solid #D4AC0D;border-radius:0.5rem;padding:7px;font:inherit;font-weight:900;color:#7D6608;background:#FFFFFF;">
       </div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;font-weight:800;text-align:center;">ترتيب توزيع فائض الأنشطة: اضغط المربعات بالترتيب ليظهر 1 ثم 2 ثم 3 ثم 4.</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;font-weight:800;text-align:center;">ترتيب توزيع درجة التميز: اضغط المربعات بالترتيب ليظهر 1 ثم 2 ثم 3 ثم 4. أي فائض بعد اكتمال 60 يهمّش في الخلاصة.</div>
       <div id="excellenceOrderBoxes" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px;"></div>
       <div style="display:flex;gap:6px;">
         <button type="button" class="btn-modal-cancel" style="flex:1;" onclick="resetExcellenceOrderSelection()">↺ إعادة تعيين</button>
@@ -1385,17 +1385,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let records = {};
     let unitsData = JSON.parse(JSON.stringify(defaultUnits));
     let projectDistributionOrder = {};
-    const EXCELLENCE_DEFAULT_SETTINGS={pointsPerLesson:3,distributionOrder:['participation','hw','test','note']};
+    const EXCELLENCE_DEFAULT_SETTINGS={pointsPerLesson:3,distributionOrder:['act','participation','hw','test']};
     const EXCELLENCE_DISTRIBUTION_CATEGORIES=[
+      {key:'act',label:'الأنشطة',cap:20,color:'#FCF3CF',accent:'#7D6608'},
       {key:'participation',label:'المشاركة',cap:10,color:'#EBDEF0',accent:'#512E5F'},
       {key:'hw',label:'الواجبات',cap:10,color:'#D4EFDF',accent:'#117A65'},
-      {key:'test',label:'الاختبار',cap:20,color:'#FADBD8',accent:'#78281F'},
-      {key:'note',label:'تهميش الباقي',cap:Infinity,color:'#FFF9E8',accent:'#B77900'}
+      {key:'test',label:'الاختبار',cap:20,color:'#FADBD8',accent:'#78281F'}
     ];
     function normalizeExcellenceSettings(value){
       const rawPoints=Number(value?.pointsPerLesson), pointsPerLesson=Number.isFinite(rawPoints)?Math.min(10,Math.max(0,rawPoints)):EXCELLENCE_DEFAULT_SETTINGS.pointsPerLesson;
       const allowed=EXCELLENCE_DISTRIBUTION_CATEGORIES.map(item=>item.key), proposed=Array.isArray(value?.distributionOrder)?value.distributionOrder:[];
-      const distributionOrder=[...new Set(proposed.filter(key=>allowed.includes(key)))];
+      // ترقية إعداد 20.61 القديم الذي كان يحوي خيار «تهميش الباقي» إلى الترتيب الجديد الصحيح.
+      const source=proposed.includes('note')?EXCELLENCE_DEFAULT_SETTINGS.distributionOrder:proposed;
+      const distributionOrder=[...new Set(source.filter(key=>allowed.includes(key)))];
       allowed.forEach(key=>{ if(!distributionOrder.includes(key)) distributionOrder.push(key); });
       return {pointsPerLesson,distributionOrder:distributionOrder.slice(0,allowed.length)};
     }
@@ -2985,20 +2987,20 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const baseHw = hwCnt>0 ? hwSum/hwCnt : 0;
       const baseActivity=getActivityRawScore(className,studentName,unit);
       const understandingDetails=getUnderstandingScoreDetails(className,studentName,unit);
-      const baseUnderstanding=understandingDetails.raw, baseAct=baseActivity+baseUnderstanding;
+      // تدخل درجة التميز في حوض مستقل، ثم توزع على الأنشطة أولاً أو وفق ترتيب المعلم.
+      const baseUnderstanding=understandingDetails.exerciseRaw, baseAct=baseActivity+baseUnderstanding;
       const baseTest = parseFloat(stData.test1)||0, baseParticipation = calculateStudentParticipationScore(className, studentName, unit);
       const caps = {participation:10, test:20, hw:10, act:20};
       const vals={participation:Math.min(baseParticipation,caps.participation),test:Math.min(baseTest,caps.test),hw:Math.min(baseHw,caps.hw),act:Math.min(baseAct,caps.act)};
 
-      // فائض التميز بعد بلوغ الأنشطة 20 يوزع أولاً بحسب ترتيب التميز المستقل.
-      let excellencePool=Math.max(0,baseAct-caps.act), excellenceUnallocated=0;
+      let excellencePool=Math.max(0,understandingDetails.excellenceRaw);
       normalizeExcellenceSettings(excellenceSettings).distributionOrder.forEach(category=>{
         if(excellencePool<=0) return;
-        if(category==='note'){ excellenceUnallocated+=excellencePool; excellencePool=0; return; }
         const capacity=Math.max(0,caps[category]-vals[category]);
         const add=Math.min(excellencePool,capacity); vals[category]+=add; excellencePool-=add;
       });
-      excellenceUnallocated+=excellencePool;
+      // لا يهمّش إلا ما بقي بعد اكتمال جميع أقسام الوحدة إلى سقف 60.
+      const excellenceUnallocated=Math.max(0,excellencePool);
 
       // ثم توزع درجة المشروع كما كانت وفق إعداد المشاريع الخاص بالوحدة.
       let projectPool=parseFloat(stData.test2)||0;
