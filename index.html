@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.45";</script>
+  <script>const APP_VERSION = "20.46";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -418,17 +418,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .screen-navigation-btn:active{opacity:.82;transform:scale(.975);}
     .screen-navigation-btn .screen-nav-short{display:block;text-align:center;font-size:0.78rem;font-weight:900;line-height:1;opacity:1;transform:translateX(0) scale(1);transition:opacity .15s ease .04s,transform .22s cubic-bezier(.22,.88,.28,1) .04s;}
     .screen-navigation-btn .screen-nav-short small{font:inherit;line-height:1;}
-    .screen-navigation-btn .screen-nav-full{display:block;position:absolute;overflow:hidden;text-overflow:ellipsis;padding:0 0.15rem;font-size:1.06rem;font-weight:900;line-height:1.05;opacity:0;transform:scale(.94);transition:opacity .18s ease,transform .34s cubic-bezier(.22,.88,.28,1);pointer-events:none;}
-    .screen-navigation-btn.nav-absence .screen-nav-full{transform:translateX(.7rem) scale(.94);}
-    .screen-navigation-btn.nav-understanding .screen-nav-full{transform:scale(.94);}
-    .screen-navigation-btn.nav-followup .screen-nav-full{transform:translateX(-.7rem) scale(.94);}
-    .screen-navigation-btn.is-active{flex:1 1 auto;color:#FFF;box-shadow:0 2px 6px rgba(0,0,0,.16);}
+    .screen-navigation-btn .screen-nav-full{display:block;position:absolute;overflow:hidden;text-overflow:ellipsis;padding:0 0.15rem;font-size:1.06rem;font-weight:900;line-height:1.05;opacity:0;transform:scale(.92);transition:opacity .20s ease,transform .40s cubic-bezier(.16,1,.30,1);pointer-events:none;}
+    .screen-navigation-btn.expand-from-right{transform-origin:right center;}
+    .screen-navigation-btn.expand-from-left{transform-origin:left center;}
+    .screen-navigation-btn.expand-from-right .screen-nav-full{transform:translateX(.82rem) scale(.92);}
+    .screen-navigation-btn.expand-from-left .screen-nav-full{transform:translateX(-.82rem) scale(.92);}
+    .screen-navigation-btn.is-active{flex:1 1 auto;color:#FFF;box-shadow:0 3px 8px rgba(0,0,0,.17);animation:nav-active-settle .48s cubic-bezier(.16,1,.30,1) both;}
     .screen-navigation-btn.is-active .screen-nav-short{opacity:0;transform:scale(.72);transition-delay:0s;}
-    .screen-navigation-btn.is-active .screen-nav-full{opacity:1;transform:translateX(0) scale(1);transition-delay:.12s;}
+    .screen-navigation-btn.is-active .screen-nav-full{opacity:1;transform:translateX(0) scale(1);transition-delay:.10s;}
+    @keyframes nav-active-settle{0%{transform:scaleX(.91)}60%{transform:scaleX(1.012)}100%{transform:scaleX(1)}}
     .screen-navigation-btn.nav-absence.is-active{background:#34C759;}
     .screen-navigation-btn.nav-understanding.is-active{background:#007AFF;}
     .screen-navigation-btn.nav-followup.is-active{background:#5856D6;}
-    @media(prefers-reduced-motion:reduce){.screen-navigation-btn,.screen-navigation-btn .screen-nav-short,.screen-navigation-btn .screen-nav-full{transition:none!important;}}
+    @media(prefers-reduced-motion:reduce){.screen-navigation-btn,.screen-navigation-btn .screen-nav-short,.screen-navigation-btn .screen-nav-full{transition:none!important;animation:none!important;}}
     .screen-version-label{padding:0.08rem 0.75rem 0.35rem;text-align:center;color:#AEAEB2;font-size:0.53rem;font-weight:700;letter-spacing:.02em;line-height:1;}
     .followup-understanding-column{background:#FEF9E7 !important;color:#7D6608 !important;}
     @media(max-width:360px){.understanding-controls select{font-size:0.62rem;}.understanding-buttons{flex-basis:132px;}.understanding-buttons .btn-status{font-size:0.53rem;}.screen-navigation{gap:0.24rem;padding-inline:0.5rem;}.screen-navigation-btn{height:2.42rem;flex-basis:3rem;min-width:3rem;font-size:0.66rem;}.screen-navigation-btn .screen-nav-short{font-size:0.69rem;}.screen-navigation-btn .screen-nav-short small{font:inherit;}.screen-navigation-btn .screen-nav-full{font-size:0.9rem;}}
@@ -2571,13 +2573,24 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       });
       await deliverPdfBlob(pdf.output('blob'),`التقرير_الشامل_تحقق_من_فهمك_${context.cls}.pdf`);
     }
+    let lastScreenNavigation='absence';
+    function getScreenNavigationExpandDirection(active,previous){
+      // الأيمن ينمو من حافته اليمنى، والأيسر من حافته اليسرى. زر الوسط يختار جهة النمو بحسب الشاشة التي أُغلق شريطها للتو.
+      if(active==='absence') return 'right';
+      if(active==='followup') return 'left';
+      return previous==='absence'?'left':'right';
+    }
     function updateScreenNavigation(active){
+      const previous=lastScreenNavigation, direction=getScreenNavigationExpandDirection(active,previous);
+      lastScreenNavigation=active;
       const activeScreen=document.querySelector('.screen.active-screen');
       const visibleButtons=activeScreen?[...activeScreen.querySelectorAll('[data-screen-nav]')]:[];
       const allButtons=[...document.querySelectorAll('[data-screen-nav]')];
       // الشريط الظاهر يبدأ لحظةً بأزرار صغيرة، ثم يتمدد الزر المطلوب في الإطار التالي؛ وهكذا تظهر الحركة حتى مع وجود نسخة شريط مستقلة لكل شاشة.
-      visibleButtons.forEach(button=>button.classList.remove('is-active'));
+      visibleButtons.forEach(button=>button.classList.remove('is-active','expand-from-right','expand-from-left'));
       allButtons.filter(button=>!visibleButtons.includes(button)).forEach(button=>button.classList.toggle('is-active',button.dataset.screenNav===active));
+      const target=visibleButtons.find(button=>button.dataset.screenNav===active);
+      if(target) target.classList.add(`expand-from-${direction}`);
       if(visibleButtons.length){
         void activeScreen.offsetWidth;
         requestAnimationFrame(()=>{
