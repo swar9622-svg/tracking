@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-94-student-lesson-map';
+const CACHE_NAME = 'attendance-app-v20-95-student-lesson-assessments';
 const urlsToCache = [
   './',
   './index.html',
