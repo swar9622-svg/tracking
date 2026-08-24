@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.86";</script>
+  <script>const APP_VERSION = "20.87";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -80,7 +80,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .stat-card.violation .stat-number { color: var(--purple); }
     .stat-card.student-report .stat-number { color: var(--accent); font-size: 0.8125rem; padding-top: 0.125rem; }
     .stat-label { font-size: 0.59375rem; color: var(--text-secondary); font-weight: 700; }
-    .student-list { padding: 0.75rem 0.875rem 8.0rem 0.875rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .attendance-search-wrap{padding:0.40rem 0.875rem 0;}
+    .attendance-search-input{display:block;width:100%;height:max(1.70rem,calc(1.3em + 0.36rem));box-sizing:border-box;border:1px solid #C7C7CC;border-radius:0.52rem;background:#FFF;color:#1C1C1E;padding:0.18rem 0.48rem;font-family:inherit;font-size:0.72rem;font-weight:700;line-height:1.3;outline:none;}
+    .attendance-search-input::placeholder{color:#8E8E93;font-weight:700;}
+    .attendance-search-input:focus{border-color:#007AFF;box-shadow:0 0 0 2px rgba(0,122,255,.12);}
+    .student-list { padding: 0.40rem 0.875rem 8.0rem 0.875rem; display: flex; flex-direction: column; gap: 0.5rem; }
     .student-card { background-color: var(--card-bg); border-radius: 0.75rem; padding: 0.625rem 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
     #absenceScreen .student-card { flex-wrap:wrap; position:relative; }
     #absenceScreen .student-note-count-badge{position:absolute;top:-0.34rem;left:-0.30rem;z-index:5;display:flex;align-items:center;justify-content:center;min-width:1.16rem;height:1.16rem;padding:0 0.18rem;border:2px solid #FFF;border-radius:999px;background:#5856D6;color:#FFF;box-shadow:0 2px 7px rgba(88,86,214,.36);font-size:0.65rem;font-weight:900;line-height:1;direction:ltr;pointer-events:none;}
@@ -529,6 +533,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         </div>
       </div>
     </header>
+    <div class="attendance-search-wrap"><input id="attendanceStudentSearch" class="attendance-search-input" type="search" autocomplete="off" placeholder="ابحث باسم الطالب" aria-label="ابحث باسم الطالب" oninput="renderStudents()"></div>
     <main class="student-list" id="studentList"></main>
     <!-- الأزرار الثابتة أسفل الشاشة الأولى -->
     <div class="bottom-controls">
@@ -2500,16 +2505,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       openAttendanceStudentStats=''; showAttendanceStudentNotes=false; renderStudents();
     });
     function renderStudents() {
-      const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value, cont=document.getElementById('studentList');
+      const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value, cont=document.getElementById('studentList'), searchText=String(document.getElementById('attendanceStudentSearch')?.value||'').trim().toLocaleLowerCase('ar');
       cont.innerHTML='';
       if(!cls||!appData[cls]) return;
-      const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames();
+      const allStudents=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), students=searchText?allStudents.filter(student=>String(student).toLocaleLowerCase('ar').includes(searchText)):allStudents, dup=getDuplicateNames();
       let absent=0, late=0, totalV=0;
+      allStudents.forEach(student=>{ const record=getStudentDayRecord(date,cls,student,currentAttendanceUnit); if(record.status==='غائب') absent++; if(record.status==='متأخر') late++; totalV+=record.violations.length; });
       students.forEach(s=>{
         const rec=getStudentDayRecord(date,cls,s,currentAttendanceUnit), status=rec.status, vList=rec.violations;
-        if(status==='غائب') absent++;
-        if(status==='متأخر') late++;
-        totalV+=vList.length;
         const vText=vList.length>0?`مخالفات ${vList.length}`:'مخالفات';
         const vClass=vList.length>0?'active-violation':'', disabled=status==='غائب'?'disabled-btn':'';
         const noteCount=getAttendanceStudentNotes(cls,s).length;
