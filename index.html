@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.84";</script>
+  <script>const APP_VERSION = "20.85";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1127,6 +1127,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <div><label style="font-weight:bold;font-size:0.8rem;">الأخضر (G):</label><input type="range" id="greenSlider" min="0" max="255" value="0" style="width:100%;" oninput="updateColorPreview()"></div>
           <div><label style="font-weight:bold;font-size:0.8rem;">الأزرق (B):</label><input type="range" id="blueSlider" min="0" max="255" value="0" style="width:100%;" oninput="updateColorPreview()"></div>
           <div><label style="font-weight:bold;font-size:0.8rem;">الشفافية (Alpha):</label><input type="range" id="alphaSlider" min="0" max="1" step="0.01" value="1" style="width:100%;" oninput="updateColorPreview()"></div>
+          <label id="blackTextOption" style="display:none;align-items:center;gap:7px;margin-top:4px;border:1px solid #E5E5EA;border-radius:8px;background:#F9F9FB;padding:7px 9px;font-size:0.75rem;font-weight:800;color:#1C1C1E;cursor:pointer;"><input type="checkbox" id="blackTextCheckbox" onchange="updateColorPreview()" style="accent-color:#1C1C1E;margin:0;"> لون الخط أسود</label>
           <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
             <button class="btn-modal-save" onclick="saveButtonColor()">💾 حفظ اللون</button>
             <button class="btn-modal-cancel" onclick="resetButtonColor()" style="background-color:#8E8E93;">↩️ استعادة الافتراضي</button>
@@ -1541,14 +1542,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       'exportPdfBtn': { r: 230, g: 126, b: 34, a: 1 },
       'exportCsvBtn': { r: 52, g: 199, b: 89, a: 1 },
       'notifyBtn': { r: 108, g: 52, b: 131, a: 1 },
-      'classSelectBox': { r: 249, g: 249, b: 251, a: 1 },
-      'dateSelectBox': { r: 249, g: 249, b: 251, a: 1 },
+      'classSelectBox': { r: 30, g: 132, b: 73, a: 1, textBlack:false },
+      'dateSelectBox': { r: 0, g: 122, b: 255, a: 1, textBlack:false },
+      'attendanceUnitSelectBox': { r: 180, g: 83, b: 9, a: 1, textBlack:false },
       'followupClassSelectBox': { r: 255, g: 255, b: 255, a: 1 },
       'unitDropdownBox': { r: 255, g: 255, b: 255, a: 1 },
-      'statAbsentBox': { r: 249, g: 249, b: 251, a: 1 },
-      'statLateBox': { r: 249, g: 249, b: 251, a: 1 },
-      'statViolationBox': { r: 249, g: 249, b: 251, a: 1 },
-      'statReportBox': { r: 235, g: 243, b: 255, a: 1 }
+      'statAbsentBox': { r: 255, g: 59, b: 48, a: 1, textBlack:false },
+      'statLateBox': { r: 255, g: 149, b: 0, a: 1, textBlack:false },
+      'statViolationBox': { r: 175, g: 82, b: 222, a: 1, textBlack:false },
+      'statReportBox': { r: 0, g: 122, b: 255, a: 1, textBlack:false }
     };
 
     // أسماء الأزرار المعروضة
@@ -1577,37 +1579,55 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       'exportPdfBtn': 'تصدير كشف الوحدة الحالية PDF',
       'exportCsvBtn': 'تصدير كشف الوحدة الحالية CSV',
       'notifyBtn': 'إشعارات الطلاب PDF',
-      'classSelectBox': 'قائمة الفصل (كشف الغياب)',
-      'dateSelectBox': 'قائمة التاريخ',
+      'classSelectBox': 'الجزء العلوي للغياب: الفصل',
+      'dateSelectBox': 'الجزء العلوي للغياب: التاريخ',
+      'attendanceUnitSelectBox': 'الجزء العلوي للغياب: الوحدة',
       'followupClassSelectBox': 'قائمة الفصل (كشف المتابعة)',
       'unitDropdownBox': 'قائمة الوحدة (كشف المتابعة)',
-      'statAbsentBox': 'مربع غياب اليوم',
-      'statLateBox': 'مربع تأخر اليوم',
-      'statViolationBox': 'مربع مخالفات اليوم',
-      'statReportBox': 'مربع تقرير عن طالب'
+      'statAbsentBox': 'الجزء العلوي للغياب: غياب اليوم',
+      'statLateBox': 'الجزء العلوي للغياب: تأخر اليوم',
+      'statViolationBox': 'الجزء العلوي للغياب: مخالفات اليوم',
+      'statReportBox': 'الجزء العلوي للغياب: تقرير عن طالب'
     };
 
     let buttonColors = JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS));
-    let buttonColorDefaultsVersion = 1;
+    let buttonColorDefaultsVersion = 2;
     let buttonColorsMigrated = false;
     function sameButtonColor(a,b){ return !!a&&!!b&&a.r===b.r&&a.g===b.g&&a.b===b.b&&Number(a.a)===Number(b.a); }
     function migrateButtonColorDefaults(){
-      if(buttonColorDefaultsVersion>=1) return;
-      const previousAbsenceDefault={r:255,g:59,b:48,a:1};
-      // نحدث الأحمر الافتراضي القديم فقط؛ اللون الذي حدده المستخدم يظل محفوظاً كما هو.
-      if(sameButtonColor(buttonColors.navAbsenceBtn,previousAbsenceDefault)) buttonColors.navAbsenceBtn={...DEFAULT_BUTTON_COLORS.navAbsenceBtn};
-      buttonColorDefaultsVersion=1;
-      buttonColorsMigrated=true;
+      let changed=false;
+      if(buttonColorDefaultsVersion<1){
+        const previousAbsenceDefault={r:255,g:59,b:48,a:1};
+        if(sameButtonColor(buttonColors.navAbsenceBtn,previousAbsenceDefault)){ buttonColors.navAbsenceBtn={...DEFAULT_BUTTON_COLORS.navAbsenceBtn}; changed=true; }
+      }
+      if(buttonColorDefaultsVersion<2){
+        const legacyUpperDefaults={
+          classSelectBox:{r:249,g:249,b:251,a:1}, dateSelectBox:{r:249,g:249,b:251,a:1},
+          statAbsentBox:{r:249,g:249,b:251,a:1}, statLateBox:{r:249,g:249,b:251,a:1},
+          statViolationBox:{r:249,g:249,b:251,a:1}, statReportBox:{r:235,g:243,b:255,a:1}
+        };
+        Object.entries(legacyUpperDefaults).forEach(([key,legacy])=>{ if(sameButtonColor(buttonColors[key],legacy)){ buttonColors[key]={...DEFAULT_BUTTON_COLORS[key]}; changed=true; } });
+      }
+      if(buttonColorDefaultsVersion<2||changed){ buttonColorDefaultsVersion=2; buttonColorsMigrated=true; }
     }
     // دمج القيم الافتراضية في حالة وجود مفاتيح مفقودة
     for (let key in DEFAULT_BUTTON_COLORS) {
       if (!buttonColors[key]) buttonColors[key] = { ...DEFAULT_BUTTON_COLORS[key] };
     }
-
+    const ATTENDANCE_SOFT_COLOR_KEYS=new Set(['classSelectBox','dateSelectBox','attendanceUnitSelectBox','statAbsentBox','statLateBox','statViolationBox','statReportBox']);
     function getButtonColorObject(key){ return buttonColors[key] || DEFAULT_BUTTON_COLORS[key]; }
     function getButtonColorCss(key){ const c=getButtonColorObject(key); return `rgba(${c.r},${c.g},${c.b},${c.a})`; }
     function getButtonTextColor(key){ const c=getButtonColorObject(key); return (c.r>200&&c.g>200&&c.b>200)?'#1C1C1E':'#FFFFFF'; }
-
+    function getAttendanceUpperTextColor(key){ const c=getButtonColorObject(key); return c.textBlack===true?'#1C1C1E':`rgb(${c.r},${c.g},${c.b})`; }
+    function applyAttendanceUpperSurface(element,key){
+      if(!element) return;
+      const c=getButtonColorObject(key), text=getAttendanceUpperTextColor(key);
+      element.style.backgroundColor=`rgba(${c.r},${c.g},${c.b},0.12)`;
+      element.style.borderColor=`rgba(${c.r},${c.g},${c.b},0.36)`;
+      element.style.color=text;
+      element.style.boxShadow=`0 1px 3px rgba(${c.r},${c.g},${c.b},0.10)`;
+      element.querySelectorAll('.stat-number,.stat-label').forEach(part=>part.style.color=text);
+    }
     function applyButtonColors() {
       // تطبيق الألوان على الأزرار حسب المعرفات والكلاسات
       // 1. أزرار الحالة في بطاقات الطلاب (غائب، متأخر، مخالفات)
@@ -1727,17 +1747,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       // 3. قوائم الفصل والتاريخ والوحدة
       const classSelectEl = document.getElementById('classSelect');
       const dateSelectEl = document.getElementById('dateSelect');
+      const attendanceUnitSelectEl = document.getElementById('attendanceUnitSelect');
       const followupClassSelectEl = document.getElementById('followupClassSelect');
       const unitDropdownSelectEl = document.getElementById('unitDropdownSelect');
-
-      if (classSelectEl) {
-        const c = buttonColors['classSelectBox'];
-        classSelectEl.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
-      }
-      if (dateSelectEl) {
-        const c = buttonColors['dateSelectBox'];
-        dateSelectEl.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
-      }
+      applyAttendanceUpperSurface(classSelectEl,'classSelectBox');
+      applyAttendanceUpperSurface(dateSelectEl,'dateSelectBox');
+      applyAttendanceUpperSurface(attendanceUnitSelectEl,'attendanceUnitSelectBox');
       if (followupClassSelectEl) {
         const c = buttonColors['followupClassSelectBox'];
         followupClassSelectEl.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
@@ -1746,29 +1761,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const c = buttonColors['unitDropdownBox'];
         unitDropdownSelectEl.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
       }
-
       // 4. مربعات إحصائيات اليوم (غياب / تأخر / مخالفات / تقرير عن طالب)
       const statAbsentBox = document.querySelector('.stat-card.absent');
       const statLateBox = document.querySelector('.stat-card.late');
       const statViolationBox = document.querySelector('.stat-card.violation');
       const statReportBox = document.querySelector('.stat-card.student-report');
 
-      if (statAbsentBox) {
-        const c = buttonColors['statAbsentBox'];
-        statAbsentBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
-      }
-      if (statLateBox) {
-        const c = buttonColors['statLateBox'];
-        statLateBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
-      }
-      if (statViolationBox) {
-        const c = buttonColors['statViolationBox'];
-        statViolationBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
-      }
-      if (statReportBox) {
-        const c = buttonColors['statReportBox'];
-        statReportBox.style.backgroundColor = `rgba(${c.r},${c.g},${c.b},${c.a})`;
-      }
+      applyAttendanceUpperSurface(statAbsentBox,'statAbsentBox');
+      applyAttendanceUpperSurface(statLateBox,'statLateBox');
+      applyAttendanceUpperSurface(statViolationBox,'statViolationBox');
+      applyAttendanceUpperSurface(statReportBox,'statReportBox');
     }
 
     // استدعاء التطبيق عند تحميل الصفحة وبعد أي تحديث
@@ -1807,35 +1809,31 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         container.appendChild(div);
       }
     }
-
     function selectButtonForColor(key) {
       selectedButtonKey = key;
-      const color = buttonColors[key] || DEFAULT_BUTTON_COLORS[key];
+      const color = buttonColors[key] || DEFAULT_BUTTON_COLORS[key], isAttendanceSurface=ATTENDANCE_SOFT_COLOR_KEYS.has(key);
       document.getElementById('redSlider').value = color.r;
       document.getElementById('greenSlider').value = color.g;
       document.getElementById('blueSlider').value = color.b;
       document.getElementById('alphaSlider').value = color.a;
+      document.getElementById('blackTextCheckbox').checked = color.textBlack===true;
+      document.getElementById('blackTextOption').style.display = isAttendanceSurface?'flex':'none';
       document.getElementById('selectedButtonName').textContent = BUTTON_NAMES[key];
       document.getElementById('colorPickerContainer').style.display = 'block';
       updateColorPreview();
     }
-
     function updateColorPreview() {
-      const r = parseInt(document.getElementById('redSlider').value);
-      const g = parseInt(document.getElementById('greenSlider').value);
-      const b = parseInt(document.getElementById('blueSlider').value);
-      const a = parseFloat(document.getElementById('alphaSlider').value);
-      const preview = document.getElementById('buttonPreview');
-      preview.style.backgroundColor = `rgba(${r},${g},${b},${a})`;
+      const r = parseInt(document.getElementById('redSlider').value), g = parseInt(document.getElementById('greenSlider').value), b = parseInt(document.getElementById('blueSlider').value), a = parseFloat(document.getElementById('alphaSlider').value);
+      const preview = document.getElementById('buttonPreview'), isAttendanceSurface=ATTENDANCE_SOFT_COLOR_KEYS.has(selectedButtonKey), textBlack=document.getElementById('blackTextCheckbox').checked;
+      preview.style.backgroundColor = isAttendanceSurface?`rgba(${r},${g},${b},0.12)`:`rgba(${r},${g},${b},${a})`;
+      preview.style.border = `1px solid rgba(${r},${g},${b},${isAttendanceSurface?0.36:a})`;
+      preview.style.color = isAttendanceSurface?(textBlack?'#1C1C1E':`rgb(${r},${g},${b})`):((r>200&&g>200&&b>200)?'#1C1C1E':'#FFFFFF');
     }
-
     function saveButtonColor() {
       if (!selectedButtonKey) return;
-      const r = parseInt(document.getElementById('redSlider').value);
-      const g = parseInt(document.getElementById('greenSlider').value);
-      const b = parseInt(document.getElementById('blueSlider').value);
-      const a = parseFloat(document.getElementById('alphaSlider').value);
-      buttonColors[selectedButtonKey] = { r, g, b, a };
+      const r = parseInt(document.getElementById('redSlider').value), g = parseInt(document.getElementById('greenSlider').value), b = parseInt(document.getElementById('blueSlider').value), a = parseFloat(document.getElementById('alphaSlider').value);
+      const textBlack=ATTENDANCE_SOFT_COLOR_KEYS.has(selectedButtonKey)&&document.getElementById('blackTextCheckbox').checked;
+      buttonColors[selectedButtonKey] = { r, g, b, a, textBlack };
       saveData();
       // تطبيق الألوان على الفور
       applyButtonColors();
