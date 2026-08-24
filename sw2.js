@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-03-brief-notification-pdf';
+const CACHE_NAME = 'attendance-app-v21-04-notification-pdf-and-level-colors';
 const urlsToCache = [
   './',
   './index.html',
