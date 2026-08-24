@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.83";</script>
+  <script>const APP_VERSION = "20.84";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -463,8 +463,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .understanding-bulk-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;}
     .understanding-bulk-status-grid .btn-status{min-width:0;height:2rem;padding:0.12rem 0.06rem;font-size:0.58rem;line-height:1.05;}
     .understanding-bulk-student-list{display:flex;flex-direction:column;gap:0.4rem;overflow-y:auto;max-height:58vh;padding:2px;}
-    .understanding-bulk-student-choice{width:100%;border:1px solid #D8E8E3;border-radius:0.72rem;background:#F8FCFA;color:#155E4A;padding:0.74rem 0.7rem;font-family:inherit;font-size:0.88rem;font-weight:900;line-height:1.35;text-align:right;cursor:pointer;}
-    .understanding-bulk-student-choice:active,.understanding-bulk-student-choice.is-current{background:#E8F8F5;border-color:#117A65;color:#117A65;}
+    .understanding-bulk-student-choice{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;width:100%;border:1px solid #D8E8E3;border-radius:0.72rem;background:#F8FCFA;color:#155E4A;padding:0.74rem 0.7rem;font-family:inherit;font-size:0.88rem;font-weight:900;line-height:1.35;text-align:right;cursor:pointer;}
+    .understanding-bulk-student-choice:active,.understanding-bulk-student-choice.is-current,.understanding-bulk-student-choice.is-complete{background:#E8F8F5;border-color:#117A65;color:#117A65;}
+    .understanding-bulk-student-choice.is-incomplete{background:#FFF4F4;border-color:#F4B7B2;color:#B42318;}
+    .understanding-bulk-student-check{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1.45rem;height:1.45rem;border-radius:50%;background:#117A65;color:#FFF;font-size:0.86rem;font-weight:900;line-height:1;}
     .understanding-summary-unit-btn{border:1.5px solid #A9CCE3;border-radius:0.55rem;background:#FFFFFF;color:#1B4F72;padding:0.38rem 0.65rem;font:inherit;font-size:0.76rem;font-weight:900;cursor:pointer;}
     .understanding-summary-unit-btn.is-selected{background:#D6EAF8;border-color:#1B4F72;box-shadow:inset 0 0 0 1px #1B4F72;}
     /* فقاعة إحصاءات صغيرة فوق اسم طالب تحقق من فهمك. */
@@ -582,7 +584,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="modal-title" style="margin:0;font-size:1rem;color:#117A65;">📝 اختر الطالب</div>
         <button class="btn-close-circle" onclick="closeUnderstandingBulkPickerModal()" title="إغلاق">✕</button>
       </div>
-      <div style="font-size:0.75rem;line-height:1.55;color:var(--text-secondary);font-weight:700;text-align:center;margin-bottom:9px;flex:0 0 auto;">اضغط على اسم الطالب لعرض جميع دروس الوحدة وتعديل حالاتها.</div>
+      <div id="understandingBulkPickerHint" style="font-size:0.75rem;line-height:1.55;color:var(--text-secondary);font-weight:700;text-align:center;margin-bottom:9px;flex:0 0 auto;"></div>
       <div id="understandingBulkStudentList" class="understanding-bulk-student-list"></div>
     </div>
   </div>
@@ -2694,10 +2696,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       document.getElementById('understandingBulkPickerModal').style.display='flex';
     }
     function closeUnderstandingBulkPickerModal(){ document.getElementById('understandingBulkPickerModal').style.display='none'; }
+    function isUnderstandingBulkStudentComplete(cls,unit,student){
+      const lessons=unitsData[unit]?.lessons||[];
+      return lessons.length>0&&lessons.every(lesson=>Boolean(getUnderstandingStudentStatus(getUnderstandingLessonStates(cls,unit,lesson),student)));
+    }
     function renderUnderstandingBulkStudentList(){
-      const cls=document.getElementById('understandingClassSelect').value, selected=document.getElementById('understandingBulkStudentSelect').value, students=[...(appData[cls]||[])].sort((a,b)=>a.localeCompare(b,'ar'));
-      const list=document.getElementById('understandingBulkStudentList');
-      list.innerHTML=students.length?students.map(student=>`<button type="button" class="understanding-bulk-student-choice${student===selected?' is-current':''}" data-student="${escapeTextForHtml(student)}" onclick="chooseUnderstandingBulkStudent(this.dataset.student)">${escapeTextForHtml(student)}</button>`).join(''):'<div style="text-align:center;color:#8E8E93;font-size:0.78rem;font-weight:800;padding:16px 4px;">لا توجد أسماء في الفصل.</div>';
+      const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, selected=document.getElementById('understandingBulkStudentSelect').value, students=[...(appData[cls]||[])].sort((a,b)=>a.localeCompare(b,'ar'));
+      const list=document.getElementById('understandingBulkStudentList'), hint=document.getElementById('understandingBulkPickerHint');
+      hint.textContent=`اختر الطالب لعرض دروس الوحدة: ${unit||'—'}`;
+      list.innerHTML=students.length?students.map(student=>{ const complete=isUnderstandingBulkStudentComplete(cls,unit,student), selectedClass=student===selected?' is-current':'', stateClass=complete?' is-complete':' is-incomplete'; return `<button type="button" class="understanding-bulk-student-choice${selectedClass}${stateClass}" data-student="${escapeTextForHtml(student)}" onclick="chooseUnderstandingBulkStudent(this.dataset.student)"><span>${escapeTextForHtml(student)}</span>${complete?'<span class="understanding-bulk-student-check" aria-label="اكتملت جميع الدروس">✓</span>':''}</button>`; }).join(''):'<div style="text-align:center;color:#8E8E93;font-size:0.78rem;font-weight:800;padding:16px 4px;">لا توجد أسماء في الفصل.</div>';
     }
     function chooseUnderstandingBulkStudent(student){
       const select=document.getElementById('understandingBulkStudentSelect'); select.value=student;
