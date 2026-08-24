@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-11-top-students-mobile-colors';
+const CACHE_NAME = 'attendance-app-v21-12-compact-notification-units-lessons';
 const urlsToCache = [
   './',
   './index.html',
