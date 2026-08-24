@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.77";</script>
+  <script>const APP_VERSION = "20.78";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -219,6 +219,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .followup-compact-sort { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; margin-inline-start:0.18rem; padding:0.06rem 0.24rem; border:1px solid currentColor; border-radius:0.5rem; background:rgba(255,255,255,0.68); color:inherit; font-family:inherit; font-size:0.54rem; font-weight:900; line-height:1; cursor:pointer; white-space:nowrap; }
     .followup-compact-sort:active { transform:scale(.96); }
     .followup-sort-under { display:block; margin-top:0.14rem; line-height:0; text-align:center; }
+    #followupTable.followup-sort-controls-hidden .followup-sort-under,#followupTable.followup-sort-controls-hidden .followup-compact-sort{display:none!important;}
     #followupHeaderSortLabel { display:block !important; width:100%; margin-top:0.14rem; text-align:center; }
     .followup-sort-status { display:none; }
     .followup-header-sort-label { font-size:0.90rem; line-height:1.1; color:#075CB5; font-weight:900; white-space:nowrap; }
@@ -1241,6 +1242,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             </label>
           </div>
         </div>
+        <div id="followupSortVisibilityCard" class="grade-rounding-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div style="min-width:0;">
+              <div style="font-size:14px;font-weight:900;color:var(--text-primary);">↕️ إظهار الفرز في جدول المتابعة</div>
+              <div id="followupSortVisibilityStatus" style="font-size:11px;color:#666;margin-top:1px;line-height:1.2;">غير مفعّل — الأسماء تصاعدياً</div>
+            </div>
+            <label class="ios-grade-rounding-switch" title="إظهار أو إخفاء رموز الفرز في جدول المتابعة">
+              <input id="followupSortVisibilityToggle" type="checkbox" onchange="toggleFollowupSortControls(this.checked)">
+              <span class="ios-grade-rounding-slider"></span>
+            </label>
+          </div>
+        </div>
       </div>
       <div class="modal-actions" style="margin-top:16px;"><button class="btn-modal-cancel" onclick="closeGradesManageModal()">إغلاق</button></div>
     </div>
@@ -1482,6 +1495,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     const DEFAULT_WEAK_STUDENTS_THRESHOLDS={hw:5,act:10,participation:5,test:10,total:30};
     let weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS};
     let followupSortState={key:'name',direction:'asc',focus:null,menuKey:null};
+    // إعداد عرض مؤقت: يبدأ مخفياً ولا يدخل في الحفظ أو النسخ الاحتياطي.
+    let followupSortControlsVisible=false;
     const FOLLOWUP_SORT_LABELS={name:'الأسماء',hw:'الموزونة للواجبات',act:'الموزونة للأنشطة',participation:'المشاركة',test:'الاختبار',total:'المجموع الكلي'};
     let importFileInput = null;
 
@@ -2984,7 +2999,24 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       gradeRoundingSettings.enabled=typeof enabled==='boolean'?enabled:!gradeRoundingSettings.enabled;
       updateGradeRoundingManageUI(); saveData(); refreshGradeRoundingViews();
     }
-    function openGradesManageModal(){ updateGradeRoundingManageUI(); document.getElementById('gradesManageModal').style.display='flex'; }
+    function updateFollowupSortControlsManageUI(){
+      const toggle=document.getElementById('followupSortVisibilityToggle'), card=document.getElementById('followupSortVisibilityCard'), status=document.getElementById('followupSortVisibilityStatus');
+      if(!toggle||!card||!status) return;
+      toggle.checked=followupSortControlsVisible; card.classList.toggle('is-enabled',followupSortControlsVisible);
+      status.textContent=followupSortControlsVisible?'مفعّل — اختر الفرز عند الحاجة':'غير مفعّل — الأسماء تصاعدياً';
+      status.style.color=followupSortControlsVisible?'#117A65':'#666';
+    }
+    function toggleFollowupSortControls(enabled){
+      followupSortControlsVisible=enabled===true;
+      if(!followupSortControlsVisible){
+        // لا نحفظ آخر فرز: عند الإيقاف يعود الجدول فوراً إلى ترتيبه الطبيعي.
+        followupSortState={key:'name',direction:'asc',focus:null,menuKey:null};
+        closeFollowupSortModal();
+      }
+      updateFollowupSortControlsManageUI();
+      if(document.getElementById('followupScreen').classList.contains('active-screen')) renderFollowupTable(document.getElementById('unitDropdownSelect').value||currentActiveUnit);
+    }
+    function openGradesManageModal(){ updateGradeRoundingManageUI(); updateFollowupSortControlsManageUI(); document.getElementById('gradesManageModal').style.display='flex'; }
     function closeGradesManageModal(){ document.getElementById('gradesManageModal').style.display='none'; }
 
     function openProjectGradesModal(){ document.getElementById('projectGradesModal').style.display='flex'; showProjectGradesUnitsView(); }
@@ -3398,11 +3430,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function applyFollowupTableFocus(){
       const table=document.getElementById('followupTable'), status=document.getElementById('followupSortStatus'), headerLabel=document.getElementById('followupHeaderSortLabel'); if(!table) return;
       table.classList.remove('followup-focus-active','followup-focus-hw','followup-focus-act','followup-focus-participation','followup-focus-test','followup-focus-total');
+      table.classList.toggle('followup-sort-controls-hidden',!followupSortControlsVisible);
       if(followupSortState.focus&&followupSortState.focus!=='name'){ table.classList.add('followup-focus-active',`followup-focus-${followupSortState.focus}`); }
       if(status) status.textContent='';
-      if(headerLabel){ const shortLabels={name:'الأسماء',hw:'واجبات',act:'أنشطة',participation:'مشاركة',test:'اختبار',total:'المجموع'}; const label=shortLabels[followupSortState.key]||'الأسماء', direction=followupSortState.direction==='desc'?'تنازلي':'تصاعدي'; headerLabel.textContent=`فرز ${direction}: ${label}`; }
+      if(headerLabel){
+        if(!followupSortControlsVisible) headerLabel.textContent='';
+        else { const shortLabels={name:'الأسماء',hw:'واجبات',act:'أنشطة',participation:'مشاركة',test:'اختبار',total:'المجموع'}; const label=shortLabels[followupSortState.key]||'الأسماء', direction=followupSortState.direction==='desc'?'تنازلي':'تصاعدي'; headerLabel.textContent=`فرز ${direction}: ${label}`; }
+      }
     }
     function openFollowupSortModal(key){
+      if(!followupSortControlsVisible) return;
       followupSortState.menuKey=FOLLOWUP_SORT_LABELS[key]?key:'name';
       const label=FOLLOWUP_SORT_LABELS[followupSortState.menuKey];
       document.getElementById('followupSortModalTitle').textContent=`خيارات: ${label}`;
