@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.10";</script>
+  <script>const APP_VERSION = "21.11";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -869,8 +869,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div style="font-size:0.78rem;color:var(--text-secondary);text-align:center;margin-bottom:12px;font-weight:700;">اختر التقرير المطلوب:</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <button class="btn-action btn-report" onclick="openPeriodFromGradesMenu()" style="width:100%;margin:0;">📌 الفترات</button>
-        <button class="btn-action" onclick="openTopStudentsReport()" style="width:100%;margin:0;background:linear-gradient(135deg,#FFF8DD,#FFF0B7);color:#8A5A00;border:1px solid #F3C94A;box-shadow:0 4px 12px rgba(196,139,0,.12);">🏆 الطلاب المتفوقين</button>
+        <button class="btn-action" onclick="openPeriodFromGradesMenu()" style="width:100%;margin:0;background:#F1F4FB;color:#3D517F;border:1px solid #D5DDF0;box-shadow:none;">📌 الفترات</button>
+        <button class="btn-action" onclick="openTopStudentsReport()" style="width:100%;margin:0;background:#EEF2FF;color:#394E8A;border:1px solid #C7D3F4;box-shadow:none;">🏆 الطلاب المتفوقين</button>
         <button class="btn-action" onclick="openWeakStudentsReport()" style="width:100%;margin:0;background:#FFF3F3;color:#B42318;border:1px solid #FECACA;">⚠️ الطلاب الضعاف</button>
         <button class="btn-action" onclick="openGradeSheetReport()" style="width:100%;margin:0;background:#EEF5FF;color:#0B5394;border:1px solid #BBD7F3;">🧾 كشف الدرجات</button>
         <button class="btn-action reports-menu-notification" onclick="closeGradesReportsMenu();openNotificationExportModal()" style="width:100%;margin:0;background:#F1F6FE;color:#345D9D;border:1px solid #C4D6EE;">🔔 إشعارات الطلاب PDF</button>
@@ -930,7 +930,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div style="font-size:.9rem;font-weight:900;color:#334A88;">تميّز يستحق الاحتفاء</div>
         <div style="font-size:.72rem;line-height:1.55;color:#5C6A8B;font-weight:700;margin-top:3px;">اختر الفصول والوحدات وعدد المراكز. لا يُستبعد أي طالب يتعادل مع آخر مركز معروض.</div>
       </section>
-      <section style="border:1px solid #E9E1CE;border-radius:13px;background:#fff;padding:9px 10px;margin-bottom:8px;">
+      <section style="border:1px solid #D9E0EF;border-radius:13px;background:#fff;padding:9px 10px;margin-bottom:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:7px;">
           <span style="font-size:.79rem;font-weight:900;color:#394A72;">الفصول المختارة</span>
         </div>
@@ -942,9 +942,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         </div>
         <div id="topStudentsUnitsChooser" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
       </section>
-      <section style="display:flex;align-items:center;gap:9px;border:1px solid #E9E1CE;border-radius:13px;background:#fff;padding:9px 10px;margin-bottom:9px;">
-        <label for="topStudentsCountInput" style="flex:1;font-size:.8rem;font-weight:900;color:#5B4A22;">عدد الطلاب المطلوب عرضه</label>
-        <input id="topStudentsCountInput" type="number" min="1" max="500" value="10" inputmode="numeric" onchange="onTopStudentsCountChange(this.value)" oninput="onTopStudentsCountChange(this.value)" style="width:72px;padding:7px 4px;border:1px solid #D8C68E;border-radius:9px;text-align:center;font-size:.95rem;font-weight:900;color:#855600;direction:ltr;">
+      <section style="display:flex;align-items:center;gap:9px;border:1px solid #D9E0EF;border-radius:13px;background:#fff;padding:9px 10px;margin-bottom:9px;">
+        <label for="topStudentsCountInput" style="flex:1;font-size:.8rem;font-weight:900;color:#394A72;">عدد الطلاب المطلوب عرضه</label>
+        <input id="topStudentsCountInput" type="number" min="1" max="500" value="10" inputmode="numeric" onchange="onTopStudentsCountChange(this.value)" oninput="onTopStudentsCountChange(this.value)" style="width:72px;padding:7px 4px;border:1px solid #AEBCE0;border-radius:9px;text-align:center;font-size:.95rem;font-weight:900;color:#344B89;direction:ltr;">
       </section>
       <div id="topStudentsReportContext" style="font-size:.71rem;font-weight:800;line-height:1.55;color:#64748B;text-align:center;margin:0 5px 8px;"></div>
       <div class="table-responsive-wrapper" style="margin:0;border:1px solid #D8DFEE;border-radius:13px;overflow:hidden;background:#fff;box-shadow:0 4px 14px rgba(57,69,79,.06);">
@@ -4237,7 +4237,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const cont=document.getElementById('topStudentsClassesChooser'); if(!cont) return; cont.innerHTML='';
       getTopStudentsAvailableClasses().forEach(cls=>{
         const selected=topStudentsSelectedClasses.includes(cls), button=document.createElement('button'); button.type='button'; button.textContent=cls;
-        button.style.cssText=`padding:6px 10px;border-radius:9px;border:${selected?'2px solid #C88A00':'1px solid #D5D9DF'};background:${selected?'#FFF2B7':'#FFFFFF'};color:${selected?'#765000':'#43515C'};font-weight:900;font-size:.74rem;cursor:pointer;box-shadow:${selected?'0 2px 6px rgba(200,138,0,.13)':'none'};`;
+        button.style.cssText=`padding:6px 10px;border-radius:9px;border:${selected?'2px solid #5368AD':'1px solid #D5D9DF'};background:${selected?'#EEF2FF':'#FFFFFF'};color:${selected?'#344B89':'#43515C'};font-weight:900;font-size:.74rem;cursor:pointer;box-shadow:${selected?'0 2px 6px rgba(83,104,173,.12)':'none'};`;
         button.onclick=()=>toggleTopStudentsClass(cls); cont.appendChild(button);
       });
     }
@@ -4308,7 +4308,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       body.innerHTML='';
       shown.forEach(row=>{
         const medal=getTopStudentsRankStyle(row.rank), score=formatGrade(row.scores.total), rankText=row.rank<=3?`<span style="display:block;font-size:.62rem;line-height:1;margin-bottom:3px;">${medal.label}</span><span>${row.rank}</span>`:`${row.rank}`;
-        body.innerHTML+=`<tr><td style="text-align:center;padding:7px 4px;"><span style="display:inline-flex;min-width:39px;min-height:39px;align-items:center;justify-content:center;flex-direction:column;border:1px solid ${medal.border};border-radius:50%;background:${medal.background};color:${medal.color};font-size:.91rem;font-weight:900;line-height:1.05;">${rankText}</span></td><td class="student-name-td" style="padding:8px 9px;"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><span style="font-weight:900;font-size:.93rem;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeTextForHtml(row.student)}</span><span style="flex:0 0 auto;border:1px solid #79B7A0;border-radius:9px;background:#EAF8F1;color:#14704C;padding:4px 7px;font-size:.88rem;font-weight:900;direction:ltr;">${score}/60</span></div><div style="font-size:.68rem;color:#62708A;font-weight:800;margin-top:4px;">${escapeTextForHtml(row.cls)}</div></td></tr>`;
+        body.innerHTML+=`<tr><td style="text-align:center;padding:7px 4px;"><span style="display:inline-flex;min-width:39px;min-height:39px;align-items:center;justify-content:center;flex-direction:column;border:1px solid ${medal.border};border-radius:50%;background:${medal.background};color:${medal.color};font-size:.91rem;font-weight:900;line-height:1.05;">${rankText}</span></td><td class="student-name-td" style="padding:8px 10px;"><div style="font-weight:900;font-size:.93rem;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeTextForHtml(row.student)}</div><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:5px;"><span style="font-size:.68rem;color:#62708A;font-weight:800;">${escapeTextForHtml(row.cls)}</span><span style="flex:0 0 auto;border:1px solid #79B7A0;border-radius:9px;background:#EAF8F1;color:#14704C;padding:4px 7px;font-size:.86rem;font-weight:900;direction:ltr;">المجموع ${score}/60</span></div></td></tr>`;
       });
       context.textContent=`الفصول: ${classes.join('، ')} — الوحدات: ${units.join('، ')} — عرض ${shown.length} طالباً من أصل ${ranked.sorted.length} طالب لديهم تقييم${boundaryExtras?`، وشمل ${boundaryExtras} بسبب التعادل عند الحد.`:''}`;
       empty.style.display=shown.length?'none':'block';
