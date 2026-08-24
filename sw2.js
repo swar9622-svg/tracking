@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-90-followup-bottom-reports-weak-name-font';
+const CACHE_NAME = 'attendance-app-v20-91-display-settings-switches';
 const urlsToCache = [
   './',
   './index.html',

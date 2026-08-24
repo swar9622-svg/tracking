@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.90";</script>
+  <script>const APP_VERSION = "20.91";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -204,6 +204,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .app-management-option.is-units{background:#F3ECF8;color:#6C3483;border:1px solid #D7BDE2;}
     .app-management-option.is-grades{background:#EAF7EE;color:#166534;border:1px solid #A9DFBF;}
     .app-management-option:active{opacity:.76;}
+    /* بطاقات إعدادات العرض متساوية الارتفاع وبألوان فاتحة مستوحاة من إدارة التطبيق. */
+    .display-settings-options{display:flex;flex-direction:column;gap:0.56rem;}
+    .display-settings-option,.display-settings-switch-card{width:100%;min-height:3.35rem;margin:0!important;border-radius:0.74rem!important;display:flex;align-items:center;justify-content:center;gap:0.38rem;font-family:inherit;font-size:0.84rem;font-weight:900;box-shadow:none;}
+    .display-settings-option{border:1px solid transparent;cursor:pointer;}
+    .display-settings-option:active{opacity:.76;}
+    .display-settings-option.is-font{background:#F3ECF8;color:#6C3483;border-color:#D7BDE2;}
+    .display-settings-option.is-colors{background:#EAF3FF;color:#0B5394;border-color:#BBD7F3;}
+    .display-settings-option.is-notes{background:#EAF7EE;color:#166534;border-color:#A9DFBF;}
+    .display-settings-switch-card{box-sizing:border-box;justify-content:space-between;padding:0.55rem 0.68rem;color:var(--text-primary);border:1px solid #D1D1D6;background:#F9F9FB;}
+    .display-settings-switch-card.is-sort{background:#FFF8EC;border-color:#F3D1A1;color:#9A6700;}
+    .display-settings-switch-card.is-startup{background:#F3ECF8;border-color:#D7BDE2;color:#6C3483;}
+    .display-settings-switch-label{min-width:0;text-align:right;line-height:1.25;}
+    .display-settings-ios-switch{width:45px;height:27px;}
+    .display-settings-ios-switch .ios-grade-rounding-slider::before{width:23px;height:23px;right:2px;top:2px;}
+    .display-settings-ios-switch input:checked + .ios-grade-rounding-slider::before{transform:translateX(-18px);}
     .followup-table-container { margin: 0 0.9375rem; background: white; border-radius: 0.375rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 0.625rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .followup-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.8125rem; }
     .student-name-tooltip-cell { position: relative !important; overflow: visible !important; z-index: 100; }
@@ -1049,11 +1064,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="modal-title" style="margin:0;">⚙️ إعدادات العرض</div>
         <button class="btn-close-circle" onclick="closeDisplaySettingsModal()">✕</button>
       </div>
-      <div style="display:flex;flex-direction:column;gap:0.6rem;">
-        <button class="btn-menu-option" style="background-color:#8E44AD;" onclick="closeDisplaySettingsModal();openFontSettingsModal();">⚙️ إعدادات الخط (الخطوط المختارة)</button>
-        <button class="btn-menu-option" style="background-color:#007AFF;" onclick="closeDisplaySettingsModal();openButtonColorsModal();">🎨 إعدادات ألوان الأزرار</button>
-        <button class="btn-menu-option" style="background-color:#1E8449;" onclick="closeDisplaySettingsModal();openNoteEntryWindowModal();">🕒 فترة إدخال الملاحظات</button>
-        <button id="startupSettingsButton" class="btn-menu-option" style="background-color:#5B2C6F;" onclick="toggleStartupAnimation()">✨ شاشة الافتتاح: مفعّلة</button>
+      <div class="display-settings-options">
+        <button class="display-settings-option is-font" onclick="closeDisplaySettingsModal();openFontSettingsModal();">⚙️ إعدادات الخط (الخطوط المختارة)</button>
+        <button class="display-settings-option is-colors" onclick="closeDisplaySettingsModal();openButtonColorsModal();">🎨 إعدادات ألوان الأزرار</button>
+        <button class="display-settings-option is-notes" onclick="closeDisplaySettingsModal();openNoteEntryWindowModal();">🕒 فترة إدخال الملاحظات</button>
+        <div id="followupSortVisibilityCard" class="display-settings-switch-card is-sort">
+          <span class="display-settings-switch-label">إظهار الفرز في جدول المتابعة</span>
+          <label class="ios-grade-rounding-switch display-settings-ios-switch" title="إظهار أو إخفاء رموز الفرز في جدول المتابعة">
+            <input id="followupSortVisibilityToggle" type="checkbox" onchange="toggleFollowupSortControls(this.checked)">
+            <span class="ios-grade-rounding-slider"></span>
+          </label>
+          <span id="followupSortVisibilityStatus" hidden></span>
+        </div>
+        <div id="startupSettingsCard" class="display-settings-switch-card is-startup">
+          <span class="display-settings-switch-label">شاشة الافتتاح</span>
+          <label class="ios-grade-rounding-switch display-settings-ios-switch" title="تشغيل أو إيقاف شاشة الافتتاح">
+            <input id="startupSettingsToggle" type="checkbox" onchange="toggleStartupAnimation()">
+            <span class="ios-grade-rounding-slider"></span>
+          </label>
+        </div>
       </div>
     </div>
   </div>
@@ -1277,18 +1306,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
             </div>
             <label class="ios-grade-rounding-switch" title="تشغيل أو إيقاف جبر الدرجات">
               <input id="gradeRoundingModeToggle" type="checkbox" onchange="toggleGradeRoundingMode(this.checked)">
-              <span class="ios-grade-rounding-slider"></span>
-            </label>
-          </div>
-        </div>
-        <div id="followupSortVisibilityCard" class="grade-rounding-card">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <div style="min-width:0;">
-              <div style="font-size:14px;font-weight:900;color:var(--text-primary);">↕️ إظهار الفرز في جدول المتابعة</div>
-              <div id="followupSortVisibilityStatus" style="font-size:11px;color:#666;margin-top:1px;line-height:1.2;">غير مفعّل — الأسماء تصاعدياً</div>
-            </div>
-            <label class="ios-grade-rounding-switch" title="إظهار أو إخفاء رموز الفرز في جدول المتابعة">
-              <input id="followupSortVisibilityToggle" type="checkbox" onchange="toggleFollowupSortControls(this.checked)">
               <span class="ios-grade-rounding-slider"></span>
             </label>
           </div>
@@ -2106,9 +2123,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!styleTag){ styleTag=document.createElement('style'); styleTag.id='dynamic-font-style'; document.head.appendChild(styleTag); }
       styleTag.innerHTML = `html{font-size:1rem!important}${familyCss}input,select,button,textarea{font-family:inherit!important;font-weight:inherit!important}${sectionCss}`;
     }
-    function updateStartupSettingsButton(){ const button=document.getElementById('startupSettingsButton'); if(!button) return; const enabled=startupSettings&&startupSettings.enabled!==false; button.textContent=enabled?'✨ شاشة الافتتاح: مفعّلة':'◻️ شاشة الافتتاح: متوقفة'; button.style.backgroundColor=enabled?'#5B2C6F':'#8E8E93'; }
+    function updateStartupSettingsButton(){ const toggle=document.getElementById('startupSettingsToggle'), card=document.getElementById('startupSettingsCard'); if(!toggle||!card) return; const enabled=startupSettings&&startupSettings.enabled!==false; toggle.checked=enabled; card.classList.toggle('is-enabled',enabled); }
     function toggleStartupAnimation(){ startupSettings=normalizeStartupSettings(startupSettings); startupSettings.enabled=!startupSettings.enabled; persistStartupPreference(); document.documentElement.classList.toggle('startup-disabled',!startupSettings.enabled); saveData(); updateStartupSettingsButton(); }
-    function openDisplaySettingsModal(){ updateStartupSettingsButton(); document.getElementById('displaySettingsModal').style.display='flex'; }
+    function openDisplaySettingsModal(){ updateStartupSettingsButton(); updateFollowupSortControlsManageUI(); document.getElementById('displaySettingsModal').style.display='flex'; }
     function closeDisplaySettingsModal(){ document.getElementById('displaySettingsModal').style.display='none'; }
     function openNoteEntryWindowModal(){
       const setting=normalizeNoteEntryWindow(noteEntryWindow);
@@ -3062,10 +3079,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     function updateFollowupSortControlsManageUI(){
       const toggle=document.getElementById('followupSortVisibilityToggle'), card=document.getElementById('followupSortVisibilityCard'), status=document.getElementById('followupSortVisibilityStatus');
-      if(!toggle||!card||!status) return;
+      if(!toggle||!card) return;
       toggle.checked=followupSortControlsVisible; card.classList.toggle('is-enabled',followupSortControlsVisible);
-      status.textContent=followupSortControlsVisible?'مفعّل — اختر الفرز عند الحاجة':'غير مفعّل — الأسماء تصاعدياً';
-      status.style.color=followupSortControlsVisible?'#117A65':'#666';
+      if(status){ status.textContent=followupSortControlsVisible?'مفعّل':'غير مفعّل'; status.style.color=followupSortControlsVisible?'#117A65':'#666'; }
     }
     function toggleFollowupSortControls(enabled){
       followupSortControlsVisible=enabled===true;
@@ -3077,7 +3093,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       updateFollowupSortControlsManageUI();
       if(document.getElementById('followupScreen').classList.contains('active-screen')) renderFollowupTable(document.getElementById('unitDropdownSelect').value||currentActiveUnit);
     }
-    function openGradesManageModal(){ updateGradeRoundingManageUI(); updateFollowupSortControlsManageUI(); document.getElementById('gradesManageModal').style.display='flex'; }
+    function openGradesManageModal(){ updateGradeRoundingManageUI(); document.getElementById('gradesManageModal').style.display='flex'; }
     function closeGradesManageModal(){ document.getElementById('gradesManageModal').style.display='none'; }
 
     function openProjectGradesModal(){ document.getElementById('projectGradesModal').style.display='flex'; showProjectGradesUnitsView(); }
