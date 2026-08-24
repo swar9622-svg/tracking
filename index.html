@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.98";</script>
+  <script>const APP_VERSION = "20.99";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -229,7 +229,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .detailed-notification-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0.62rem 0.66rem calc(env(safe-area-inset-bottom) + 0.85rem);}
     .detailed-notification-intro{font-size:0.72rem;color:var(--text-secondary);font-weight:800;text-align:center;line-height:1.5;margin:0 0 0.58rem;}
     .detailed-notification-controls{display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;margin-bottom:0.52rem;}
-    .detailed-notification-refresh{width:100%;min-height:2.42rem;margin:0 0 0.58rem;background:#345D9D;}
+    .detailed-notification-refresh{width:100%;min-height:2.42rem;margin:0 0 0.45rem;background:#345D9D;}
+    .detailed-notification-pdf{width:100%;min-height:2.42rem;margin:0 0 0.58rem;background:#1E8449;}
     #detailedStudentNotificationPreview{max-width:760px;margin:0 auto;}
     .student-notification-sheet{background:#FFF;border:1px solid #DDE5F0;border-radius:0.9rem;overflow:hidden;box-shadow:0 2px 8px rgba(31,51,73,.08);}
     .student-notification-head{padding:0.72rem 0.8rem;background:linear-gradient(135deg,#EEF5FF,#F7F1FB);border-bottom:1px solid #DDE5F0;text-align:center;}
@@ -838,6 +839,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <select id="detailedNotificationStudentSelect" class="select-class-full" onchange="renderDetailedStudentNotificationPreview()" style="margin:0;" aria-label="اختر الطالب"></select>
         </div>
         <button type="button" class="btn-action detailed-notification-refresh" onclick="renderDetailedStudentNotificationPreview()">🔍 معاينة الإشعار</button>
+        <button type="button" class="btn-action detailed-notification-pdf" id="btnExportDetailedStudentNotificationPdf" onclick="exportDetailedStudentNotificationPDF()">📤 تصدير وإرسال PDF</button>
         <div id="detailedStudentNotificationPreview"></div>
       </div>
     </div>
@@ -4674,6 +4676,51 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const lessonMap=units.map(unit=>{ const lessons=(unitsData[unit]?.lessons||[]).filter(Boolean); if(!lessons.length) return ''; const cards=lessons.map(lesson=>{ const level=getDetailedStudentNotificationLessonLevel(cls,student,unit,lesson); const excellenceLabel=level.excellent?' · ⭐ متميز':''; return `<div class="lesson-map-card is-${level.key}"><div class="lesson-map-top"><span class="lesson-map-name">${escapeTextForHtml(lesson)}</span><span class="lesson-map-level">${level.label}</span></div><div class="lesson-map-details">واجب: ${level.hw}<br>نشاط: ${level.act}<br>تحقق: ${level.understanding}${excellenceLabel}</div></div>`; }).join(''); const unitRecord=(followupData[`${cls}_${unit}`]||{})[student]||{}; const testValue=parseFloat(unitRecord.test1), projectValue=parseFloat(unitRecord.test2), testLevel=getDetailedStudentNotificationTestLevel(testValue); const testDisplay=Number.isFinite(testValue)?`${formatGrade(testValue)}/20`:'—'; const projectDone=Number.isFinite(projectValue); const projectDisplay=projectDone?formatGrade(projectValue):'—'; const assessmentCards=`<div class="lesson-map-assessment is-${testLevel.key}"><b>${testDisplay}</b><span>الاختبار · ${testLevel.label}</span></div><div class="lesson-map-assessment ${projectDone?'is-project':'is-pending'}"><b>${projectDisplay}</b><span>${projectDone?'نفذ':'لم ينفذ'}</span></div>`; const inlineAssessments=lessons.length%2===1?`<div class="lesson-map-inline-assessments">${assessmentCards}</div>`:''; const bottomAssessments=lessons.length%2===0?`<div class="lesson-map-assessments">${assessmentCards}</div>`:''; return `<div class="lesson-map-unit"><div class="lesson-map-unit-title">${escapeTextForHtml(unit)}</div><div class="lesson-map-grid">${cards}${inlineAssessments}</div>${bottomAssessments}</div>`; }).join('')||'<div class="student-notification-notes">لا توجد دروس مسجلة لعرض خريطة المستوى.</div>';
       const currentDate=new Date().toLocaleDateString('ar-SA');
       preview.innerHTML=`<div class="student-notification-sheet"><div class="student-notification-head"><div class="student-notification-title">بطاقة مستوى الطالب</div><div class="student-notification-meta">الطالب: ${escapeTextForHtml(student)} &nbsp;•&nbsp; الفصل: ${escapeTextForHtml(cls)}<br>جميع الوحدات المسجلة &nbsp;•&nbsp; تاريخ المعاينة: ${currentDate}</div></div><div class="student-notification-overall"><div class="student-notification-total"><div class="student-notification-total-value">${formatGrade(overall.total)} <span style="font-size:0.75rem;">/ 60</span></div><div class="student-notification-total-label">المستوى العام</div></div><div class="student-notification-level"><strong>${level.label}</strong><span>${level.note}</span></div></div><div class="student-notification-section"><div class="student-notification-section-title">ملخص الدرجة الموزونة</div><div class="student-notification-score-grid"><div class="student-notification-score"><b>${formatGrade(overall.hw)}/10</b><span>الواجبات</span></div><div class="student-notification-score"><b>${formatGrade(overall.act)}/20</b><span>الأنشطة + تحقق</span></div><div class="student-notification-score"><b>${formatGrade(overall.participation)}/10</b><span>المشاركة</span></div><div class="student-notification-score"><b>${formatGrade(overall.test)}/20</b><span>الاختبار/المشروع</span></div><div class="student-notification-score"><b>${units.length}</b><span>الوحدات</span></div><div class="student-notification-score"><b>${formatGrade(overall.total)}/60</b><span>المجموع</span></div></div></div><div class="student-notification-section"><div class="student-notification-section-title">تفصيل الوحدات</div><div class="student-notification-unit-wrap"><table class="student-notification-unit-table"><thead><tr><th>الوحدة</th><th>واجبات</th><th>أنشطة</th><th>تحقق</th><th>مشاركة</th><th>اختبار/مشروع</th><th>مجموع</th></tr></thead><tbody>${unitRows}</tbody></table></div></div><div class="student-notification-section"><div class="student-notification-section-title">خريطة الدروس</div><div class="student-notification-lesson-intro">الأحمر للدروس التي تحتاج إلى مراجعة أولاً، ثم البرتقالي، فالأزرق، ثم الأخضر. المستوى مبني على البيانات المسجلة في الواجب والنشاط وتحقق من فهمك للدرس.</div><div class="student-notification-lesson-legend"><span class="lesson-map-legend-weak">ضعيف</span><span class="lesson-map-legend-average">متوسط</span><span class="lesson-map-legend-good">جيد</span><span class="lesson-map-legend-excellent">ممتاز</span></div>${lessonMap}</div><div class="student-notification-section"><div class="student-notification-section-title">الحضور والسلوك</div><div class="student-notification-followup"><div>${attendance.absent}<small>غياب</small></div><div>${attendance.late}<small>تأخر</small></div><div>${attendance.violations}<small>مخالفات</small></div></div><div class="student-notification-notes" style="margin-top:0.45rem;"><strong>تفصيل المخالفات:</strong> ${violationText}${notes.length?`<br><strong>ملاحظات المعلم:</strong> ${notes.join(' — ')}`:''}</div></div><div class="student-notification-footnote">المجموعات تستخدم دوال الدرجات الحالية نفسها. قد تدخل درجة المشروع ودرجات التميز ضمن الأقسام وفق إعدادات التوزيع المعتمدة.</div></div>`;
+    }
+    function buildDetailedStudentNotificationPdfPages(cls,student){
+      const units=Object.keys(unitsData), overall=computeWeightedScores(cls,student,units), level=getDetailedStudentNotificationLevel(overall.total), today=new Date().toLocaleDateString('ar-SA');
+      const safeClass=escapeTextForHtml(cls), safeStudent=escapeTextForHtml(student);
+      const pages=[];
+      for(let start=0;start<Math.max(1,units.length);start+=2){
+        const pageUnits=units.slice(start,start+2);
+        const unitBlocks=pageUnits.map(unit=>{
+          const lessons=(unitsData[unit]?.lessons||[]).filter(Boolean), unitRecord=(followupData[`${cls}_${unit}`]||{})[student]||{};
+          const testValue=parseFloat(unitRecord.test1), projectValue=parseFloat(unitRecord.test2), testLevel=getDetailedStudentNotificationTestLevel(testValue), projectDone=Number.isFinite(projectValue);
+          const lessonCells=(lessons.length?lessons:['لا توجد دروس مسجلة']).map(lesson=>{
+            const detail=lesson==='لا توجد دروس مسجلة'?{key:'pending',label:'لم يقيّم بعد',excellent:false}:getDetailedStudentNotificationLessonLevel(cls,student,unit,lesson);
+            return `<div class="student-notification-pdf-lesson is-${detail.key}"><b>${escapeTextForHtml(lesson)}</b><span>${detail.label}${detail.excellent?' · متميز':''}</span></div>`;
+          }).join('');
+          const unitScore=computeUnitWeighted(cls,student,unit), testText=Number.isFinite(testValue)?`${formatGrade(testValue)}/20 · ${testLevel.label}`:'لم يقيّم بعد', projectText=projectDone?`نفذ · ${formatGrade(projectValue)}`:'لم ينفذ';
+          return `<section class="student-notification-pdf-unit"><div class="student-notification-pdf-unit-head"><b>${escapeTextForHtml(unit)}</b><span>مجموع الوحدة: ${formatGrade(unitScore.total)}/60</span></div><div class="student-notification-pdf-lessons">${lessonCells}</div><div class="student-notification-pdf-assessments"><span><b>الاختبار:</b> ${testText}</span><span><b>المشروع:</b> ${projectText}</span></div></section>`;
+        }).join('')||'<div class="student-notification-pdf-empty">لا توجد وحدات مسجلة لعرضها.</div>';
+        pages.push(`<section class="pdf-explicit-page student-notification-pdf-page"><div class="student-notification-pdf-head"><div><div class="student-notification-pdf-title">إشعار مستوى الطالب</div><div class="student-notification-pdf-meta">الطالب: ${safeStudent} &nbsp;|&nbsp; الفصل: ${safeClass} &nbsp;|&nbsp; ${today}</div></div><div class="student-notification-pdf-total"><b>${formatGrade(overall.total)}/60</b><span>${level.label}</span></div></div><div class="student-notification-pdf-guide">خريطة للمراجعة: يبدأ الطالب بالدروس الحمراء ثم البرتقالية، فالأزرق، ثم الأخضر.</div>${unitBlocks}<div class="student-notification-pdf-footer">إشعار متابعة إلكتروني — صفحة ${pages.length+1} من ${Math.max(1,Math.ceil(units.length/2))}</div></section>`);
+      }
+      return `<style>
+        .student-notification-pdf-page{width:190mm;min-height:277mm;box-sizing:border-box;padding:8mm;direction:rtl;background:#fff;color:#243B5A;font-family:Arial,'Tahoma',sans-serif;}
+        .student-notification-pdf-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5mm 5.5mm;background:#EEF5FF;border:1px solid #BBD7F3;border-radius:4mm;}
+        .student-notification-pdf-title{font-size:6mm;font-weight:900;color:#0B5394;}.student-notification-pdf-meta{font-size:3.1mm;font-weight:700;color:#475467;margin-top:1.6mm;}
+        .student-notification-pdf-total{min-width:32mm;text-align:center;background:#EAF7EE;border:1px solid #A9DFBF;border-radius:3mm;padding:2.3mm;color:#166534;}.student-notification-pdf-total b{display:block;font-size:5mm;}.student-notification-pdf-total span{display:block;font-size:3.2mm;font-weight:900;margin-top:.7mm;}
+        .student-notification-pdf-guide{margin:3.2mm 0;font-size:3.2mm;font-weight:800;color:#667085;line-height:1.5;}
+        .student-notification-pdf-unit{border:1px solid #DDE5F0;border-radius:3.5mm;overflow:hidden;margin:0 0 3.2mm;page-break-inside:avoid;break-inside:avoid;}
+        .student-notification-pdf-unit-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2.4mm 3mm;background:#F5F8FC;border-bottom:1px solid #DDE5F0;color:#345D9D;}.student-notification-pdf-unit-head b{font-size:4.1mm;}.student-notification-pdf-unit-head span{font-size:3mm;font-weight:800;}
+        .student-notification-pdf-lessons{display:grid;grid-template-columns:repeat(3,1fr);gap:1.7mm;padding:2.3mm;}.student-notification-pdf-lesson{min-height:12mm;box-sizing:border-box;border:1px solid;border-radius:2.4mm;padding:1.5mm;text-align:center;display:flex;flex-direction:column;justify-content:center;}.student-notification-pdf-lesson b{font-size:3.15mm;line-height:1.2;overflow-wrap:anywhere;}.student-notification-pdf-lesson span{font-size:2.75mm;font-weight:900;margin-top:.55mm;}.student-notification-pdf-lesson.is-excellent{background:#EAF7EE;border-color:#A9DFBF;color:#166534;}.student-notification-pdf-lesson.is-good{background:#EAF3FF;border-color:#BBD7F3;color:#0B5394;}.student-notification-pdf-lesson.is-average{background:#FFF7E6;border-color:#F3D1A1;color:#9A6700;}.student-notification-pdf-lesson.is-weak{background:#FFF1F1;border-color:#F4B6B6;color:#B42318;}.student-notification-pdf-lesson.is-pending{background:#F8FAFC;border-color:#D5DCE5;color:#667085;}
+        .student-notification-pdf-assessments{display:flex;gap:2mm;padding:0 2.3mm 2.3mm;font-size:3mm;font-weight:800;color:#475467;}.student-notification-pdf-assessments span{flex:1;border:1px solid #E1E7EF;border-radius:2mm;padding:1.45mm;text-align:center;background:#FAFCFE;}.student-notification-pdf-assessments b{color:#344054;}.student-notification-pdf-footer{text-align:center;color:#98A2B3;font-size:2.55mm;font-weight:700;margin-top:3mm;}.student-notification-pdf-empty{text-align:center;padding:12mm;color:#667085;font-weight:800;}
+      </style>${pages.join('')}`;
+    }
+    async function exportDetailedStudentNotificationPDF(){
+      const cls=document.getElementById('detailedNotificationClassSelect')?.value, student=document.getElementById('detailedNotificationStudentSelect')?.value;
+      if(!cls||!student){ alert('اختر الفصل والطالب أولاً.'); return; }
+      if(typeof window.html2canvas!=='function'){ alert('مكتبة إنشاء PDF غير متاحة.'); return; }
+      const button=document.getElementById('btnExportDetailedStudentNotificationPdf'), originalText=button?.textContent;
+      try{
+        if(button){ button.disabled=true; button.textContent='جاري تجهيز PDF...'; }
+        const source=document.createElement('div'); source.innerHTML=buildDetailedStudentNotificationPdfPages(cls,student);
+        const blob=await exportExplicitPdfPages(source,{margin:[6,6,6,6],jsPDF:{orientation:'portrait',unit:'mm',format:'a4'},html2canvas:{scale:2,useCORS:true,logging:false},image:{type:'jpeg',quality:0.90}});
+        if(!blob) throw new Error('تعذر إنشاء ملف PDF.');
+        const safeName=String(student).replace(/[\\/:*?"<>|]/g,'-'), safeClass=String(cls).replace(/[\\/:*?"<>|]/g,'-');
+        await deliverPdfBlob(blob,`إشعار_مستوى_${safeName}_${safeClass}.pdf`);
+      }catch(error){ console.error(error); alert('تعذر إنشاء PDF للإشعار. حاول مرة أخرى.'); }
+      finally{ if(button){ button.disabled=false; button.textContent=originalText||'📤 تصدير وإرسال PDF'; } }
     }
     // ===== دوال الحضور والمخالفات ======
     function setStatus(student,newStatus){
