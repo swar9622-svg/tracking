@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.89";</script>
+  <script>const APP_VERSION = "20.90";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -163,6 +163,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #followupScreen .period-export-container {
       margin-bottom: 90px;
     }
+    #followupScreen .followup-bottom-controls{grid-template-columns:1fr 1fr;}
+    #followupScreen .followup-bottom-placeholder{min-height:2.625rem;pointer-events:none;}
 
     .btn-action { padding: 0.5rem 0.375rem; border-radius: 0.625rem; border: none; font-size: 0.75rem; font-weight: 700; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.25rem; min-height: 2.625rem; user-select: none; }
     .btn-action:active { opacity: 0.8; }
@@ -623,9 +625,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="screen-navigation-btn nav-followup is-active" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
-      <div class="top-action-bar">
-        <button class="btn-period-main" onclick="openGradesReportsMenu()">📊 تقارير الدرجات</button>
-      </div>
       <div class="units-wrapper followup-controls">
         <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)" title="الفصل"></select>
         <select id="unitDropdownSelect" class="unit-dropdown-select" onchange="onUnitDropdownChange(this.value)" title="الوحدة"></select>
@@ -643,7 +642,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <button class="btn-export-period" onclick="exportPeriodCSV()" style="background-color:var(--green);">📊 تصدير كشف الوحدة الحالية CSV</button>
       <button class="btn-export-period btn-weighted-light" onclick="openFollowupReportModal()">📊 الدرجة الموزونة للوحدة</button>
     </div>
-
+    <div class="bottom-controls followup-bottom-controls">
+      <button class="btn-action btn-period-main" onclick="openGradesReportsMenu()">📊 تقارير الدرجات</button>
+      <div class="followup-bottom-placeholder" aria-hidden="true"></div>
+    </div>
   </div>
 
   <!-- ===== باقي النوافذ المنبثقة ===== -->
@@ -2040,14 +2042,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       mainTitle:14, screenVersion:10,
       attendanceControls:14, attendanceStats:16, absenceStudentNames:14,
       understandingControls:14, understandingSummary:12, understandingStudentNames:14, understandingStatusText:12,
-      followupControls:13, followupStudentNames:14, followupTableText:13,
+      followupControls:13, followupStudentNames:14, followupTableText:13, weakStudentsNames:14,
       studentNotesText:12, violationNames:14, modalTitles:17, reportTablesText:11
     };
     const SECTION_FONT_LABELS={
       mainTitle:'عنوان الشاشة النشط (غياب / تحقق / متابعة)', screenVersion:'رقم الإصدار أسفل العنوان',
       attendanceControls:'الفصل والتاريخ والوحدة — كشف الغياب', attendanceStats:'أرقام وعناوين الغياب والتأخر والمخالفات', absenceStudentNames:'الأسماء في كشف الغياب',
       understandingControls:'الفصل والوحدة والدرس — تحقق من فهمك', understandingSummary:'إحصائية تحقق من فهمك وزر البقية', understandingStudentNames:'الأسماء في تحقق من فهمك', understandingStatusText:'حالات تحقق من فهمك',
-      followupControls:'الفصل والوحدة في كشف المتابعة', followupStudentNames:'الأسماء في كشف المتابعة', followupTableText:'عناوين وقيم جدول المتابعة',
+      followupControls:'الفصل والوحدة في كشف المتابعة', followupStudentNames:'الأسماء في كشف المتابعة', followupTableText:'عناوين وقيم جدول المتابعة', weakStudentsNames:'أسماء الطلاب في كشف الطلاب الضعاف',
       studentNotesText:'فقاعة إحصائية وملاحظات الطالب', violationNames:'أسماء قائمة المخالفات', modalTitles:'عناوين النوافذ', reportTablesText:'جداول التقارير والملخص'
     };
     const SECTION_FONT_MIN=10, SECTION_FONT_MAX=26;
@@ -2094,6 +2096,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         #followupScreen .units-wrapper select{font-size:${s.followupControls}px!important}
         #followupTable .student-name-td{font-size:${s.followupStudentNames}px!important}
         #followupTable th,#followupTable td:not(.student-name-td),#followupTable input[type="number"]{font-size:${s.followupTableText}px!important}
+        #weakStudentsScreen .student-name-td{font-size:${s.weakStudentsNames}px!important}
         #absenceScreen .student-stats-bubble,#absenceScreen .student-stats-bubble *{font-size:${s.studentNotesText}px!important}
         #violationModal .violation-item span{font-size:${s.violationNames}px!important}
         .modal-title{font-size:${s.modalTitles}px!important}
