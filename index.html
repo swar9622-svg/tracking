@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.92";</script>
+  <script>const APP_VERSION = "20.93";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -220,6 +220,35 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .display-settings-ios-switch{width:51px;height:31px;}
     .display-settings-ios-switch .ios-grade-rounding-slider::before{width:27px;height:27px;right:2px;top:2px;}
     .display-settings-ios-switch input:checked + .ios-grade-rounding-slider::before{transform:translateX(-20px);}
+    .btn-student-notification{background:#6C3483;}
+    .student-notification-sheet{background:#FFF;border:1px solid #DDE5F0;border-radius:0.9rem;overflow:hidden;box-shadow:0 2px 8px rgba(31,51,73,.08);}
+    .student-notification-head{padding:0.72rem 0.8rem;background:linear-gradient(135deg,#EEF5FF,#F7F1FB);border-bottom:1px solid #DDE5F0;text-align:center;}
+    .student-notification-title{font-size:1rem;font-weight:900;color:#243B5A;}
+    .student-notification-meta{font-size:0.70rem;font-weight:800;color:#667085;margin-top:0.28rem;line-height:1.5;}
+    .student-notification-overall{display:grid;grid-template-columns:1.1fr .9fr;gap:0.55rem;padding:0.65rem 0.72rem;background:#FBFCFE;}
+    .student-notification-total{border:1px solid #BBD7F3;border-radius:0.7rem;background:#EAF3FF;text-align:center;padding:0.52rem;}
+    .student-notification-total-value{font-size:1.5rem;font-weight:900;color:#0B5394;line-height:1.1;}
+    .student-notification-total-label{font-size:0.68rem;font-weight:900;color:#345D9D;margin-top:0.16rem;}
+    .student-notification-level{border:1px solid #A9DFBF;border-radius:0.7rem;background:#EAF7EE;text-align:center;padding:0.52rem;display:flex;flex-direction:column;justify-content:center;}
+    .student-notification-level strong{font-size:0.92rem;color:#166534;}
+    .student-notification-level span{font-size:0.64rem;font-weight:800;color:#2F7A4D;margin-top:0.14rem;}
+    .student-notification-section{padding:0.68rem 0.72rem;border-top:1px solid #E9EDF2;}
+    .student-notification-section-title{font-size:0.78rem;font-weight:900;color:#344054;margin-bottom:0.48rem;}
+    .student-notification-score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.36rem;}
+    .student-notification-score{border:1px solid #E1E7EF;border-radius:0.55rem;padding:0.36rem 0.18rem;text-align:center;background:#FFF;}
+    .student-notification-score b{display:block;font-size:0.84rem;color:#1F2937;line-height:1.2;}
+    .student-notification-score span{display:block;font-size:0.61rem;color:#667085;font-weight:800;margin-top:0.11rem;}
+    .student-notification-unit-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    .student-notification-unit-table{width:100%;border-collapse:collapse;min-width:500px;font-size:0.66rem;text-align:center;}
+    .student-notification-unit-table th{background:#F2F5F9;color:#344054;font-weight:900;padding:0.32rem 0.2rem;border:1px solid #DCE3EB;white-space:nowrap;}
+    .student-notification-unit-table td{padding:0.34rem 0.2rem;border:1px solid #E3E8EF;font-weight:800;white-space:nowrap;}
+    .student-notification-unit-table td:first-child{text-align:right;color:#345D9D;}
+    .student-notification-followup{display:grid;grid-template-columns:repeat(3,1fr);gap:0.36rem;}
+    .student-notification-followup div{border-radius:0.55rem;padding:0.42rem 0.18rem;text-align:center;font-size:0.70rem;font-weight:900;background:#F8FAFC;border:1px solid #E1E7EF;}
+    .student-notification-followup small{display:block;font-size:0.60rem;color:#667085;margin-top:0.1rem;font-weight:800;}
+    .student-notification-notes{font-size:0.70rem;font-weight:700;line-height:1.55;color:#475467;background:#FFFBEB;border:1px solid #F5D99B;border-radius:0.58rem;padding:0.46rem 0.55rem;}
+    .student-notification-footnote{font-size:0.59rem;font-weight:700;color:#98A2B3;padding:0 0.72rem 0.68rem;line-height:1.4;}
+    @media(max-width:380px){.student-notification-overall{grid-template-columns:1fr 1fr;}.student-notification-total-value{font-size:1.32rem;}}
     .followup-table-container { margin: 0 0.9375rem; background: white; border-radius: 0.375rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 0.625rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .followup-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.8125rem; }
     .student-name-tooltip-cell { position: relative !important; overflow: visible !important; z-index: 100; }
@@ -660,7 +689,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </div>
     <div class="bottom-controls followup-bottom-controls">
       <button class="btn-action btn-period-main" onclick="openGradesReportsMenu()">📊 تقارير الدرجات</button>
-      <div class="followup-bottom-placeholder" aria-hidden="true"></div>
+      <button class="btn-action btn-student-notification" onclick="openDetailedStudentNotificationModal()">📄 إشعار طالب</button>
     </div>
   </div>
 
@@ -750,6 +779,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="btn-export-period" id="btnExportSingleStudentPDF" onclick="openPdfSizeModal('singleStudent')" style="background-color:var(--accent);margin-bottom:0;">📄 تصدير PDF</button>
         <button class="btn-export-period" id="btnExportSingleStudentCSV" onclick="exportSingleStudentCSV()" style="background-color:var(--green);margin-bottom:0;">📊 تصدير CSV</button>
       </div>
+    </div>
+  </div>
+
+  <!-- معاينة إشعار تفصيلي لطالب واحد: لا تغيّر أي بيانات أو تصدير قائم. -->
+  <div class="modal" id="detailedStudentNotificationModal" style="z-index:146;">
+    <div class="modal-content" style="max-width:620px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+        <div class="modal-title" style="margin:0;font-size:1rem;">📄 إشعار طالب تفصيلي</div>
+        <button class="btn-close-circle" onclick="closeDetailedStudentNotificationModal()">✕</button>
+      </div>
+      <div style="font-size:0.72rem;color:var(--text-secondary);font-weight:800;text-align:center;line-height:1.5;margin-bottom:0.6rem;">معاينة بطاقة مستوى الطالب في ورقة واحدة. لا تحفظ المعاينة أي تعديل.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;margin-bottom:0.55rem;">
+        <select id="detailedNotificationClassSelect" class="select-class-full" onchange="onDetailedStudentNotificationClassChange()" style="margin:0;" aria-label="اختر الفصل"></select>
+        <select id="detailedNotificationStudentSelect" class="select-class-full" onchange="renderDetailedStudentNotificationPreview()" style="margin:0;" aria-label="اختر الطالب"></select>
+      </div>
+      <button type="button" class="btn-action" onclick="renderDetailedStudentNotificationPreview()" style="width:100%;min-height:2.5rem;margin:0 0 0.6rem;background:#345D9D;">🔍 معاينة الإشعار</button>
+      <div id="detailedStudentNotificationPreview"></div>
     </div>
   </div>
 
@@ -4521,11 +4567,55 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       document.getElementById('studentReportDetailModal').style.display='flex';
     }
 
-    function onStudentReportUnitChange(unit){ currentStudentReportUnitSelection=unit; openStudentReportDetailModal(); }
+    function onStudentReportUnitChange(unit){ currentStudentReportUnitSelection=unit; openStudentReportDetailModal(); }    function closeStudentReportDetailModal(){ document.getElementById('studentReportDetailModal').style.display='none'; }
 
-    function closeStudentReportDetailModal(){ document.getElementById('studentReportDetailModal').style.display='none'; }
-
-    // ===== دوال الحضور والمخالفات =====
+    // ===== إشعار طالب تفصيلي — معاينة فقط قبل اعتماد التصدير =====
+    let detailedStudentNotificationSelected='';
+    function getDetailedStudentNotificationLevel(total){
+      const value=Number(total)||0;
+      if(value>=54) return {label:'متميز',note:'مستوى متقدم في أغلب مجالات التقييم.'};
+      if(value>=48) return {label:'جيد جداً',note:'مستوى مطمئن مع فرص لتعزيز التميز.'};
+      if(value>=36) return {label:'جيد',note:'مستوى مناسب ويستفيد من المراجعة المنتظمة.'};
+      if(value>=30) return {label:'قريب من المطلوب',note:'يحتاج إلى متابعة مركزة في الأقسام الأقل درجة.'};
+      return {label:'يحتاج دعماً',note:'يحتاج إلى خطة دعم ومتابعة مستمرة.'};
+    }
+    function openDetailedStudentNotificationModal(){
+      const fallback=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
+      const classSelect=document.getElementById('detailedNotificationClassSelect');
+      const classes=Object.keys(appData).filter(cls=>(appData[cls]||[]).length>0);
+      if(classes.length===0){ alert('يرجى اختيار فصل يحتوي على طلاب أولاً.'); return; }
+      classSelect.innerHTML=classes.map(cls=>`<option value="${escapeTextForHtml(cls)}">${escapeTextForHtml(cls)}</option>`).join('');
+      classSelect.value=classes.includes(fallback)?fallback:classes[0];
+      detailedStudentNotificationSelected='';
+      renderDetailedStudentNotificationStudents();
+      document.getElementById('detailedStudentNotificationModal').style.display='flex';
+    }
+    function closeDetailedStudentNotificationModal(){ document.getElementById('detailedStudentNotificationModal').style.display='none'; }
+    function onDetailedStudentNotificationClassChange(){ detailedStudentNotificationSelected=''; renderDetailedStudentNotificationStudents(); }
+    function renderDetailedStudentNotificationStudents(){
+      const cls=document.getElementById('detailedNotificationClassSelect').value, select=document.getElementById('detailedNotificationStudentSelect');
+      const students=[...(appData[cls]||[])].sort((a,b)=>a.localeCompare(b,'ar'));
+      if(!students.length){ select.innerHTML=''; document.getElementById('detailedStudentNotificationPreview').innerHTML='<div style="text-align:center;padding:1rem;color:#667085;font-weight:800;">لا يوجد طلاب في هذا الفصل.</div>'; return; }
+      select.innerHTML=students.map(student=>`<option value="${escapeTextForHtml(student)}">${escapeTextForHtml(student)}</option>`).join('');
+      select.value=students.includes(detailedStudentNotificationSelected)?detailedStudentNotificationSelected:students[0];
+      detailedStudentNotificationSelected=select.value;
+      renderDetailedStudentNotificationPreview();
+    }
+    function renderDetailedStudentNotificationPreview(){
+      const cls=document.getElementById('detailedNotificationClassSelect').value, select=document.getElementById('detailedNotificationStudentSelect');
+      const student=select&&select.value, preview=document.getElementById('detailedStudentNotificationPreview');
+      if(!cls||!student||!preview) return;
+      detailedStudentNotificationSelected=student;
+      const units=Object.keys(unitsData), overall=computeWeightedScores(cls,student,units), level=getDetailedStudentNotificationLevel(overall.total), attendance=getStudentAttendanceStats(cls,student,'__all__');
+      const violationCounts=new Map();
+      buildStudentReportRows(cls,student,'__all__').forEach(({record})=>(record.violations||[]).forEach(id=>violationCounts.set(id,(violationCounts.get(id)||0)+1)));
+      const violationText=[...violationCounts.entries()].map(([id,count])=>`${escapeTextForHtml(VIOLATION_DEFINITIONS.find(item=>item.id===id)?.name||id)} (${count})`).join('، ')||'لا توجد مخالفات مسجلة';
+      const notes=getAttendanceStudentNotes(cls,student).slice(-3).map(note=>escapeTextForHtml(note.text)).filter(Boolean);
+      const unitRows=units.map(unit=>{ const score=computeUnitWeighted(cls,student,unit), raw=computeRawAverages(cls,student,unit); return `<tr><td>${escapeTextForHtml(unit)}</td><td>${formatGrade(score.hw)}/10</td><td>${formatGrade(raw.activityAvg)}/10</td><td>${formatGrade(raw.understanding)}/10</td><td>${formatGrade(score.participation)}/10</td><td>${formatGrade(score.test)}/20</td><td style="background:#EAF7EE;color:#166534;">${formatGrade(score.total)}/60</td></tr>`; }).join('')||'<tr><td colspan="7">لا توجد وحدات مسجلة بعد.</td></tr>';
+      const currentDate=new Date().toLocaleDateString('ar-SA');
+      preview.innerHTML=`<div class="student-notification-sheet"><div class="student-notification-head"><div class="student-notification-title">بطاقة مستوى الطالب</div><div class="student-notification-meta">الطالب: ${escapeTextForHtml(student)} &nbsp;•&nbsp; الفصل: ${escapeTextForHtml(cls)}<br>جميع الوحدات المسجلة &nbsp;•&nbsp; تاريخ المعاينة: ${currentDate}</div></div><div class="student-notification-overall"><div class="student-notification-total"><div class="student-notification-total-value">${formatGrade(overall.total)} <span style="font-size:0.75rem;">/ 60</span></div><div class="student-notification-total-label">المستوى العام</div></div><div class="student-notification-level"><strong>${level.label}</strong><span>${level.note}</span></div></div><div class="student-notification-section"><div class="student-notification-section-title">ملخص الدرجة الموزونة</div><div class="student-notification-score-grid"><div class="student-notification-score"><b>${formatGrade(overall.hw)}/10</b><span>الواجبات</span></div><div class="student-notification-score"><b>${formatGrade(overall.act)}/20</b><span>الأنشطة + تحقق</span></div><div class="student-notification-score"><b>${formatGrade(overall.participation)}/10</b><span>المشاركة</span></div><div class="student-notification-score"><b>${formatGrade(overall.test)}/20</b><span>الاختبار/المشروع</span></div><div class="student-notification-score"><b>${units.length}</b><span>الوحدات</span></div><div class="student-notification-score"><b>${formatGrade(overall.total)}/60</b><span>المجموع</span></div></div></div><div class="student-notification-section"><div class="student-notification-section-title">تفصيل الوحدات</div><div class="student-notification-unit-wrap"><table class="student-notification-unit-table"><thead><tr><th>الوحدة</th><th>واجبات</th><th>أنشطة</th><th>تحقق</th><th>مشاركة</th><th>اختبار/مشروع</th><th>مجموع</th></tr></thead><tbody>${unitRows}</tbody></table></div></div><div class="student-notification-section"><div class="student-notification-section-title">الحضور والسلوك</div><div class="student-notification-followup"><div>${attendance.absent}<small>غياب</small></div><div>${attendance.late}<small>تأخر</small></div><div>${attendance.violations}<small>مخالفات</small></div></div><div class="student-notification-notes" style="margin-top:0.45rem;"><strong>تفصيل المخالفات:</strong> ${violationText}${notes.length?`<br><strong>ملاحظات المعلم:</strong> ${notes.join(' — ')}`:''}</div></div><div class="student-notification-footnote">المجموعات تستخدم دوال الدرجات الحالية نفسها. قد تدخل درجة المشروع ودرجات التميز ضمن الأقسام وفق إعدادات التوزيع المعتمدة.</div></div>`;
+    }
+    // ===== دوال الحضور والمخالفات ======
     function setStatus(student,newStatus){
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
       if(!ensureNoteEntryWindowOpen()) return;
