@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-91-display-settings-switches';
+const CACHE_NAME = 'attendance-app-v20-92-display-switch-geometry';
 const urlsToCache = [
   './',
   './index.html',

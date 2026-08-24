@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.91";</script>
+  <script>const APP_VERSION = "20.92";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -216,9 +216,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .display-settings-switch-card.is-sort{background:#FFF8EC;border-color:#F3D1A1;color:#9A6700;}
     .display-settings-switch-card.is-startup{background:#F3ECF8;border-color:#D7BDE2;color:#6C3483;}
     .display-settings-switch-label{min-width:0;text-align:right;line-height:1.25;}
-    .display-settings-ios-switch{width:45px;height:27px;}
-    .display-settings-ios-switch .ios-grade-rounding-slider::before{width:23px;height:23px;right:2px;top:2px;}
-    .display-settings-ios-switch input:checked + .ios-grade-rounding-slider::before{transform:translateX(-18px);}
+    /* نفس هندسة مفتاح جبر الدرجات: دائرة 27px داخل مسار 51×31 وحركة 20px. */
+    .display-settings-ios-switch{width:51px;height:31px;}
+    .display-settings-ios-switch .ios-grade-rounding-slider::before{width:27px;height:27px;right:2px;top:2px;}
+    .display-settings-ios-switch input:checked + .ios-grade-rounding-slider::before{transform:translateX(-20px);}
     .followup-table-container { margin: 0 0.9375rem; background: white; border-radius: 0.375rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 0.625rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .followup-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.8125rem; }
     .student-name-tooltip-cell { position: relative !important; overflow: visible !important; z-index: 100; }
