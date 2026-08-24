@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-05-ungraded-lessons-pending';
+const CACHE_NAME = 'attendance-app-v21-06-participation-after-evaluation';
 const urlsToCache = [
   './',
   './index.html',

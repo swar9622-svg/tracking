@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.05";</script>
+  <script>const APP_VERSION = "21.06";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -268,6 +268,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .student-notification-unit-table .unit-score.is-good{background:#EAF3FF;border-color:#BBD7F3;color:#0B5394;}
     .student-notification-unit-table .unit-score.is-average{background:#FFF7E6;border-color:#F3D1A1;color:#9A6700;}
     .student-notification-unit-table .unit-score.is-weak{background:#FFF1F1;border-color:#F4B6B6;color:#B42318;}
+    .student-notification-unit-table .unit-score.is-pending{background:#F8FAFC;border-color:#D5DCE5;color:#667085;font-size:0.60rem;}
     .student-notification-followup{display:grid;grid-template-columns:repeat(3,1fr);gap:0.36rem;}
     .student-notification-followup div{border-radius:0.55rem;padding:0.42rem 0.18rem;text-align:center;font-size:0.70rem;font-weight:900;background:#F8FAFC;border:1px solid #E1E7EF;}
     .student-notification-followup small{display:block;font-size:0.60rem;color:#667085;margin-top:0.1rem;font-weight:800;}
@@ -3330,6 +3331,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return applyRounding?applyWeightedGradeRounding(raw,Infinity):raw;
     }
 
+    // هل بدأ تقييم هذه الوحدة فعلياً لهذا الطالب؟ لا تعدّ الحالة الافتراضية «لم ينفذ» تقييماً.
+    function hasStudentUnitEvaluation(className, studentName, unit, record, lessons){
+      const stData=record||(followupData[`${className}_${unit}`]||{})[studentName]||{};
+      const unitLessons=lessons||(unitsData[unit]||{lessons:[]}).lessons||[];
+      const hasNumericEntry=value=>value!==''&&value!==null&&value!==undefined&&Number.isFinite(Number(value));
+      if(unitLessons.some(lesson=>hasNumericEntry(stData.hw?.[lesson])||hasNumericEntry(stData.act?.[lesson]))) return true;
+      if(hasNumericEntry(stData.test1)||hasNumericEntry(stData.test2)) return true;
+      return unitLessons.some(lesson=>{ const entry=getUnderstandingEntryFromStates(getUnderstandingLessonStates(className,unit,lesson),studentName); return !!entry.status||entry.excellent===true; });
+    }
     // ===== حساب الدرجة الموزونة لكل وحدة حسب تميز الدرس ثم أولوية المشروع =====
     // الأنشطة المدخلة من 10 + تحقق من الفهم ودرجات التميز = قسم الأنشطة من 20.
     function computeUnitWeighted(className, studentName, unit){
@@ -3343,7 +3353,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const understandingDetails=getUnderstandingScoreDetails(className,studentName,unit);
       // تدخل درجة التميز في حوض مستقل، ثم توزع على الأنشطة أولاً أو وفق ترتيب المعلم.
       const baseUnderstanding=understandingDetails.exerciseRaw, baseAct=baseActivity+baseUnderstanding;
-      const baseTest = parseFloat(stData.test1)||0, baseParticipation = calculateStudentParticipationScore(className, studentName, unit);
+      const evaluated=hasStudentUnitEvaluation(className,studentName,unit,stData,lessons);
+      const baseTest = parseFloat(stData.test1)||0, baseParticipation = evaluated?calculateStudentParticipationScore(className, studentName, unit):0;
       const caps = {participation:10, test:20, hw:10, act:20};
       const vals={participation:Math.min(baseParticipation,caps.participation),test:Math.min(baseTest,caps.test),hw:Math.min(baseHw,caps.hw),act:Math.min(baseAct,caps.act)};
 
@@ -3369,7 +3380,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         hw:applyWeightedGradeRounding(vals.hw,caps.hw),
         act:applyWeightedGradeRounding(vals.act,caps.act),
         excellenceUnallocated:Math.max(0,excellenceUnallocated),
-        excellenceLessons:understandingDetails.excellentLessons
+        excellenceLessons:understandingDetails.excellentLessons,
+        evaluated
       };
       rounded.total=applyWeightedGradeRounding(rounded.participation+rounded.test+rounded.hw+rounded.act,60);
       return rounded;
@@ -3377,13 +3389,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     function computeWeightedScores(className, studentName, unitsList) {
       if(!unitsList||unitsList.length===0) unitsList = Object.keys(unitsData);
+      const evaluatedResults=unitsList.map(unit=>computeUnitWeighted(className,studentName,unit)).filter(result=>result.evaluated);
       const sums = {participation:0, test:0, hw:0, act:0, total:0, excellenceUnallocated:0};
-      unitsList.forEach(u=>{ const r=computeUnitWeighted(className,studentName,u); sums.participation+=r.participation; sums.test+=r.test; sums.hw+=r.hw; sums.act+=r.act; sums.total+=r.total; sums.excellenceUnallocated+=r.excellenceUnallocated||0; });
-      const n = unitsList.length||1;
+      evaluatedResults.forEach(result=>{ sums.participation+=result.participation; sums.test+=result.test; sums.hw+=result.hw; sums.act+=result.act; sums.total+=result.total; sums.excellenceUnallocated+=result.excellenceUnallocated||0; });
+      const n = evaluatedResults.length||1;
       return {
         participation:applyWeightedGradeRounding(sums.participation/n,10), test:applyWeightedGradeRounding(sums.test/n,20),
         hw:applyWeightedGradeRounding(sums.hw/n,10), act:applyWeightedGradeRounding(sums.act/n,20),
-        total:applyWeightedGradeRounding(sums.total/n,60), excellenceUnallocated:sums.excellenceUnallocated/n
+        total:applyWeightedGradeRounding(sums.total/n,60), excellenceUnallocated:sums.excellenceUnallocated/n,
+        evaluatedUnits:evaluatedResults.length
       };
     }
 
@@ -4686,7 +4700,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       buildStudentReportRows(cls,student,'__all__').forEach(({record})=>(record.violations||[]).forEach(id=>violationCounts.set(id,(violationCounts.get(id)||0)+1)));
       const violationText=[...violationCounts.entries()].map(([id,count])=>`${escapeTextForHtml(VIOLATION_DEFINITIONS.find(item=>item.id===id)?.name||id)} (${count})`).join('، ')||'لا توجد مخالفات مسجلة';
       const notes=getAttendanceStudentNotes(cls,student).slice(-3).map(note=>escapeTextForHtml(note.text)).filter(Boolean);
-      const unitRows=units.map(unit=>{ const score=computeUnitWeighted(cls,student,unit), raw=computeRawAverages(cls,student,unit), unitLevel=getDetailedStudentNotificationLevel(score.total); return `<tr><td>${escapeTextForHtml(unit)}</td><td>${formatGrade(score.hw)}/10</td><td>${formatGrade(raw.activityAvg)}/10</td><td>${formatGrade(raw.understanding)}/10</td><td>${formatGrade(score.participation)}/10</td><td>${formatGrade(score.test)}/20</td><td class="unit-score is-${unitLevel.key}">${formatGrade(score.total)}/60</td></tr>`; }).join('')||'<tr><td colspan="7">لا توجد وحدات مسجلة بعد.</td></tr>';
+      const unitRows=units.map(unit=>{
+        const score=computeUnitWeighted(cls,student,unit), raw=computeRawAverages(cls,student,unit), pending=!score.evaluated, unitLevel=getDetailedStudentNotificationLevel(score.total);
+        const value=(number,max)=>pending?'—':`${formatGrade(number)}/${max}`;
+        const totalCell=pending?'لم يقيّم بعد':`${formatGrade(score.total)}/60`;
+        return `<tr><td>${escapeTextForHtml(unit)}</td><td>${value(score.hw,10)}</td><td>${value(raw.activityAvg,10)}</td><td>${value(raw.understanding,10)}</td><td>${value(score.participation,10)}</td><td>${value(score.test,20)}</td><td class="unit-score ${pending?'is-pending':`is-${unitLevel.key}`}">${totalCell}</td></tr>`;
+      }).join('')||'<tr><td colspan="7">لا توجد وحدات مسجلة بعد.</td></tr>';
       const lessonMap=units.map(unit=>{ const lessons=(unitsData[unit]?.lessons||[]).filter(Boolean); if(!lessons.length) return ''; const cards=lessons.map(lesson=>{ const level=getDetailedStudentNotificationLessonLevel(cls,student,unit,lesson); const excellenceLabel=level.excellent?' · ⭐ متميز':''; return `<div class="lesson-map-card is-${level.key}"><div class="lesson-map-top"><span class="lesson-map-name">${escapeTextForHtml(lesson)}</span><span class="lesson-map-level">${level.label}</span></div><div class="lesson-map-details">واجب: ${level.hw}<br>نشاط: ${level.act}<br>تحقق: ${level.understanding}${excellenceLabel}</div></div>`; }).join(''); const unitRecord=(followupData[`${cls}_${unit}`]||{})[student]||{}; const testValue=parseFloat(unitRecord.test1), projectValue=parseFloat(unitRecord.test2), testLevel=getDetailedStudentNotificationTestLevel(testValue); const testDisplay=Number.isFinite(testValue)?`${formatGrade(testValue)}/20`:'—'; const projectDone=Number.isFinite(projectValue); const projectDisplay=projectDone?formatGrade(projectValue):'—'; const assessmentCards=`<div class="lesson-map-assessment is-${testLevel.key}"><b>${testDisplay}</b><span>الاختبار · ${testLevel.label}</span></div><div class="lesson-map-assessment ${projectDone?'is-project':'is-pending'}"><b>${projectDisplay}</b><span>${projectDone?'نفذ':'لم ينفذ'}</span></div>`; const inlineAssessments=lessons.length%2===1?`<div class="lesson-map-inline-assessments">${assessmentCards}</div>`:''; const bottomAssessments=lessons.length%2===0?`<div class="lesson-map-assessments">${assessmentCards}</div>`:''; return `<div class="lesson-map-unit"><div class="lesson-map-unit-title">${escapeTextForHtml(unit)}</div><div class="lesson-map-grid">${cards}${inlineAssessments}</div>${bottomAssessments}</div>`; }).join('')||'<div class="student-notification-notes">لا توجد دروس مسجلة لعرض خريطة المستوى.</div>';
       const currentDate=new Date().toLocaleDateString('ar-SA');
       preview.innerHTML=`<div class="student-notification-sheet"><div class="student-notification-head"><div class="student-notification-title">بطاقة مستوى الطالب</div><div class="student-notification-meta">الطالب: ${escapeTextForHtml(student)} &nbsp;•&nbsp; الفصل: ${escapeTextForHtml(cls)}<br>جميع الوحدات المسجلة &nbsp;•&nbsp; تاريخ المعاينة: ${currentDate}</div></div><div class="student-notification-overall"><div class="student-notification-total"><div class="student-notification-total-value">${formatGrade(overall.total)} <span style="font-size:0.75rem;">/ 60</span></div><div class="student-notification-total-label">المستوى العام</div></div><div class="student-notification-level is-${level.key}"><strong>${level.label}</strong><span>${level.note}</span></div></div><div class="student-notification-section"><div class="student-notification-section-title">ملخص الدرجة الموزونة</div><div class="student-notification-score-grid"><div class="student-notification-score"><b>${formatGrade(overall.hw)}/10</b><span>الواجبات</span></div><div class="student-notification-score"><b>${formatGrade(overall.act)}/20</b><span>الأنشطة + تحقق</span></div><div class="student-notification-score"><b>${formatGrade(overall.participation)}/10</b><span>المشاركة</span></div><div class="student-notification-score"><b>${formatGrade(overall.test)}/20</b><span>الاختبار/المشروع</span></div><div class="student-notification-score"><b>${units.length}</b><span>الوحدات</span></div><div class="student-notification-score"><b>${formatGrade(overall.total)}/60</b><span>المجموع</span></div></div></div><div class="student-notification-section"><div class="student-notification-section-title">تفصيل الوحدات</div><div class="student-notification-unit-wrap"><table class="student-notification-unit-table"><thead><tr><th>الوحدة</th><th>واجبات</th><th>أنشطة</th><th>تحقق</th><th>مشاركة</th><th>اختبار/مشروع</th><th>مجموع</th></tr></thead><tbody>${unitRows}</tbody></table></div></div><div class="student-notification-section"><div class="student-notification-section-title">خريطة الدروس</div><div class="student-notification-lesson-intro">الأحمر للدروس التي تحتاج إلى مراجعة أولاً، ثم البرتقالي، فالأزرق، ثم الأخضر. المستوى مبني على البيانات المسجلة في الواجب والنشاط وتحقق من فهمك للدرس.</div><div class="student-notification-lesson-legend"><span class="lesson-map-legend-weak">ضعيف</span><span class="lesson-map-legend-average">متوسط</span><span class="lesson-map-legend-good">جيد</span><span class="lesson-map-legend-excellent">ممتاز</span></div>${lessonMap}</div><div class="student-notification-section"><div class="student-notification-section-title">الحضور والسلوك</div><div class="student-notification-followup"><div>${attendance.absent}<small>غياب</small></div><div>${attendance.late}<small>تأخر</small></div><div>${attendance.violations}<small>مخالفات</small></div></div><div class="student-notification-notes" style="margin-top:0.45rem;"><strong>تفصيل المخالفات:</strong> ${violationText}${notes.length?`<br><strong>ملاحظات المعلم:</strong> ${notes.join(' — ')}`:''}</div></div><div class="student-notification-footnote">المجموعات تستخدم دوال الدرجات الحالية نفسها. قد تدخل درجة المشروع ودرجات التميز ضمن الأقسام وفق إعدادات التوزيع المعتمدة.</div></div>`;
@@ -4725,7 +4744,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const units=Object.keys(unitsData), overall=computeWeightedScores(cls,student,units), overallLevel=getDetailedStudentNotificationLevel(overall.total), attendance=getStudentAttendanceStats(cls,student,'__all__'), today=new Date().toLocaleDateString('ar-SA');
       const safeClass=escapeTextForHtml(cls), safeStudent=escapeTextForHtml(student);
       const scoreCards=`<div class="notification-brief-score-grid"><div><b>${formatGrade(overall.total)}/60</b><span>المجموع العام</span></div><div><b>${formatGrade(overall.hw)}/10</b><span>الواجبات</span></div><div><b>${formatGrade(overall.act)}/20</b><span>الأنشطة + تحقق</span></div><div><b>${formatGrade(overall.participation)}/10</b><span>المشاركة</span></div><div><b>${formatGrade(overall.test)}/20</b><span>الاختبار/المشروع</span></div><div><b>${units.length}</b><span>الوحدات</span></div></div>`;
-      const unitRows=units.map((unit,index)=>{ const score=computeUnitWeighted(cls,student,unit), level=getDetailedStudentNotificationLevel(score.total); return `<tr><td>${index+1}</td><td>${escapeTextForHtml(unit)}</td><td>${formatGrade(score.hw)}/10</td><td>${formatGrade(score.act)}/20</td><td>${formatGrade(score.participation)}/10</td><td>${formatGrade(score.test)}/20</td><td><b>${formatGrade(score.total)}/60</b><small class="is-${level.key}">${level.label}</small></td></tr>`; }).join('')||'<tr><td colspan="7">لا توجد وحدات مسجلة.</td></tr>';
+      const unitRows=units.map((unit,index)=>{
+        const score=computeUnitWeighted(cls,student,unit), pending=!score.evaluated, level=getDetailedStudentNotificationLevel(score.total), value=(number,max)=>pending?'—':`${formatGrade(number)}/${max}`;
+        return `<tr><td>${index+1}</td><td>${escapeTextForHtml(unit)}</td><td>${value(score.hw,10)}</td><td>${value(score.act,20)}</td><td>${value(score.participation,10)}</td><td>${value(score.test,20)}</td><td><b>${pending?'لم يقيّم بعد':`${formatGrade(score.total)+'/60'}`}</b>${pending?'':`<small class="is-${level.key}">${level.label}</small>`}</td></tr>`;
+      }).join('')||'<tr><td colspan="7">لا توجد وحدات مسجلة.</td></tr>';
       const focus=[];
       units.forEach(unit=>{ (unitsData[unit]?.lessons||[]).filter(Boolean).forEach(lesson=>{ const detail=getDetailedStudentNotificationLessonLevel(cls,student,unit,lesson); if(detail.key==='weak'||detail.key==='average') focus.push({unit,lesson,detail}); }); });
       const focusCards=focus.slice(0,8).map(item=>`<div class="notification-brief-focus is-${item.detail.key}"><b>${escapeTextForHtml(item.lesson)}</b><span>${escapeTextForHtml(item.unit)} · ${item.detail.label}</span></div>`).join('')||'<div class="notification-brief-empty">لا توجد دروس تحتاج إلى دعم في البيانات المسجلة.</div>';
