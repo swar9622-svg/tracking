@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-07-half-is-weak-level-bands';
+const CACHE_NAME = 'attendance-app-v21-08-excused-absence-report-toggle';
 const urlsToCache = [
   './',
   './index.html',

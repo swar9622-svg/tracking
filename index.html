@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.07";</script>
+  <script>const APP_VERSION = "21.08";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2351,6 +2351,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           const item=normalizeAttendanceRecord(value);
           if(item.status==='غائب') aggregate.status='غائب';
           else if(item.status==='متأخر'&&aggregate.status!=='غائب') aggregate.status='متأخر';
+          else if(item.status==='بعذر'&&aggregate.status!== 'غائب'&&aggregate.status!=='متأخر') aggregate.status='بعذر';
           aggregate.violations.push(...item.violations);
         });
       }
@@ -2663,7 +2664,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       students.forEach(s=>{
         const rec=getStudentDayRecord(date,cls,s,currentAttendanceUnit), status=rec.status, vList=rec.violations;
         const vText=vList.length>0?`مخالفات ${vList.length}`:'مخالفات';
-        const vClass=vList.length>0?'active-violation':'', disabled=status==='غائب'?'disabled-btn':'';
+        const vClass=vList.length>0?'active-violation':'', statusBlocksNotes=status==='غائب'||status==='بعذر', disabled=statusBlocksNotes?'disabled-btn':'';
         const noteCount=getAttendanceStudentNotes(cls,s).length;
         const noteCountBadge=noteCount?`<span class="student-note-count-badge" aria-label="${noteCount} ملاحظات">${noteCount}</span>`:'';
         const card=document.createElement('div'); card.className='student-card';
@@ -2671,8 +2672,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         const safeStudent=CSS.escape(s);
         const summaryBubble=openAttendanceStudentSummary===s?getAttendanceStudentSummaryBubble(cls,s):'';
         card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}</div><div class="attendance-buttons">
-          <button class="btn-status ${status==='غائب'?'active-absent':''}" onclick="setStatus('${safeStudent}','غائب')">غائب</button>
-          <button class="btn-status ${status==='متأخر'?'active-late':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button>
+          <button class="btn-status ${(status==='غائب'||status==='بعذر')?'active-absent':''}" onclick="setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غائب'}</button>
+          <button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button>
           <button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button>
         </div>${getAttendanceStudentStatsMarkup(cls,s)}`;
         cont.appendChild(card);
@@ -4605,21 +4606,60 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       Object.keys(records).sort().forEach(date=>{
         const components=getAttendanceRecordComponents(date,cls,student,scope).filter(({record})=>{
           const vio=record.violations?record.violations.length:0;
-          return record.status==='غائب'||record.status==='متأخر'||vio>0;
+          return record.status==='غائب'||record.status==='بعذر'||record.status==='متأخر'||vio>0;
         });
         if(scope==='__all__'&&isPerUnitParticipationMode()){
           const grouped=new Map();
-          components.forEach(({record})=>{
+          components.forEach(({unit,record})=>{
             const violations=(record.violations||[]).slice().sort();
             const signature=`${record.status||''}::${violations.join('||')}`;
-            if(!grouped.has(signature)) grouped.set(signature,{date,unit:'جميع الوحدات',record:{status:record.status||'',violations}});
+            const targetUnit=unit==='سجلات سابقة'?'__legacy__':unit;
+            if(!grouped.has(signature)) grouped.set(signature,{date,unit:'جميع الوحدات',record:{status:record.status||'',violations},targetUnits:[]});
+            grouped.get(signature).targetUnits.push(targetUnit);
           });
           grouped.forEach(item=>rows.push(item));
         } else {
-          components.forEach(({unit,record})=>rows.push({date,unit,record}));
+          components.forEach(({unit,record})=>rows.push({date,unit,record,targetUnits:[isPerUnitParticipationMode()?(unit==='سجلات سابقة'?'__legacy__':unit):'__cumulative__']}));
         }
       });
       return rows;
+    }
+
+    function encodeStudentReportAbsenceToken(payload){ return btoa(unescape(encodeURIComponent(JSON.stringify(payload)))); }
+    function decodeStudentReportAbsenceToken(token){ return JSON.parse(decodeURIComponent(escape(atob(token)))); }
+    function getMutableStudentReportRecord(date,cls,student,targetUnit){
+      const raw=rawStudentAttendanceRecord(date,cls,student);
+      if(!raw) return null;
+      if(isPerUnitParticipationMode()){
+        if(targetUnit==='__legacy__'){
+          if(typeof raw==='string'){ records[date][cls][student]=normalizeAttendanceRecord(raw); return records[date][cls][student]; }
+          return raw.units?null:raw;
+        }
+        return raw&&typeof raw==='object'&&raw.units?raw.units[targetUnit]||null:null;
+      }
+      if(typeof raw==='string'){ records[date][cls][student]=normalizeAttendanceRecord(raw); return records[date][cls][student]; }
+      return raw;
+    }
+    function toggleStudentReportExcusedAbsence(token){
+      let payload;
+      try{ payload=decodeStudentReportAbsenceToken(token); }catch(_){ alert('تعذر قراءة سجل الغياب.'); return; }
+      const {date,cls,student,targetUnits=[]}=payload||{};
+      if(!date||!cls||!student||!Array.isArray(targetUnits)) return;
+      let changed=false, nextLabel='';
+      targetUnits.forEach(targetUnit=>{
+        const record=getMutableStudentReportRecord(date,cls,student,targetUnit);
+        if(!record||(record.status!=='غائب'&&record.status!=='بعذر')) return;
+        record.status=record.status==='غائب'?'بعذر':'غائب';
+        record.violations=[];
+        nextLabel=record.status; changed=true;
+      });
+      if(!changed) return;
+      cleanupEmptyAttendanceDay(date,cls);
+      saveData();
+      renderStudents();
+      openStudentReportDetailModal();
+      if(document.getElementById('reportModal')?.style.display==='flex') switchReportTab(currentReportTab);
+      alert(nextLabel==='بعذر'?'✅ تم تسجيل الغياب بعذر؛ لن يحسب غياباً أو خصماً.':'✅ أعيد السجل إلى غائب.');
     }
 
     function openStudentReportDetailModal(){
@@ -4633,9 +4673,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       document.getElementById('studentReportStudentNameHeader').innerHTML=`الطالب: ${selectedStudentForReport}<br><span style="font-size:12px;font-weight:700;color:var(--text-secondary);">الفصل: ${cls} — ${getAttendanceScopeLabel(currentStudentReportUnitSelection)}</span>`;
       const tbody=document.getElementById('studentReportDetailTableBody'); tbody.innerHTML='';
       const reportRows=buildStudentReportRows(cls,selectedStudentForReport,currentStudentReportUnitSelection);
-      reportRows.forEach(({date,unit,record})=>{
-        const isAbs=record.status==='غائب', isLate=record.status==='متأخر', vio=record.violations?record.violations.length:0;
-        tbody.innerHTML+=`<tr><td style="font-weight:700;">${date}</td><td style="font-weight:800;color:var(--accent);">${unit}</td><td>${isAbs?'<span style="color:var(--red);font-weight:900;">غائب</span>':'-'}</td><td>${isLate?'<span style="color:var(--yellow);font-weight:900;">متأخر</span>':'-'}</td><td>${vio>0?`<span class="badge-num badge-violation">${vio}</span>`:'-'}</td></tr>`;
+      reportRows.forEach(({date,unit,record,targetUnits})=>{
+        const isAbs=record.status==='غائب', isExcused=record.status==='بعذر', isLate=record.status==='متأخر', vio=record.violations?record.violations.length:0;
+        const token=encodeStudentReportAbsenceToken({date,cls,student:selectedStudentForReport,targetUnits:targetUnits||[]});
+        const absenceCell=(isAbs||isExcused)?`<button type="button" data-report-absence="${token}" onclick="toggleStudentReportExcusedAbsence(this.dataset.reportAbsence)" title="اضغط للتحويل بين غائب وبعذر" style="border:0;border-radius:8px;padding:5px 8px;background:${isExcused?'#FFF0F0':'transparent'};color:var(--red);font-weight:900;cursor:pointer;">${isExcused?'بعذر':'غائب'}</button>`:'-';
+        tbody.innerHTML+=`<tr><td style="font-weight:700;">${date}</td><td style="font-weight:800;color:var(--accent);">${unit}</td><td>${absenceCell}</td><td>${isLate?'<span style="color:var(--yellow);font-weight:900;">متأخر</span>':'-'}</td><td>${vio>0?`<span class="badge-num badge-violation">${vio}</span>`:'-'}</td></tr>`;
       });
       if(reportRows.length===0) tbody.innerHTML='<tr><td colspan="5" style="padding:15px;color:var(--text-secondary);">لا توجد أي حالات مسجلة لهذا الطالب ضمن الوحدة المحددة.</td></tr>';
       document.getElementById('studentReportDetailModal').style.display='flex';
@@ -4823,9 +4865,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const isAddingStatus=currentRecord.status!==newStatus;
       if(isAddingStatus&&!canRecordInCurrentAttendanceUnit(date,cls)) return;
       const rec=getMutableAttendanceRecord(date,cls,student);
+      if((currentRecord.status==='غائب'||currentRecord.status==='بعذر')&&newStatus==='متأخر'){
+        alert(`⚠️ الطالب مسجل كـ "${currentRecord.status}" في الوحدة المختارة، لا يمكن تسجيل تأخر له.`); return;
+      }
       const isClearing=rec.status===newStatus;
       if(isClearing) rec.status='';
-      else { rec.status=newStatus; if(newStatus==='غائب') rec.violations=[]; }
+      else { rec.status=newStatus; if(newStatus==='غائب'||newStatus==='بعذر') rec.violations=[]; }
       cleanupMutableAttendanceRecord(date,cls,student);
       saveData(); renderStudents();
     }
@@ -4834,7 +4879,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
       if(!canRecordInCurrentAttendanceUnit(date,cls)) return;
       const rec=getStudentDayRecord(date,cls,student,currentAttendanceUnit);
-      if(rec.status==='غائب'){ alert('⚠️ الطالب مسجل كـ "غائب" في الوحدة المختارة، لا يمكن إضافة مخالفات له.'); return; }
+      if(rec.status==='غائب'||rec.status==='بعذر'){ alert(`⚠️ الطالب مسجل كـ "${rec.status}" في الوحدة المختارة، لا يمكن إضافة مخالفات له.`); return; }
       currentStudentForViolation=student; document.getElementById('violationModalTitle').innerText=`⚠️ مخالفات: ${student}${isPerUnitParticipationMode()?` — ${currentAttendanceUnit}`:''}`;
       const cont=document.getElementById('violationsContainer'); cont.innerHTML='';
       VIOLATION_DEFINITIONS.forEach((item,i)=>{ const checked=rec.violations.includes(item.id); const label=document.createElement('label'); label.className=`violation-item ${checked?'selected':''}`; label.htmlFor=`v_check_${i}`; label.innerHTML=`<input type="checkbox" id="v_check_${i}" class="violation-checkbox" ${checked?'checked':''} onchange="updateViolationSelection(${i})"><span>${escapeTextForHtml(item.name)}</span>`; cont.appendChild(label); });
@@ -5893,13 +5938,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const showViolationNames=pdfSizeSettings.singleStudent&&pdfSizeSettings.singleStudent.showViolationNames===true;
       let rows='';
       buildStudentReportRows(cls,selectedStudentForReport,scope).forEach(({date,unit,record})=>{
-        const isAbs=record.status==='غائب', isLate=record.status==='متأخر';
+        const isAbs=record.status==='غائب', isExcused=record.status==='بعذر', isLate=record.status==='متأخر';
         const violationNames=(record.violations||[]).map(id=>{ const item=getViolationById(id); return item?item.name:String(id||''); }).filter(Boolean);
         const violationCount=violationNames.length||'-';
         const violationNamesVertical=violationNames.length?violationNames.map(name=>escapeTextForHtml(name)).join('<br>'):'-';
         const violationCountCell=`<td style="border:1px solid #D1D1D6;padding:6px;text-align:center;min-width:36px;color:${violationNames.length?'#AF52DE':'#333'};font-weight:${violationNames.length?'900':'normal'};">${violationCount}</td>`;
         const violationNameCell=showViolationNames?`<td style="border:1px solid #D1D1D6;padding:6px;text-align:right;line-height:1.5;white-space:normal;overflow-wrap:anywhere;color:${violationNames.length?'#AF52DE':'#333'};font-weight:${violationNames.length?'900':'normal'};">${violationNamesVertical}</td>`:'';
-        rows+=`<tr><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:6px;text-align:center;font-weight:bold;">${date}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;font-weight:bold;color:#007AFF;">${unit}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${isAbs?'#FF3B30':'#333'};font-weight:${isAbs?'900':'normal'};">${isAbs?'غائب':'-'}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${isLate?'#FF9500':'#333'};font-weight:${isLate?'900':'normal'};">${isLate?'متأخر':'-'}</td>${violationCountCell}${violationNameCell}</tr>`;
+        rows+=`<tr><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:6px;text-align:center;font-weight:bold;">${date}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;font-weight:bold;color:#007AFF;">${unit}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${(isAbs||isExcused)?'#FF3B30':'#333'};font-weight:${(isAbs||isExcused)?'900':'normal'};">${isAbs?'غائب':isExcused?'بعذر':'-'}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${isLate?'#FF9500':'#333'};font-weight:${isLate?'900':'normal'};">${isLate?'متأخر':'-'}</td>${violationCountCell}${violationNameCell}</tr>`;
       });
       if(!rows) rows=`<tr><td colspan="${showViolationNames?6:5}" style="border:1px solid #D1D1D6;padding:10px;text-align:center;">لا توجد حالات مسجلة.</td></tr>`;
       const violationHeader=showViolationNames?`<th colspan="2" style="border:1px solid #007AFF;padding:6px;text-align:center;min-width:150px;">عدد المخالفات</th>`:`<th style="border:1px solid #007AFF;padding:6px;text-align:center;">عدد المخالفات</th>`;
@@ -5912,8 +5957,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const cls=document.getElementById('classSelect').value, scope=currentStudentReportUnitSelection, scopeLabel=getAttendanceScopeLabel(scope);
       let csv="\uFEFFالتاريخ,الوحدة,الغياب,التأخر,عدد المخالفات\n";
       buildStudentReportRows(cls,selectedStudentForReport,scope).forEach(({date,unit,record})=>{
-        const isAbs=record.status==='غائب', isLate=record.status==='متأخر', vio=record.violations?record.violations.length:0;
-        csv+=`${date},${unit},${isAbs?'غائب':''},${isLate?'متأخر':''},${vio}\n`;
+        const isAbs=record.status==='غائب', isExcused=record.status==='بعذر', isLate=record.status==='متأخر', vio=record.violations?record.violations.length:0;
+        csv+=`${date},${unit},${isAbs?'غائب':isExcused?'بعذر':''},${isLate?'متأخر':''},${vio}\n`;
       });
       downloadFile(csv,`تقرير_مخالفات_${selectedStudentForReport}_${scopeLabel}.csv`,'text/csv;charset=utf-8;');
     }
