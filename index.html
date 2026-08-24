@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.81";</script>
+  <script>const APP_VERSION = "20.82";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4470,14 +4470,17 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(rec.status==='غائب'){ alert('⚠️ الطالب مسجل كـ "غائب" في الوحدة المختارة، لا يمكن إضافة مخالفات له.'); return; }
       currentStudentForViolation=student; document.getElementById('violationModalTitle').innerText=`⚠️ مخالفات: ${student}${isPerUnitParticipationMode()?` — ${currentAttendanceUnit}`:''}`;
       const cont=document.getElementById('violationsContainer'); cont.innerHTML='';
-      VIOLATION_DEFINITIONS.forEach((item,i)=>{ const checked=rec.violations.includes(item.id); const div=document.createElement('div'); div.className=`violation-item ${checked?'selected':''}`; div.onclick=()=>toggleViolationSelection(i); div.innerHTML=`<input type="checkbox" id="v_check_${i}" class="violation-checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggleViolationSelection(${i});"><span>${escapeTextForHtml(item.name)}</span>`; cont.appendChild(div); });
+      VIOLATION_DEFINITIONS.forEach((item,i)=>{ const checked=rec.violations.includes(item.id); const label=document.createElement('label'); label.className=`violation-item ${checked?'selected':''}`; label.htmlFor=`v_check_${i}`; label.innerHTML=`<input type="checkbox" id="v_check_${i}" class="violation-checkbox" ${checked?'checked':''} onchange="updateViolationSelection(${i})"><span>${escapeTextForHtml(item.name)}</span>`; cont.appendChild(label); });
       document.getElementById('violationModal').style.display='flex';
     }
 
-    function toggleViolationSelection(i){
+    function updateViolationSelection(i){
       if(!ensureNoteEntryWindowOpen()) return;
-      const chk=document.getElementById(`v_check_${i}`); chk.checked=!chk.checked; chk.parentElement.classList.toggle('selected',chk.checked);
+      const chk=document.getElementById(`v_check_${i}`); if(!chk) return; chk.parentElement.classList.toggle('selected',chk.checked);
       autoSaveStudentViolations();
+    }
+    function toggleViolationSelection(i){
+      const chk=document.getElementById(`v_check_${i}`); if(!chk) return; chk.checked=!chk.checked; updateViolationSelection(i);
     }
     function autoSaveStudentViolations(){
       if(!currentStudentForViolation||!ensureNoteEntryWindowOpen()) return;

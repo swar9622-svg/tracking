@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-81-note-input-save-height-align';
+const CACHE_NAME = 'attendance-app-v20-82-violation-row-clickable';
 const urlsToCache = [
   './',
   './index.html',
