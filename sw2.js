@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-09-top-students-tie-ranking';
+const CACHE_NAME = 'attendance-app-v21-10-top-students-compact-polish';
 const urlsToCache = [
   './',
   './index.html',
