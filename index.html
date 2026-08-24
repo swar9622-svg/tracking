@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.76";</script>
+  <script>const APP_VERSION = "20.77";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -86,7 +86,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #absenceScreen .student-note-count-badge{position:absolute;top:-0.34rem;left:-0.30rem;z-index:5;display:flex;align-items:center;justify-content:center;min-width:1.16rem;height:1.16rem;padding:0 0.18rem;border:2px solid #FFF;border-radius:999px;background:#5856D6;color:#FFF;box-shadow:0 2px 7px rgba(88,86,214,.36);font-size:0.65rem;font-weight:900;line-height:1;direction:ltr;pointer-events:none;}
     .student-name { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); flex: 1; word-break: break-word; }
     #absenceScreen .student-name { position:relative; cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
-    #absenceScreen .student-name:active { opacity:.72; }
+    #absenceScreen .student-name:active { opacity:1; }
     /* فقاعة إحصاءات الغياب: تظهر بالضغط المطول فقط وتعرض كل الوحدات. */
     .attendance-summary-bubble{position:absolute;z-index:20;left:50%;bottom:calc(100% + 0.34rem);transform:translateX(-50%);display:flex;flex-direction:column;align-items:stretch;gap:2px;width:6.45rem;max-width:calc(100vw - 0.9rem);padding:0.24rem;border:1px solid #D1D1D6;border-radius:0.60rem;background:#FFFFFF;box-shadow:0 3px 10px rgba(0,0,0,.16);direction:rtl;pointer-events:none;user-select:none;-webkit-user-select:none;}
     .attendance-summary-bubble::after{content:'';position:absolute;left:50%;bottom:-5px;width:9px;height:9px;background:#FFFFFF;border-right:1px solid #D1D1D6;border-bottom:1px solid #D1D1D6;transform:translateX(-50%) rotate(45deg);}
@@ -2839,8 +2839,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           unit.lessons.forEach(lesson=>{
             const states=getUnderstandingLessonStates(cls,unit.name,lesson), status=getUnderstandingStudentStatus(states,student)||'notDone';
             const config=UNDERSTANDING_STATUS_CONFIG[status]||UNDERSTANDING_STATUS_CONFIG.notDone;
-            const score=config.score+(isUnderstandingStudentExcellent(states,student)?normalizeExcellenceSettings(excellenceSettings).pointsPerLesson:0);
-            lessons[lesson]={status,score}; sum+=score;
+            const excellent=isUnderstandingStudentExcellent(states,student);
+            const score=config.score+(excellent?normalizeExcellenceSettings(excellenceSettings).pointsPerLesson:0);
+            lessons[lesson]={status,score,excellent}; sum+=score;
           });
           // موزونة الوحدة هي متوسط دروس تحقق من فهمك من 10، لا مجموعها.
           unitScores[unit.name]={lessons,weighted:sum/unit.lessons.length};
@@ -2889,7 +2890,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         context.units.forEach(unit=>{ const groupColumns=columns.filter(column=>column.unit===unit.name), groupW=groupColumns.reduce((sum,column)=>sum+column.w,0); x-=groupW;rect(ctx,x,groupY,groupW,groupH,'#D6EAF8','#7FB3D5');center(ctx,unit.name,x,groupY,groupW,groupH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.headers||9))}px ${pdfFontStack}`,'#1B4F72'); let subX=x+groupW; groupColumns.forEach(column=>{subX-=column.w;rect(ctx,subX,headerY,column.w,headerH,column.bg);center(ctx,column.label,subX,headerY,column.w,headerH,`${pdfProgramWeight} ${Math.max(7,Number(sizes.subheaders||9)*.95)}px ${pdfFontStack}`,column.color);}); });
         const overallColumn=columns.find(column=>column.kind==='overallWeighted');
         if(overallColumn){ x-=overallColumn.w;rect(ctx,x,groupY,overallColumn.w,groupH+headerH,overallColumn.bg,'#A9DFBF');center(ctx,overallColumn.label,x,groupY,overallColumn.w,groupH+headerH,`${pdfProgramWeight} ${Math.max(7,Number(sizes.headers||9)*.92)}px ${pdfFontStack}`,overallColumn.color); }
-        chunk.forEach((row,rowIndex)=>{ const y=headerY+headerH+rowIndex*rowH; let cellX=logicalW-side; columns.forEach(column=>{ cellX-=column.w; if(column.kind==='index'){rect(ctx,cellX,y,column.w,rowH,'#FFFFFF');center(ctx,String(context.students.indexOf(row.student)+1),cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#3A3A3C');} else if(column.kind==='name'){rect(ctx,cellX,y,column.w,rowH,'#FFFFFF');right(ctx,row.student,cellX,y,column.w,rowH,nameFont,'#202124');} else if(column.kind==='unitWeighted'){const weighted=row.unitScores[column.unit]?.weighted??0;rect(ctx,cellX,y,column.w,rowH,'#EEF5FF');center(ctx,formatGrade(weighted),cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#0B5394');} else if(column.kind==='overallWeighted'){rect(ctx,cellX,y,column.w,rowH,'#E8F8F5');center(ctx,formatGrade(row.overallWeighted),cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#117A65');} else {const value=row.unitScores[column.unit]?.lessons?.[column.lesson]||{status:'notDone',score:0}, status=UNDERSTANDING_STATUS_CONFIG[value.status]||UNDERSTANDING_STATUS_CONFIG.notDone;rect(ctx,cellX,y,column.w,rowH,status.background);center(ctx,value.score,cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,status.color);}}); });
+        chunk.forEach((row,rowIndex)=>{ const y=headerY+headerH+rowIndex*rowH; let cellX=logicalW-side; columns.forEach(column=>{ cellX-=column.w; if(column.kind==='index'){rect(ctx,cellX,y,column.w,rowH,'#FFFFFF');center(ctx,String(context.students.indexOf(row.student)+1),cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#3A3A3C');} else if(column.kind==='name'){rect(ctx,cellX,y,column.w,rowH,'#FFFFFF');right(ctx,row.student,cellX,y,column.w,rowH,nameFont,'#202124');} else if(column.kind==='unitWeighted'){const weighted=row.unitScores[column.unit]?.weighted??0;rect(ctx,cellX,y,column.w,rowH,'#EEF5FF');center(ctx,formatGrade(weighted),cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#0B5394');} else if(column.kind==='overallWeighted'){rect(ctx,cellX,y,column.w,rowH,'#E8F8F5');center(ctx,formatGrade(row.overallWeighted),cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,'#117A65');} else {const value=row.unitScores[column.unit]?.lessons?.[column.lesson]||{status:'notDone',score:0,excellent:false}, status=UNDERSTANDING_STATUS_CONFIG[value.status]||UNDERSTANDING_STATUS_CONFIG.notDone, displayScore=value.excellent?`★ ${value.score}`:value.score;rect(ctx,cellX,y,column.w,rowH,status.background);center(ctx,displayScore,cellX,y,column.w,rowH,`${pdfProgramWeight} ${Math.max(8,Number(sizes.data||9))}px ${pdfFontStack}`,value.excellent?'#B77900':status.color);}}); });
         pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,pageW,pageH,`understanding-summary-${pageIndex}`,'FAST');
       });
       await deliverPdfBlob(pdf.output('blob'),`التقرير_الشامل_تحقق_من_فهمك_${context.cls}.pdf`);

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-76-attendance-summary-bubble';
+const CACHE_NAME = 'attendance-app-v20-77-attendance-bubble-and-excellence-pdf';
 const urlsToCache = [
   './',
   './index.html',
