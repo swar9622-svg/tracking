@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.85";</script>
+  <script>const APP_VERSION = "20.86";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -762,16 +762,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div id="weakStudentsUnitsChooser" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
       </div>
       <div style="margin:0 0 8px 0;padding:8px 10px;background:#F2F2F7;border-radius:8px;font-size:0.78rem;font-weight:800;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:900;"><span>الخلاصة</span><input id="weakStudentsSummaryToggle" type="checkbox" onchange="toggleWeakStudentsSummaryMode()" style="width:18px;height:18px;accent-color:#1B4F72;"></label>
-          <label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:900;color:#1E8449;"><span>المجموع</span><input id="weakStudentsTotalToggle" type="checkbox" onchange="toggleWeakStudentsTotalMode()" style="width:18px;height:18px;accent-color:#1E8449;"></label>
+        <div id="weakStudentsModesRow" style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px;direction:rtl;">
+          <label style="display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-weight:900;color:#1E8449;flex:1;white-space:nowrap;"><span>المجموع</span><input id="weakStudentsTotalToggle" type="checkbox" onchange="toggleWeakStudentsTotalMode()" style="width:18px;height:18px;accent-color:#1E8449;"></label>
+          <label style="display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-weight:900;flex:1;white-space:nowrap;"><span>الخلاصة</span><input id="weakStudentsSummaryToggle" type="checkbox" onchange="toggleWeakStudentsSummaryMode()" style="width:18px;height:18px;accent-color:#1B4F72;"></label>
+          <label data-weak-project-label style="display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-weight:900;color:#1B4F72;flex:1;white-space:nowrap;"><span>المشروع</span><input id="weakStudentsProjectToggle" class="weak-project-toggle" type="checkbox" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#1B4F72;"></label>
         </div>
         <div id="weakStudentsColumnsRow" style="display:flex;flex-wrap:wrap;gap:8px 12px;">
           <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>واجبات</span><input class="weak-column-toggle" type="checkbox" value="hw" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#117A65;"></label>
           <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>أنشطة</span><input class="weak-column-toggle" type="checkbox" value="act" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#7D6608;"></label>
           <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>مشاركة</span><input class="weak-column-toggle" type="checkbox" value="participation" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#512E5F;"></label>
           <label data-weak-column-label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><span>اختبار</span><input class="weak-column-toggle" type="checkbox" value="test" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#78281F;"></label>
-          <label data-weak-project-label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:#1B4F72;"><span>المشروع</span><input id="weakStudentsProjectToggle" class="weak-project-toggle" type="checkbox" checked onchange="renderWeakStudentsReport()" style="width:17px;height:17px;accent-color:#1B4F72;"></label>
         </div>
       </div>
       <div class="table-responsive-wrapper" id="weakStudentsTableWrapper" style="margin:0;">
