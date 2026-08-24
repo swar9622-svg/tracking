@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-95-student-lesson-assessments';
+const CACHE_NAME = 'attendance-app-v20-96-test-level-and-project-executed';
 const urlsToCache = [
   './',
   './index.html',
