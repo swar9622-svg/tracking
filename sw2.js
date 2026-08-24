@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-12-compact-notification-units-lessons';
+const CACHE_NAME = 'attendance-app-v21-13-half-page-notification-balanced';
 const urlsToCache = [
   './',
   './index.html',
