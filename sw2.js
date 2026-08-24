@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-08-excused-absence-report-toggle';
+const CACHE_NAME = 'attendance-app-v21-09-top-students-tie-ranking';
 const urlsToCache = [
   './',
   './index.html',

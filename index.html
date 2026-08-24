@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.08";</script>
+  <script>const APP_VERSION = "21.09";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -870,6 +870,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div style="font-size:0.78rem;color:var(--text-secondary);text-align:center;margin-bottom:12px;font-weight:700;">اختر التقرير المطلوب:</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         <button class="btn-action btn-report" onclick="openPeriodFromGradesMenu()" style="width:100%;margin:0;">📌 الفترات</button>
+        <button class="btn-action" onclick="openTopStudentsReport()" style="width:100%;margin:0;background:linear-gradient(135deg,#FFF8DD,#FFF0B7);color:#8A5A00;border:1px solid #F3C94A;box-shadow:0 4px 12px rgba(196,139,0,.12);">🏆 الطلاب المتفوقين</button>
         <button class="btn-action" onclick="openWeakStudentsReport()" style="width:100%;margin:0;background:#FFF3F3;color:#B42318;border:1px solid #FECACA;">⚠️ الطلاب الضعاف</button>
         <button class="btn-action" onclick="openGradeSheetReport()" style="width:100%;margin:0;background:#EEF5FF;color:#0B5394;border:1px solid #BBD7F3;">🧾 كشف الدرجات</button>
         <button class="btn-action reports-menu-notification" onclick="closeGradesReportsMenu();openNotificationExportModal()" style="width:100%;margin:0;background:#F1F6FE;color:#345D9D;border:1px solid #C4D6EE;">🔔 إشعارات الطلاب PDF</button>
@@ -912,6 +913,46 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div id="weakStudentsEmptyMessage" style="display:none;text-align:center;color:#1E8449;font-weight:900;padding:18px 8px;">لا يوجد طلاب بدرجة أقل من النصف في الأقسام المحددة.</div>
       <button class="btn-export-period" onclick="openPdfSizeModal('weakStudents')" style="margin:10px 0 0 0;background:#007AFF;">📄 تصدير تقرير الطلاب الضعاف PDF</button>
+    </main>
+  </div>
+
+
+  <!-- ===== شاشة الطلاب المتفوقين ===== -->
+  <div id="topStudentsScreen" class="screen">
+    <header style="background:linear-gradient(135deg,#8A5A00,#D89700);color:white;padding:11px 13px;box-shadow:0 2px 8px rgba(138,90,0,.22);">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="font-size:1.04rem;font-weight:900;letter-spacing:-.02em;">🏆 الطلاب المتفوقين</div>
+        <button type="button" onclick="closeTopStudentsReport()" style="border:1px solid rgba(255,255,255,.7);border-radius:10px;background:rgba(255,255,255,.16);color:#fff;padding:6px 11px;font-weight:900;cursor:pointer;">خروج</button>
+      </div>
+    </header>
+    <main style="padding:10px 10px 18px;background:linear-gradient(180deg,#FFFDF7 0%,#F7F9FC 42%,#FFFFFF 100%);min-height:calc(100vh - 64px);">
+      <section style="border:1px solid #F4D87A;border-radius:14px;padding:10px 11px;background:linear-gradient(135deg,#FFF7D8,#FFFDF4);margin-bottom:9px;box-shadow:0 3px 10px rgba(191,134,0,.08);">
+        <div style="font-size:.9rem;font-weight:900;color:#855600;">تميّز يستحق الاحتفاء</div>
+        <div style="font-size:.72rem;line-height:1.55;color:#806C43;font-weight:700;margin-top:3px;">اختر الفصول والوحدات وعدد المراكز. لا يُستبعد أي طالب يتعادل مع آخر مركز معروض.</div>
+      </section>
+      <section style="border:1px solid #E9E1CE;border-radius:13px;background:#fff;padding:9px 10px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:7px;">
+          <span style="font-size:.79rem;font-weight:900;color:#5B4A22;">الفصول المختارة</span>
+          <button type="button" onclick="toggleAllTopStudentsClasses()" style="border:1px solid #DFC576;border-radius:8px;background:#FFF8D9;color:#7A5900;padding:4px 8px;font-size:.67rem;font-weight:900;cursor:pointer;">تحديد الكل</button>
+        </div>
+        <div id="topStudentsClassesChooser" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </section>
+      <section style="border:1px solid #DCE7F1;border-radius:13px;background:#fff;padding:9px 10px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:7px;">
+          <span style="font-size:.79rem;font-weight:900;color:#24516B;">الوحدات المعتمدة</span>
+          <button type="button" onclick="toggleAllTopStudentsUnits()" style="border:1px solid #A8C9E6;border-radius:8px;background:#EEF7FF;color:#0B5394;padding:4px 8px;font-size:.67rem;font-weight:900;cursor:pointer;">جميع الوحدات</button>
+        </div>
+        <div id="topStudentsUnitsChooser" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </section>
+      <section style="display:flex;align-items:center;gap:9px;border:1px solid #E9E1CE;border-radius:13px;background:#fff;padding:9px 10px;margin-bottom:9px;">
+        <label for="topStudentsCountInput" style="flex:1;font-size:.8rem;font-weight:900;color:#5B4A22;">عدد الطلاب المطلوب عرضه</label>
+        <input id="topStudentsCountInput" type="number" min="1" max="500" value="10" inputmode="numeric" onchange="onTopStudentsCountChange(this.value)" oninput="onTopStudentsCountChange(this.value)" style="width:72px;padding:7px 4px;border:1px solid #D8C68E;border-radius:9px;text-align:center;font-size:.95rem;font-weight:900;color:#855600;direction:ltr;">
+      </section>
+      <div id="topStudentsReportContext" style="font-size:.71rem;font-weight:800;line-height:1.55;color:#64748B;text-align:center;margin:0 5px 8px;"></div>
+      <div class="table-responsive-wrapper" style="margin:0;border:1px solid #E9E1CE;border-radius:13px;overflow:hidden;background:#fff;box-shadow:0 4px 14px rgba(57,69,79,.06);">
+        <table class="followup-table" id="topStudentsTable" style="width:100%;min-width:455px;table-layout:auto;font-size:.84rem;"><thead id="topStudentsTableHead"></thead><tbody id="topStudentsTableBody"></tbody></table>
+      </div>
+      <div id="topStudentsEmptyMessage" style="display:none;text-align:center;color:#8A5A00;font-weight:900;padding:20px 10px;border:1px dashed #E5C76A;border-radius:13px;background:#FFFDF6;margin-top:9px;">لا توجد درجات مدخلة للطلاب ضمن الفصول والوحدات المختارة.</div>
     </main>
   </div>
 
@@ -4137,6 +4178,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       closeConfirmModal();
     }
 
+    let topStudentsSelectedClasses=[];
+    let topStudentsSelectedUnits=[];
+    let topStudentsTargetCount=10;
+    let lastTopStudentsReportState=null;
     let weakStudentsSelectedUnits=[];
     let lastWeakStudentsReportState=null;
     let weakStudentsPreviousColumnSelection=null;
@@ -4160,6 +4205,118 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return out;
     }
     function getWeakStudentsThreshold(key){ return normalizeWeakStudentsThresholds(weakStudentsThresholds)[key]; }
+
+    // ===== الطلاب المتفوقون: ترتيب حسب المجموع الموزون مع حفظ التعادل =====
+    function getTopStudentsAvailableClasses(){ return Object.keys(appData).filter(cls=>Array.isArray(appData[cls])&&appData[cls].length>0); }
+    function syncTopStudentsSelections(){
+      const classes=getTopStudentsAvailableClasses(), units=Object.keys(unitsData);
+      topStudentsSelectedClasses=topStudentsSelectedClasses.filter(cls=>classes.includes(cls));
+      topStudentsSelectedUnits=topStudentsSelectedUnits.filter(unit=>units.includes(unit));
+      if(topStudentsSelectedClasses.length===0&&classes.length) topStudentsSelectedClasses=[classes[0]];
+      if(topStudentsSelectedUnits.length===0&&units.length) topStudentsSelectedUnits=[units[0]];
+    }
+    function openTopStudentsReport(){
+      const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
+      const unit=document.getElementById('unitDropdownSelect').value||currentActiveUnit;
+      if(!cls||!appData[cls]||!unit||!unitsData[unit]){ alert('يرجى اختيار فصل ووحدة أولاً.'); return; }
+      closeGradesReportsMenu();
+      topStudentsSelectedClasses=[cls]; topStudentsSelectedUnits=[unit]; topStudentsTargetCount=10;
+      const countInput=document.getElementById('topStudentsCountInput'); if(countInput) countInput.value='10';
+      document.getElementById('absenceScreen').classList.remove('active-screen');
+      document.getElementById('followupScreen').classList.remove('active-screen');
+      document.getElementById('weakStudentsScreen').classList.remove('active-screen');
+      document.getElementById('gradeSheetScreen').classList.remove('active-screen');
+      document.getElementById('topStudentsScreen').classList.add('active-screen');
+      renderTopStudentsClassChooser(); renderTopStudentsUnitsChooser(); renderTopStudentsReport(); window.scrollTo(0,0);
+    }
+    function closeTopStudentsReport(){
+      document.getElementById('topStudentsScreen').classList.remove('active-screen');
+      document.getElementById('followupScreen').classList.add('active-screen');
+      renderFollowupTable(currentActiveUnit); window.scrollTo(0,0);
+    }
+    function renderTopStudentsClassChooser(){
+      syncTopStudentsSelections();
+      const cont=document.getElementById('topStudentsClassesChooser'); if(!cont) return; cont.innerHTML='';
+      getTopStudentsAvailableClasses().forEach(cls=>{
+        const selected=topStudentsSelectedClasses.includes(cls), button=document.createElement('button'); button.type='button'; button.textContent=cls;
+        button.style.cssText=`padding:6px 10px;border-radius:9px;border:${selected?'2px solid #C88A00':'1px solid #D5D9DF'};background:${selected?'#FFF2B7':'#FFFFFF'};color:${selected?'#765000':'#43515C'};font-weight:900;font-size:.74rem;cursor:pointer;box-shadow:${selected?'0 2px 6px rgba(200,138,0,.13)':'none'};`;
+        button.onclick=()=>toggleTopStudentsClass(cls); cont.appendChild(button);
+      });
+    }
+    function toggleTopStudentsClass(cls){
+      const index=topStudentsSelectedClasses.indexOf(cls);
+      if(index>=0){ if(topStudentsSelectedClasses.length===1){ alert('يجب اختيار فصل واحد على الأقل.'); return; } topStudentsSelectedClasses.splice(index,1); }
+      else topStudentsSelectedClasses.push(cls);
+      renderTopStudentsClassChooser(); renderTopStudentsReport();
+    }
+    function toggleAllTopStudentsClasses(){
+      const all=getTopStudentsAvailableClasses();
+      topStudentsSelectedClasses=topStudentsSelectedClasses.length===all.length?[all[0]].filter(Boolean):[...all];
+      renderTopStudentsClassChooser(); renderTopStudentsReport();
+    }
+    function renderTopStudentsUnitsChooser(){
+      syncTopStudentsSelections();
+      const cont=document.getElementById('topStudentsUnitsChooser'); if(!cont) return; cont.innerHTML='';
+      Object.keys(unitsData).forEach(unit=>{
+        const selected=topStudentsSelectedUnits.includes(unit), button=document.createElement('button'); button.type='button'; button.textContent=unit;
+        button.style.cssText=`padding:6px 10px;border-radius:9px;border:${selected?'2px solid #0B6BA8':'1px solid #D5D9DF'};background:${selected?'#EAF6FF':'#FFFFFF'};color:${selected?'#075985':'#43515C'};font-weight:900;font-size:.74rem;cursor:pointer;`;
+        button.onclick=()=>toggleTopStudentsUnit(unit); cont.appendChild(button);
+      });
+    }
+    function toggleTopStudentsUnit(unit){
+      const index=topStudentsSelectedUnits.indexOf(unit);
+      if(index>=0){ if(topStudentsSelectedUnits.length===1){ alert('يجب اختيار وحدة واحدة على الأقل.'); return; } topStudentsSelectedUnits.splice(index,1); }
+      else topStudentsSelectedUnits.push(unit);
+      renderTopStudentsUnitsChooser(); renderTopStudentsReport();
+    }
+    function toggleAllTopStudentsUnits(){
+      const all=Object.keys(unitsData);
+      topStudentsSelectedUnits=topStudentsSelectedUnits.length===all.length?[all[0]].filter(Boolean):[...all];
+      renderTopStudentsUnitsChooser(); renderTopStudentsReport();
+    }
+    function onTopStudentsCountChange(value){
+      const number=Math.floor(Number(value)); topStudentsTargetCount=Number.isFinite(number)?Math.min(500,Math.max(1,number)):10;
+      const input=document.getElementById('topStudentsCountInput'); if(input&&input.value!==String(topStudentsTargetCount)) input.value=String(topStudentsTargetCount);
+      renderTopStudentsReport();
+    }
+    function getTopStudentsRankStyle(rank){
+      if(rank===1) return {background:'#FFF3C4',color:'#8A5A00',border:'#E5B726',label:'الأول'};
+      if(rank===2) return {background:'#EEF1F5',color:'#506070',border:'#B8C2CD',label:'الثاني'};
+      if(rank===3) return {background:'#FCE9D7',color:'#9A4F1B',border:'#E7A46D',label:'الثالث'};
+      return {background:'#EDF4FB',color:'#24516B',border:'#A9C5E1',label:`${rank}`};
+    }
+    function rankTopStudentsRows(rows,targetCount){
+      const sorted=[...rows].sort((a,b)=>Number(b.scores.total)-Number(a.scores.total)||a.student.localeCompare(b.student,'ar')||a.cls.localeCompare(b.cls,'ar'));
+      let previous=null, rank=0;
+      sorted.forEach(row=>{ const score=Number(row.scores.total)||0; if(previous===null||Math.abs(score-previous)>0.000001) rank+=1; row.rank=rank; previous=score; });
+      const requested=Math.max(1,Math.min(Math.floor(Number(targetCount)||1),sorted.length||1));
+      const boundary=sorted[requested-1]?.scores.total;
+      const shown=boundary===undefined?[]:sorted.filter(row=>Number(row.scores.total)>=Number(boundary)-0.000001);
+      return {sorted,shown,requested,boundaryExtras:Math.max(0,shown.length-requested)};
+    }
+    function renderTopStudentsReport(){
+      syncTopStudentsSelections();
+      const classes=[...topStudentsSelectedClasses], units=[...topStudentsSelectedUnits], head=document.getElementById('topStudentsTableHead'), body=document.getElementById('topStudentsTableBody'), empty=document.getElementById('topStudentsEmptyMessage'), context=document.getElementById('topStudentsReportContext');
+      if(!head||!body||!empty||classes.length===0||units.length===0){ return; }
+      const allRows=[];
+      classes.forEach(cls=>{
+        [...(appData[cls]||[])].forEach(student=>{
+          const scores=computeWeightedScores(cls,student,units);
+          if(scores.evaluatedUnits>0) allRows.push({cls,student,scores});
+        });
+      });
+      const ranked=rankTopStudentsRows(allRows,topStudentsTargetCount), requested=ranked.requested, shown=ranked.shown, boundaryExtras=ranked.boundaryExtras;
+      head.innerHTML='<tr><th style="width:62px;background:#FFF3C4;color:#855600;">المركز</th><th style="text-align:right;min-width:138px;">اسم الطالب</th><th style="min-width:82px;background:#F4F7FA;color:#38566A;">الفصل</th><th style="min-width:132px;background:#EEF7FF;color:#0B5394;">الوحدات</th><th style="min-width:76px;background:#E8F8F0;color:#117A65;">المجموع<br><small>/60</small></th></tr>';
+      body.innerHTML='';
+      shown.forEach(row=>{
+        const medal=getTopStudentsRankStyle(row.rank), score=formatGrade(row.scores.total), rankText=row.rank<=3?`<span style="display:block;font-size:.62rem;line-height:1;margin-bottom:3px;">${medal.label}</span><span>${row.rank}</span>`:`${row.rank}`;
+        body.innerHTML+=`<tr><td style="text-align:center;padding:7px 4px;"><span style="display:inline-flex;min-width:39px;min-height:39px;align-items:center;justify-content:center;flex-direction:column;border:1px solid ${medal.border};border-radius:50%;background:${medal.background};color:${medal.color};font-size:.91rem;font-weight:900;line-height:1.05;">${rankText}</span></td><td class="student-name-td" style="font-weight:900;font-size:.93rem;text-align:right;padding:8px 6px;white-space:nowrap;">${escapeTextForHtml(row.student)}</td><td style="text-align:center;color:#38566A;font-weight:900;padding:7px 5px;">${escapeTextForHtml(row.cls)}</td><td style="text-align:center;color:#0B5394;font-weight:800;font-size:.72rem;padding:7px 5px;">${units.map(escapeTextForHtml).join('، ')}</td><td style="text-align:center;background:#F0FAF4;color:#117A65;font-size:1rem;font-weight:900;padding:7px 5px;">${score}</td></tr>`;
+      });
+      context.textContent=`الفصول: ${classes.join('، ')} — الوحدات: ${units.join('، ')} — عرض ${shown.length} طالباً من أصل ${ranked.sorted.length} طالب لديهم تقييم${boundaryExtras?`، وشمل ${boundaryExtras} بسبب التعادل عند الحد.`:''}`;
+      empty.style.display=shown.length?'none':'block';
+      lastTopStudentsReportState={classes,units,requested,shown:shown.map(row=>({cls:row.cls,student:row.student,rank:row.rank,total:row.scores.total})),allRows:ranked.sorted.length};
+    }
+
     function openWeakStudentsThresholdsModal(){ renderWeakStudentsThresholdsInputs(); document.getElementById('weakStudentsThresholdsModal').style.display='flex'; }
     function closeWeakStudentsThresholdsModal(){ document.getElementById('weakStudentsThresholdsModal').style.display='none'; }
     function renderWeakStudentsThresholdsInputs(){
