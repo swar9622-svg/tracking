@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-06-participation-after-evaluation';
+const CACHE_NAME = 'attendance-app-v21-07-half-is-weak-level-bands';
 const urlsToCache = [
   './',
   './index.html',

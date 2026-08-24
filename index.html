@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.06";</script>
+  <script>const APP_VERSION = "21.07";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4647,9 +4647,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let detailedStudentNotificationSelected='';
     function getDetailedStudentNotificationLevel(total){
       const value=Math.max(0,Number(total)||0);
-      if(value>=45) return {key:'excellent',label:'ممتاز',note:'مستوى متقدم في أغلب مجالات التقييم.'};
-      if(value>=30) return {key:'good',label:'جيد',note:'مستوى مناسب ويستفيد من المراجعة المنتظمة.'};
-      if(value>=15) return {key:'average',label:'متوسط',note:'يحتاج إلى متابعة مركزة في الأقسام الأقل درجة.'};
+      if(value>=50) return {key:'excellent',label:'ممتاز',note:'مستوى متقدم في أغلب مجالات التقييم.'};
+      if(value>=40) return {key:'good',label:'جيد',note:'مستوى مناسب ويستفيد من المراجعة المنتظمة.'};
+      if(value>=30) return {key:'average',label:'متوسط',note:'يحتاج إلى متابعة مركزة في الأقسام الأقل درجة.'};
       return {key:'weak',label:'ضعيف',note:'يحتاج إلى خطة دعم ومتابعة مستمرة.'};
     }
     function getDetailedStudentNotificationLessonLevel(cls,student,unit,lesson){
