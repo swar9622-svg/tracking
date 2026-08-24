@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-96-test-level-and-project-executed';
+const CACHE_NAME = 'attendance-app-v20-98-fullscreen-student-notification';
 const urlsToCache = [
   './',
   './index.html',
