@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-01-student-html-pages-zip';
+const CACHE_NAME = 'attendance-app-v21-02-student-html-top-spacing';
 const urlsToCache = [
   './',
   './index.html',
