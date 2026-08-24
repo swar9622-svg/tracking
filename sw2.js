@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-79-understanding-excellence-star-left';
+const CACHE_NAME = 'attendance-app-v20-80-one-line-attendance-note-input';
 const urlsToCache = [
   './',
   './index.html',
