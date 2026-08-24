@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "20.82";</script>
+  <script>const APP_VERSION = "20.83";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -462,6 +462,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .understanding-bulk-lesson-title{font-size:0.84rem;font-weight:900;color:#B45309;margin-bottom:0.42rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .understanding-bulk-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;}
     .understanding-bulk-status-grid .btn-status{min-width:0;height:2rem;padding:0.12rem 0.06rem;font-size:0.58rem;line-height:1.05;}
+    .understanding-bulk-student-list{display:flex;flex-direction:column;gap:0.4rem;overflow-y:auto;max-height:58vh;padding:2px;}
+    .understanding-bulk-student-choice{width:100%;border:1px solid #D8E8E3;border-radius:0.72rem;background:#F8FCFA;color:#155E4A;padding:0.74rem 0.7rem;font-family:inherit;font-size:0.88rem;font-weight:900;line-height:1.35;text-align:right;cursor:pointer;}
+    .understanding-bulk-student-choice:active,.understanding-bulk-student-choice.is-current{background:#E8F8F5;border-color:#117A65;color:#117A65;}
     .understanding-summary-unit-btn{border:1.5px solid #A9CCE3;border-radius:0.55rem;background:#FFFFFF;color:#1B4F72;padding:0.38rem 0.65rem;font:inherit;font-size:0.76rem;font-weight:900;cursor:pointer;}
     .understanding-summary-unit-btn.is-selected{background:#D6EAF8;border-color:#1B4F72;box-shadow:inset 0 0 0 1px #1B4F72;}
     /* فقاعة إحصاءات صغيرة فوق اسم طالب تحقق من فهمك. */
@@ -561,17 +564,26 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   </div>
 
-  <!-- إدخال جميع دروس الوحدة لطالب واحد: يكتب في سجل تحقق من فهمك نفسه. -->
+  <!-- اختيار طالب ثم إدخال جميع دروس الوحدة في سجل تحقق من فهمك نفسه. -->
   <div class="modal" id="understandingBulkModal" style="z-index:150;">
     <div class="modal-content" style="max-width:520px;width:95%;max-height:88vh;display:flex;flex-direction:column;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex:0 0 auto;">
-        <div class="modal-title" style="margin:0;font-size:1rem;color:#117A65;">📝 جميع الدروس لطالب</div>
-        <button class="btn-close-circle" onclick="closeUnderstandingBulkModal()" title="إغلاق">✕</button>
+        <div class="modal-title" style="margin:0;font-size:1rem;color:#117A65;">📝 دروس الطالب</div>
+        <button class="btn-close-circle" onclick="closeUnderstandingBulkModal()" title="العودة لقائمة الأسماء">✕</button>
       </div>
-      <div style="font-size:0.75rem;line-height:1.55;color:var(--text-secondary);font-weight:700;text-align:center;margin-bottom:9px;flex:0 0 auto;">اختر الطالب، ثم سجّل حالة كل درس في الوحدة. كل اختيار هنا يعدّل الدرجة نفسها التي تظهر في جدول تحقق من فهمك.</div>
-      <select id="understandingBulkStudentSelect" class="select-class-full" onchange="renderUnderstandingBulkLessons()" style="margin:0 0 8px 0;flex:0 0 auto;"></select>
-      <div id="understandingBulkStudentName" style="display:none;text-align:center;background:#E8F8F5;color:#117A65;padding:7px;border-radius:8px;font-size:0.84rem;font-weight:900;margin-bottom:8px;flex:0 0 auto;"></div>
+      <input id="understandingBulkStudentSelect" type="hidden">
+      <div id="understandingBulkStudentName" style="text-align:center;background:#E8F8F5;color:#117A65;padding:7px;border-radius:8px;font-size:0.84rem;font-weight:900;margin-bottom:8px;flex:0 0 auto;"></div>
       <div id="understandingBulkLessons" style="overflow-y:auto;padding-left:2px;flex:1;"></div>
+    </div>
+  </div>
+  <div class="modal" id="understandingBulkPickerModal" style="z-index:151;">
+    <div class="modal-content" style="max-width:520px;width:95%;max-height:84vh;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex:0 0 auto;">
+        <div class="modal-title" style="margin:0;font-size:1rem;color:#117A65;">📝 اختر الطالب</div>
+        <button class="btn-close-circle" onclick="closeUnderstandingBulkPickerModal()" title="إغلاق">✕</button>
+      </div>
+      <div style="font-size:0.75rem;line-height:1.55;color:var(--text-secondary);font-weight:700;text-align:center;margin-bottom:9px;flex:0 0 auto;">اضغط على اسم الطالب لعرض جميع دروس الوحدة وتعديل حالاتها.</div>
+      <div id="understandingBulkStudentList" class="understanding-bulk-student-list"></div>
     </div>
   </div>
 
@@ -2677,26 +2689,41 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function openUnderstandingBulkModal(){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value;
       if(!cls||!unit||!appData[cls]){ alert('اختر الفصل والوحدة أولاً.'); return; }
-      const select=document.getElementById('understandingBulkStudentSelect'), students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar'));
-      select.innerHTML='<option value="">— اختر اسم الطالب —</option>'+students.map(student=>`<option value="${escapeTextForHtml(student)}">${escapeTextForHtml(student)}</option>`).join('');
-      document.getElementById('understandingBulkStudentName').style.display='none';
-      document.getElementById('understandingBulkLessons').innerHTML='<div style="text-align:center;color:#8E8E93;font-size:0.78rem;font-weight:800;padding:16px 4px;">اختر الطالب لتظهر جميع دروس الوحدة.</div>';
+      document.getElementById('understandingBulkStudentSelect').value='';
+      renderUnderstandingBulkStudentList();
+      document.getElementById('understandingBulkPickerModal').style.display='flex';
+    }
+    function closeUnderstandingBulkPickerModal(){ document.getElementById('understandingBulkPickerModal').style.display='none'; }
+    function renderUnderstandingBulkStudentList(){
+      const cls=document.getElementById('understandingClassSelect').value, selected=document.getElementById('understandingBulkStudentSelect').value, students=[...(appData[cls]||[])].sort((a,b)=>a.localeCompare(b,'ar'));
+      const list=document.getElementById('understandingBulkStudentList');
+      list.innerHTML=students.length?students.map(student=>`<button type="button" class="understanding-bulk-student-choice${student===selected?' is-current':''}" data-student="${escapeTextForHtml(student)}" onclick="chooseUnderstandingBulkStudent(this.dataset.student)">${escapeTextForHtml(student)}</button>`).join(''):'<div style="text-align:center;color:#8E8E93;font-size:0.78rem;font-weight:800;padding:16px 4px;">لا توجد أسماء في الفصل.</div>';
+    }
+    function chooseUnderstandingBulkStudent(student){
+      const select=document.getElementById('understandingBulkStudentSelect'); select.value=student;
+      if(!select.value) return;
+      document.getElementById('understandingBulkPickerModal').style.display='none';
+      renderUnderstandingBulkLessons();
       document.getElementById('understandingBulkModal').style.display='flex';
     }
-    function closeUnderstandingBulkModal(){ document.getElementById('understandingBulkModal').style.display='none'; }
+    function closeUnderstandingBulkModal(){
+      document.getElementById('understandingBulkModal').style.display='none';
+      renderUnderstandingBulkStudentList();
+      document.getElementById('understandingBulkPickerModal').style.display='flex';
+    }
     function renderUnderstandingBulkLessons(){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, student=document.getElementById('understandingBulkStudentSelect').value;
       const nameHeader=document.getElementById('understandingBulkStudentName'), container=document.getElementById('understandingBulkLessons'), lessons=unitsData[unit]?.lessons||[];
-      if(!student){ nameHeader.style.display='none'; container.innerHTML='<div style="text-align:center;color:#8E8E93;font-size:0.78rem;font-weight:800;padding:16px 4px;">اختر الطالب لتظهر جميع دروس الوحدة.</div>'; return; }
-      nameHeader.textContent=student; nameHeader.style.display='block';
+      if(!student){ closeUnderstandingBulkModal(); return; }
+      nameHeader.textContent=student;
       if(!lessons.length){ container.innerHTML='<div style="text-align:center;color:#C0392B;font-size:0.78rem;font-weight:800;padding:16px 4px;">لا توجد دروس مسجلة لهذه الوحدة.</div>'; return; }
-      container.innerHTML=lessons.map((lesson,index)=>{
+      container.innerHTML=lessons.map(lesson=>{
         const selected=getUnderstandingStudentStatus(getUnderstandingLessonStates(cls,unit,lesson),student);
         const buttons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{
           const active=selected===key, color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey);
           return `<button class="btn-status understanding-status-${key}${active?' is-selected':''}" data-lesson="${escapeTextForHtml(lesson)}" onclick="setUnderstandingBulkStatus(this.dataset.lesson,'${key}')" style="background:${active?color:'#FFFFFF'};color:${active?textColor:color};border:1.3px solid ${color};font-weight:${active?'900':'800'};">${config.label}</button>`;
         }).join('');
-        return `<div class="understanding-bulk-lesson-card"><div class="understanding-bulk-lesson-title">${index+1}. ${escapeTextForHtml(lesson||`درس ${index+1}`)}</div><div class="understanding-bulk-status-grid">${buttons}</div></div>`;
+        return `<div class="understanding-bulk-lesson-card"><div class="understanding-bulk-lesson-title">${escapeTextForHtml(lesson||'درس غير مسمى')}</div><div class="understanding-bulk-status-grid">${buttons}</div></div>`;
       }).join('');
     }
     function setUnderstandingBulkStatus(lesson,status){

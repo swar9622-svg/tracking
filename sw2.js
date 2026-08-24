@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-82-violation-row-clickable';
+const CACHE_NAME = 'attendance-app-v20-83-understanding-student-picker';
 const urlsToCache = [
   './',
   './index.html',
