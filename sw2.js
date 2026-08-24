@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v20-87-attendance-display-only-search';
+const CACHE_NAME = 'attendance-app-v20-88-understanding-display-only-search';
 const urlsToCache = [
   './',
   './index.html',
