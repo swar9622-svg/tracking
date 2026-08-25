@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-14-unit-lock-long-press';
+const CACHE_NAME = 'attendance-app-v21-15-mobile-lock-layout';
 const urlsToCache = [
   './',
   './index.html',

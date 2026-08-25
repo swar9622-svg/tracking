@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.14";</script>
+  <script>const APP_VERSION = "21.15";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -61,6 +61,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     html { font-size: 16px; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+    html, body { max-width: 100%; overflow-x: hidden; }
     body { background-color: var(--bg-color); color: var(--text-primary); padding-bottom: 0; }
     .screen { display: none; }
     .screen.active-screen { display: block; }
@@ -70,6 +71,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .controls-bar { display: flex; gap: 0.625rem; margin-bottom: 0.75rem; }
     select, input[type="date"], input[type="text"], input[type="number"] { padding: 0.5rem 0.75rem; border-radius: 0.625rem; border: 1px solid #D1D1D6; background: #F9F9FB; font-size: 0.875rem; font-weight: 700; color: var(--text-primary); outline: none; }
     .controls-bar select, .controls-bar input[type="date"] { flex: 1; text-align: center; }
+    /* شريط الغياب: عرض ثابت ومرن للجوال كي لا يدفع رمز القفل الصفحة أفقياً. */
+    #absenceScreen .controls-bar{gap:0.42rem;margin-bottom:0.58rem;min-width:0;align-items:stretch;}
+    #absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{flex:1 1 0;width:0;min-width:0;max-width:100%;padding:0.43rem 0.32rem;font-size:0.79rem;line-height:1.18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    #absenceScreen #classSelect{flex:.82 1 0;}
+    #absenceScreen #dateSelect{flex:1.08 1 0;}
+    #absenceScreen #attendanceUnitSelect{flex:1.10 1 0;}
+    @media(max-width:390px){#absenceScreen .controls-bar{gap:0.34rem;}#absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{padding:0.40rem 0.22rem;font-size:0.76rem;}}
     .stats-container { display: flex; gap: 0.375rem; }
     .stat-card { flex: 1; background: #F9F9FB; border-radius: 0.625rem; padding: 0.5rem 0.125rem; text-align: center; border: 1px solid #E5E5EA; cursor: default; }
     .stat-card.clickable { cursor: pointer; transition: background 0.15s; }
@@ -1641,7 +1649,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       return normalized;
     }
     function isUnitLocked(cls,unit){ return !!(cls&&unit&&unitLocks?.[cls]?.[unit]===true); }
-    function unitLockMark(cls,unit){ return isUnitLocked(cls,unit)?'🔒 ':''; }
+    function unitLockMark(cls,unit){ return isUnitLocked(cls,unit)?' 🔒':''; }
     function ensureUnitIsEditable(cls,unit){
       if(!isUnitLocked(cls,unit)) return true;
       alert(`🔒 الوحدة «${unit}» مقفلة لهذا الفصل. اضغط مطولاً على خانة الوحدة لفتحها قبل التعديل.`);
@@ -2607,7 +2615,7 @@ ${description}`)) return;
       if(!units.includes(currentAttendanceUnit)) currentAttendanceUnit=units[0]||'';
       sel.innerHTML='';
       const cls=document.getElementById('classSelect')?.value||'';
-      units.forEach(u=>{ sel.innerHTML+=`<option value="${u}">${unitLockMark(cls,u)}${u}</option>`; });
+      units.forEach(u=>{ sel.innerHTML+=`<option value="${u}">${u}${unitLockMark(cls,u)}</option>`; });
       if(currentAttendanceUnit) sel.value=currentAttendanceUnit;
       sel.disabled=false;
       sel.title='اختر وحدة تسجيل الغياب والتأخر والمخالفات';
@@ -2839,7 +2847,7 @@ ${description}`)) return;
     }
     function refreshUnderstandingUnitSelect(preferredUnit=''){
       const unitSelect=document.getElementById('understandingUnitSelect'), old=preferredUnit||unitSelect.value||currentActiveUnit, units=Object.keys(unitsData), cls=document.getElementById('understandingClassSelect')?.value||document.getElementById('classSelect')?.value||'';
-      unitSelect.innerHTML=''; units.forEach(unit=>{ unitSelect.innerHTML+=`<option value="${escapeTextForHtml(unit)}">${unitLockMark(cls,unit)}${unit}</option>`; });
+      unitSelect.innerHTML=''; units.forEach(unit=>{ unitSelect.innerHTML+=`<option value="${escapeTextForHtml(unit)}">${unit}${unitLockMark(cls,unit)}</option>`; });
       unitSelect.disabled=units.length===0;
       if(units.includes(old)) unitSelect.value=old;
       refreshUnderstandingLessonSelect();
@@ -3975,7 +3983,7 @@ ${description}`)) return;
 
     function renderUnitsDropdown() {
       const sel=document.getElementById('unitDropdownSelect'), cls=document.getElementById('followupClassSelect')?.value||document.getElementById('classSelect')?.value||''; sel.innerHTML='';
-      Object.keys(unitsData).forEach(u=>{ sel.innerHTML+=`<option value="${u}" ${u===currentActiveUnit?'selected':''}>${unitLockMark(cls,u)}${u}</option>`; });
+      Object.keys(unitsData).forEach(u=>{ sel.innerHTML+=`<option value="${u}" ${u===currentActiveUnit?'selected':''}>${u}${unitLockMark(cls,u)}</option>`; });
       refreshUnitLockIndicators();
     }
 
