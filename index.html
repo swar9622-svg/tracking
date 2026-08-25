@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.13";</script>
+  <script>const APP_VERSION = "21.14";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1627,6 +1627,99 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let appData = JSON.parse(JSON.stringify(defaultData));
     let records = {};
     let unitsData = JSON.parse(JSON.stringify(defaultUnits));
+    // القفل مرتبط بالفصل والوحدة حتى لا تتعطل بقية الفصول التي ما زالت تعمل في الوحدة نفسها.
+    let unitLocks = {};
+    function normalizeUnitLocks(value){
+      const source=value&&typeof value==='object'?value:{}, normalized={};
+      Object.keys(source).forEach(cls=>{
+        const classLocks=source[cls];
+        if(!classLocks||typeof classLocks!=='object'||Array.isArray(classLocks)) return;
+        const lockedUnits={};
+        Object.keys(classLocks).forEach(unit=>{ if(classLocks[unit]===true) lockedUnits[unit]=true; });
+        if(Object.keys(lockedUnits).length) normalized[cls]=lockedUnits;
+      });
+      return normalized;
+    }
+    function isUnitLocked(cls,unit){ return !!(cls&&unit&&unitLocks?.[cls]?.[unit]===true); }
+    function unitLockMark(cls,unit){ return isUnitLocked(cls,unit)?'🔒 ':''; }
+    function ensureUnitIsEditable(cls,unit){
+      if(!isUnitLocked(cls,unit)) return true;
+      alert(`🔒 الوحدة «${unit}» مقفلة لهذا الفصل. اضغط مطولاً على خانة الوحدة لفتحها قبل التعديل.`);
+      return false;
+    }
+    function renameUnitLocks(oldName,newName){
+      Object.keys(unitLocks).forEach(cls=>{ if(unitLocks[cls]?.[oldName]){ unitLocks[cls][newName]=true; delete unitLocks[cls][oldName]; } });
+    }
+    function deleteUnitLocks(unitName){
+      Object.keys(unitLocks).forEach(cls=>{ if(unitLocks[cls]){ delete unitLocks[cls][unitName]; if(Object.keys(unitLocks[cls]).length===0) delete unitLocks[cls]; } });
+    }
+    function getUnitLockClassForSelect(select){
+      if(!select) return '';
+      if(select.id==='attendanceUnitSelect') return document.getElementById('classSelect')?.value||'';
+      if(select.id==='understandingUnitSelect') return document.getElementById('understandingClassSelect')?.value||document.getElementById('classSelect')?.value||'';
+      return document.getElementById('followupClassSelect')?.value||document.getElementById('classSelect')?.value||'';
+    }
+    function refreshUnitLockIndicators(){
+      ['attendanceUnitSelect','understandingUnitSelect','unitDropdownSelect'].forEach(id=>{
+        const select=document.getElementById(id); if(!select) return;
+        const baseTitle=select.dataset.unitLockBaseTitle||select.title||'الوحدة';
+        select.dataset.unitLockBaseTitle=baseTitle;
+        const cls=getUnitLockClassForSelect(select), unit=select.value;
+        const locked=isUnitLocked(cls,unit);
+        select.classList.toggle('unit-is-locked',locked);
+        select.title=unit&&unit!=='__cumulative__' ? `${baseTitle} — ${locked?'🔒 مقفلة (اضغط مطولاً للفتح)':'🔓 مفتوحة (اضغط مطولاً للقفل)'}` : baseTitle;
+        select.setAttribute('aria-label',select.title);
+      });
+    }
+    function refreshUnitSelectorsAfterLockChange(){
+      renderAttendanceUnitsDropdown();
+      renderUnitsDropdown();
+      refreshUnderstandingUnitSelect(document.getElementById('understandingUnitSelect')?.value||currentActiveUnit);
+      refreshUnitLockIndicators();
+    }
+    function toggleUnitLockFromSelect(select){
+      const cls=getUnitLockClassForSelect(select), unit=select?.value;
+      if(!cls||!unit||unit==='__cumulative__'){
+        alert('اختر فصلاً ووحدة محددة أولاً. في وضع المشاركة التراكمية لا ترتبط الملاحظات بوحدة واحدة.');
+        return;
+      }
+      const locking=!isUnitLocked(cls,unit);
+      const action=locking?'قفل':'فتح';
+      const description=locking?'لن يمكن تعديل الغياب أو تحقق من فهمك أو الدرجات الخاصة بهذه الوحدة في هذا الفصل حتى يتم فتحها.':'ستعود إمكانية تعديل بيانات هذه الوحدة في الكشوف الثلاثة.';
+      if(!confirm(`هل تريد ${action} «${unit}» للفصل «${cls}»؟
+
+${description}`)) return;
+      if(locking){ if(!unitLocks[cls]) unitLocks[cls]={}; unitLocks[cls][unit]=true; }
+      else { delete unitLocks[cls]?.[unit]; if(unitLocks[cls]&&Object.keys(unitLocks[cls]).length===0) delete unitLocks[cls]; }
+      saveData();
+      refreshUnitSelectorsAfterLockChange();
+      renderStudents();
+      renderUnderstandingScreen();
+      renderFollowupTable(currentActiveUnit);
+      alert(locking?`🔒 تم قفل «${unit}» في الكشوف الثلاثة.`:`🔓 تم فتح «${unit}» وأصبحت قابلة للتعديل.`);
+    }
+    let unitLockLongPressTimer=null, unitLockLongPressPoint=null, unitLockLongPressOpened=false;
+    function cancelUnitLockLongPress(){ if(unitLockLongPressTimer){ clearTimeout(unitLockLongPressTimer); unitLockLongPressTimer=null; } unitLockLongPressPoint=null; }
+    function startUnitLockLongPress(event){
+      if(event.pointerType==='mouse'&&event.button!==0) return;
+      cancelUnitLockLongPress();
+      const select=event.currentTarget;
+      unitLockLongPressPoint={x:event.clientX,y:event.clientY}; unitLockLongPressOpened=false;
+      unitLockLongPressTimer=setTimeout(()=>{ unitLockLongPressTimer=null; unitLockLongPressOpened=true; toggleUnitLockFromSelect(select); },620);
+    }
+    function moveUnitLockLongPress(event){ if(!unitLockLongPressTimer||!unitLockLongPressPoint) return; if(Math.hypot(event.clientX-unitLockLongPressPoint.x,event.clientY-unitLockLongPressPoint.y)>12) cancelUnitLockLongPress(); }
+    function endUnitLockLongPress(event){ const opened=unitLockLongPressOpened; cancelUnitLockLongPress(); if(opened){ event.preventDefault(); event.stopPropagation(); } }
+    function installUnitLockLongPresses(){
+      ['attendanceUnitSelect','understandingUnitSelect','unitDropdownSelect'].forEach(id=>{
+        const select=document.getElementById(id); if(!select||select.dataset.unitLockReady) return;
+        select.dataset.unitLockReady='1';
+        select.addEventListener('contextmenu',event=>event.preventDefault());
+        select.addEventListener('pointerdown',startUnitLockLongPress);
+        select.addEventListener('pointermove',moveUnitLockLongPress);
+        select.addEventListener('pointercancel',cancelUnitLockLongPress);
+        select.addEventListener('pointerup',endUnitLockLongPress);
+      });
+    }
     let projectDistributionOrder = {};
     const EXCELLENCE_DEFAULT_SETTINGS={pointsPerLesson:3,distributionOrder:['act','participation','hw','test']};
     const EXCELLENCE_DISTRIBUTION_CATEGORIES=[
@@ -2096,7 +2189,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function buildPersistentState(){
       return {
         schemaVersion:1,
-        appData:cloneData(appData), records:cloneData(records), unitsData:cloneData(unitsData), followupData:cloneData(followupData), understandingData:cloneData(understandingData), studentNotesData:cloneData(studentNotesData),
+        appData:cloneData(appData), records:cloneData(records), unitsData:cloneData(unitsData), unitLocks:cloneData(unitLocks), followupData:cloneData(followupData), understandingData:cloneData(understandingData), studentNotesData:cloneData(studentNotesData),
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), excellenceSettings:cloneData(excellenceSettings), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
         fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), startupSettings:cloneData(startupSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
@@ -2129,6 +2222,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(state.appData&&typeof state.appData==='object') appData=state.appData;
       if(state.records&&typeof state.records==='object') records=state.records;
       if(state.unitsData&&typeof state.unitsData==='object') unitsData=state.unitsData;
+      unitLocks=normalizeUnitLocks(state.unitLocks);
       if(state.followupData&&typeof state.followupData==='object') followupData=state.followupData;
       if(state.understandingData&&typeof state.understandingData==='object') understandingData=state.understandingData;
       if(state.studentNotesData&&typeof state.studentNotesData==='object') studentNotesData=state.studentNotesData;
@@ -2512,11 +2606,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const units=Object.keys(unitsData);
       if(!units.includes(currentAttendanceUnit)) currentAttendanceUnit=units[0]||'';
       sel.innerHTML='';
-      units.forEach(u=>{ sel.innerHTML+=`<option value="${u}">${u}</option>`; });
+      const cls=document.getElementById('classSelect')?.value||'';
+      units.forEach(u=>{ sel.innerHTML+=`<option value="${u}">${unitLockMark(cls,u)}${u}</option>`; });
       if(currentAttendanceUnit) sel.value=currentAttendanceUnit;
       sel.disabled=false;
       sel.title='اختر وحدة تسجيل الغياب والتأخر والمخالفات';
       sel.style.opacity='1';
+      refreshUnitLockIndicators();
     }
     function onAttendanceUnitChange(unit){
       const select=document.getElementById('attendanceUnitSelect');
@@ -2698,6 +2794,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       cont.innerHTML='';
       if(!cls||!appData[cls]) return;
       const allStudents=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), students=searchText?allStudents.filter(student=>String(student).toLocaleLowerCase('ar').includes(searchText)):allStudents, dup=getDuplicateNames();
+      const unitIsLocked=isUnitLocked(cls,currentAttendanceUnit);
       let absent=0, late=0, totalV=0;
       allStudents.forEach(student=>{ const record=getStudentDayRecord(date,cls,student,currentAttendanceUnit); if(record.status==='غائب') absent++; if(record.status==='متأخر') late++; totalV+=record.violations.length; });
       students.forEach(s=>{
@@ -2720,6 +2817,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       document.getElementById('absentCount').innerText=absent;
       document.getElementById('lateCount').innerText=late;
       document.getElementById('violationCount').innerText=totalV;
+      if(unitIsLocked){
+        cont.querySelectorAll('.attendance-buttons button').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
+      }
       applyButtonColorsDelayed();
     }
 
@@ -2738,11 +2838,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(lessons.includes(old)) lessonSelect.value=old;
     }
     function refreshUnderstandingUnitSelect(preferredUnit=''){
-      const unitSelect=document.getElementById('understandingUnitSelect'), old=preferredUnit||unitSelect.value||currentActiveUnit, units=Object.keys(unitsData);
-      unitSelect.innerHTML=''; units.forEach(unit=>{ unitSelect.innerHTML+=`<option value="${escapeTextForHtml(unit)}">${unit}</option>`; });
+      const unitSelect=document.getElementById('understandingUnitSelect'), old=preferredUnit||unitSelect.value||currentActiveUnit, units=Object.keys(unitsData), cls=document.getElementById('understandingClassSelect')?.value||document.getElementById('classSelect')?.value||'';
+      unitSelect.innerHTML=''; units.forEach(unit=>{ unitSelect.innerHTML+=`<option value="${escapeTextForHtml(unit)}">${unitLockMark(cls,unit)}${unit}</option>`; });
       unitSelect.disabled=units.length===0;
       if(units.includes(old)) unitSelect.value=old;
       refreshUnderstandingLessonSelect();
+      refreshUnitLockIndicators();
     }
     function onUnderstandingUnitChange(){ refreshUnderstandingLessonSelect(); renderUnderstandingScreen(); }
     function getUnderstandingLessonStates(cls,unit,lesson,create=false){
@@ -2770,6 +2871,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     function writeUnderstandingStatus(cls,unit,lesson,student,status){
       if(!cls||!unit||!lesson||!student||!UNDERSTANDING_STATUS_CONFIG[status]) return false;
+      if(!ensureUnitIsEditable(cls,unit)) return false;
       const states=getUnderstandingLessonStates(cls,unit,lesson,true), entry=getUnderstandingEntryFromStates(states,student);
       entry.status=entry.status===status?'':status;
       setUnderstandingEntryInStates(states,student,entry); cleanupUnderstandingLessonState(cls,unit,lesson);
@@ -2777,7 +2879,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     function toggleUnderstandingExcellence(student){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
-      if(!cls||!unit||!lesson||!student) return;
+      if(!cls||!unit||!lesson||!student||!ensureUnitIsEditable(cls,unit)) return;
       const states=getUnderstandingLessonStates(cls,unit,lesson,true), entry=getUnderstandingEntryFromStates(states,student);
       entry.excellent=!entry.excellent; setUnderstandingEntryInStates(states,student,entry); cleanupUnderstandingLessonState(cls,unit,lesson);
       saveData(); renderUnderstandingScreen();
@@ -2960,7 +3062,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     function applyUnderstandingStatusToRemaining(status){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
-      if(!cls||!unit||!lesson||!appData[cls]||!UNDERSTANDING_STATUS_CONFIG[status]) return;
+      if(!cls||!unit||!lesson||!appData[cls]||!UNDERSTANDING_STATUS_CONFIG[status]||!ensureUnitIsEditable(cls,unit)) return;
       const states=getUnderstandingLessonStates(cls,unit,lesson,true);
       const remaining=[...appData[cls]].filter(student=>!getUnderstandingStudentStatus(states,student));
       if(!remaining.length){ alert('لا يوجد طلاب بلا حالة مسجلة في هذا الدرس.'); understandingRemainingMenuOpen=false; renderUnderstandingScreen(); return; }
@@ -2970,7 +3072,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
     function clearUnderstandingLessonStatuses(){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
-      if(!cls||!unit||!lesson) return;
+      if(!cls||!unit||!lesson||!ensureUnitIsEditable(cls,unit)) return;
       const count=Object.keys(getUnderstandingLessonStates(cls,unit,lesson)).length;
       if(!count){ understandingRemainingMenuOpen=false; renderUnderstandingScreen(); return; }
       if(!confirm(`سيتم مسح جميع حالات تحقق من فهمك المسجلة في «${lesson}» وإعادته فارغاً.\n\nهل تريد المتابعة؟`)) return;
@@ -3011,6 +3113,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         card.innerHTML=`${excellenceStar}<div class="student-name" title="اضغط مرتين للتميز، أو اضغط مطولاً للإحصائية" ondblclick="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')" onpointerdown="startUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointermove="moveUnderstandingStudentNamePress(event)" onpointerup="endUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointercancel="cancelUnderstandingStudentNamePress()" oncontextmenu="event.preventDefault();return false;" onselectstart="return false;" ondragstart="return false;">${statsBubble}${student}</div><div class="understanding-buttons">${buttons}</div>`;
         cont.appendChild(card);
       });
+      if(isUnitLocked(cls,unit)){
+        summary.querySelectorAll('button').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
+        cont.querySelectorAll('.understanding-buttons button').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
+      }
     }
     function getUnderstandingUnitPdfContext(){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value;
@@ -3704,6 +3810,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const unit=unitsData[unitName]||{lessons:["درس 1"]}, lessons=unit.lessons, key=`${cls}_${unitName}`;
       if(!followupData[key]) followupData[key]={};
       const students=getSortedFollowupStudents(cls,unitName), dup=getDuplicateNames();
+      const unitIsLocked=isUnitLocked(cls,unitName);
 
       // رأس 17.9 الأصلي مع أزرار فرز صغيرة مدمجة في المساحة نفسها.
       let headHtml = `<tr>
@@ -3776,6 +3883,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       });
       // تطبيق حالة التركيز والألوان بعد إعادة الرسم
       applyFollowupTableFocus();
+      if(unitIsLocked){
+        tbody.querySelectorAll('input[type="number"], .project-link-btn').forEach(control=>{ control.disabled=true; control.title='🔒 هذه الوحدة مقفلة للعرض فقط'; control.style.opacity='.58'; control.style.cursor='not-allowed'; });
+        document.querySelectorAll('#followupTableHead .import-icon-btn').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
+        const lockStatus=document.getElementById('followupSortStatus');
+        if(lockStatus){ lockStatus.textContent=`🔒 الوحدة «${unitName}» مقفلة — عرض فقط`; lockStatus.style.color='#B42318'; lockStatus.style.fontWeight='900'; }
+      }
       applyButtonColorsDelayed();
     }
 
@@ -3845,6 +3958,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     function updateFollowupValue(cls,unit,student,type,lesson,val,sourceInput=null) {
+      if(!ensureUnitIsEditable(cls,unit)){ renderFollowupTable(unit); return; }
       const key=`${cls}_${unit}`;
       if(!followupData[key]) followupData[key]={};
       if(!followupData[key][student]) followupData[key][student]={hw:{},act:{},test1:'',test2:'',projectLink:''};
@@ -3856,12 +3970,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(sourceInput) refreshFollowupCalculatedCells(sourceInput.closest('tr'),cls,student,unit);
       else renderFollowupTable(currentActiveUnit);
     }
-    function onFollowupClassChange(cls){ renderFollowupTable(currentActiveUnit); }
-    function onUnitDropdownChange(unit){ currentActiveUnit=unit; renderFollowupTable(unit); }
+    function onFollowupClassChange(cls){ renderUnitsDropdown(); renderFollowupTable(currentActiveUnit); }
+    function onUnitDropdownChange(unit){ currentActiveUnit=unit; refreshUnitLockIndicators(); renderFollowupTable(unit); }
 
     function renderUnitsDropdown() {
-      const sel=document.getElementById('unitDropdownSelect'); sel.innerHTML='';
-      Object.keys(unitsData).forEach(u=>{ sel.innerHTML+=`<option value="${u}" ${u===currentActiveUnit?'selected':''}>${u}</option>`; });
+      const sel=document.getElementById('unitDropdownSelect'), cls=document.getElementById('followupClassSelect')?.value||document.getElementById('classSelect')?.value||''; sel.innerHTML='';
+      Object.keys(unitsData).forEach(u=>{ sel.innerHTML+=`<option value="${u}" ${u===currentActiveUnit?'selected':''}>${unitLockMark(cls,u)}${u}</option>`; });
+      refreshUnitLockIndicators();
     }
 
     // ===== إدارة روابط المشاريع =====
@@ -3885,6 +4000,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const student = document.getElementById('projectLinkStudent').value;
       const cls = document.getElementById('projectLinkClass').value;
       const unit = document.getElementById('projectLinkUnit').value;
+      if(!ensureUnitIsEditable(cls,unit)) return;
       const link = document.getElementById('projectLinkInput').value.trim();
       const key = `${cls}_${unit}`;
       if (!followupData[key]) followupData[key] = {};
@@ -3944,6 +4060,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           const cls = document.getElementById('followupClassSelect').value || document.getElementById('classSelect').value;
           if (!cls) { alert('يرجى اختيار فصل أولاً!'); return; }
           const unit = currentActiveUnit;
+          if (!ensureUnitIsEditable(cls,unit)) { event.target.value=''; return; }
           const key = `${cls}_${unit}`;
           if (!followupData[key]) followupData[key] = {};
           let updated = 0;
@@ -4008,6 +4125,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       const cls=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value, unit=currentActiveUnit, type=currentImportType;
       if(!cls||!appData[cls]){ alert("يرجى اختيار فصل أولاً!"); return; }
       if(!unitsData[unit]){ alert("الرجاء اختيار وحدة صحيحة أولاً!"); return; }
+      if(!ensureUnitIsEditable(cls,unit)){ e.target.value=''; return; }
       const reader=new FileReader();
       reader.onload=function(ev){
         try {
@@ -4102,6 +4220,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       unitsData[newName]=unitsData[old]; delete unitsData[old];
       const newFollowup={}; for(let key in followupData){ if(key.endsWith('_'+old)) newFollowup[key.slice(0,-old.length)+newName]=followupData[key]; else newFollowup[key]=followupData[key]; } followupData=newFollowup;
       Object.keys(understandingData||{}).forEach(cls=>{ if(understandingData[cls]?.[old]!==undefined){ understandingData[cls][newName]=understandingData[cls][old]; delete understandingData[cls][old]; } });
+      renameUnitLocks(old,newName);
       renameAttendanceUnitInRecords(old,newName);
       period1SelectedUnits=period1SelectedUnits.map(u=>u===old?newName:u);
       if(currentActiveUnit===old) currentActiveUnit=newName;
@@ -4169,6 +4288,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         delete appData[itemToDelete]; saveData(); initClassSelects(); loadClassTextarea(); renderStudents();
       } else if(deleteTargetType==='unit'){
         deleteAttendanceUnitFromRecords(itemToDelete);
+        deleteUnitLocks(itemToDelete);
         delete unitsData[itemToDelete];
         period1SelectedUnits=period1SelectedUnits.filter(u=>u!==itemToDelete);
         saveData(); initUnitsModalSelect(); currentActiveUnit=Object.keys(unitsData)[0]||"الوحدة الأولى"; if(!unitsData[currentAttendanceUnit]) currentAttendanceUnit=currentActiveUnit; loadUnitDetailsToModal(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); renderFollowupTable(currentActiveUnit); renderStudents();
@@ -4802,6 +4922,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       if(!date||!cls||!student||!Array.isArray(targetUnits)) return;
       let changed=false, nextLabel='';
       targetUnits.forEach(targetUnit=>{
+        if(targetUnit!=='__legacy__'&&targetUnit!=='__cumulative__'&&!ensureUnitIsEditable(cls,targetUnit)) return;
         const record=getMutableStudentReportRecord(date,cls,student,targetUnit);
         if(!record||(record.status!=='غائب'&&record.status!=='بعذر')) return;
         record.status=record.status==='غائب'?'بعذر':'غائب';
@@ -5037,7 +5158,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     // ===== دوال الحضور والمخالفات ======
     function setStatus(student,newStatus){
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
-      if(!ensureNoteEntryWindowOpen()) return;
+      if(!ensureUnitIsEditable(cls,currentAttendanceUnit)||!ensureNoteEntryWindowOpen()) return;
       const currentRecord=getStudentDayRecord(date,cls,student,currentAttendanceUnit);
       const isAddingStatus=currentRecord.status!==newStatus;
       if(isAddingStatus&&!canRecordInCurrentAttendanceUnit(date,cls)) return;
@@ -5054,7 +5175,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     function openViolationModal(student){
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
-      if(!canRecordInCurrentAttendanceUnit(date,cls)) return;
+      if(!ensureUnitIsEditable(cls,currentAttendanceUnit)||!canRecordInCurrentAttendanceUnit(date,cls)) return;
       const rec=getStudentDayRecord(date,cls,student,currentAttendanceUnit);
       if(rec.status==='غائب'||rec.status==='بعذر'){ alert(`⚠️ الطالب مسجل كـ "${rec.status}" في الوحدة المختارة، لا يمكن إضافة مخالفات له.`); return; }
       currentStudentForViolation=student; document.getElementById('violationModalTitle').innerText=`⚠️ مخالفات: ${student}${isPerUnitParticipationMode()?` — ${currentAttendanceUnit}`:''}`;
@@ -5074,6 +5195,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function autoSaveStudentViolations(){
       if(!currentStudentForViolation||!ensureNoteEntryWindowOpen()) return;
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value;
+      if(!ensureUnitIsEditable(cls,currentAttendanceUnit)) return;
       const viols=[]; VIOLATION_DEFINITIONS.forEach((item,i)=>{ if(document.getElementById(`v_check_${i}`)?.checked) viols.push(item.id); });
       if(viols.length>0&&!canRecordInCurrentAttendanceUnit(date,cls)) return;
       const rec=getMutableAttendanceRecord(date,cls,currentStudentForViolation);
@@ -5676,13 +5798,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:3,storageBackend:'IndexedDB',appData,records,unitsData,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ const data={backupVersion:4,storageBackend:'IndexedDB',appData,records,unitsData,unitLocks,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
       reader.onload=async function(ev){ try {
         const imported=JSON.parse(ev.target.result);
-        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.studentNotesData&&typeof imported.studentNotesData==='object') studentNotesData=imported.studentNotesData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
+        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; unitLocks=normalizeUnitLocks(imported.unitLocks); if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.studentNotesData&&typeof imported.studentNotesData==='object') studentNotesData=imported.studentNotesData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
         if(imported.participationSettings&&typeof imported.participationSettings==='object') participationSettings={...participationSettings,...imported.participationSettings};
         currentAttendanceUnit=participationSettings.activeUnit||Object.keys(unitsData)[0]||'';
         if(imported.projectDistributionOrder) projectDistributionOrder=imported.projectDistributionOrder;
@@ -5705,7 +5827,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); unitLocks={}; followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
@@ -6238,6 +6360,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         renderAttendanceUnitsDropdown();
         renderStudents();
         renderUnitsDropdown();
+        installUnitLockLongPresses();
+        refreshUnitLockIndicators();
         applyFontSettings();
         updateStartupSettingsButton();
         updateScreenNavigation('absence');
