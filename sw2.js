@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-20-unified-notification-template';
+const CACHE_NAME = 'attendance-app-v21-21-collapsible-notification-units';
 const urlsToCache = [
   './',
   './index.html',
