@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-17-notification-data-json';
+const CACHE_NAME = 'attendance-app-v21-19-data-json-name-modes';
 const urlsToCache = [
   './',
   './index.html',
