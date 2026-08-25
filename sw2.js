@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-16-four-column-notification-map';
+const CACHE_NAME = 'attendance-app-v21-17-notification-data-json';
 const urlsToCache = [
   './',
   './index.html',

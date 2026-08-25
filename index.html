@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.16";</script>
+  <script>const APP_VERSION = "21.17";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -863,6 +863,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         </div>
         <button type="button" class="btn-action detailed-notification-pdf" id="btnExportDetailedStudentNotificationPdf" onclick="exportDetailedStudentNotificationPDF()">📤 تصدير PDF مختصر — صفحة واحدة</button>
         <button type="button" class="btn-action detailed-notification-html" id="btnExportStudentHtmlZip" onclick="exportStudentHtmlPagesZip()">📦 تصدير صفحات HTML ZIP</button>
+        <button type="button" class="btn-action detailed-notification-html" id="btnExportStudentDataJson" onclick="exportStudentHtmlDataJson()">🗂️ تصدير data.json للإشعارات</button>
         <div id="detailedStudentNotificationPreview"></div>
       </div>
     </div>
@@ -5164,6 +5165,29 @@ ${description}`)) return;
       if(missing.length||duplicates.length){ const details=[]; if(missing.length) details.push(`طلاب بلا أرقام: ${missing.join('، ')}`); if(duplicates.length) details.push(`أرقام مكررة: ${duplicates.join(' | ')}`); alert(`لا يمكن إنشاء ZIP حتى تكتمل أرقام الطلاب وتكون فريدة.\n\n${details.join('\n')}`); return; }
       const originalText=button?.textContent;
       try{ if(button){ button.disabled=true; button.textContent='جاري تجهيز صفحات الطلاب...'; } const zip=createStoredZipBlob(files), safeClass=String(cls).replace(/[\\/:*?"<>|]/g,'-'); const link=document.createElement('a'); link.href=URL.createObjectURL(zip); link.download=`صفحات_الطلاب_${safeClass}.zip`; document.body.appendChild(link); link.click(); document.body.removeChild(link); setTimeout(()=>URL.revokeObjectURL(link.href),5000); alert(`تم إنشاء ZIP يحتوي ${files.length} صفحة HTML باسم رقم كل طالب.`); }catch(error){ console.error(error); alert('تعذر إنشاء ملف ZIP لصفحات الطلاب.'); }finally{ if(button){ button.disabled=false; button.textContent=originalText||'📦 تصدير صفحات HTML ZIP'; } }
+    }
+    function exportStudentHtmlDataJson(){
+      const cls=document.getElementById('detailedNotificationClassSelect')?.value, button=document.getElementById('btnExportStudentDataJson');
+      if(!cls||!(appData[cls]||[]).length){ alert('اختر فصلاً يحتوي على طلاب أولاً.'); return; }
+      loadStudentNumberMap();
+      const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), missing=[], duplicates=[], used=new Map(), entries={};
+      students.forEach(student=>{
+        const number=normalizeStudentHtmlFileNumber(queryStudentNumberMap[student]);
+        if(!number){ missing.push(student); return; }
+        if(used.has(number)){ duplicates.push(`${number}: ${used.get(number)}، ${student}`); return; }
+        used.set(number,student);
+        entries[number]={html:buildStandaloneStudentCardHtml(cls,student,number)};
+      });
+      if(missing.length||duplicates.length){ const details=[]; if(missing.length) details.push(`طلاب بلا أرقام: ${missing.join('، ')}`); if(duplicates.length) details.push(`أرقام مكررة: ${duplicates.join(' | ')}`); alert(`لا يمكن إنشاء data.json حتى تكتمل أرقام الطلاب وتكون فريدة.\n\n${details.join('\n')}`); return; }
+      const originalText=button?.textContent;
+      try{
+        if(button){ button.disabled=true; button.textContent='جاري تجهيز data.json...'; }
+        const payload={format:'student-notifications-html-v1',generatedAt:new Date().toISOString(),className:cls,studentCount:students.length,students:entries};
+        const safeClass=String(cls).replace(/[\\/:*?"<>|]/g,'-');
+        downloadFile(JSON.stringify(payload,null,2),`data_${safeClass}.json`,'application/json;charset=utf-8');
+        alert(`تم إنشاء data.json ويحتوي إشعارات HTML لعدد ${students.length} طالب.`);
+      }catch(error){ console.error(error); alert('تعذر إنشاء ملف data.json للإشعارات.'); }
+      finally{ if(button){ button.disabled=false; button.textContent=originalText||'🗂️ تصدير data.json للإشعارات'; } }
     }
     // ===== دوال الحضور والمخالفات ======
     function setStatus(student,newStatus){
