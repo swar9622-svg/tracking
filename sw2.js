@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-23-rounded-excellence-default-order';
+const CACHE_NAME = 'attendance-app-v21-25-unit-export-excellence';
 const urlsToCache = [
   './',
   './index.html',
