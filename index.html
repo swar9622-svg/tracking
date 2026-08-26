@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.33";</script>
+  <script>const APP_VERSION = "21.34";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1326,7 +1326,38 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="btn-action btn-manage app-management-option is-names" onclick="closeAppManagementModal();openManageModal()">👥 الأسماء والصفوف</button>
         <button class="btn-action app-management-option is-units" onclick="closeAppManagementModal();openUnitsManageModal()">📚 الوحدات والدروس</button>
         <button class="btn-action app-management-option is-grades" onclick="closeAppManagementModal();openGradesManageModal()">🧮 الدرجات والتقييم</button>
+        <button class="btn-action app-management-option" style="background:linear-gradient(135deg,#0F766E,#14B8A6);" onclick="closeAppManagementModal();openClassScheduleModal()">🗓️ جدول الحصص</button>
       </div>
+    </div>
+  </div>
+  <div class="modal" id="classScheduleModal" style="z-index:146;">
+    <div class="modal-content" style="max-width:720px;max-height:90vh;padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;">
+        <div class="modal-title" style="margin:0;font-size:1rem;">🗓️ جدول الحصص</div>
+        <button class="btn-close-circle" onclick="closeClassScheduleModal()" aria-label="إغلاق جدول الحصص">✕</button>
+      </div>
+      <div style="font-size:.72rem;line-height:1.65;color:var(--text-secondary);font-weight:700;background:#F1F8F7;border:1px solid #CBE9E4;border-radius:.7rem;padding:.52rem .62rem;margin-bottom:.7rem;">اضغط على <b>رقم الحصة</b> في الصف الأول لتحديد وقت البداية والنهاية، ثم اضغط على أي خلية لاختيار الفصل لتلك الحصة.</div>
+      <div id="classScheduleGrid" style="overflow:auto;border:1px solid #D9E8E5;border-radius:.75rem;background:#FFF;"></div>
+      <div class="modal-actions" style="margin-top:12px;"><button class="btn-modal-cancel" onclick="closeClassScheduleModal()">إغلاق</button></div>
+    </div>
+  </div>
+  <div class="modal" id="classScheduleCellModal" style="z-index:150;">
+    <div class="modal-content" style="max-width:350px;padding:18px;">
+      <div class="modal-title" style="font-size:1rem;">اختيار فصل الحصة</div>
+      <div id="classScheduleCellHint" style="font-size:.76rem;color:var(--text-secondary);font-weight:700;margin:.2rem 0 .72rem;"></div>
+      <select id="classScheduleCellSelect" class="select-class-full" style="margin:0 0 .75rem;"></select>
+      <div class="modal-actions"><button class="btn-modal-cancel" onclick="closeClassScheduleCellModal()">إلغاء</button><button class="btn-modal-save" onclick="saveClassScheduleCell()">حفظ</button></div>
+    </div>
+  </div>
+  <div class="modal" id="classScheduleTimeModal" style="z-index:151;">
+    <div class="modal-content" style="max-width:350px;padding:18px;">
+      <div class="modal-title" id="classScheduleTimeTitle" style="font-size:1rem;">وقت الحصة</div>
+      <div style="font-size:.75rem;color:var(--text-secondary);font-weight:700;line-height:1.55;margin:.18rem 0 .75rem;">إذا تركت الوقتين فارغين فلن يختار التطبيق فصلاً تلقائياً لهذه الحصة.</div>
+      <label class="field-label" for="classScheduleStartInput">وقت البداية</label>
+      <input id="classScheduleStartInput" type="time" style="width:100%;box-sizing:border-box;margin:0 0 .6rem;">
+      <label class="field-label" for="classScheduleEndInput">وقت النهاية</label>
+      <input id="classScheduleEndInput" type="time" style="width:100%;box-sizing:border-box;margin:0 0 .75rem;">
+      <div class="modal-actions"><button class="btn-modal-cancel" onclick="closeClassScheduleTimeModal()">إلغاء</button><button class="btn-modal-save" onclick="saveClassScheduleTime()">حفظ الوقت</button></div>
     </div>
   </div>
   <div class="modal" id="manageModal">
@@ -2115,6 +2146,19 @@ ${description}`)) return;
     let indexedDBReady=false;
     let notificationSettings={};
     let startupSettings={enabled:(()=>{ try{return localStorage.getItem('school_followup_startup_enabled')!=='0';}catch(_){return true;} })()};
+    const CLASS_SCHEDULE_DAYS=[{key:'sunday',label:'الأحد'},{key:'monday',label:'الاثنين'},{key:'tuesday',label:'الثلاثاء'},{key:'wednesday',label:'الأربعاء'},{key:'thursday',label:'الخميس'}];
+    const CLASS_SCHEDULE_PERIOD_COUNT=7;
+    function createDefaultClassScheduleSettings(){ return {version:1,times:Array.from({length:CLASS_SCHEDULE_PERIOD_COUNT},()=>({start:'',end:''})),assignments:Object.fromEntries(CLASS_SCHEDULE_DAYS.map(day=>[day.key,Array(CLASS_SCHEDULE_PERIOD_COUNT).fill('')]))}; }
+    function normalizeClassScheduleSettings(value){
+      const defaults=createDefaultClassScheduleSettings(), source=value&&typeof value==='object'?value:{};
+      const rawTimes=Array.isArray(source.times)?source.times:[];
+      defaults.times=defaults.times.map((item,index)=>{ const raw=rawTimes[index]&&typeof rawTimes[index]==='object'?rawTimes[index]:{}; return {start:typeof raw.start==='string'?raw.start:'',end:typeof raw.end==='string'?raw.end:''}; });
+      const rawAssignments=source.assignments&&typeof source.assignments==='object'?source.assignments:{};
+      CLASS_SCHEDULE_DAYS.forEach(day=>{ const row=Array.isArray(rawAssignments[day.key])?rawAssignments[day.key]:[]; defaults.assignments[day.key]=defaults.assignments[day.key].map((_,index)=>typeof row[index]==='string'?row[index]:''); });
+      return defaults;
+    }
+    let classScheduleSettings=normalizeClassScheduleSettings({});
+    let classScheduleEditingCell=null, classScheduleEditingPeriod=null;
     let indexedDBSaveQueue=Promise.resolve();
     let indexedDBPendingWrites=0;
 
@@ -2146,7 +2190,7 @@ ${description}`)) return;
         appData:cloneData(appData), records:cloneData(records), unitsData:cloneData(unitsData), unitLocks:cloneData(unitLocks), followupData:cloneData(followupData), understandingData:cloneData(understandingData), studentNotesData:cloneData(studentNotesData),
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), excellenceSettings:cloneData(excellenceSettings), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
-        fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), startupSettings:cloneData(startupSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
+        fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), startupSettings:cloneData(startupSettings), classScheduleSettings:cloneData(classScheduleSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
         weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), noteEntryWindow:cloneData(noteEntryWindow), savedAt:new Date().toISOString()
       };
     }
@@ -2195,6 +2239,7 @@ ${description}`)) return;
       fontSettings=normalizeFontSettings(state.fontSettings);
       notificationSettings=state.notificationSettings&&typeof state.notificationSettings==='object'?state.notificationSettings:{};
       if(Object.prototype.hasOwnProperty.call(state,'startupSettings')){ startupSettings=normalizeStartupSettings(state.startupSettings); persistStartupPreference(); }
+      classScheduleSettings=normalizeClassScheduleSettings(state.classScheduleSettings);
       buttonColors=state.buttonColors&&typeof state.buttonColors==='object'?state.buttonColors:cloneData(DEFAULT_BUTTON_COLORS);
       buttonColorDefaultsVersion=Number(state.buttonColorDefaultsVersion)||0;
       for(const key in DEFAULT_BUTTON_COLORS) if(!buttonColors[key]) buttonColors[key]=cloneData(DEFAULT_BUTTON_COLORS[key]);
@@ -5353,6 +5398,55 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     function openDataMenuModal(){ document.getElementById('dataMenuModal').style.display='flex'; }
     function openAppManagementModal(){ document.getElementById('appManagementModal').style.display='flex'; }
     function closeAppManagementModal(){ document.getElementById('appManagementModal').style.display='none'; }
+    function formatClassScheduleTimeRange(periodIndex){ const time=classScheduleSettings.times[periodIndex]||{}; return time.start&&time.end?`${time.start} - ${time.end}`:'حدّد الوقت'; }
+    function renderClassScheduleGrid(){
+      classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings);
+      const host=document.getElementById('classScheduleGrid'); if(!host) return;
+      const headers=Array.from({length:CLASS_SCHEDULE_PERIOD_COUNT},(_,index)=>`<th style="min-width:82px;padding:5px;border-bottom:1px solid #D9E8E5;border-right:1px solid #EAF2F0;background:#EAF8F5;"><button type="button" onclick="openClassScheduleTimeModal(${index})" style="width:100%;min-height:44px;border:0;border-radius:.5rem;background:#D8F2EC;color:#0F5E56;font-family:inherit;font-weight:900;font-size:.68rem;cursor:pointer;line-height:1.25;">الحصة ${index+1}<small style="display:block;font-size:.51rem;font-weight:800;margin-top:2px;">${formatClassScheduleTimeRange(index)}</small></button></th>`).join('');
+      const rows=CLASS_SCHEDULE_DAYS.map(day=>{ const cells=Array.from({length:CLASS_SCHEDULE_PERIOD_COUNT},(_,index)=>{ const cls=classScheduleSettings.assignments[day.key][index]||'', label=cls?escapeTextForHtml(cls):'＋ اختيار فصل'; return `<td style="padding:4px;border-bottom:1px solid #EEF4F3;border-right:1px solid #EEF4F3;"><button type="button" onclick="openClassScheduleCellModal('${day.key}',${index})" style="width:100%;min-height:42px;border:1px solid ${cls?'#90D7C9':'#D5E8E3'};border-radius:.45rem;background:${cls?'#F0FBF8':'#FFFFFF'};color:${cls?'#075E54':'#7A8B87'};font-family:inherit;font-weight:800;font-size:.62rem;line-height:1.28;cursor:pointer;padding:4px;">${label}</button></td>`; }).join(''); return `<tr><th style="white-space:nowrap;padding:6px 7px;background:#F7FBFA;color:#175E56;font-size:.7rem;border-bottom:1px solid #D9E8E5;">${day.label}</th>${cells}</tr>`; }).join('');
+      host.innerHTML=`<table style="width:100%;border-collapse:collapse;text-align:center;direction:rtl;"><thead><tr><th style="min-width:56px;padding:6px;background:#D9F0EA;color:#0A5A50;font-size:.7rem;border-bottom:1px solid #B8DDD4;">اليوم</th>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    function openClassScheduleModal(){ classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings); renderClassScheduleGrid(); document.getElementById('classScheduleModal').style.display='flex'; }
+    function closeClassScheduleModal(){ document.getElementById('classScheduleModal').style.display='none'; }
+    function openClassScheduleCellModal(dayKey,periodIndex){
+      const day=CLASS_SCHEDULE_DAYS.find(item=>item.key===dayKey); if(!day) return;
+      classScheduleEditingCell={dayKey,periodIndex}; const current=classScheduleSettings.assignments[dayKey]?.[periodIndex]||'';
+      document.getElementById('classScheduleCellHint').textContent=`${day.label} · الحصة ${periodIndex+1} · ${formatClassScheduleTimeRange(periodIndex)}`;
+      const select=document.getElementById('classScheduleCellSelect'); select.innerHTML='<option value="">— لا يوجد فصل —</option>';
+      Object.keys(appData).forEach(cls=>{ const option=document.createElement('option'); option.value=cls; option.textContent=cls; select.appendChild(option); });
+      select.value=Object.prototype.hasOwnProperty.call(appData,current)?current:'';
+      document.getElementById('classScheduleCellModal').style.display='flex';
+    }
+    function closeClassScheduleCellModal(){ classScheduleEditingCell=null; document.getElementById('classScheduleCellModal').style.display='none'; }
+    function saveClassScheduleCell(){
+      if(!classScheduleEditingCell) return;
+      const {dayKey,periodIndex}=classScheduleEditingCell, selected=document.getElementById('classScheduleCellSelect').value;
+      classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings); classScheduleSettings.assignments[dayKey][periodIndex]=selected||''; saveData(); renderClassScheduleGrid(); closeClassScheduleCellModal();
+    }
+    function openClassScheduleTimeModal(periodIndex){
+      classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings); classScheduleEditingPeriod=periodIndex; const time=classScheduleSettings.times[periodIndex]||{};
+      document.getElementById('classScheduleTimeTitle').textContent=`وقت الحصة ${periodIndex+1}`; document.getElementById('classScheduleStartInput').value=time.start||''; document.getElementById('classScheduleEndInput').value=time.end||''; document.getElementById('classScheduleTimeModal').style.display='flex';
+    }
+    function closeClassScheduleTimeModal(){ classScheduleEditingPeriod=null; document.getElementById('classScheduleTimeModal').style.display='none'; }
+    function saveClassScheduleTime(){
+      if(!Number.isInteger(classScheduleEditingPeriod)) return;
+      const start=document.getElementById('classScheduleStartInput').value||'', end=document.getElementById('classScheduleEndInput').value||'';
+      if((start&&!end)||(!start&&end)){ alert('أدخل وقت البداية والنهاية معاً، أو اتركهما فارغين.'); return; }
+      if(start&&end&&start>=end){ alert('يجب أن يكون وقت النهاية بعد وقت البداية.'); return; }
+      classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings); classScheduleSettings.times[classScheduleEditingPeriod]={start,end}; saveData(); renderClassScheduleGrid(); closeClassScheduleTimeModal();
+    }
+    function timeToMinutes(value){ const match=/^(\d{2}):(\d{2})$/.exec(String(value||'')); if(!match) return null; const hours=Number(match[1]), minutes=Number(match[2]); return hours>=0&&hours<24&&minutes>=0&&minutes<60?hours*60+minutes:null; }
+    function getScheduledClassForDate(date=new Date()){
+      classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings); const day=CLASS_SCHEDULE_DAYS[date.getDay()]; if(!day) return '';
+      const currentMinutes=date.getHours()*60+date.getMinutes();
+      for(let index=0;index<CLASS_SCHEDULE_PERIOD_COUNT;index++){ const time=classScheduleSettings.times[index]||{}, start=timeToMinutes(time.start), end=timeToMinutes(time.end), cls=classScheduleSettings.assignments[day.key][index]||''; if(cls&&start!==null&&end!==null&&currentMinutes>=start&&currentMinutes<end) return cls; }
+      return '';
+    }
+    function applyScheduledClassAtStartup(date=new Date()){
+      const scheduledClass=getScheduledClassForDate(date), select=document.getElementById('classSelect');
+      if(!scheduledClass||!select||!Object.prototype.hasOwnProperty.call(appData,scheduledClass)) return false;
+      select.value=scheduledClass; return true;
+    }
     function closeDataMenuModal(){ document.getElementById('dataMenuModal').style.display='none'; }
     function openUnitsManageModal(){ document.getElementById('unitsManageModal').style.display='flex'; initUnitsModalSelect(); loadUnitDetailsToModal(); document.getElementById('unitNameEditInput').value=document.getElementById('modalUnitSelect').value||''; }
     function closeUnitsManageModal(){ document.getElementById('unitsManageModal').style.display='none'; document.getElementById('inlineAddUnitBox').style.display='none'; }
@@ -5932,7 +6026,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:4,storageBackend:'IndexedDB',appData,records,unitsData,unitLocks,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ const data={backupVersion:4,storageBackend:'IndexedDB',appData,records,unitsData,unitLocks,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,classScheduleSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
@@ -5951,6 +6045,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
         migrateButtonColorDefaults();
         if(imported.notificationSettings) notificationSettings=imported.notificationSettings;
         startupSettings=normalizeStartupSettings(imported.startupSettings); persistStartupPreference();
+        classScheduleSettings=normalizeClassScheduleSettings(imported.classScheduleSettings);
         if(imported.pdfSizeSettings) pdfSizeSettings=imported.pdfSizeSettings;
         if(imported.weakStudentsThresholds) weakStudentsThresholds=normalizeWeakStudentsThresholds(imported.weakStudentsThresholds);
         if(!(await saveData())) throw new Error('تعذر حفظ النسخة الاحتياطية المستوردة.'); initClassSelects(); renderStudents(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); applyFontSettings(); applyButtonColors(); alert("✅ تم استعادة النسخة الاحتياطية بنجاح!");
@@ -5961,7 +6056,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); unitLocks={}; followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); unitLocks={}; followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; classScheduleSettings=normalizeClassScheduleSettings({}); persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
@@ -6491,6 +6586,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
         if((migrateViolationStorage()||removedUnlinkedNumbers>0) && !(await saveData())) throw new Error('تعذر حفظ ترقية السجلات.');
         loadStudentNumberMap();
         initClassSelects();
+        applyScheduledClassAtStartup();
         renderAttendanceUnitsDropdown();
         renderStudents();
         renderUnitsDropdown();

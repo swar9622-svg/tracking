@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-33-remove-short-pdf-button';
+const CACHE_NAME = 'attendance-app-v21-34-class-schedule-auto-select';
 const urlsToCache = [
   './',
   './index.html',
