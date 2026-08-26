@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-44-storage-health-status';
+const CACHE_NAME = 'attendance-app-v21-45-json-color-student-numbers-shortcut';
 const urlsToCache = [
   './',
   './index.html',
