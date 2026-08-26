@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.35";</script>
+  <script>const APP_VERSION = "21.36";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -213,6 +213,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .app-management-option.is-grades{background:#EAF7EE;color:#166534;border:1px solid #A9DFBF;}
     .app-management-option.is-schedule{background:#FFF4E6;color:#A34A00;border:1px solid #F4C78E;}
     .app-management-option:active{opacity:.76;}
+    /* مفتاح مستقل لجدول الحصص بمقاس iPhone متوازن؛ لا يرث مقاسات مفاتيح أخرى. */
+    .class-schedule-compact-switch{position:relative;display:inline-block;flex:0 0 auto;width:48px;height:28px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+    .class-schedule-compact-switch input{opacity:0;width:0;height:0;position:absolute;}
+    .class-schedule-compact-slider{position:absolute;inset:0;border-radius:999px;background:#C7C7CC;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);transition:background .18s ease;}
+    .class-schedule-compact-slider::before{content:'';position:absolute;right:2px;top:2px;width:24px;height:24px;border-radius:50%;background:#FFF;box-shadow:0 1px 3px rgba(0,0,0,.28);transition:transform .18s ease;}
+    .class-schedule-compact-switch input:checked + .class-schedule-compact-slider{background:#34C759;}
+    .class-schedule-compact-switch input:checked + .class-schedule-compact-slider::before{transform:translateX(-20px);}
+    .class-schedule-compact-switch input:focus-visible + .class-schedule-compact-slider{box-shadow:0 0 0 3px rgba(52,199,89,.25);}
     /* بطاقات إعدادات العرض متساوية الارتفاع وبألوان فاتحة مستوحاة من إدارة التطبيق. */
     .display-settings-options{display:flex;flex-direction:column;gap:0.56rem;}
     .display-settings-option,.display-settings-switch-card{width:100%;min-height:3.35rem;margin:0!important;border-radius:0.74rem!important;display:flex;align-items:center;justify-content:center;gap:0.38rem;font-family:inherit;font-size:0.84rem;font-weight:900;box-shadow:none;}
@@ -1339,9 +1347,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div id="classScheduleAutoSyncCard" style="display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:#F1F8F7;border:1px solid #CBE9E4;border-radius:.7rem;padding:.48rem .62rem;margin-bottom:.7rem;">
         <div style="min-width:0;text-align:right;"><b style="display:block;color:#0B655A;font-size:.73rem;">مزامنة الفصل حسب وقت الحصة</b><small style="display:block;color:#52706A;font-size:.57rem;font-weight:700;line-height:1.35;margin-top:1px;">تختار الشاشات الثلاث الفصل المجدول عند فتح التطبيق.</small></div>
-        <label class="ios-grade-rounding-switch" style="flex:none;width:43px;height:27px;" title="تفعيل أو إيقاف مزامنة الفصول وفق جدول الحصص">
+        <label class="class-schedule-compact-switch" title="تفعيل أو إيقاف مزامنة الفصول وفق جدول الحصص">
           <input id="classScheduleAutoSyncToggle" type="checkbox" onchange="toggleClassScheduleAutoSync(this.checked)">
-          <span class="ios-grade-rounding-slider" style="border-radius:999px;"></span>
+          <span class="class-schedule-compact-slider"></span>
         </label>
       </div>
       <div id="classScheduleGrid" style="overflow:auto;border:1px solid #D9E8E5;border-radius:.75rem;background:#FFF;"></div>
@@ -5406,15 +5414,22 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     function openDataMenuModal(){ document.getElementById('dataMenuModal').style.display='flex'; }
     function openAppManagementModal(){ document.getElementById('appManagementModal').style.display='flex'; }
     function closeAppManagementModal(){ document.getElementById('appManagementModal').style.display='none'; }
+    /* ألوان الفصول مستقلة عمداً عن أخضر وتركوازي رؤوس الجدول. الترتيب الرقمي يعطي كل فصل لونه الثابت. */
     const CLASS_SCHEDULE_CLASS_COLORS=[
-      {background:'#EAF3FF',border:'#BBD7F3',text:'#0B5394'},
-      {background:'#F3ECF8',border:'#D7BDE2',text:'#6C3483'},
-      {background:'#EAF7EE',border:'#A9DFBF',text:'#166534'},
-      {background:'#FFF4E6',border:'#F4C78E',text:'#A34A00'},
-      {background:'#FFF0F2',border:'#F1B9C0',text:'#A51D3A'},
-      {background:'#ECF8F8',border:'#A9DDDA',text:'#0F766E'}
+      {background:'#FCEEEF',border:'#F3B8C1',text:'#A61E38'},
+      {background:'#FFF3E1',border:'#F4C67F',text:'#A65100'},
+      {background:'#EAF3FF',border:'#A8C9F5',text:'#175EA8'},
+      {background:'#F2ECFF',border:'#D0BDF3',text:'#6541A3'},
+      {background:'#FFF8D9',border:'#EAD67B',text:'#786000'},
+      {background:'#FCECF8',border:'#EAB8D9',text:'#9A2869'}
     ];
-    function getClassScheduleColor(cls){ if(!cls) return {background:'#FFFFFF',border:'#D5E8E3',text:'#7A8B87'}; let hash=0; for(const char of String(cls)) hash=((hash<<5)-hash)+char.charCodeAt(0); return CLASS_SCHEDULE_CLASS_COLORS[Math.abs(hash)%CLASS_SCHEDULE_CLASS_COLORS.length]; }
+    function getClassScheduleColor(cls){
+      if(!cls) return {background:'#FFFFFF',border:'#D5E8E3',text:'#7A8B87'};
+      const numericPart=String(cls).match(/(?:^|\s)(\d+)(?:\s|$)/), classNumber=numericPart?Number(numericPart[1]):NaN;
+      if(Number.isFinite(classNumber)&&classNumber>0) return CLASS_SCHEDULE_CLASS_COLORS[(classNumber-1)%CLASS_SCHEDULE_CLASS_COLORS.length];
+      let hash=0; for(const char of String(cls)) hash=((hash<<5)-hash)+char.charCodeAt(0);
+      return CLASS_SCHEDULE_CLASS_COLORS[Math.abs(hash)%CLASS_SCHEDULE_CLASS_COLORS.length];
+    }
     function formatClassScheduleTimeRange(periodIndex){ const time=classScheduleSettings.times[periodIndex]||{}; return time.start&&time.end?`${time.start} - ${time.end}`:'حدّد الوقت'; }
     function updateClassScheduleAutoSyncControl(){ const toggle=document.getElementById('classScheduleAutoSyncToggle'), card=document.getElementById('classScheduleAutoSyncCard'); if(!toggle||!card) return; const enabled=classScheduleSettings.autoSyncEnabled!==false; toggle.checked=enabled; card.style.background=enabled?'#F1F8F7':'#F8F8F8'; card.style.borderColor=enabled?'#CBE9E4':'#E0E0E0'; }
     function renderClassScheduleGrid(){
