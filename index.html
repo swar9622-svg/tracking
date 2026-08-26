@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.25";</script>
+  <script>const APP_VERSION = "21.26";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3534,6 +3534,7 @@ ${description}`)) return;
     function toggleExcellenceLessonsBubble(anchor,encodedClass,encodedStudent,encodedUnit,event){
       if(event){ event.preventDefault(); event.stopPropagation(); }
       if(activeExcellenceLessonsBubble?.anchor===anchor){ closeExcellenceLessonsBubble(); return; }
+      closeFollowupDetailsBubble();
       closeExcellenceLessonsBubble();
       const className=decodeURIComponent(encodedClass), studentName=decodeURIComponent(encodedStudent), unitName=decodeURIComponent(encodedUnit);
       const lessons=getExcellentLessonNames(className,studentName,unitName);
@@ -3558,6 +3559,49 @@ ${description}`)) return;
       const outsideHandler=pointerEvent=>{ if(!bubble.contains(pointerEvent.target)&&!anchor.contains(pointerEvent.target)) closeExcellenceLessonsBubble(); };
       activeExcellenceLessonsBubble={anchor,bubble,outsideHandler};
       setTimeout(()=>document.addEventListener('pointerdown',outsideHandler,true),0);
+    }
+
+    // فقاعات تفاصيل «تحقق» و«المشاركة»: تعرض التفاصيل المسجلة فقط بلا درجات حسابية إضافية.
+    let activeFollowupDetailsBubble=null;
+    function closeFollowupDetailsBubble(){
+      if(!activeFollowupDetailsBubble) return;
+      activeFollowupDetailsBubble.bubble.remove();
+      document.removeEventListener('pointerdown',activeFollowupDetailsBubble.outsideHandler,true);
+      activeFollowupDetailsBubble=null;
+    }
+    function openFollowupDetailsBubble(anchor,options,event){
+      if(event){ event.preventDefault(); event.stopPropagation(); }
+      if(activeFollowupDetailsBubble?.anchor===anchor){ closeFollowupDetailsBubble(); return; }
+      closeExcellenceLessonsBubble(); closeFollowupDetailsBubble();
+      const bubble=document.createElement('div');
+      bubble.className='followup-details-bubble';
+      bubble.setAttribute('role','dialog');
+      bubble.setAttribute('aria-label',options.title);
+      bubble.style.cssText=`position:fixed;z-index:10010;max-width:min(270px,calc(100vw - 20px));min-width:190px;background:${options.background};color:#343434;border:1px solid ${options.border};border-radius:14px;box-shadow:0 10px 28px rgba(30,30,30,.20);padding:10px 12px;text-align:right;font-family:inherit;direction:rtl;font-weight:800;font-size:.82rem;line-height:1.52;`;
+      const title=document.createElement('div');
+      title.textContent=options.title; title.style.cssText=`font-size:.86rem;font-weight:950;color:${options.titleColor};margin-bottom:4px;`;
+      bubble.appendChild(title);
+      const list=document.createElement('div');
+      options.rows.forEach(row=>{ const line=document.createElement('div'); line.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:10px;padding:3px 0;border-top:1px solid rgba(70,70,70,.12);'; const label=document.createElement('span'); label.textContent=row.label; label.style.cssText='min-width:0;overflow-wrap:anywhere;'; const value=document.createElement('b'); value.textContent=row.value; value.style.cssText=`white-space:nowrap;color:${row.color||options.titleColor};background:${row.valueBackground||'transparent'};border-radius:7px;padding:${row.valueBackground?'1px 6px':'0'};`; line.append(label,value); list.appendChild(line); });
+      bubble.appendChild(list); document.body.appendChild(bubble);
+      const anchorRect=anchor.getBoundingClientRect(), bubbleRect=bubble.getBoundingClientRect();
+      const left=Math.max(8,Math.min(anchorRect.left+(anchorRect.width-bubbleRect.width)/2,window.innerWidth-bubbleRect.width-8));
+      const top=anchorRect.top-bubbleRect.height-9>=8?anchorRect.top-bubbleRect.height-9:Math.min(window.innerHeight-bubbleRect.height-8,anchorRect.bottom+9);
+      bubble.style.left=`${left}px`; bubble.style.top=`${top}px`;
+      const outsideHandler=pointerEvent=>{ if(!bubble.contains(pointerEvent.target)&&!anchor.contains(pointerEvent.target)) closeFollowupDetailsBubble(); };
+      activeFollowupDetailsBubble={anchor,bubble,outsideHandler};
+      setTimeout(()=>document.addEventListener('pointerdown',outsideHandler,true),0);
+    }
+    function toggleUnderstandingDetailsBubble(anchor,encodedClass,encodedStudent,encodedUnit,event){
+      const className=decodeURIComponent(encodedClass), studentName=decodeURIComponent(encodedStudent), unitName=decodeURIComponent(encodedUnit);
+      const lessons=(unitsData[unitName]||{lessons:[]}).lessons||[];
+      const rows=lessons.map(lesson=>{ const entry=getUnderstandingEntryFromStates(getUnderstandingLessonStates(className,unitName,lesson),studentName); const config=entry.status?UNDERSTANDING_STATUS_CONFIG[entry.status]:null; return {label:`${lesson}${entry.excellent?' ⭐':''}`,value:config?config.label:'لم يقيم',color:config?.color||'#6E6E73',valueBackground:config?.background||'#F2F2F7'}; });
+      openFollowupDetailsBubble(anchor,{title:'📝 تحقق من فهمك',titleColor:'#7D6608',background:'#FFFDF5',border:'#F7DC6F',rows:rows.length?rows:[{label:'لا توجد دروس',value:'—',color:'#6E6E73'}]},event);
+    }
+    function toggleParticipationDetailsBubble(anchor,encodedClass,encodedStudent,encodedUnit,event){
+      const className=decodeURIComponent(encodedClass), studentName=decodeURIComponent(encodedStudent), unitName=decodeURIComponent(encodedUnit);
+      const stats=getStudentAttendanceStats(className,studentName,unitName);
+      openFollowupDetailsBubble(anchor,{title:`📊 المشاركة — ${unitName}`,titleColor:'#512E5F',background:'#FCF8FD',border:'#D2B4DE',rows:[{label:'غياب',value:String(stats.absent),color:'#C0392B',valueBackground:'#FDEDEC'},{label:'تأخر',value:String(stats.late),color:'#C76E00',valueBackground:'#FFF4E5'},{label:'مخالفات',value:String(stats.violations),color:'#7D3C98',valueBackground:'#F5EEF8'}]},event);
     }
 
     // درجات موزونة الوحدة بدون توزيع درجة المشروع (تُستخدم في جدول الدروس التفصيلي بإشعارات الطلاب)
@@ -3831,10 +3875,10 @@ ${description}`)) return;
         <th colspan="${lessons.length}" data-group="hw-details" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;position:relative;">الواجبات (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-hw" onclick="openImportExportModal('hw')" title="تصدير/استيراد درجات الواجبات">📥</button></span></th>
         <th rowspan="2" data-group="hw" style="background:#D4EFDF;color:#117A65;text-align:center;vertical-align:middle;font-weight:800;">الموزونه<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('hw')" title="فرز الموزونة للواجبات">فرز ↕</button></span></th>
         <th colspan="${lessons.length}" data-group="act-details" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
-        <th rowspan="2" data-group="act" class="followup-understanding-column" style="text-align:center;vertical-align:middle;font-weight:900;">تحقق<br><small>من فهمك</small></th>
+        <th rowspan="2" data-group="act" class="followup-understanding-column" style="text-align:center;vertical-align:middle;font-weight:900;" title="اضغط على القيمة لعرض حالات الدروس">تحقق<br><small>من فهمك</small></th>
         <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونة<br><small>/20</small><span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('act')" title="فرز موزونة الأنشطة مع تحقق">فرز ↕</button></span></th>
         <th rowspan="2" data-group="excellence" style="background:#FFF0D8;color:#A04B00;vertical-align:middle;text-align:center;font-weight:900;" title="اضغط على قيمة التميز لعرض أسماء الدروس المتميزة">تميز</th>
-        <th rowspan="2" data-group="participation" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;">المشاركة<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('participation')" title="فرز المشاركة">فرز ↕</button></span></th>
+        <th rowspan="2" data-group="participation" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;" title="اضغط على القيمة لعرض الغياب والتأخر والمخالفات في الوحدة"><span>المشاركة</span><span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('participation')" title="فرز المشاركة">فرز ↕</button></span></th>
         <th colspan="2" data-group="test-details" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;position:relative;">الاختبارات والمشاريع (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span></th>
         <th colspan="4" data-group="summary" style="background:#D6EAF8;color:#1B4F72;text-align:center;">الموزونه + المشروع (الخلاصه)</th>
         <th rowspan="2" data-group="total" style="background:#D5F5E3;color:#1E8449;vertical-align:middle;text-align:center;min-width:80px;">المجموع الكلي<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('total')" title="فرز المجموع الكلي">فرز ↕</button></span></th>
@@ -3871,13 +3915,15 @@ ${description}`)) return;
         rowHtml+=`<td data-group="hw" style="background:#D4EFDF;font-weight:bold;text-align:center;font-size:0.8rem;">${formatRawGrade(hwAvg)}</td>`;
         // الأنشطة المدخلة: لكل درس من 10 درجات.
         lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td data-group="act-details" style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
-        // تحقق وموزونة الأنشطة الأصلية بلا تميز؛ القيمة تفتح أسماء الدروس المتميزة فقط.
+        // تحقق وموزونة الأنشطة الأصلية بلا تميز؛ فقاعات تحقق والتميز تشرح التفاصيل المسجلة فقط.
         const excellenceLessons=getExcellentLessonNames(cls,student,unitName), encodedClass=encodeURIComponent(cls), encodedStudent=encodeURIComponent(student), encodedUnit=encodeURIComponent(unitName);
         const excellenceCell=excellenceScore>0?`<button type="button" class="excellence-lessons-trigger" data-group="excellence" onclick="toggleExcellenceLessonsBubble(this,'${encodedClass}','${encodedStudent}','${encodedUnit}',event)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleExcellenceLessonsBubble(this,'${encodedClass}','${encodedStudent}','${encodedUnit}',event)}" title="عرض الدروس المتميزة" style="border:0;background:transparent;color:#A04B00;font:inherit;font-weight:900;cursor:pointer;padding:5px;min-width:44px;">+${formatGrade(excellenceScore)}</button>`:'—';
-        rowHtml+=`<td data-group="act" class="followup-understanding-column" style="font-weight:900;text-align:center;font-size:0.8rem;">${formatRawGrade(understandingScore)}</td><td data-group="act" style="background:#FCF3CF;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatRawGrade(actAvg)}</td><td data-group="excellence" style="background:#FFF0D8;color:#A04B00;font-weight:900;text-align:center;font-size:0.8rem;">${excellenceCell}</td>`;
+        const understandingCell=`<button type="button" class="understanding-details-trigger" onclick="toggleUnderstandingDetailsBubble(this,'${encodedClass}','${encodedStudent}','${encodedUnit}',event)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleUnderstandingDetailsBubble(this,'${encodedClass}','${encodedStudent}','${encodedUnit}',event)}" title="عرض حالات تحقق من فهمك" style="border:0;background:transparent;color:inherit;font:inherit;font-weight:900;cursor:pointer;padding:5px;min-width:38px;">${formatRawGrade(understandingScore)}</button>`;
+        rowHtml+=`<td data-group="act" class="followup-understanding-column" style="font-weight:900;text-align:center;font-size:0.8rem;">${understandingCell}</td><td data-group="act" style="background:#FCF3CF;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatRawGrade(actAvg)}</td><td data-group="excellence" style="background:#FFF0D8;color:#A04B00;font-weight:900;text-align:center;font-size:0.8rem;">${excellenceCell}</td>`;
         // مشاركة
         let part=calculateStudentParticipationScore(cls,student,unitName);
-        rowHtml+=`<td data-group="participation" style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${formatRawGrade(part)}</td>`;
+        const participationCell=`<button type="button" class="participation-details-trigger" onclick="toggleParticipationDetailsBubble(this,'${encodedClass}','${encodedStudent}','${encodedUnit}',event)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleParticipationDetailsBubble(this,'${encodedClass}','${encodedStudent}','${encodedUnit}',event)}" title="عرض غياب وتأخر ومخالفات الوحدة" style="border:0;background:transparent;color:#512E5F;font:inherit;font-weight:900;cursor:pointer;padding:5px;min-width:38px;">${formatRawGrade(part)}</button>`;
+        rowHtml+=`<td data-group="participation" style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${participationCell}</td>`;
         // اختبار ومشروع
         let t1=stData.test1!==undefined?stData.test1:'';
         rowHtml+=`<td data-group="test" style="background:#FDEDEC;padding:4px;"><input type="number" step="0.5" min="0" max="20" value="${t1}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent('الاختبار')}" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'test1','',20)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`;

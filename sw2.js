@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-25-unit-export-excellence';
+const CACHE_NAME = 'attendance-app-v21-26-followup-detail-bubbles';
 const urlsToCache = [
   './',
   './index.html',
