@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.38";</script>
+  <script>const APP_VERSION = "21.39";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -213,6 +213,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .app-management-option.is-grades{background:#EAF7EE;color:#166534;border:1px solid #A9DFBF;}
     .app-management-option.is-schedule{background:#FFF4E6;color:#A34A00;border:1px solid #F4C78E;}
     .app-management-option.is-student-numbers{background:#FCEEF8;color:#8E2E71;border:1px solid #E9B9D7;}
+    .app-management-option.is-json-export{background:#E8F7F5;color:#0F766E;border:1px solid #9EDDD7;}
     .app-management-option:active{opacity:.76;}
     /* مفتاح مستقل لجدول الحصص بمقاس iPhone متوازن؛ لا يرث مقاسات مفاتيح أخرى. */
     .class-schedule-compact-switch{position:relative;display:inline-block;flex:0 0 auto;width:48px;height:28px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
@@ -1102,10 +1103,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <input type="file" id="jsonFileInput" accept=".json" style="display:none;" onchange="importFullBackupJSON(event)">
       </div>
       <div class="data-box-section" style="border-top:2px solid #E5E5EA;padding-top:0.75rem;">
-        <div class="data-box-title">📤 تصدير بيانات الاستعلام (data.xlsx)</div>
-        <button class="btn-menu-option" style="background-color:#8E44AD;" onclick="openQueryExportModal()">📤 التصدير للاستعلام</button>
-      </div>
-      <div class="data-box-section" style="border-top:2px solid #E5E5EA;padding-top:0.75rem;">
         <div class="data-box-title">🔄 تحديث التطبيق</div>
         <button class="btn-menu-option" style="background-color:#FF9500;" onclick="clearAppCacheAndReload()">🧹 مسح الكاش وتحديث التطبيق</button>
         <div style="font-size:0.7rem;color:#8A8A8E;text-align:center;margin-top:-0.2rem;">يحذف فقط نسخة التطبيق المخزنة مؤقتًا ويجلب أحدث نسخة. بياناتك وسجلاتك لا تتأثر إطلاقًا.</div>
@@ -1114,50 +1111,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="data-box-title">⚠️ مسح جميع البيانات وتهيئة البرنامج</div>
         <button class="btn-danger" onclick="confirmResetAllData()">🗑️ مسح كل البيانات وإعادة الضبط</button>
         <div class="warning-text">⚠️ هذا الإجراء لا يمكن التراجع عنه! سيتم حذف جميع الطلاب والغياب والدرجات.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="queryExportModal" style="z-index:130;display:none;">
-    <div class="modal-content" style="max-width:500px;width:95%;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="modal-title" style="margin:0;font-size:1rem;">📤 التصدير للاستعلام</div>
-        <button class="btn-close-circle" onclick="closeQueryExportModal()">✕</button>
-      </div>
-      <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:10px;font-weight:700;text-align:center;">حدّد الفصل والوحدات، ثم اختر نوع ملف التصدير. أرقام الطلاب تُدار من ⚙️ إدارة التطبيق.</div>
-      <div class="query-export-section">
-        <span class="field-label">الفصل المطلوب (اختر الكل للتصدير الشامل):</span>
-        <select id="queryClassSelect" class="select-class-full"><option value="الكل">الكل (جميع الفصول)</option></select>
-      </div>
-      <div class="query-export-section">
-        <span class="field-label">ملف بيانات الطلاب (Excel/CSV):</span>
-        <button class="btn-upload" onclick="document.getElementById('queryIdFileInput').click()">📤 اختيار ملف البيانات</button>
-        <input type="file" id="queryIdFileInput" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleQueryIdFileUpload(event)">
-        <div id="queryIdFileStatus" class="file-status" style="color:var(--text-secondary);">لم يتم رفع ملف بعد</div>
-      </div>
-      <div class="query-export-section">
-        <span class="field-label">اختر الوحدات المراد تصديرها:</span>
-        <div id="queryUnitCheckboxes" class="unit-checkbox-grid"></div>
-      </div>
-      <div class="modal-actions" style="margin-top:0.25rem;display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
-        <button class="btn-modal-save" onclick="exportQueryData()" style="background-color:#8E44AD;">📤 تصدير data.xlsx</button>
-        <button class="btn-modal-save" onclick="closeQueryExportModal();openStudentHtmlDataJsonModeModal()" style="background-color:#0F766E;">🗂️ تصدير data.json</button>
-      </div>
-      <button class="btn-modal-cancel" style="width:100%;margin-top:.5rem;" onclick="closeQueryExportModal()">إلغاء</button>
-    </div>
-  </div>
-
-  <div class="modal" id="duplicateNumbersModal" style="z-index:140;display:none;">
-    <div class="modal-content" style="max-width:500px;width:95%;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="modal-title" style="margin:0;font-size:1rem;color:var(--red);">⚠️ تكرار في أرقام الطلاب</div>
-        <button class="btn-close-circle" onclick="closeDuplicateNumbersModal()">✕</button>
-      </div>
-      <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:10px;font-weight:700;text-align:center;">تم العثور على أكثر من طالب له نفس رقم الطالب. يرجى تعديل الأرقام المكررة يدوياً في الحقول أدناه، ثم اضغط "حفظ وتصدير".</div>
-      <div id="duplicateNumbersContainer" style="max-height:50vh;overflow-y:auto;border:1px solid #e5e5ea;border-radius:0.75rem;padding:0.5rem;background:#f9f9fb;margin-bottom:0.75rem;"></div>
-      <div class="modal-actions">
-        <button class="btn-modal-cancel" onclick="closeDuplicateNumbersModal()">إلغاء التصدير</button>
-        <button class="btn-modal-save" onclick="saveDuplicateNumbersAndExport()" style="background-color:var(--green);">💾 حفظ وتصدير</button>
       </div>
     </div>
   </div>
@@ -1335,6 +1288,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="btn-action app-management-option is-units" onclick="closeAppManagementModal();openUnitsManageModal()">📚 الوحدات والدروس</button>
         <button class="btn-action app-management-option is-grades" onclick="closeAppManagementModal();openGradesManageModal()">🧮 الدرجات والتقييم</button>
         <button class="btn-action app-management-option is-student-numbers" onclick="closeAppManagementModal();openStudentNumbersModal()">🔢 أرقام الطلاب</button>
+        <button class="btn-action app-management-option is-json-export" onclick="closeAppManagementModal();openStudentHtmlDataJsonModeModal()">🗂️ تصدير data.json</button>
         <button class="btn-action app-management-option is-schedule" onclick="closeAppManagementModal();openClassScheduleModal()">🗓️ جدول الحصص</button>
       </div>
     </div>
@@ -1782,8 +1736,6 @@ ${description}`)) return;
     let deleteTargetType = '';
     let editingIndex = -1;
     let editingNumberIndex = -1;
-    let queryIdFileData = null;
-    let queryIdFileName = '';
     let queryStudentNumberMap = {};
     const STUDENT_NUMBER_MAP_KEY = 'attendance_student_number_map';
     let currentImportType = 'hw';
@@ -6362,7 +6314,6 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     function handleStudentNumbersFileUpload(e){ const file=e.target.files[0]; if(!file) return; if(typeof XLSX==='undefined'){ alert("مكتبة قراءة الإكسل غير محملة!"); return; } const reader=new FileReader(); reader.onload=function(ev){ try { const data=new Uint8Array(ev.target.result), wb=XLSX.read(data,{type:'array'}), sheet=wb.Sheets[wb.SheetNames[0]], json=XLSX.utils.sheet_to_json(sheet,{header:1}); if(json.length<2){ alert("الملف فارغ!"); return; } const header=json[0]; let idCol=-1,nameCol=-1,classCol=-1; for(let i=0;i<header.length;i++){ const cell=header[i]?header[i].toString().trim():''; if(cell.includes('رقم')||cell.includes('هوية')||cell.includes('ID')||cell.includes('السجل')) idCol=i; else if(cell.includes('اسم')) nameCol=i; else if(cell.includes('فصل')||cell.includes('صف')) classCol=i; } if(idCol===-1) idCol=0; if(nameCol===-1) nameCol=1; const rows=[]; for(let r=1;r<json.length;r++){ const row=json[r]; if(!row||!row[idCol]||!row[nameCol]) continue; rows.push({id:row[idCol].toString().trim(),name:row[nameCol].toString().trim(),cls:classCol!==-1&&row[classCol]?row[classCol].toString().trim():''}); } if(rows.length===0){ alert("لم يتم العثور على بيانات صالحة في الملف."); return; } window._studentNumbersFileData=rows; loadStudentNumberMap(); let saved=0, dup=0, dups=[]; rows.forEach(item=>{ if(!queryStudentNumberMap[item.name]){ const match=item.id.match(/\d{5,}$/); if(match){ const num=match[0].slice(-5); let isDup=false; for(let st in queryStudentNumberMap){ if(st!==item.name&&queryStudentNumberMap[st]===num){ isDup=true; break; } } if(isDup){ dup++; dups.push({name:item.name,number:num}); } else { queryStudentNumberMap[item.name]=num; saved++; } } } }); if(saved>0||dup>0){ saveStudentNumberMap(); const status=document.getElementById('studentNumbersUploadStatus'); let msg=''; if(saved>0&&dup===0){ msg=`✅ تم رفع الملف وحفظ ${saved} رقم جديد بنجاح!`; status.className='upload-status success'; } else if(saved>0&&dup>0){ msg=`⚠️ تم حفظ ${saved} رقم، ولكن ${dup} رقم مكرر (${dups.map(d=>d.name).join(', ')})`; status.className='upload-status error'; } else if(saved===0&&dup>0){ msg=`❌ جميع الأرقام مكررة (${dup} طالب). يرجى تعديل الأرقام يدوياً.`; status.className='upload-status error'; } else { msg=`ℹ️ لم يتم العثور على أرقام جديدة للحفظ.`; status.className='upload-status info'; } status.textContent=msg; renderStudentNumbersList(); if(dup>0) alert(`⚠️ تم العثور على ${dup} رقم مكرر. يرجى تعديلها يدوياً من القائمة.`); } else { document.getElementById('studentNumbersUploadStatus').className='upload-status info'; document.getElementById('studentNumbersUploadStatus').textContent='ℹ️ جميع الأرقام موجودة مسبقاً.'; } } catch(err){ console.error(err); document.getElementById('studentNumbersUploadStatus').className='upload-status error'; document.getElementById('studentNumbersUploadStatus').textContent='❌ حدث خطأ أثناء قراءة الملف. تأكد من الصيغة.'; alert("❌ حدث خطأ أثناء قراءة ملف البيانات."); } }; reader.readAsArrayBuffer(file); }
     function getCurrentStudentNameSet(){ return new Set(getAllStudents().map(name=>String(name||'').trim()).filter(Boolean)); }
     function pruneStudentNumberMap(){ const currentNames=getCurrentStudentNameSet(); let removed=0; Object.keys(queryStudentNumberMap).forEach(name=>{ if(!currentNames.has(String(name).trim())){ delete queryStudentNumberMap[name]; removed++; } }); return removed; }
-    function parseStudentNumberRows(file,onSuccess){ const reader=new FileReader(); reader.onload=function(ev){ try { const data=new Uint8Array(ev.target.result), wb=XLSX.read(data,{type:'array'}), sheet=wb.Sheets[wb.SheetNames[0]], json=XLSX.utils.sheet_to_json(sheet,{header:1}); if(json.length<2){ alert('الملف فارغ!'); return; } const header=json[0]; let idCol=-1,nameCol=-1,classCol=-1; for(let i=0;i<header.length;i++){ const cell=header[i]?header[i].toString().trim():''; if(cell.includes('رقم')||cell.includes('هوية')||cell.includes('ID')||cell.includes('السجل')) idCol=i; else if(cell.includes('اسم')) nameCol=i; else if(cell.includes('فصل')||cell.includes('صف')) classCol=i; } if(idCol===-1) idCol=0; if(nameCol===-1) nameCol=1; const rows=[]; for(let r=1;r<json.length;r++){ const row=json[r]; if(!row||!row[idCol]||!row[nameCol]) continue; rows.push({id:row[idCol].toString().trim(),name:row[nameCol].toString().trim(),cls:classCol!==-1&&row[classCol]?row[classCol].toString().trim():''}); } if(rows.length===0){ alert('لم يتم العثور على بيانات صالحة في الملف.'); return; } onSuccess(rows); } catch(err){ console.error(err); alert('❌ حدث خطأ أثناء قراءة ملف البيانات.'); } }; reader.readAsArrayBuffer(file); }
     function handleStudentNumbersFileUpload(e){ const file=e.target.files[0]; if(!file) return; if(typeof XLSX==='undefined'){ alert('مكتبة قراءة الإكسل غير محملة!'); return; } parseStudentNumberRows(file,rows=>{ const currentNames=getCurrentStudentNameSet(), matchedRows=rows.filter(item=>currentNames.has(item.name)), ignored=rows.length-matchedRows.length; window._studentNumbersFileData=matchedRows; loadStudentNumberMap(); const removed=pruneStudentNumberMap(); let saved=0,dup=0,existing=0,invalid=0,dups=[]; matchedRows.forEach(item=>{ if(queryStudentNumberMap[item.name]){ existing++; return; } const match=item.id.match(/\d{5,}$/); if(!match){ invalid++; return; } const num=match[0].slice(-5); let duplicateOwner=''; for(let st in queryStudentNumberMap){ if(st!==item.name&&queryStudentNumberMap[st]===num){ duplicateOwner=st; break; } } if(duplicateOwner){ dup++; dups.push({name:item.name,number:num}); } else { queryStudentNumberMap[item.name]=num; saved++; } }); if(saved>0||removed>0) saveStudentNumberMap(); const notes=[]; notes.push(saved>0?`✅ تم حفظ ${saved} رقم مرتبط بالطلاب الحاليين.`:'ℹ️ لم يُحفظ رقم جديد.'); if(ignored>0) notes.push(`تم تجاهل ${ignored} صفاً لأن أسماءها غير موجودة في الفصول الحالية.`); if(existing>0) notes.push(`${existing} رقم موجود مسبقاً.`); if(invalid>0) notes.push(`${invalid} صفاً برقم غير صالح.`); if(dup>0) notes.push(`⚠️ ${dup} رقم مكرر.`); const status=document.getElementById('studentNumbersUploadStatus'); status.className=dup>0?'upload-status error':saved>0?'upload-status success':'upload-status info'; status.textContent=notes.join(' '); renderStudentNumbersList(); if(dup>0) alert(`⚠️ تم العثور على ${dup} رقم مكرر. يرجى تعديلها يدوياً من القائمة.`); }); }
 
     function renderStudentNumbersList(){ const sel=document.getElementById('studentNumbersClassSelect').value, cont=document.getElementById('studentNumbersListContainer'); if(sel==='__no_numbers__'){ const list=getStudentsWithoutNumbers(); if(list.length===0){ cont.innerHTML='<div style="text-align:center;color:#27ae60;padding:20px;font-weight:bold;">✅ جميع الطلاب لديهم أرقام!</div>'; return; } loadStudentNumberMap(); const dup=getDuplicateNames(); let html=''; list.forEach((item,index)=>{ const num=queryStudentNumberMap[item.name]||'', id='no-'+index, status=num?'unique':'missing', text=num?'✅ فريد':'🔴 بدون رقم', color=dup.includes(item.name)?'color:#FF3B30;':''; html+=`<div class="student-number-card" id="number-card-${id}"><div class="student-name-row"><span style="${color}">${item.name}</span><span class="student-class-tag">${item.class}</span></div><div class="number-row"><span class="number-display ${num?'':'missing'}" id="number-display-${id}">${num||'---'}</span><input type="text" class="number-input" id="number-input-${id}" value="${num}" maxlength="10" placeholder="رقم الطالب"><button class="btn-number-edit" id="number-edit-${id}" onclick="startEditNumber('${id}')">✏️ تعديل</button><button class="btn-number-save" id="number-save-${id}" onclick="saveEditNumber('${id}')">✅ حفظ</button><button class="btn-number-cancel" id="number-cancel-${id}" onclick="cancelEditNumber('${id}')">✖️ إلغاء</button><span class="number-status ${status}">${text}</span></div></div>`; }); cont.innerHTML=html; return; } if(!sel||!appData[sel]||appData[sel].length===0){ cont.innerHTML='<div style="text-align:center;color:#999;padding:20px;">لا يوجد طلاب في هذا الفصل</div>'; return; } loadStudentNumberMap(); const count={}; for(let s in queryStudentNumberMap){ const num=queryStudentNumberMap[s]; if(!count[num]) count[num]=[]; count[num].push(s); } const students=[...appData[sel]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames(); let html=''; students.forEach((s,index)=>{ const num=queryStudentNumberMap[s]||'', isDup=num&&count[num]&&count[num].length>1; let stCls='', stText='', disp=''; if(isDup){ stCls='duplicate'; stText='⚠️ مكرر'; disp='duplicate'; } else if(num){ stCls='unique'; stText='✅ فريد'; disp=''; } else { stCls='missing'; stText='🔴 بدون رقم'; disp='missing'; } const id=index, color=dup.includes(s)?'color:#FF3B30;':''; html+=`<div class="student-number-card" id="number-card-${id}"><div class="student-name-row"><span style="${color}">${s}</span><span class="student-class-tag">${sel}</span></div><div class="number-row"><span class="number-display ${disp}" id="number-display-${id}">${num||'---'}</span><input type="text" class="number-input" id="number-input-${id}" value="${num}" maxlength="10" placeholder="رقم الطالب"><button class="btn-number-edit" id="number-edit-${id}" onclick="startEditNumber('${id}')">✏️ تعديل</button><button class="btn-number-save" id="number-save-${id}" onclick="saveEditNumber('${id}')">✅ حفظ</button><button class="btn-number-cancel" id="number-cancel-${id}" onclick="cancelEditNumber('${id}')">✖️ إلغاء</button><span class="number-status ${stCls}">${stText}</span></div></div>`; }); cont.innerHTML=html; }
@@ -6370,146 +6321,8 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     function cancelEditNumber(id){ const card=document.getElementById(`number-card-${id}`); if(!card) return; card.classList.remove('editing'); if(editingNumberIndex===id) editingNumberIndex=-1; }
     function saveEditNumber(id){ const card=document.getElementById(`number-card-${id}`); if(!card) return; const input=document.getElementById(`number-input-${id}`), display=document.getElementById(`number-display-${id}`), newNum=input.value.trim(); let student='', sel=document.getElementById('studentNumbersClassSelect').value; if(typeof id==='string'&&id.startsWith('no-')){ const idx=parseInt(id.replace('no-','')); const list=getStudentsWithoutNumbers(); if(list[idx]) student=list[idx].name; } else { const students=[...appData[sel]].sort((a,b)=>a.localeCompare(b,'ar')); if(students[parseInt(id)]) student=students[parseInt(id)]; } if(!student){ alert("حدث خطأ في تحديد الطالب!"); return; } if(!newNum){ delete queryStudentNumberMap[student]; display.textContent='---'; display.className='number-display missing'; saveStudentNumberMap(); cancelEditNumber(id); renderStudentNumbersList(); return; } let isDup=false, dupStudent=''; for(let st in queryStudentNumberMap){ if(st!==student&&queryStudentNumberMap[st]===newNum){ isDup=true; dupStudent=st; break; } } if(isDup){ alert(`⚠️ الرقم "${newNum}" مستخدم بالفعل للطالب "${dupStudent}". يرجى اختيار رقم مختلف.`); input.focus(); input.select(); return; } queryStudentNumberMap[student]=newNum; display.textContent=newNum; display.className='number-display'; saveStudentNumberMap(); cancelEditNumber(id); renderStudentNumbersList(); }
     function saveAllStudentNumbers(){ saveStudentNumberMap(); alert("✅ تم حفظ جميع أرقام الطلاب بنجاح!"); renderStudentNumbersList(); }
-
-    // ===== تصدير بيانات الاستعلام =====
-    function openQueryExportModal(){ initClassSelects(); renderQueryUnitCheckboxes(); loadStudentNumberMap(); const all=getAllStudents(), missing=all.filter(s=>!queryStudentNumberMap[s]); if(missing.length===0){ document.getElementById('queryExportModal').style.display='flex'; const btn=document.querySelector('#queryExportModal .btn-upload'); if(btn) btn.style.display='none'; document.getElementById('queryIdFileInput').style.display='none'; document.getElementById('queryIdFileStatus').innerHTML='✅ جميع الأرقام محفوظة'; document.getElementById('queryIdFileStatus').style.color='var(--green)'; prepareDefaultQueryData(); } else { const btn=document.querySelector('#queryExportModal .btn-upload'); if(btn) btn.style.display='block'; document.getElementById('queryIdFileInput').style.display='block'; document.getElementById('queryIdFileStatus').innerHTML=`⚠️ ${missing.length} طالب بدون أرقام، يرجى رفع ملف البيانات.`; document.getElementById('queryIdFileStatus').style.color='var(--red)'; document.getElementById('queryExportModal').style.display='flex'; } }
-    function closeQueryExportModal(){ document.getElementById('queryExportModal').style.display='none'; }
-    function prepareDefaultQueryData(){ queryIdFileData=[]; loadStudentNumberMap(); Object.keys(appData).forEach(cls=>{ if(appData[cls]) appData[cls].forEach(s=>{ queryIdFileData.push({id:queryStudentNumberMap[s]||'',name:s,cls}); }); }); queryIdFileName='بيانات محفوظة'; }
-    function renderQueryUnitCheckboxes(){ const cont=document.getElementById('queryUnitCheckboxes'); cont.innerHTML=''; const all=Object.keys(unitsData); if(all.length===0){ cont.innerHTML='<div style="text-align:center;padding:10px;color:#999;">لا توجد وحدات مسجلة.</div>'; return; } all.forEach(u=>{ const label=document.createElement('label'); label.className='unit-check-item'; const cb=document.createElement('input'); cb.type='checkbox'; cb.value=u; cb.checked=true; label.appendChild(cb); label.appendChild(document.createTextNode(` ${u}`)); cont.appendChild(label); }); }
-    function handleQueryIdFileUpload(e){ const file=e.target.files[0]; if(!file) return; if(typeof XLSX==='undefined'){ alert("مكتبة قراءة الإكسل غير محملة!"); return; } const reader=new FileReader(); reader.onload=function(ev){ try { const data=new Uint8Array(ev.target.result), wb=XLSX.read(data,{type:'array'}), sheet=wb.Sheets[wb.SheetNames[0]], json=XLSX.utils.sheet_to_json(sheet,{header:1}); if(json.length<2){ alert("الملف فارغ!"); return; } const header=json[0]; let idCol=-1,nameCol=-1,classCol=-1; for(let i=0;i<header.length;i++){ const cell=header[i]?header[i].toString().trim():''; if(cell.includes('رقم')||cell.includes('هوية')||cell.includes('ID')) idCol=i; else if(cell.includes('اسم')) nameCol=i; else if(cell.includes('فصل')||cell.includes('صف')) classCol=i; } if(idCol===-1) idCol=0; if(nameCol===-1) nameCol=1; const rows=[]; for(let r=1;r<json.length;r++){ const row=json[r]; if(!row||!row[idCol]||!row[nameCol]) continue; rows.push({id:row[idCol].toString().trim(),name:row[nameCol].toString().trim(),cls:classCol!==-1&&row[classCol]?row[classCol].toString().trim():''}); } if(rows.length===0){ alert("لم يتم العثور على بيانات صالحة في الملف."); return; } queryIdFileData=rows; queryIdFileName=file.name; document.getElementById('queryIdFileStatus').innerHTML=`✅ تم رفع الملف: ${file.name} (${rows.length} طالب)`; document.getElementById('queryIdFileStatus').style.color='var(--green)'; loadStudentNumberMap(); let saved=0; rows.forEach(item=>{ if(!queryStudentNumberMap[item.name]){ const match=item.id.match(/\d{5,}$/); if(match){ queryStudentNumberMap[item.name]=match[0].slice(-5); saved++; } } }); if(saved>0){ saveStudentNumberMap(); document.getElementById('queryIdFileStatus').innerHTML=`✅ تم رفع الملف وحفظ ${saved} رقم جديد.`; } } catch(err){ console.error(err); alert("❌ حدث خطأ أثناء قراءة ملف البيانات."); } }; reader.readAsArrayBuffer(file); }
-    function handleQueryIdFileUpload(e){ const file=e.target.files[0]; if(!file) return; if(typeof XLSX==='undefined'){ alert('مكتبة قراءة الإكسل غير محملة!'); return; } parseStudentNumberRows(file,rows=>{ const currentNames=getCurrentStudentNameSet(), matchedRows=rows.filter(item=>currentNames.has(item.name)), ignored=rows.length-matchedRows.length; queryIdFileData=matchedRows; queryIdFileName=file.name; loadStudentNumberMap(); const removed=pruneStudentNumberMap(); let saved=0,existing=0,invalid=0; matchedRows.forEach(item=>{ if(queryStudentNumberMap[item.name]){ existing++; return; } const match=item.id.match(/\d{5,}$/); if(match){ queryStudentNumberMap[item.name]=match[0].slice(-5); saved++; } else invalid++; }); if(saved>0||removed>0) saveStudentNumberMap(); const notes=[]; notes.push(saved>0?`✅ تم ربط ${saved} رقم بالطلاب الحاليين.`:'ℹ️ لم يُحفظ رقم جديد.'); if(ignored>0) notes.push(`تم تجاهل ${ignored} صفاً لا يطابق طلاب الفصول.`); if(existing>0) notes.push(`${existing} رقم موجود مسبقاً.`); if(invalid>0) notes.push(`${invalid} صفاً برقم غير صالح.`); const status=document.getElementById('queryIdFileStatus'); status.innerHTML=notes.join(' '); status.style.color=saved>0?'var(--green)':'var(--text-secondary)'; }); }
-
-    function exportQueryData(){ if(typeof XLSX==='undefined'){ alert('❌ مكتبة Excel غير جاهزة. أعد فتح الملف أو استخدم النسخة المرفقة الحديثة.'); return; } const filter=document.getElementById('queryClassSelect').value, allClasses=Object.keys(appData); loadStudentNumberMap(); const all=getAllStudents(), missing=all.filter(s=>!queryStudentNumberMap[s]); if(missing.length>0){ if(!queryIdFileData||queryIdFileData.length===0){ alert(`⚠️ لا يمكن التصدير! ${missing.length} طالب بلا رقم.\n\nافتح 🔢 أرقام الطلاب من ⚙️ إدارة التطبيق، وسجّل الأرقام ثم أعد التصدير.`); return; } } const checkboxes=document.querySelectorAll('#queryUnitCheckboxes input[type="checkbox"]'); const selected=[]; checkboxes.forEach(cb=>{ if(cb.checked) selected.push(cb.value); }); if(selected.length===0){ alert("يرجى اختيار وحدة واحدة على الأقل!"); return; } if(!queryIdFileData||queryIdFileData.length===0) prepareDefaultQueryData(); loadStudentNumberMap(); const idMap={}; queryIdFileData.forEach(item=>{ idMap[item.name]=item.id; }); let targets=[]; if(filter==='الكل') targets=allClasses; else { if(allClasses.includes(filter)) targets=[filter]; else { alert("الفصل المحدد غير موجود!"); return; } } let list=[]; targets.forEach(cls=>{ if(appData[cls]) appData[cls].forEach(s=>list.push({name:s,class:cls})); }); if(list.length===0){ alert("لا يوجد طلاب في الفصول المحددة!"); return; } list.sort((a,b)=>a.name.localeCompare(b.name,'ar')); const tempMap={}, missingList=[]; list.forEach(item=>{ const s=item.name; if(queryStudentNumberMap[s]){ tempMap[s]=queryStudentNumberMap[s]; return; } if(idMap[s]){ const match=idMap[s].match(/\d{5,}$/); if(match) tempMap[s]=match[0].slice(-5); else missingList.push(s); } else missingList.push(s); }); if(missingList.length>0){ alert(`⚠️ يوجد ${missingList.length} طالب بلا رقم:\n${missingList.join('\n')}\n\nافتح 🔢 أرقام الطلاب من ⚙️ إدارة التطبيق، وسجّل الأرقام ثم أعد التصدير.`); return; } const count={}; for(let s in tempMap){ const num=tempMap[s]; if(!count[num]) count[num]=[]; count[num].push(s); } const dups={}; for(let num in count){ if(count[num].length>1) dups[num]=count[num]; } if(Object.keys(dups).length>0){ showDuplicateNumbersModal(dups,tempMap); return; } performQueryExport(targets,selected,tempMap,list); }
-    function showDuplicateNumbersModal(dups,map){ const cont=document.getElementById('duplicateNumbersContainer'); cont.innerHTML=''; let html=''; for(let num in dups){ const students=dups[num]; html+=`<div style="background:#f8d7da;padding:4px 8px;border-radius:6px;margin-bottom:6px;border:1px solid #f5c6cb;"><div style="font-weight:bold;color:#721c24;">الرقم المكرر: ${num}</div>`; students.forEach(s=>{ html+=`<div style="display:flex;align-items:center;gap:4px;margin:2px 0;"><span style="flex:1;font-weight:700;">${s}</span><input type="text" class="duplicate-number-input" data-student="${s}" value="${num}" style="width:80px;text-align:center;border:1px solid #ccc;border-radius:4px;padding:2px;"></div>`; }); html+=`</div>`; } cont.innerHTML=html; document.getElementById('duplicateNumbersModal').style.display='flex'; window._tempNumberMap=map; window._duplicates=dups; }
-    function closeDuplicateNumbersModal(){ document.getElementById('duplicateNumbersModal').style.display='none'; window._tempNumberMap=null; window._duplicates=null; }
-    function saveDuplicateNumbersAndExport(){ const inputs=document.querySelectorAll('.duplicate-number-input'), newMap={}; const checkboxes=document.querySelectorAll('#queryUnitCheckboxes input[type="checkbox"]'), selected=[]; checkboxes.forEach(cb=>{ if(cb.checked) selected.push(cb.value); }); inputs.forEach(inp=>{ const s=inp.dataset.student, val=inp.value.trim(); if(!val||val.length<5){ alert(`الرقم "${val}" غير صحيح للطالب ${s}. يجب أن يحتوي على 5 أرقام.`); return; } newMap[s]=val.slice(-5); queryStudentNumberMap[s]=val.slice(-5); }); const count={}; for(let s in newMap){ const num=newMap[s]; if(!count[num]) count[num]=[]; count[num].push(s); } for(let num in count){ if(count[num].length>1){ alert(`لا يزال هناك تكرار للرقم "${num}" بين الطلاب: ${count[num].join(', ')}. يرجى تعديله.`); return; } } saveStudentNumberMap(); closeDuplicateNumbersModal(); const filter=document.getElementById('queryClassSelect').value, allClasses=Object.keys(appData); let targets=(filter==='الكل')?allClasses:[filter]; let list=[]; targets.forEach(cls=>{ if(appData[cls]) appData[cls].forEach(s=>list.push({name:s,class:cls})); }); list.sort((a,b)=>a.name.localeCompare(b.name,'ar')); performQueryExport(targets,selected,newMap,list); }
-    // ===== تصدير بيانات الاستعلام (data.xlsx) =====
     // صفحات الوحدات تنقل لقطة القيم المعروضة في كشف المتابعة، والخلاصة فقط تجمع هذه اللقطات وتقسمها على عدد الوحدات.
-    // ===== تصدير بيانات الاستعلام (data.xlsx) =====
     // صفحات الوحدات تقرأ الخلايا الظاهرة في كشف المتابعة مباشرة؛ الخلاصة فقط تحسب متوسط القيم المصدرة.
-    function performQueryExport(targets, selectedUnits, map, list) {
-      const wb = XLSX.utils.book_new();
-      const unitSnapshots = {};
-      const classSelect = document.getElementById('followupClassSelect');
-      const savedClass = classSelect ? classSelect.value : '';
-      const savedActiveUnit = currentActiveUnit;
-      const asNumber = value => Number.parseFloat(String(value).replace(/,/g,'')) || 0;
-
-      // مصدر موحد لصف التصدير: نفس بيانات ودوال كشف المتابعة، من دون قراءة صفوف DOM.
-      // بذلك لا يتأثر التصدير بطول الاسم أو ترتيب الصفوف أو إضافة/حذف الطلاب.
-      function buildFollowupExportSnapshot(cls, student, unit, lessons) {
-        const followupKey = `${cls}_${unit}`;
-        if(!followupData[followupKey]) followupData[followupKey] = {};
-        if(!followupData[followupKey][student]) {
-          followupData[followupKey][student] = {hw:{},act:{},test1:'',test2:'',projectLink:''};
-        }
-        const stData = followupData[followupKey][student];
-        const raw = computeRawAverages(cls, student, unit);
-        const participation = calculateStudentParticipationScore(cls, student, unit);
-        const weighted = computeWeightedScores(cls, student, [unit]);
-        const attendance = getStudentAttendanceStats(cls, student, isPerUnitParticipationMode() ? unit : '__all__');
-
-        return {
-          hwInputs: lessons.map(lesson => stData.hw && stData.hw[lesson] !== undefined ? stData.hw[lesson] : ''),
-          hwAverage: formatGrade(raw.hwAvg),
-          actInputs: lessons.map(lesson => stData.act && stData.act[lesson] !== undefined ? stData.act[lesson] : ''),
-          understanding: formatGrade(raw.understanding),
-          actAverage: formatGrade(raw.actAvg),
-          absence: attendance.absent,
-          late: attendance.late,
-          violations: attendance.violations,
-          participation: formatGrade(participation),
-          test: stData.test1 !== undefined ? stData.test1 : '',
-          project: stData.test2 !== undefined ? stData.test2 : '',
-          finalHw: formatGrade(weighted.hw),
-          finalAct: formatGrade(weighted.act),
-          finalParticipation: formatGrade(weighted.participation),
-          finalTest: formatGrade(weighted.test),
-          total: formatGrade(weighted.total)
-        };
-      }
-
-      try {
-        selectedUnits.forEach(unit => {
-          const unitObj = unitsData[unit] || {lessons: ['درس 1']};
-          const lessons = unitObj.lessons;
-          const rows = [];
-          const header = ['رقم', 'الاسم', 'الفصل'];
-          lessons.forEach(l => header.push(`واجب ${l}`));
-          header.push('الموزونه');
-          lessons.forEach(l => header.push(`نشاط ${l}`));
-          header.push('تحقق من فهمك', 'الموزونه');
-          header.push('غياب', 'تأخر', 'مخالفات', 'المشاركه', 'اختبار', 'مشروع');
-          header.push('خ واجب', 'خ نشاط', 'خ مشاركه', 'خ اختبار', 'المجموع');
-          rows.push(header);
-          unitSnapshots[unit] = {};
-
-          list.forEach(item => {
-            const snapshot = buildFollowupExportSnapshot(item.class, item.name, unit, lessons);
-            unitSnapshots[unit][`${item.class}__${item.name}`] = snapshot;
-            // صف الوحدة: نقل حرفي لقيم كشف المتابعة ولا توجد دوال حساب درجات هنا.
-            rows.push([
-              map[item.name] || '', item.name, item.class,
-              ...snapshot.hwInputs, snapshot.hwAverage,
-              ...snapshot.actInputs, snapshot.understanding, snapshot.actAverage,
-              snapshot.absence, snapshot.late, snapshot.violations, snapshot.participation,
-              snapshot.test, snapshot.project,
-              snapshot.finalHw, snapshot.finalAct, snapshot.finalParticipation, snapshot.finalTest, snapshot.total
-            ]);
-          });
-
-          const ws = XLSX.utils.aoa_to_sheet(rows);
-          XLSX.utils.book_append_sheet(wb, ws, unit);
-        });
-
-        // الخلاصة: متوسط القيم النهائية المقروءة من صفحات الوحدات فقط.
-        const summaryHeader = ['رقم', 'اسم الطالب', 'الفصل', 'واجب', 'نشاط', 'مشاركه', 'اختبار', 'المجموع'];
-        const summaryRows = [summaryHeader];
-        list.forEach(item => {
-          let sumHw=0, sumAct=0, sumPart=0, sumTest=0, sumTotal=0;
-          let availableUnits=0;
-          selectedUnits.forEach(unit => {
-            const snapshot = unitSnapshots[unit][`${item.class}__${item.name}`];
-            if(snapshot){
-              sumHw += asNumber(snapshot.finalHw);
-              sumAct += asNumber(snapshot.finalAct);
-              sumPart += asNumber(snapshot.finalParticipation);
-              sumTest += asNumber(snapshot.finalTest);
-              sumTotal += asNumber(snapshot.total);
-              availableUnits++;
-            }
-          });
-          const n = availableUnits || 1;
-          summaryRows.push([
-            map[item.name] || '', item.name, item.class,
-            formatGrade(sumHw/n),
-            formatGrade(sumAct/n),
-            formatGrade(sumPart/n),
-            formatGrade(sumTest/n),
-            formatGrade(sumTotal/n)
-          ]);
-        });
-        const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
-        XLSX.utils.book_append_sheet(wb, wsSummary, 'خلاصة');
-
-        const out = XLSX.write(wb, {bookType:'xlsx', type:'array'});
-        const blob = new Blob([out], {type:'application/octet-stream'});
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'data.xlsx';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-        alert('✅ تم إنشاء وتنزيل ملف data.xlsx بنجاح.');
-      } catch(err) {
-        console.error('تعذر تصدير data.xlsx:', err);
-        alert(`❌ تعذر تصدير ملف data.xlsx. ${err && err.message ? err.message : 'يرجى المحاولة مرة أخرى.'}`);
-      } finally {
-        // لا تتغير واجهة كشف المتابعة أثناء التصدير.
-      }
-    }
-
     async function exportSingleStudentPDF(){
       const cls=document.getElementById('classSelect').value, today=new Date().toLocaleDateString('ar-SA'), scope=currentStudentReportUnitSelection, scopeLabel=getAttendanceScopeLabel(scope);
       const showViolationNames=pdfSizeSettings.singleStudent&&pdfSizeSettings.singleStudent.showViolationNames===true;

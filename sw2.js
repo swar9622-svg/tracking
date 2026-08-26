@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-38-live-followup-summary-fix';
+const CACHE_NAME = 'attendance-app-v21-39-json-only-export';
 const urlsToCache = [
   './',
   './index.html',
