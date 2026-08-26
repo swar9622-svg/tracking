@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-29-edit-saved-notes';
+const CACHE_NAME = 'attendance-app-v21-30-inline-note-editing';
 const urlsToCache = [
   './',
   './index.html',

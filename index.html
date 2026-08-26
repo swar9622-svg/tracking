@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.29";</script>
+  <script>const APP_VERSION = "21.30";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2672,10 +2672,16 @@ ${description}`)) return;
     function formatAttendanceStudentNoteDate(value){ try{return new Date(value).toLocaleDateString('ar-SA');}catch(_){return '';} }
     function getAttendanceStudentStatsMarkup(cls,student){
       const notes=getAttendanceStudentNotes(cls,student), safeClass=CSS.escape(cls), safeStudent=CSS.escape(student);
-      const activeEdit=attendanceStudentNoteEdit&&attendanceStudentNoteEdit.cls===cls&&attendanceStudentNoteEdit.student===student?notes.find(note=>note&&note.id===attendanceStudentNoteEdit.id):null;
-      const notesMarkup=notes.length?notes.slice().reverse().map(note=>`<div class="student-note-item"><div class="student-note-content"><span>${escapeTextForHtml(note.text||'')}</span><small>${formatAttendanceStudentNoteDate(note.updatedAt||note.createdAt)}</small></div><div class="student-note-actions" style="display:flex;gap:6px;align-items:center;"><button type="button" class="student-note-edit" style="border:0;border-radius:9px;background:#EAF2FF;color:#1759A6;font-weight:900;padding:7px 10px;font-family:inherit;cursor:pointer;" title="تعديل الملاحظة" onclick="startAttendanceStudentNoteEdit('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">تعديل</button><button type="button" class="student-note-delete" title="حذف الملاحظة" onclick="deleteAttendanceStudentNote('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">حذف</button></div></div>`).join(''):'<div class="student-notes-empty">لا توجد ملاحظات محفوظة لهذا الطالب.</div>';
+      const activeEdit=attendanceStudentNoteEdit&&attendanceStudentNoteEdit.cls===cls&&attendanceStudentNoteEdit.student===student?attendanceStudentNoteEdit:null;
+      const actionStyle='width:66px;height:40px;border:0;border-radius:10px;font-weight:900;font-family:inherit;cursor:pointer;flex:0 0 66px;';
+      const notesMarkup=notes.length?notes.slice().reverse().map(note=>{
+        const isEditing=activeEdit&&activeEdit.id===note.id;
+        const content=isEditing?`<div class="student-note-content"><textarea class="student-note-inline-input" rows="1" aria-label="تعديل الملاحظة" oninput="autoGrowAttendanceStudentNote(this)">${escapeTextForHtml(note.text||'')}</textarea><small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></div>`:`<div class="student-note-content"><span>${escapeTextForHtml(note.text||'')}</span><small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></div>`;
+        const actions=isEditing?`<div class="student-note-actions" style="display:flex;gap:6px;align-items:center;"><button type="button" class="student-note-edit student-note-action" style="${actionStyle}background:#147DF5;color:#fff;" onclick="saveAttendanceStudentNoteEdit('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">حفظ</button><button type="button" class="student-note-delete student-note-action" style="${actionStyle}background:#EEF1F5;color:#52606D;" onclick="cancelAttendanceStudentNoteEdit()">إلغاء</button></div>`:`<div class="student-note-actions" style="display:flex;gap:6px;align-items:center;"><button type="button" class="student-note-edit" style="${actionStyle}background:#EAF2FF;color:#1759A6;" title="تعديل الملاحظة" onclick="startAttendanceStudentNoteEdit('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">تعديل</button><button type="button" class="student-note-delete" style="${actionStyle}background:#FFF0F0;color:#B42318;" title="حذف الملاحظة" onclick="deleteAttendanceStudentNote('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">حذف</button></div>`;
+        return `<div class="student-note-item ${isEditing?'is-editing':''}">${content}${actions}</div>`;
+      }).join(''):'<div class="student-notes-empty">لا توجد ملاحظات محفوظة لهذا الطالب.</div>';
       const notesAreVisible=openAttendanceStudentStats===student&&showAttendanceStudentNotes;
-      const entryMarkup=activeEdit?`<div class="student-note-entry is-editing"><textarea class="student-note-input" rows="1" placeholder="عدّل الملاحظة…" oninput="autoGrowAttendanceStudentNote(this)">${escapeTextForHtml(activeEdit.text||'')}</textarea><button type="button" class="student-note-save student-note-action" onclick="saveAttendanceStudentNoteEdit('${safeClass}','${safeStudent}','${encodeURIComponent(String(activeEdit.id||''))}')">حفظ التعديل</button><button type="button" class="student-note-cancel student-note-action" style="border:0;border-radius:10px;background:#EEF1F5;color:#52606D;font-weight:900;padding:0 11px;font-family:inherit;cursor:pointer;" onclick="cancelAttendanceStudentNoteEdit()">إلغاء</button></div>`:`<div class="student-note-entry"><textarea class="student-note-input" rows="1" placeholder="اكتب ملاحظة…" oninput="autoGrowAttendanceStudentNote(this)"></textarea><button type="button" class="student-note-save student-note-action" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ</button></div>`;
+      const entryMarkup=`<div class="student-note-entry"><textarea class="student-note-input" rows="1" placeholder="اكتب ملاحظة…" oninput="autoGrowAttendanceStudentNote(this)"></textarea><button type="button" class="student-note-save" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ</button></div>`;
       return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite"><div class="student-notes-section" style="border-top:0;padding-top:0;">${entryMarkup}<button type="button" class="student-notes-toggle" onclick="toggleAttendanceStudentNotes()">${notesAreVisible?'إخفاء الملاحظات':`إظهار الملاحظات (${notes.length})`}</button>${notesAreVisible?`<div class="student-notes-list">${notesMarkup}</div>`:''}</div></div>`;
     }
     function getAttendanceStudentSummaryBubble(cls,student){
@@ -2695,25 +2701,15 @@ ${description}`)) return;
       const noteId=decodeURIComponent(encodedId||''), note=getAttendanceStudentNotes(cls,student).find(item=>item&&item.id===noteId);
       if(!note) return;
       attendanceStudentNoteEdit={cls,student,id:noteId}; openAttendanceStudentStats=student; showAttendanceStudentNotes=true; renderStudents();
-      requestAnimationFrame(()=>{ const input=document.querySelector('.student-stats-bubble.is-open .student-note-input'); if(input){ input.focus(); input.setSelectionRange(input.value.length,input.value.length); autoGrowAttendanceStudentNote(input); } });
+      requestAnimationFrame(()=>{ const input=document.querySelector('.student-stats-bubble.is-open .student-note-inline-input'); if(input){ input.focus(); input.setSelectionRange(input.value.length,input.value.length); autoGrowAttendanceStudentNote(input); } });
     }
     function saveAttendanceStudentNoteEdit(cls,student,encodedId){
-      const noteId=decodeURIComponent(encodedId||''), input=document.querySelector('.student-stats-bubble.is-open .student-note-input'), text=String(input?.value||'').trim(), notes=getAttendanceStudentNotes(cls,student), note=notes.find(item=>item&&item.id===noteId);
+      const noteId=decodeURIComponent(encodedId||''), input=document.querySelector('.student-stats-bubble.is-open .student-note-inline-input'), text=String(input?.value||'').trim(), notes=getAttendanceStudentNotes(cls,student), note=notes.find(item=>item&&item.id===noteId);
       if(!note) return cancelAttendanceStudentNoteEdit();
       if(!text){ input?.focus(); return; }
-      note.text=text; note.updatedAt=new Date().toISOString(); attendanceStudentNoteEdit=null; saveData(); renderStudents();
+      note.text=text; attendanceStudentNoteEdit=null; saveData(); renderStudents();
     }
     function cancelAttendanceStudentNoteEdit(){ attendanceStudentNoteEdit=null; renderStudents(); }
-    function deleteAttendanceStudentNote(cls,student,encodedId){
-      const noteId=decodeURIComponent(encodedId||''), notes=getAttendanceStudentNotes(cls,student), note=notes.find(item=>item&&item.id===noteId);
-      if(!note) return;
-      if(!confirm('هل تريد حذف هذه الملاحظة؟')) return;
-      if(attendanceStudentNoteEdit&&attendanceStudentNoteEdit.id===noteId) attendanceStudentNoteEdit=null;
-      const remaining=notes.filter(item=>item&&item.id!==noteId);
-      if(remaining.length) studentNotesData[cls][student]=remaining;
-      else { delete studentNotesData[cls][student]; if(Object.keys(studentNotesData[cls]).length===0) delete studentNotesData[cls]; }
-      saveData(); renderStudents();
-    }
     function toggleAttendanceStudentNotes(){ showAttendanceStudentNotes=!showAttendanceStudentNotes; renderStudents(); }
     function toggleAttendanceStudentNotesPanel(student){
       const closing=openAttendanceStudentStats===student;
