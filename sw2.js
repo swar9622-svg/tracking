@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-37-query-export-reorganization';
+const CACHE_NAME = 'attendance-app-v21-38-live-followup-summary-fix';
 const urlsToCache = [
   './',
   './index.html',

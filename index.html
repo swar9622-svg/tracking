@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.37";</script>
+  <script>const APP_VERSION = "21.38";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4077,29 +4077,30 @@ ${description}`)) return;
     // يحدّث الخلايا المحسوبة في الصف ذاته دون إعادة بناء الجدول، كي لا تفقد لوحة الجوال التركيز.
     function refreshFollowupCalculatedCells(row, cls, student, unit) {
       if(!row) return;
-      const lessons=(unitsData[unit] && unitsData[unit].lessons) || ['درس 1'];
-      const lessonCount=lessons.length;
-      const hwAverage=2+lessonCount;
-      const understanding=hwAverage+1+lessonCount;
-      const actWeighted=understanding+1;
-      const participation=actWeighted+1;
-      const finalHw=participation+3;
-      const finalAct=participation+4;
-      const finalParticipation=participation+5;
-      const finalTest=participation+6;
-      const total=participation+7;
       const raw=computeRawAverages(cls,student,unit);
       const part=calculateStudentParticipationScore(cls,student,unit);
+      const unitWeighted=computeUnitWeighted(cls,student,unit);
       const weighted=computeWeightedScores(cls,student,[unit]);
-      if(row.cells[hwAverage]) row.cells[hwAverage].textContent=formatGrade(raw.hwAvg);
-      if(row.cells[understanding]) row.cells[understanding].textContent=formatGrade(raw.understanding);
-      if(row.cells[actWeighted]) row.cells[actWeighted].textContent=formatGrade(raw.actAvg);
-      if(row.cells[participation]) row.cells[participation].textContent=formatGrade(part);
-      if(row.cells[finalHw]) row.cells[finalHw].textContent=formatGrade(weighted.hw);
-      if(row.cells[finalAct]) row.cells[finalAct].textContent=formatGrade(weighted.act);
-      if(row.cells[finalParticipation]) row.cells[finalParticipation].textContent=formatGrade(weighted.participation);
-      if(row.cells[finalTest]) row.cells[finalTest].textContent=formatGrade(weighted.test);
-      if(row.cells[total]) row.cells[total].innerHTML=`${formatGrade(weighted.total)}${excellenceUnallocatedMarkup(weighted.excellenceUnallocated)}`;
+      // لا نعتمد فهارس الأعمدة: عدد الدروس يتغير وتضاف أعمدة التميز والمشروع.
+      // مجموعات البيانات الثابتة تمنع كتابة الخلاصة داخل اختبار أو مشروع بالخطأ.
+      const homeworkWeighted=row.querySelector('td[data-group="hw"]');
+      const activityColumns=row.querySelectorAll('td[data-group="act"]');
+      const understanding=activityColumns[0], activityWeighted=activityColumns[1];
+      const excellence=row.querySelector('td[data-group="excellence"]');
+      const participation=row.querySelector('td[data-group="participation"]');
+      const summaryColumns=row.querySelectorAll('td[data-group="summary"]');
+      const total=row.querySelector('td[data-group="total"]');
+      if(homeworkWeighted) homeworkWeighted.textContent=formatGrade(raw.hwAvg);
+      if(understanding) understanding.textContent=formatGrade(raw.understanding);
+      if(activityWeighted) activityWeighted.textContent=formatGrade(raw.actAvg);
+      // التميز مستقل عن المشاركة ولا يُمس عند تحديث الدرجات اليومية.
+      if(excellence) excellence.innerHTML=unitWeighted.excellence>0?`<button type="button" class="excellence-lessons-trigger" data-group="excellence" onclick="toggleExcellenceLessonsBubble(this,'${encodeURIComponent(cls)}','${encodeURIComponent(student)}','${encodeURIComponent(unit)}',event)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleExcellenceLessonsBubble(this,'${encodeURIComponent(cls)}','${encodeURIComponent(student)}','${encodeURIComponent(unit)}',event)}" title="عرض الدروس المتميزة" style="border:0;background:transparent;color:#A04B00;font:inherit;font-weight:900;cursor:pointer;padding:5px;min-width:44px;">+${formatGrade(unitWeighted.excellence)}</button>`:'—';
+      if(participation){ const trigger=participation.querySelector('.participation-details-trigger'); if(trigger) trigger.textContent=formatGrade(part); else participation.textContent=formatGrade(part); }
+      if(summaryColumns[0]) summaryColumns[0].textContent=formatGrade(weighted.hw);
+      if(summaryColumns[1]) summaryColumns[1].textContent=formatGrade(weighted.act);
+      if(summaryColumns[2]) summaryColumns[2].textContent=formatGrade(weighted.participation);
+      if(summaryColumns[3]) summaryColumns[3].textContent=formatGrade(weighted.test);
+      if(total) total.innerHTML=`${formatGrade(weighted.total)}${excellenceUnallocatedMarkup(weighted.excellenceUnallocated)}`;
     }
 
     function updateFollowupValue(cls,unit,student,type,lesson,val,sourceInput=null) {
