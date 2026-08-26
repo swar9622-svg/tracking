@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.31";</script>
+  <script>const APP_VERSION = "21.32";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2673,11 +2673,11 @@ ${description}`)) return;
     function getAttendanceStudentStatsMarkup(cls,student){
       const notes=getAttendanceStudentNotes(cls,student), safeClass=CSS.escape(cls), safeStudent=CSS.escape(student);
       const activeEdit=attendanceStudentNoteEdit&&attendanceStudentNoteEdit.cls===cls&&attendanceStudentNoteEdit.student===student?attendanceStudentNoteEdit:null;
-      const actionStyle='width:48px;height:27px;min-height:27px;max-height:27px;border:0;border-radius:7px;font-size:0.62rem;font-weight:900;font-family:inherit;cursor:pointer;flex:0 0 27px;padding:0;';
+      const actionStyle='width:40px;height:24px;min-height:24px;max-height:24px;border:0;border-radius:6px;font-size:0.57rem;font-weight:900;font-family:inherit;cursor:pointer;flex:0 0 40px;padding:0;';
       const notesMarkup=notes.length?notes.slice().reverse().map(note=>{
         const isEditing=activeEdit&&activeEdit.id===note.id;
         const content=isEditing?`<div class="student-note-content"><textarea class="student-note-inline-input" rows="2" aria-label="تعديل الملاحظة" oninput="autoGrowAttendanceStudentNote(this)">${escapeTextForHtml(note.text||'')}</textarea><small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></div>`:`<div class="student-note-content"><span>${escapeTextForHtml(note.text||'')}</span><small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></div>`;
-        const actions=isEditing?`<div class="student-note-actions" style="display:flex;flex-direction:column;gap:4px;align-items:stretch;justify-content:center;flex:0 0 48px;"><button type="button" class="student-note-edit student-note-action" style="${actionStyle}background:#147DF5;color:#fff;" onclick="saveAttendanceStudentNoteEdit('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">حفظ</button><button type="button" class="student-note-delete student-note-action" style="${actionStyle}background:#EEF1F5;color:#52606D;" onclick="cancelAttendanceStudentNoteEdit()">إلغاء</button></div>`:`<div class="student-note-actions" style="display:flex;flex-direction:column;gap:4px;align-items:stretch;justify-content:center;flex:0 0 48px;"><button type="button" class="student-note-edit" style="${actionStyle}background:#EAF2FF;color:#1759A6;" title="تعديل الملاحظة" onclick="startAttendanceStudentNoteEdit('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">تعديل</button><button type="button" class="student-note-delete" style="${actionStyle}background:#FFF0F0;color:#B42318;" title="حذف الملاحظة" onclick="deleteAttendanceStudentNote('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">حذف</button></div>`;
+        const actions=isEditing?`<div class="student-note-actions" style="display:flex;flex-direction:row;gap:4px;align-items:center;justify-content:flex-end;flex:0 0 84px;"><button type="button" class="student-note-edit student-note-action" style="${actionStyle}background:#147DF5;color:#fff;" onclick="saveAttendanceStudentNoteEdit('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">حفظ</button><button type="button" class="student-note-delete student-note-action" style="${actionStyle}background:#EEF1F5;color:#52606D;" onclick="cancelAttendanceStudentNoteEdit()">إلغاء</button></div>`:`<div class="student-note-actions" style="display:flex;flex-direction:row;gap:4px;align-items:center;justify-content:flex-end;flex:0 0 84px;"><button type="button" class="student-note-edit" style="${actionStyle}background:#EAF2FF;color:#1759A6;" title="تعديل الملاحظة" onclick="startAttendanceStudentNoteEdit('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">تعديل</button><button type="button" class="student-note-delete" style="${actionStyle}background:#FFF0F0;color:#B42318;" title="حذف الملاحظة" onclick="deleteAttendanceStudentNote('${safeClass}','${safeStudent}','${encodeURIComponent(String(note.id||''))}')">حذف</button></div>`;
         return `<div class="student-note-item ${isEditing?'is-editing':''}">${content}${actions}</div>`;
       }).join(''):'<div class="student-notes-empty">لا توجد ملاحظات محفوظة لهذا الطالب.</div>';
       const notesAreVisible=openAttendanceStudentStats===student&&showAttendanceStudentNotes;
@@ -2688,7 +2688,7 @@ ${description}`)) return;
       const stats=getStudentAttendanceStats(cls,student,'__all__');
       return `<span class="attendance-summary-bubble" role="status"><span class="absent">غياب<b>${stats.absent}</b></span><span class="late">متأخر<b>${stats.late}</b></span><span class="violations">مخالفات<b>${stats.violations}</b></span></span>`;
     }
-    function autoGrowAttendanceStudentNote(input){ const styles=getComputedStyle(input),lineHeight=parseFloat(styles.lineHeight)||16,padding=parseFloat(styles.paddingTop)+parseFloat(styles.paddingBottom),minHeight=Math.max(27,Math.ceil(lineHeight+padding)),maxHeight=128; input.style.height=`${minHeight}px`; const nextHeight=Math.min(maxHeight,Math.max(minHeight,input.scrollHeight)); input.style.height=`${nextHeight}px`; input.style.overflowY=input.scrollHeight>maxHeight?'auto':'hidden'; const saveButton=input.closest('.student-note-entry')?.querySelector('.student-note-save'); if(saveButton) saveButton.style.height=`${nextHeight}px`; const inlineActions=input.closest('.student-note-item')?.querySelectorAll('.student-note-action'); inlineActions?.forEach(button=>{ button.style.minHeight='27px'; button.style.height='27px'; }); }
+    function autoGrowAttendanceStudentNote(input){ const styles=getComputedStyle(input),lineHeight=parseFloat(styles.lineHeight)||16,padding=parseFloat(styles.paddingTop)+parseFloat(styles.paddingBottom),minHeight=Math.max(27,Math.ceil(lineHeight+padding)),maxHeight=128; input.style.height=`${minHeight}px`; const nextHeight=Math.min(maxHeight,Math.max(minHeight,input.scrollHeight)); input.style.height=`${nextHeight}px`; input.style.overflowY=input.scrollHeight>maxHeight?'auto':'hidden'; const saveButton=input.closest('.student-note-entry')?.querySelector('.student-note-save'); if(saveButton) saveButton.style.height=`${nextHeight}px`; const inlineActions=input.closest('.student-note-item')?.querySelectorAll('.student-note-action'); inlineActions?.forEach(button=>{ button.style.minHeight='24px'; button.style.maxHeight='24px'; button.style.height='24px'; }); }
     function addAttendanceStudentNote(cls,student){
       const input=document.querySelector('.student-stats-bubble.is-open .student-note-input'), text=String(input?.value||'').trim();
       if(!text){ if(input) input.focus(); return; }
@@ -2710,6 +2710,16 @@ ${description}`)) return;
       note.text=text; attendanceStudentNoteEdit=null; saveData(); renderStudents();
     }
     function cancelAttendanceStudentNoteEdit(){ attendanceStudentNoteEdit=null; renderStudents(); }
+    function deleteAttendanceStudentNote(cls,student,encodedId){
+      const noteId=decodeURIComponent(encodedId||''), notes=getAttendanceStudentNotes(cls,student), note=notes.find(item=>item&&item.id===noteId);
+      if(!note) return;
+      if(!confirm('هل تريد حذف هذه الملاحظة؟')) return;
+      if(attendanceStudentNoteEdit&&attendanceStudentNoteEdit.id===noteId) attendanceStudentNoteEdit=null;
+      const remaining=notes.filter(item=>item&&item.id!==noteId);
+      if(remaining.length) studentNotesData[cls][student]=remaining;
+      else { delete studentNotesData[cls][student]; if(Object.keys(studentNotesData[cls]).length===0) delete studentNotesData[cls]; }
+      saveData(); renderStudents();
+    }
     function toggleAttendanceStudentNotes(){ showAttendanceStudentNotes=!showAttendanceStudentNotes; renderStudents(); }
     function toggleAttendanceStudentNotesPanel(student){
       const closing=openAttendanceStudentStats===student;

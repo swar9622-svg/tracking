@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-31-compact-note-actions';
+const CACHE_NAME = 'attendance-app-v21-32-delete-fix-horizontal-actions';
 const urlsToCache = [
   './',
   './index.html',
