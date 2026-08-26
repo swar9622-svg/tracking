@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-45-json-color-student-numbers-shortcut';
+const CACHE_NAME = 'attendance-app-v21-46-unit-details-actual-bonuses';
 const urlsToCache = [
   './',
   './index.html',
