@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-32-delete-fix-horizontal-actions';
+const CACHE_NAME = 'attendance-app-v21-33-remove-short-pdf-button';
 const urlsToCache = [
   './',
   './index.html',
