@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-40-safe-update-storage-repair';
+const CACHE_NAME = 'attendance-app-v21-39-json-only-export';
 const urlsToCache = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const urlsToCache = [
   './html2pdf.bundle.min.js',
   './html2canvas.min.js',
   './jspdf.umd.min.js',
+  './xlsx.full.min.js',
   './sw2.js',
   './fonts/IBMPlexSansArabic-400.woff2',
   './fonts/IBMPlexSansArabic-600.woff2',
@@ -15,8 +16,7 @@ const urlsToCache = [
 
 self.addEventListener('install', event => {
   self.skipWaiting();
-  // لا يسمح لفشل أصل ثانوي (مثل ملف خطوط مفقود) بأن يوقف تثبيت التحديث كله.
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => Promise.allSettled(urlsToCache.map(url => cache.add(url)))));
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
 });
 
 self.addEventListener('activate', event => {
