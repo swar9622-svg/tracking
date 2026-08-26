@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.22";</script>
+  <script>const APP_VERSION = "21.23";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1471,7 +1471,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;font-weight:800;text-align:center;">ترتيب توزيع درجة التميز: اضغط المربعات بالترتيب ليظهر 1 ثم 2 ثم 3 ثم 4. أي فائض بعد اكتمال 60 يهمّش في الخلاصة.</div>
       <div id="excellenceOrderBoxes" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px;"></div>
       <div style="display:flex;gap:6px;">
-        <button type="button" class="btn-modal-cancel" style="flex:1;" onclick="resetExcellenceOrderSelection()">↺ إعادة تعيين</button>
+        <button type="button" class="btn-modal-cancel" style="flex:1;" onclick="resetExcellenceOrderSelection()">↺ الافتراضي</button>
         <button type="button" class="btn-modal-save" style="flex:1;" onclick="saveExcellenceSettings()">💾 حفظ الإعدادات</button>
       </div>
     </div>
@@ -1671,7 +1671,7 @@ ${description}`)) return;
       });
     }
     let projectDistributionOrder = {};
-    const EXCELLENCE_DEFAULT_SETTINGS={pointsPerLesson:3,distributionOrder:['act','participation','hw','test']};
+    const EXCELLENCE_DEFAULT_SETTINGS={pointsPerLesson:3,distributionOrder:['act','hw','participation','test']};
     const EXCELLENCE_DISTRIBUTION_CATEGORIES=[
       {key:'act',label:'الأنشطة',cap:20,color:'#FCF3CF',accent:'#7D6608'},
       {key:'participation',label:'المشاركة',cap:10,color:'#EBDEF0',accent:'#512E5F'},
@@ -3396,7 +3396,7 @@ ${description}`)) return;
       else if(excellenceOrderSelection.length<EXCELLENCE_DISTRIBUTION_CATEGORIES.length) excellenceOrderSelection.push(key);
       renderExcellenceOrderBoxes();
     }
-    function resetExcellenceOrderSelection(){ excellenceOrderSelection=[]; renderExcellenceOrderBoxes(); }
+    function resetExcellenceOrderSelection(){ excellenceOrderSelection=EXCELLENCE_DEFAULT_SETTINGS.distributionOrder.slice(); renderExcellenceOrderBoxes(); }
     function saveExcellenceSettings(){
       const points=Number(document.getElementById('excellencePointsInput').value);
       if(!Number.isFinite(points)||points<0||points>10){ alert('أدخل درجة التميز من 0 إلى 10.'); return; }
@@ -3793,7 +3793,7 @@ ${description}`)) return;
         <th colspan="${lessons.length}" data-group="act-details" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;position:relative;">الأنشطة (10)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-act" onclick="openImportExportModal('act')" title="تصدير/استيراد درجات الأنشطة">📥</button></span></th>
         <th rowspan="2" data-group="act" class="followup-understanding-column" style="text-align:center;vertical-align:middle;font-weight:900;">تحقق<br><small>من فهمك</small></th>
         <th rowspan="2" data-group="act" style="background:#FCF3CF;color:#7D6608;text-align:center;vertical-align:middle;font-weight:800;">الموزونة<br><small>/20</small><span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('act')" title="فرز موزونة الأنشطة مع تحقق">فرز ↕</button></span></th>
-        <th rowspan="2" data-group="excellence" style="background:#FFF0D8;color:#A04B00;vertical-align:middle;text-align:center;font-weight:900;">تميز<br><small>متوسط الوحدة</small></th>
+        <th rowspan="2" data-group="excellence" style="background:#FFF0D8;color:#A04B00;vertical-align:middle;text-align:center;font-weight:900;">تميز</th>
         <th rowspan="2" data-group="participation" style="background:#EBDEF0;color:#512E5F;vertical-align:middle;text-align:center;">المشاركة<span class="followup-sort-under"><button class="followup-compact-sort" onclick="openFollowupSortModal('participation')" title="فرز المشاركة">فرز ↕</button></span></th>
         <th colspan="2" data-group="test-details" style="background:#FADBD8;color:#78281F;text-align:center;vertical-align:middle;position:relative;">الاختبارات والمشاريع (20)<span style="display:inline-flex;align-items:center;gap:2px;margin-right:4px;"><button class="import-icon-btn import-icon-test" onclick="openImportExportModal('test')" title="تصدير/استيراد درجات الاختبارات والمشاريع">📥</button></span></th>
         <th colspan="4" data-group="summary" style="background:#D6EAF8;color:#1B4F72;text-align:center;">الموزونه + المشروع (الخلاصه)</th>
@@ -3832,7 +3832,7 @@ ${description}`)) return;
         // الأنشطة المدخلة: لكل درس من 10 درجات.
         lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td data-group="act-details" style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // تحقق وموزونة الأنشطة الأصلية بلا تميز؛ التميز حوض مستقل للوحدة.
-        rowHtml+=`<td data-group="act" class="followup-understanding-column" style="font-weight:900;text-align:center;font-size:0.8rem;">${formatRawGrade(understandingScore)}</td><td data-group="act" style="background:#FCF3CF;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatRawGrade(actAvg)}</td><td data-group="excellence" style="background:#FFF0D8;color:#A04B00;font-weight:900;text-align:center;font-size:0.8rem;">${excellenceScore>0?`+${formatRawGrade(excellenceScore)}`:'—'}</td>`;
+        rowHtml+=`<td data-group="act" class="followup-understanding-column" style="font-weight:900;text-align:center;font-size:0.8rem;">${formatRawGrade(understandingScore)}</td><td data-group="act" style="background:#FCF3CF;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatRawGrade(actAvg)}</td><td data-group="excellence" style="background:#FFF0D8;color:#A04B00;font-weight:900;text-align:center;font-size:0.8rem;">${excellenceScore>0?`+${formatGrade(excellenceScore)}`:'—'}</td>`;
         // مشاركة
         let part=calculateStudentParticipationScore(cls,student,unitName);
         rowHtml+=`<td data-group="participation" style="background:#F5EEF8;font-weight:bold;color:#512E5F;text-align:center;">${formatRawGrade(part)}</td>`;

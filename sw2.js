@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-21-collapsible-notification-units';
+const CACHE_NAME = 'attendance-app-v21-23-rounded-excellence-default-order';
 const urlsToCache = [
   './',
   './index.html',
