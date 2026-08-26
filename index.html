@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.42";</script>
+  <script>const APP_VERSION = "21.43";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2700,20 +2700,20 @@ ${description}`)) return;
     }
 
     function initClassSelects() {
-      const sel = ['classSelect','modalClassSelect','followupClassSelect','queryClassSelect','studentNumbersClassSelect','understandingClassSelect'];
-      const vals = sel.map(id=>document.getElementById(id).value);
-      sel.forEach(id=>document.getElementById(id).innerHTML='');
-      document.getElementById('queryClassSelect').innerHTML='<option value="الكل">الكل (جميع الفصول)</option>';
-      document.getElementById('studentNumbersClassSelect').innerHTML='<option value="">-- اختر فصل --</option><option value="__no_numbers__">🔴 طلاب بدون أرقام</option>';
+      const selectIds=['classSelect','modalClassSelect','followupClassSelect','studentNumbersClassSelect','understandingClassSelect'];
+      const selects=selectIds.map(id=>[id,document.getElementById(id)]).filter(([,select])=>select);
+      const vals=Object.fromEntries(selects.map(([id,select])=>[id,select.value]));
+      selects.forEach(([,select])=>select.innerHTML='');
+      const studentNumbersSelect=document.getElementById('studentNumbersClassSelect');
+      if(studentNumbersSelect) studentNumbersSelect.innerHTML='<option value="">-- اختر فصل --</option><option value="__no_numbers__">🔴 طلاب بدون أرقام</option>';
       const keys = Object.keys(appData);
-      keys.forEach(cls=>{ sel.forEach(id=>{ document.getElementById(id).innerHTML += `<option value="${cls}">${cls}</option>`; }); });
-      const restoreClassSelect=(id,value)=>{ if(keys.includes(value)) document.getElementById(id).value=value; };
-      restoreClassSelect('classSelect',vals[0]);
-      restoreClassSelect('modalClassSelect',vals[1]);
-      restoreClassSelect('followupClassSelect',vals[2]);
-      restoreClassSelect('understandingClassSelect',vals[5]);
-      if(vals[3]==='الكل'||keys.includes(vals[3])) document.getElementById('queryClassSelect').value=vals[3];
-      if(vals[4]==='__no_numbers__'||keys.includes(vals[4])) document.getElementById('studentNumbersClassSelect').value=vals[4];
+      keys.forEach(cls=>{ selects.forEach(([,select])=>{ select.innerHTML += `<option value="${cls}">${cls}</option>`; }); });
+      const restoreClassSelect=(id,value)=>{ const select=document.getElementById(id); if(select&&keys.includes(value)) select.value=value; };
+      restoreClassSelect('classSelect',vals.classSelect);
+      restoreClassSelect('modalClassSelect',vals.modalClassSelect);
+      restoreClassSelect('followupClassSelect',vals.followupClassSelect);
+      restoreClassSelect('understandingClassSelect',vals.understandingClassSelect);
+      if(studentNumbersSelect&&(vals.studentNumbersClassSelect==='__no_numbers__'||keys.includes(vals.studentNumbersClassSelect))) studentNumbersSelect.value=vals.studentNumbersClassSelect;
       renderAttendanceUnitsDropdown();
     }
 

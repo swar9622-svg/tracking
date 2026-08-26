@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-42-storage-protection-diagnostics';
+const CACHE_NAME = 'attendance-app-v21-43-interface-null-guard';
 const urlsToCache = [
   './',
   './index.html',
