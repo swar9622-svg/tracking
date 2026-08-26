@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.46";</script>
+  <script>const APP_VERSION = "21.47";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3610,11 +3610,25 @@ ${description}`)) return;
         project:score.projectApplied||0
       };
       const expected=Math.min(60,Math.max(0,score.total||0));
-      const subtotal=Object.values(values).reduce((sum,value)=>sum+value,0);
-      const residual=expected-subtotal;
-      if(Math.abs(residual)>0.000001){
-        const target=values.project>0?'project':values.excellence>0?'excellence':values.test>0?'test':values.participation>0?'participation':values.understanding>0?'understanding':values.activity>0?'activity':'hw';
-        values[target]=Math.max(0,values[target]+residual);
+      if(gradeRoundingSettings.enabled){
+        // الجبر هنا موزع: نأخذ الصحيح من كل عمود ثم نمنح نقاط الجبر لأكبر الكسور أولاً، فيبقى الصف مساوياً للمجموع المجبر.
+        const keys=['hw','activity','understanding','participation','excellence','test','project'];
+        const targetTotal=applyWeightedGradeRounding(expected,60);
+        const fractions=keys.map((key,index)=>({key,index,fraction:values[key]-Math.floor(values[key])}));
+        keys.forEach(key=>{ values[key]=Math.floor(values[key]); });
+        let remaining=Math.max(0,Math.round(targetTotal-keys.reduce((sum,key)=>sum+values[key],0)));
+        fractions.sort((left,right)=>right.fraction-left.fraction||left.index-right.index).forEach(({key})=>{
+          if(remaining<=0) return;
+          values[key]+=1;
+          remaining--;
+        });
+      }else{
+        const subtotal=Object.values(values).reduce((sum,value)=>sum+value,0);
+        const residual=expected-subtotal;
+        if(Math.abs(residual)>0.000001){
+          const target=values.project>0?'project':values.excellence>0?'excellence':values.test>0?'test':values.participation>0?'participation':values.understanding>0?'understanding':values.activity>0?'activity':'hw';
+          values[target]=Math.max(0,values[target]+residual);
+        }
       }
       values.total=Object.values(values).reduce((sum,value)=>sum+value,0);
       return {evaluated:score.evaluated,score,values};
