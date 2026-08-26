@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.43";</script>
+  <script>const APP_VERSION = "21.44";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1096,6 +1096,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="modal-title" style="margin:0;">📂 النسخ الاحتياطي</div>
         <button class="btn-close-circle" onclick="closeDataMenuModal()">✕</button>
       </div>
+      <div id="storageHealthInfo" role="status" style="background:#F2F7FF;border:1px solid #C8DCF8;color:#245B91;border-radius:12px;padding:0.55rem 0.7rem;margin:-0.2rem 0 0.8rem;font-size:0.72rem;font-weight:700;text-align:center;line-height:1.65;">جارٍ فحص حالة الحفظ المحلي…</div>
       <div class="data-box-section">
         <div class="data-box-title">🔄 النسخ الاحتياطي الشامل</div>
         <button class="btn-menu-option" style="background-color:var(--green);" onclick="exportFullBackupJSON()">💾 تصدير نسخة احتياطية (Backup)</button>
@@ -2133,6 +2134,8 @@ ${description}`)) return;
     let classScheduleEditingCell=null, classScheduleEditingPeriod=null;
     let indexedDBSaveQueue=Promise.resolve();
     let indexedDBPendingWrites=0;
+    let lastSuccessfulLocalSaveAt='';
+    let storagePersistenceState='unknown';
 
     function cloneData(value){ return value===undefined ? undefined : JSON.parse(JSON.stringify(value)); }
     function describeLocalStorageError(error){
@@ -2148,9 +2151,10 @@ ${description}`)) return;
       try{
         if(!navigator.storage||typeof navigator.storage.persist!=='function') return false;
         const granted=await navigator.storage.persist();
+        storagePersistenceState=granted?'persistent':'best-effort';
         console.info(granted?'تمت حماية تخزين التطبيق من الإخلاء التلقائي حيث يدعم المتصفح ذلك.':'لم يمنح المتصفح حماية التخزين الدائمة؛ تبقى النسخ الاحتياطية مهمة.');
         return granted;
-      }catch(error){ console.info('لم يتمكن المتصفح من تفعيل حماية التخزين الدائمة:',error); return false; }
+      }catch(error){ storagePersistenceState='unavailable'; console.info('لم يتمكن المتصفح من تفعيل حماية التخزين الدائمة:',error); return false; }
     }
     function deleteApplicationDatabase(){
       return new Promise((resolve,reject)=>{
@@ -2208,7 +2212,7 @@ ${description}`)) return;
         await new Promise((resolve,reject)=>{
           const transaction=db.transaction(APP_DB_STORE,'readwrite');
           transaction.objectStore(APP_DB_STORE).put({key:APP_DB_STATE_KEY,value:snapshot});
-          transaction.oncomplete=()=>resolve();
+          transaction.oncomplete=()=>{ lastSuccessfulLocalSaveAt=snapshot.savedAt||new Date().toISOString(); resolve(); };
           transaction.onerror=()=>reject(transaction.error||new Error('تعذر حفظ البيانات المحلية.'));
           transaction.onabort=()=>reject(transaction.error||new Error('أُلغي حفظ البيانات المحلية.'));
         });
@@ -2225,6 +2229,7 @@ ${description}`)) return;
     function flushIndexedDBSaveQueue(){ return indexedDBSaveQueue; }
     function applyPersistentState(state){
       if(!state||typeof state!=='object') return;
+      lastSuccessfulLocalSaveAt=typeof state.savedAt==='string'?state.savedAt:'';
       if(state.appData&&typeof state.appData==='object') appData=state.appData;
       if(state.records&&typeof state.records==='object') records=state.records;
       if(state.unitsData&&typeof state.unitsData==='object') unitsData=state.unitsData;
@@ -5404,7 +5409,36 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
 
     function openManageModal(){ document.getElementById('manageModal').style.display='flex'; initClassSelects(); const cls=document.getElementById('classSelect').value; if(cls) document.getElementById('modalClassSelect').value=cls; loadClassTextarea(); }
     function closeManageModal(){ document.getElementById('manageModal').style.display='none'; document.getElementById('inlineAddBox').style.display='none'; closeEditStudentNameModal(); }
-    function openDataMenuModal(){ document.getElementById('dataMenuModal').style.display='flex'; }
+    function formatLocalSaveTime(value){
+      if(!value) return 'لم يسجل حفظ بعد في هذه الجلسة';
+      try{return new Date(value).toLocaleString('ar-SA',{hour:'2-digit',minute:'2-digit',year:'numeric',month:'numeric',day:'numeric'});}catch(_){return 'تم الحفظ محلياً';}
+    }
+    async function refreshStorageHealthInfo(){
+      const info=document.getElementById('storageHealthInfo');
+      if(!info) return;
+      if(!indexedDBReady){ info.textContent='⚠️ الحفظ المحلي غير جاهز بعد.'; info.style.background='#FFF5F5'; info.style.borderColor='#F6B8B8'; info.style.color='#A42A2A'; return; }
+      let persistent=storagePersistenceState;
+      try{
+        if(navigator.storage&&typeof navigator.storage.persisted==='function'){
+          persistent=(await navigator.storage.persisted())?'persistent':(persistent==='unknown'?'best-effort':persistent);
+        }
+      }catch(_){}
+      let usageNote='';
+      try{
+        if(navigator.storage&&typeof navigator.storage.estimate==='function'){
+          const estimate=await navigator.storage.estimate();
+          if(estimate.quota&&estimate.usage&&estimate.usage/estimate.quota>=0.8) usageNote=' · مساحة التخزين مرتفعة، خذ نسخة احتياطية';
+        }
+      }catch(_){}
+      const isSaving=indexedDBPendingWrites>0;
+      const shield=persistent==='persistent'?'🛡️ الحماية الدائمة مفعلة':'✅ الحفظ المحلي يعمل';
+      const saved=isSaving?'جارٍ حفظ آخر تعديل…':`آخر حفظ: ${formatLocalSaveTime(lastSuccessfulLocalSaveAt)}`;
+      info.textContent=`${shield} · ${saved}${usageNote}`;
+      info.style.background=usageNote?'#FFF8E8':'#F2F7FF';
+      info.style.borderColor=usageNote?'#F1CE82':'#C8DCF8';
+      info.style.color=usageNote?'#8A5A00':'#245B91';
+    }
+    function openDataMenuModal(){ document.getElementById('dataMenuModal').style.display='flex'; refreshStorageHealthInfo(); }
     function openAppManagementModal(){ document.getElementById('appManagementModal').style.display='flex'; }
     function closeAppManagementModal(){ document.getElementById('appManagementModal').style.display='none'; }
     /* ألوان الفصول مستقلة عمداً عن أخضر وتركوازي رؤوس الجدول. الترتيب الرقمي يعطي كل فصل لونه الثابت. */
