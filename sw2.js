@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-34-class-schedule-auto-select';
+const CACHE_NAME = 'attendance-app-v21-35-schedule-sync-colors-overlap';
 const urlsToCache = [
   './',
   './index.html',
