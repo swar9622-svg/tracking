@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-36-fix-switch-class-colors';
+const CACHE_NAME = 'attendance-app-v21-37-query-export-reorganization';
 const urlsToCache = [
   './',
   './index.html',
