@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-68-automatic-lesson-names';
+const CACHE_NAME = 'attendance-app-v21-69-full-reset-and-simple-management';
 const urlsToCache = [
   './',
   './index.html',

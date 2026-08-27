@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.68";</script>
+  <script>const APP_VERSION = "21.69";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -234,6 +234,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .app-management-options{display:flex;flex-direction:column;gap:0.56rem;}
     .app-management-option{width:100%;min-height:3.35rem;margin:0!important;border-radius:0.74rem!important;display:flex;align-items:center;justify-content:center;gap:0.38rem;font-family:inherit;font-size:0.84rem;font-weight:900;cursor:pointer;box-shadow:none;}
     .app-management-option.is-names{background:#EAF3FF;color:#0B5394;border:1px solid #BBD7F3;}
+    .app-management-option.is-students{background:#FCEEF8;color:#8E2E71;border:1px solid #E9B9D7;}
     .app-management-option.is-units{background:#F3ECF8;color:#6C3483;border:1px solid #D7BDE2;}
     .app-management-option.is-grades{background:#EAF7EE;color:#166534;border:1px solid #A9DFBF;}
     .app-management-option.is-schedule{background:#FFF4E6;color:#A34A00;border:1px solid #F4C78E;}
@@ -588,7 +589,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     html.startup-disabled #startupSplash{display:none!important;}
     #startupSplash{position:fixed;inset:0;z-index:1000000;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 34%,rgba(0,122,255,.12) 0%,rgba(242,242,247,0) 55%),#F2F2F7;color:#1C1C1E;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,sans-serif;}
     #startupSplash .startup-inner{width:min(90vw,420px);display:flex;flex-direction:column;align-items:center;}#startupSplash .startup-icon-wrap{position:relative;width:96px;height:96px;margin-bottom:22px;}#startupSplash .startup-halo{position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(0,122,255,.28) 0%,rgba(0,122,255,0) 70%);opacity:0;animation:startup-halo .7s ease-out forwards .05s;}#startupSplash .startup-icon{position:relative;width:96px;height:96px;border-radius:24px;background:linear-gradient(150deg,#2B9BFF 0%,#007AFF 55%,#0A5FCC 100%);box-shadow:0 10px 26px rgba(0,122,255,.38),inset 0 1px 1px rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.4) rotate(-8deg);animation:startup-icon .55s cubic-bezier(.2,1.5,.35,1) forwards .05s;}#startupSplash .startup-icon img{display:block;width:100%;height:100%;padding:5px;object-fit:contain;border-radius:20px;background:#FFF;}#startupSplash .startup-badge{position:absolute;bottom:-6px;left:-6px;width:30px;height:30px;border-radius:50%;background:#34C759;border:3px solid #F2F2F7;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.3);animation:startup-badge .4s cubic-bezier(.2,1.6,.4,1) forwards .78s;}#startupSplash .startup-badge svg{width:14px;height:14px;fill:none;stroke:#FFF;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}#startupSplash .startup-chip-row{display:flex;gap:8px;margin-bottom:20px;height:30px;}#startupSplash .startup-chip{display:flex;align-items:center;gap:5px;padding:0 12px;height:30px;border-radius:15px;font-size:12px;font-weight:800;color:#FFF;opacity:0;transform:translateY(10px) scale(.85);animation:startup-chip .38s cubic-bezier(.2,1.4,.4,1) forwards;white-space:nowrap;}#startupSplash .startup-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.85);}#startupSplash .startup-chip:nth-child(1){background:#34C759;animation-delay:.95s;}#startupSplash .startup-chip:nth-child(2){background:#FF9500;animation-delay:1.05s;}#startupSplash .startup-chip:nth-child(3){background:#FF3B30;animation-delay:1.15s;}#startupSplash .startup-chip:nth-child(4){background:#AF52DE;animation-delay:1.25s;}#startupSplash .startup-title{background:#007AFF;color:#FFF;font-size:17px;font-weight:800;text-align:center;padding:12px 22px;border-radius:13px;box-shadow:0 4px 14px rgba(0,122,255,.35);opacity:0;transform:translateY(14px);animation:startup-title .45s cubic-bezier(.2,1.2,.4,1) forwards 1.4s;}#startupSplash .startup-subtitle{margin-top:10px;font-size:12.5px;font-weight:700;color:#8E8E93;opacity:0;animation:startup-fade .35s ease-out forwards 1.75s;}#startupSplash .startup-progress{margin-top:26px;width:150px;height:5px;border-radius:999px;background:#E2E2E8;overflow:hidden;opacity:0;animation:startup-fade .3s ease-out forwards 1.9s;}#startupSplash .startup-progress b{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#2B9BFF,#007AFF);animation:startup-progress 1s cubic-bezier(.3,.1,.2,1) forwards 1.95s;}#startupSplash.startup-leaving{animation:startup-out .42s cubic-bezier(.4,0,.2,1) forwards;}@keyframes startup-halo{to{opacity:1;transform:scale(1)}}@keyframes startup-icon{60%{opacity:1;transform:scale(1.08) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}@keyframes startup-fade{to{opacity:1}}@keyframes startup-check{to{stroke-dashoffset:0}}@keyframes startup-badge{60%{opacity:1;transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}@keyframes startup-chip{to{opacity:1;transform:translateY(0) scale(1)}}@keyframes startup-title{to{opacity:1;transform:translateY(0)}}@keyframes startup-progress{to{width:100%}}@keyframes startup-out{to{opacity:0;transform:scale(1.04);filter:blur(5px)}}@media(prefers-reduced-motion:reduce){#startupSplash *{animation-duration:.01ms!important;animation-delay:0ms!important;}}
-    #manageModal .modal-content{max-width:24rem;width:93%;max-height:92vh;padding:.82rem .72rem;}
+    #manageModal .modal-content,#studentsManageModal .modal-content{max-width:24rem;width:93%;max-height:92vh;padding:.82rem .72rem;}
     .manage-modal-header{display:flex;align-items:center;justify-content:space-between;gap:.55rem;margin-bottom:.7rem;}
     .manage-modal-header .modal-title{margin:0;font-size:1.15rem;line-height:1.25;}
     .manage-section{border:1px solid #E5E7EB;border-radius:.85rem;padding:.62rem;margin-bottom:.55rem;background:#fff;}
@@ -600,22 +601,29 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .manage-section-classes .manage-section-number{background:#22A858;}
     .manage-section-students .manage-section-number{background:#8446BF;}
     .manage-help{margin:0 0 .42rem;color:#6B7280;font-size:.66rem;font-weight:700;line-height:1.35;}
-    #manageModal .field-label{font-size:.72rem;margin:0 0 .28rem;color:#5B6470;}
+    #manageModal .field-label,#studentsManageModal .field-label{font-size:.72rem;margin:0 0 .28rem;color:#5B6470;}
     .manage-form-row{display:flex;gap:.35rem;align-items:center;margin-top:.34rem;}
     .manage-form-row input{min-width:0;flex:1;height:2.12rem;padding:.38rem .52rem;font-size:.76rem;}
     .manage-compact-btn{width:auto!important;min-height:2.12rem!important;height:2.12rem!important;padding:0 .6rem!important;border-radius:.58rem!important;font-size:.69rem!important;white-space:nowrap;}
+    .manage-selected-card{margin-top:.55rem;padding-top:.55rem;border-top:1px dashed #CFE4FA;}
+    .manage-inline-actions{display:flex;justify-content:flex-start;gap:.34rem;margin-top:.36rem;}
+    .manage-small-action{border:none;border-radius:.52rem;min-height:1.95rem;padding:0 .52rem;font-family:inherit;font-size:.65rem;font-weight:900;cursor:pointer;white-space:nowrap;}
+    .manage-small-action.is-edit{background:#EAF3FF;color:#0B5394;border:1px solid #BBD7F3;}
+    .manage-small-action.is-delete{background:#FFF0F0;color:#C7372F;border:1px solid #F5B7B1;}
+    .manage-rename-row{padding:.42rem;background:#FFF;border:1px solid #D8EAFB;border-radius:.6rem;}
     .manage-class-actions{display:flex;gap:.35rem;margin-top:.38rem;}
     .manage-class-actions button{flex:1;min-height:2.12rem!important;height:2.12rem!important;padding:0 .45rem!important;border-radius:.58rem!important;font-size:.7rem!important;}
     #manageModal .inline-add-box{margin:.38rem 0 0;padding:.42rem;border-radius:.58rem;}
     #manageModal .inline-add-box input{min-width:0;height:2rem;font-size:.72rem;}
     #manageModal .inline-add-box .btn-confirm-add{width:auto;min-height:2rem;padding:0 .55rem;font-size:.68rem;}
+    .manage-fixed-grade-label{grid-column:1/-1;text-align:right;color:#166534;font-size:.69rem;font-weight:800;margin:0 0 .05rem;padding:0 .1rem;}
     .manage-delete-link{display:block;width:100%;border:0!important;background:transparent!important;color:#C7372F!important;font:inherit!important;font-size:.67rem!important;font-weight:800!important;padding:.38rem .2rem .04rem!important;min-height:auto!important;text-decoration:underline;cursor:pointer;}
-    #manageModal textarea{min-height:9rem;max-height:31vh;margin:.1rem 0 .38rem;padding:.5rem .58rem;font-size:.84rem;line-height:1.45;}
+    #manageModal textarea,#studentsManageModal textarea{min-height:9rem;max-height:31vh;margin:.1rem 0 .38rem;padding:.5rem .58rem;font-size:.84rem;line-height:1.45;}
     .manage-student-actions{display:flex;gap:.35rem;}
     .manage-student-actions button{flex:1;min-height:2.16rem!important;height:2.16rem!important;padding:0 .4rem!important;border-radius:.58rem!important;font-size:.68rem!important;}
     .manage-modal-footer{margin-top:.25rem;}
     .manage-modal-footer .btn-modal-cancel{min-height:2.2rem;font-size:.73rem;}
-    @media(max-width:390px){#manageModal .modal-content{padding:.72rem .62rem;}.manage-section{padding:.55rem}.manage-modal-header .modal-title{font-size:1.04rem}.manage-form-row input{font-size:.7rem}.manage-compact-btn,.manage-class-actions button{font-size:.64rem!important;}}
+    @media(max-width:390px){#manageModal .modal-content,#studentsManageModal .modal-content{padding:.72rem .62rem;}.manage-section{padding:.55rem}.manage-modal-header .modal-title{font-size:1.04rem}.manage-form-row input{font-size:.7rem}.manage-compact-btn,.manage-class-actions button{font-size:.64rem!important;}}
     #permissionDetailReportModal .modal-content{max-width:34rem;width:94%;max-height:92vh;padding:.9rem .75rem;}
     .permission-report-open{width:100%;border:0;border-radius:.7rem;background:#EFF8FF;color:#1769AA;padding:.56rem .65rem;margin:.58rem 0 .05rem;font:inherit;font-size:.76rem;font-weight:900;cursor:pointer;}
     .permission-report-filters{display:grid;grid-template-columns:1fr 1fr;gap:.42rem;padding:.58rem;border:1px solid #D9EAF9;border-radius:.75rem;background:#F8FBFF;margin:.2rem 0 .58rem;}
@@ -1452,7 +1460,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div style="font-size:0.76rem;color:var(--text-secondary);text-align:center;margin-bottom:12px;font-weight:700;">اختر القسم الذي تريد إدارته:</div>
       <div class="app-management-options">
-        <button class="btn-action btn-manage app-management-option is-names" onclick="closeAppManagementModal();openManageModal()">👥 الأسماء والصفوف</button>
+        <button class="btn-action btn-manage app-management-option is-names" onclick="closeAppManagementModal();openManageModal()">🏫 الصفوف والفصول</button>
+        <button class="btn-action btn-manage app-management-option is-students" onclick="closeAppManagementModal();openStudentsManageModal()">👥 أسماء الطلاب بالفصول</button>
         <button class="btn-action app-management-option is-units" onclick="closeAppManagementModal();openUnitsManageModal()">📚 الوحدات والدروس</button>
         <button class="btn-action app-management-option is-grades" onclick="closeAppManagementModal();openGradesManageModal()">🧮 الدرجات والتقييم</button>
         <button class="btn-action app-management-option is-student-numbers" onclick="closeAppManagementModal();openStudentNumbersModal()">🔢 أرقام الطلاب</button>
@@ -1510,23 +1519,28 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="btn-close-circle" onclick="closeManageModal()" aria-label="إغلاق">✕</button>
       </div>
       <section class="manage-section manage-section-grade">
-        <h3 class="manage-section-heading"><span class="manage-section-number">1</span> الصفوف</h3>
-        <p class="manage-help">اختر الصف الذي تريد العمل عليه، أو أضف صفاً جديداً.</p>
-        <label class="field-label" for="manageGradeSelect">الصف المختار</label>
-        <select id="manageGradeSelect" class="select-class-full" onchange="onGradeSelectionChange(this.value)"></select>
-        <div class="manage-form-row">
-          <input id="activeGradeNameInput" type="text" placeholder="تعديل اسم الصف">
-          <button type="button" class="btn-confirm-add manage-compact-btn" onclick="saveActiveGradeName()">حفظ الاسم</button>
-        </div>
+        <h3 class="manage-section-heading"><span class="manage-section-number">1</span> إضافة صف</h3>
+        <p class="manage-help">ابدأ بإضافة الصف، مثل: سادس أو أولى.</p>
         <div class="manage-form-row">
           <input id="newGradeInput" type="text" placeholder="اسم صف جديد، مثل: أولى">
           <button type="button" class="btn-add-cls-btn manage-compact-btn" onclick="saveNewGrade()">+ إضافة</button>
         </div>
-        <button type="button" class="manage-delete-link" onclick="confirmDeleteActiveGrade()">حذف هذا الصف…</button>
+        <div id="manageSelectedGradeCard" class="manage-selected-card">
+          <label class="field-label" for="manageGradeSelect">الصف الذي تعمل عليه</label>
+          <select id="manageGradeSelect" class="select-class-full" onchange="onGradeSelectionChange(this.value)"></select>
+          <div class="manage-inline-actions">
+            <button type="button" class="manage-small-action is-edit" onclick="toggleActiveGradeRename()">✏️ تعديل الاسم</button>
+            <button type="button" class="manage-small-action is-delete" onclick="confirmDeleteActiveGrade()">حذف الصف</button>
+          </div>
+          <div id="activeGradeRenameBox" class="manage-form-row manage-rename-row" style="display:none;">
+            <input id="activeGradeNameInput" type="text" placeholder="الاسم الجديد للصف">
+            <button type="button" class="btn-confirm-add manage-compact-btn" onclick="saveActiveGradeName()">حفظ</button>
+          </div>
+        </div>
       </section>
-      <section class="manage-section manage-section-classes">
+      <section class="manage-section manage-section-classes" id="manageClassesSection">
         <h3 class="manage-section-heading"><span class="manage-section-number">2</span> الفصول</h3>
-        <p class="manage-help">تظهر هنا الفصول التابعة للصف المختار فقط.</p>
+        <p class="manage-help">اختر الصف أعلاه، ثم أضف أرقام الفصول التابعة له.</p>
         <label class="field-label" for="modalClassSelect">الفصل الذي تعمل عليه</label>
         <select id="modalClassSelect" class="select-class-full" onchange="loadClassTextarea()"></select>
         <div class="manage-class-actions">
@@ -1534,21 +1548,38 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <button type="button" class="btn-del-cls-btn" onclick="promptDeleteClass()">حذف الفصل</button>
         </div>
         <div class="inline-add-box" id="inlineAddBox">
+          <div class="manage-fixed-grade-label">الصف: <b id="newClassGradeLabel">—</b></div>
           <input type="text" id="newClassInput" placeholder="رقم الفصل، مثل: 4">
-          <button class="btn-confirm-add" onclick="saveNewClass()">إضافة</button>
+          <button class="btn-confirm-add" onclick="saveNewClass()">حفظ الفصل</button>
         </div>
       </section>
+      <div class="modal-actions manage-modal-footer"><button class="btn-modal-cancel" onclick="closeManageModal()">إغلاق</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="studentsManageModal" style="z-index:124;">
+    <div class="modal-content">
+      <div class="manage-modal-header">
+        <div class="modal-title">👥 أسماء الطلاب بالفصول</div>
+        <button class="btn-close-circle" onclick="closeStudentsManageModal()" aria-label="إغلاق">✕</button>
+      </div>
       <section class="manage-section manage-section-students">
-        <h3 class="manage-section-heading"><span class="manage-section-number">3</span> أسماء الطلاب</h3>
-        <p class="manage-help">اكتب كل اسم في سطر، ثم احفظ القائمة للفصل المختار.</p>
-        <label class="field-label" for="studentNamesTextarea">قائمة الطلاب</label>
+        <h3 class="manage-section-heading"><span class="manage-section-number">1</span> اختر الفصل</h3>
+        <p class="manage-help">تظهر أسماء الفصل المختار فقط، مثل: سادس 4.</p>
+        <label class="field-label" for="studentNamesClassSelect">الفصل</label>
+        <select id="studentNamesClassSelect" class="select-class-full" onchange="loadClassTextarea()"></select>
+      </section>
+      <section class="manage-section manage-section-students">
+        <h3 class="manage-section-heading"><span class="manage-section-number">2</span> قائمة الطلاب</h3>
+        <p class="manage-help">اكتب كل اسم في سطر، ثم احفظ القائمة لهذا الفصل.</p>
+        <label class="field-label" for="studentNamesTextarea">أسماء الطلاب</label>
         <textarea id="studentNamesTextarea" placeholder="أدخل أسماء الطلاب..."></textarea>
         <div class="manage-student-actions">
           <button class="btn-action" style="background-color:var(--accent);" onclick="saveStudentsFromTextarea()">💾 حفظ الأسماء</button>
           <button class="btn-action" style="background-color:#8E44AD;" onclick="openEditStudentNameModal()">✏️ تعديل اسم</button>
         </div>
       </section>
-      <div class="modal-actions manage-modal-footer"><button class="btn-modal-cancel" onclick="closeManageModal()">إغلاق</button></div>
+      <div class="modal-actions manage-modal-footer"><button class="btn-modal-cancel" onclick="closeStudentsManageModal()">إغلاق</button></div>
     </div>
   </div>
 
@@ -1760,13 +1791,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     function createDefaultPenalties(){ const values={"غياب":1,"تأخر":0.5}; VIOLATION_DEFINITIONS.forEach(item=>values[item.id]=0.5); return values; }
     syncViolationNames();
 
+    // يبدأ التطبيق الجديد فارغاً تماماً؛ ينشئ المستخدم الصفوف والفصول والوحدات بنفسه.
     let defaultData = {};
-    let defaultUnits = {
-      "الوحدة الأولى":{lessons:["درس 1","درس 2","درس 3"]},
-      "الوحدة الثانية":{lessons:["درس 1","درس 2","درس 3"]},
-      "الوحدة الثالثة":{lessons:["درس 1","درس 2","درس 3"]},
-      "الوحدة الرابعة":{lessons:["درس 1","درس 2","درس 3"]}
-    };
+    let defaultUnits = {};
     let defaultPenalties = createDefaultPenalties();
 
     let appData = JSON.parse(JSON.stringify(defaultData));
@@ -1895,11 +1922,11 @@ ${description}`)) return;
     // كل صف يحتفظ بفصوله ووحداته ودروسه وطلابه وسجلاته في مساحة مستقلة.
     // تبقى المتغيرات القديمة أدناه هي مساحة الصف النشط فقط، لحماية الدوال القائمة.
     let gradeWorkspaces={};
-    let activeGradeName='ثالث';
+    let activeGradeName='';
     let gradeWorkspacesMigrated=false;
     function isValidGradeName(value){ return typeof value==='string'&&value.trim().length>0; }
     function createEmptyGradeWorkspace(){
-      return {appData:{},records:{},permissionRecords:{},unitsData:cloneData(defaultUnits),unitLocks:{},followupData:{},understandingData:{},studentNotesData:{},penaltiesData:cloneData(defaultPenalties),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:[],projectDistributionOrder:{},excellenceSettings:cloneData(excellenceSettings),participationSettings:{mode:'cumulative',activeUnit:Object.keys(defaultUnits)[0]||''},studentNumberMap:{},weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:{enabled:false},noteEntryWindow:cloneData(DEFAULT_NOTE_ENTRY_WINDOW)};
+      return {appData:{},records:{},permissionRecords:{},unitsData:{},unitLocks:{},followupData:{},understandingData:{},studentNotesData:{},penaltiesData:cloneData(defaultPenalties),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:[],projectDistributionOrder:{},excellenceSettings:cloneData(excellenceSettings),participationSettings:{mode:'cumulative',activeUnit:''},studentNumberMap:{},weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:{enabled:false},noteEntryWindow:cloneData(DEFAULT_NOTE_ENTRY_WINDOW)};
     }
     function captureActiveGradeWorkspace(){
       return {appData:cloneData(appData),records:cloneData(records),permissionRecords:cloneData(permissionRecords),unitsData:cloneData(unitsData),unitLocks:cloneData(unitLocks),followupData:cloneData(followupData),understandingData:cloneData(understandingData),studentNotesData:cloneData(studentNotesData),penaltiesData:cloneData(penaltiesData),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:cloneData(period1SelectedUnits),projectDistributionOrder:cloneData(projectDistributionOrder),excellenceSettings:cloneData(excellenceSettings),participationSettings:cloneData(participationSettings),studentNumberMap:cloneData(queryStudentNumberMap),weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:cloneData(gradeRoundingSettings),noteEntryWindow:cloneData(noteEntryWindow)};
@@ -1907,7 +1934,7 @@ ${description}`)) return;
     function normalizeGradeWorkspace(value){
       const defaults=createEmptyGradeWorkspace(), source=value&&typeof value==='object'?value:{};
       Object.keys(defaults).forEach(key=>{ if(source[key]&&typeof source[key]==='object') defaults[key]=cloneData(source[key]); });
-      defaults.unitsData=source.unitsData&&typeof source.unitsData==='object'&&Object.keys(source.unitsData).length?cloneData(source.unitsData):cloneData(defaultUnits);
+      defaults.unitsData=Object.prototype.hasOwnProperty.call(source,'unitsData')&&source.unitsData&&typeof source.unitsData==='object'?cloneData(source.unitsData):cloneData(defaults.unitsData);
       defaults.unitLocks=normalizeUnitLocks(source.unitLocks);
       defaults.violationDefinitions=normalizeViolationDefinitions(source.violationDefinitions||defaults.violationDefinitions);
       defaults.penaltiesData=source.penaltiesData&&typeof source.penaltiesData==='object'?cloneData(source.penaltiesData):createDefaultPenalties();
@@ -1923,11 +1950,11 @@ ${description}`)) return;
       const state=normalizeGradeWorkspace(workspace);
       appData=state.appData; records=state.records; permissionRecords=state.permissionRecords; unitsData=state.unitsData; unitLocks=state.unitLocks; followupData=state.followupData; understandingData=state.understandingData; studentNotesData=state.studentNotesData;
       VIOLATION_DEFINITIONS=state.violationDefinitions; syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=state.penaltiesData; period1SelectedUnits=state.period1SelectedUnits; projectDistributionOrder=state.projectDistributionOrder; excellenceSettings=state.excellenceSettings;
-      participationSettings=state.participationSettings; currentActiveUnit=Object.keys(unitsData)[0]||'الوحدة الأولى'; currentAttendanceUnit=participationSettings.activeUnit||currentActiveUnit; if(!unitsData[currentAttendanceUnit]) currentAttendanceUnit=currentActiveUnit;
+      participationSettings=state.participationSettings; currentActiveUnit=Object.keys(unitsData)[0]||''; currentAttendanceUnit=participationSettings.activeUnit||currentActiveUnit; if(!unitsData[currentAttendanceUnit]) currentAttendanceUnit=currentActiveUnit;
       queryStudentNumberMap=state.studentNumberMap; weakStudentsThresholds=state.weakStudentsThresholds; gradeRoundingSettings=state.gradeRoundingSettings; noteEntryWindow=state.noteEntryWindow;
     }
     function syncActiveGradeWorkspace(){
-      if(!isValidGradeName(activeGradeName)) activeGradeName='ثالث';
+      if(!isValidGradeName(activeGradeName)) return;
       gradeWorkspaces[activeGradeName]=captureActiveGradeWorkspace();
     }
     function gradeClassName(grade,section){
@@ -1950,21 +1977,31 @@ ${description}`)) return;
     function normalizeCurrentGradeClassNames(){
       Object.keys(appData||{}).forEach(oldName=>{ const fullName=gradeClassName(activeGradeName,oldName); if(fullName!==oldName) renameClassInActiveWorkspace(oldName,fullName); });
     }
+    function resetActiveGradeWorkspaceToBlank(){
+      appData={}; records={}; permissionRecords={}; unitsData={}; unitLocks={}; followupData={}; understandingData={}; studentNotesData={};
+      VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=cloneData(defaultPenalties);
+      period1SelectedUnits=[]; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); participationSettings={mode:'cumulative',activeUnit:''};
+      currentActiveUnit=''; currentAttendanceUnit=''; queryStudentNumberMap={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; gradeRoundingSettings={enabled:false}; noteEntryWindow=cloneData(DEFAULT_NOTE_ENTRY_WINDOW);
+    }
     function hydrateGradeWorkspaces(state){
-      const source=state&&state.gradeWorkspaces&&typeof state.gradeWorkspaces==='object'?state.gradeWorkspaces:null;
+      const hasWorkspaceState=!!(state&&Object.prototype.hasOwnProperty.call(state,'gradeWorkspaces'));
+      const source=hasWorkspaceState&&state.gradeWorkspaces&&typeof state.gradeWorkspaces==='object'?state.gradeWorkspaces:null;
       if(source&&Object.keys(source).length){
         gradeWorkspaces={}; Object.keys(source).forEach(grade=>{ if(isValidGradeName(grade)) gradeWorkspaces[grade.trim()]=normalizeGradeWorkspace(source[grade]); });
-        activeGradeName=isValidGradeName(state.activeGradeName)&&gradeWorkspaces[state.activeGradeName.trim()]?state.activeGradeName.trim():Object.keys(gradeWorkspaces)[0]||'ثالث';
-        if(!gradeWorkspaces[activeGradeName]) gradeWorkspaces[activeGradeName]=createEmptyGradeWorkspace();
-        applyGradeWorkspace(gradeWorkspaces[activeGradeName]);
+        activeGradeName=isValidGradeName(state.activeGradeName)&&gradeWorkspaces[state.activeGradeName.trim()]?state.activeGradeName.trim():Object.keys(gradeWorkspaces)[0]||'';
+        if(activeGradeName) applyGradeWorkspace(gradeWorkspaces[activeGradeName]); else resetActiveGradeWorkspaceToBlank();
+      }else if(hasWorkspaceState){
+        // وجود مصفوفة صفوف فارغة مقصود بعد «مسح كل البيانات»؛ لا نعيد ترحيل بيانات أو صف تجريبي.
+        gradeWorkspaces={}; activeGradeName=''; resetActiveGradeWorkspaceToBlank();
       }else{
+        // ترحيل آمن للنسخ القديمة التي سبقت بنية الصفوف المستقلة.
         activeGradeName='ثالث'; gradeWorkspaces={}; normalizeCurrentGradeClassNames(); syncActiveGradeWorkspace(); gradeWorkspacesMigrated=true;
       }
     }
     let penaltiesData = JSON.parse(JSON.stringify(defaultPenalties));
     let period1SelectedUnits = [];
     let selectedPeriodName = 'الأولى';
-    let currentActiveUnit = Object.keys(unitsData)[0] || "الوحدة الأولى";
+    let currentActiveUnit = Object.keys(unitsData)[0] || "";
     const PARTICIPATION_SETTINGS_KEY = 'attendance_participation_settings';
     let participationSettings = {mode:'cumulative', activeUnit:currentActiveUnit};
     // تظل الملاحظات مفتوحة افتراضياً بعد التحديث كي لا يتغير سلوك المستخدمين الحاليين.
@@ -2977,12 +3014,12 @@ ${description}`)) return;
     function ensureActiveGradeForClass(cls){
       const grade=getGradeForClass(cls); if(!grade) return false;
       if(grade!==activeGradeName) switchActiveGrade(grade);
-      ['classSelect','modalClassSelect','followupClassSelect','understandingClassSelect','permissionClassSelect'].forEach(id=>{ const select=document.getElementById(id); if(select&&[...select.options].some(option=>option.value===cls)) select.value=cls; });
+      ['classSelect','modalClassSelect','studentNamesClassSelect','followupClassSelect','understandingClassSelect','permissionClassSelect'].forEach(id=>{ const select=document.getElementById(id); if(select&&[...select.options].some(option=>option.value===cls)) select.value=cls; });
       return true;
     }
     function initClassSelects() {
       initGradeSelects();
-      const selectIds=['classSelect','modalClassSelect','followupClassSelect','studentNumbersClassSelect','understandingClassSelect','permissionClassSelect'];
+      const selectIds=['classSelect','modalClassSelect','studentNamesClassSelect','followupClassSelect','studentNumbersClassSelect','understandingClassSelect','permissionClassSelect'];
       const selects=selectIds.map(id=>[id,document.getElementById(id)]).filter(([,select])=>select);
       const vals=Object.fromEntries(selects.map(([id,select])=>[id,select.value]));
       selects.forEach(([,select])=>select.innerHTML='');
@@ -2993,6 +3030,7 @@ ${description}`)) return;
       const restoreClassSelect=(id,value)=>{ const select=document.getElementById(id); if(select&&keys.includes(value)) select.value=value; };
       restoreClassSelect('classSelect',vals.classSelect);
       restoreClassSelect('modalClassSelect',vals.modalClassSelect);
+      restoreClassSelect('studentNamesClassSelect',vals.studentNamesClassSelect);
       restoreClassSelect('followupClassSelect',vals.followupClassSelect);
       restoreClassSelect('understandingClassSelect',vals.understandingClassSelect);
       restoreClassSelect('permissionClassSelect',vals.permissionClassSelect);
@@ -3000,15 +3038,20 @@ ${description}`)) return;
       renderAttendanceUnitsDropdown();
     }
     function initGradeSelects(){
-      if(!isValidGradeName(activeGradeName)) activeGradeName='ثالث';
-      if(!gradeWorkspaces[activeGradeName]) gradeWorkspaces[activeGradeName]=captureActiveGradeWorkspace();
-      const gradeNames=Object.keys(gradeWorkspaces), selectIds=['manageGradeSelect','unitsManageGradeSelect'];
-      selectIds.forEach(id=>{ const select=document.getElementById(id); if(!select) return; select.innerHTML=gradeNames.map(grade=>`<option value="${escapeTextForHtml(grade)}">${escapeTextForHtml(grade)}</option>`).join(''); select.value=activeGradeName; });
+      const gradeNames=Object.keys(gradeWorkspaces||{});
+      if(!gradeNames.includes(activeGradeName)) activeGradeName=gradeNames[0]||'';
+      const selectIds=['manageGradeSelect','unitsManageGradeSelect'];
+      selectIds.forEach(id=>{
+        const select=document.getElementById(id); if(!select) return;
+        select.innerHTML=gradeNames.length?gradeNames.map(grade=>`<option value="${escapeTextForHtml(grade)}">${escapeTextForHtml(grade)}</option>`).join(''):'<option value="">-- أضف صفاً أولاً --</option>';
+        select.disabled=gradeNames.length===0;
+        select.value=activeGradeName;
+      });
       const nameInput=document.getElementById('activeGradeNameInput'); if(nameInput) nameInput.value=activeGradeName;
     }
     function setClassSelectsForActiveGrade(){
       const classNames=Object.keys(appData||{}), selected=classNames[0]||'';
-      ['classSelect','modalClassSelect','followupClassSelect','understandingClassSelect','permissionClassSelect'].forEach(id=>{ const select=document.getElementById(id); if(select&&classNames.includes(selected)) select.value=selected; });
+      ['classSelect','modalClassSelect','studentNamesClassSelect','followupClassSelect','understandingClassSelect','permissionClassSelect'].forEach(id=>{ const select=document.getElementById(id); if(select&&classNames.includes(selected)) select.value=selected; });
       return selected;
     }
     function refreshAfterGradeChange(){
@@ -3020,6 +3063,12 @@ ${description}`)) return;
       syncActiveGradeWorkspace(); activeGradeName=target; applyGradeWorkspace(gradeWorkspaces[target]); refreshAfterGradeChange(); saveData();
     }
     function onGradeSelectionChange(grade){ switchActiveGrade(grade); }
+    function toggleActiveGradeRename(){
+      if(!activeGradeName){ alert('أضف صفاً أولاً.'); return; }
+      const box=document.getElementById('activeGradeRenameBox'), input=document.getElementById('activeGradeNameInput');
+      const opening=box.style.display!=='flex'; box.style.display=opening?'flex':'none';
+      if(opening){ input.value=activeGradeName; input.focus(); input.select(); }
+    }
     function onUnitsManageGradeChange(grade){
       switchActiveGrade(grade); initUnitsModalSelect(); loadUnitDetailsToModal(); const nameInput=document.getElementById('unitNameEditInput'), unitSelect=document.getElementById('modalUnitSelect'); if(nameInput&&unitSelect) nameInput.value=unitSelect.value||'';
     }
@@ -3036,7 +3085,7 @@ ${description}`)) return;
       if(gradeWorkspaces[next]){ alert('يوجد صف بالاسم نفسه.'); return; }
       const workspace=captureActiveGradeWorkspace(), previousPrefix=`${previous} `;
       Object.keys(appData||{}).forEach(oldClass=>{ const section=oldClass.startsWith(previousPrefix)?oldClass.slice(previousPrefix.length):oldClass; const nextClass=gradeClassName(next,section); if(nextClass!==oldClass) renameClassInActiveWorkspace(oldClass,nextClass); });
-      delete gradeWorkspaces[previous]; activeGradeName=next; gradeWorkspaces[next]=captureActiveGradeWorkspace(); refreshAfterGradeChange(); saveData();
+      delete gradeWorkspaces[previous]; activeGradeName=next; gradeWorkspaces[next]=captureActiveGradeWorkspace(); const renameBox=document.getElementById('activeGradeRenameBox'); if(renameBox) renameBox.style.display='none'; refreshAfterGradeChange(); saveData();
     }
     function confirmDeleteActiveGrade(){
       const grade=activeGradeName, gradeNames=Object.keys(gradeWorkspaces||{});
@@ -4940,10 +4989,11 @@ ${description}`)) return;
       Object.keys(understandingData||{}).forEach(cls=>{ const unitStates=understandingData[cls]?.[uName]; if(!unitStates) return; for(let i=0;i<minLen;i++){ const oldN=oldLessons[i], newN=newLessons[i]; if(oldN!==newN&&unitStates[oldN]!==undefined){ unitStates[newN]=unitStates[oldN]; delete unitStates[oldN]; } } });
       saveData(); renderFollowupTable(currentActiveUnit); closeUnitsManageModal(); alert("✅ تم حفظ تعديلات الوحدة ونقل الدرجات بنجاح!");
     }
-    function openEditStudentNameModal(){ const cls=document.getElementById('modalClassSelect').value; if(!cls||!appData[cls]||appData[cls].length===0){ alert("لا يوجد طلاب في هذا الفصل لتعديل أسمائهم."); return; } renderEditStudentList(); document.getElementById('editStudentNameModal').style.display='flex'; }
+    function getStudentNamesSelectedClass(){ return document.getElementById('studentNamesClassSelect')?.value||''; }
+    function openEditStudentNameModal(){ const cls=getStudentNamesSelectedClass(); if(!cls||!appData[cls]||appData[cls].length===0){ alert("لا يوجد طلاب في هذا الفصل لتعديل أسمائهم."); return; } renderEditStudentList(); document.getElementById('editStudentNameModal').style.display='flex'; }
     function closeEditStudentNameModal(){ document.getElementById('editStudentNameModal').style.display='none'; if(editingIndex!==-1) cancelEditName(editingIndex); editingIndex=-1; }
     function renderEditStudentList() {
-      const cls=document.getElementById('modalClassSelect').value, cont=document.getElementById('editStudentListContainer'); cont.innerHTML='';
+      const cls=getStudentNamesSelectedClass(), cont=document.getElementById('editStudentListContainer'); cont.innerHTML='';
       const students=appData[cls].map((n,i)=>({name:n,idx:i})).sort((a,b)=>a.name.localeCompare(b.name,'ar')), dup=getDuplicateNames();
       if(students.length===0){ cont.innerHTML='<div style="text-align:center;color:#999;padding:20px;">لا يوجد طلاب</div>'; return; }
       students.forEach((item,index)=>{ const orig=item.idx, name=item.name, isDup=dup.includes(name), color=isDup?'color:#FF3B30;':''; const row=document.createElement('div'); row.className='edit-student-item'; row.id=`edit-row-${orig}`;
@@ -4955,7 +5005,7 @@ ${description}`)) return;
       });
     }
     function startEditName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; if(editingIndex!==-1&&editingIndex!==orig) cancelEditName(editingIndex); row.classList.add('editing'); row.querySelector('.student-edit-input').value=row.querySelector('.student-display-name').textContent; row.querySelector('.student-edit-input').focus(); row.querySelector('.student-edit-input').select(); editingIndex=orig; }
-    function saveEditedName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; const inp=row.querySelector('.student-edit-input'), newName=inp.value.trim(), oldName=inp.dataset.originalName; if(!newName){ alert("الاسم لا يمكن أن يكون فارغاً!"); return; } if(newName===oldName){ cancelEditName(orig); return; } const cls=document.getElementById('modalClassSelect').value; if(appData[cls].includes(newName)){ alert(`الاسم "${newName}" موجود مسبقاً!`); return; } if(updateStudentNameInAllData(oldName,newName,cls)){ updateTextareaAfterRename(cls); renderEditStudentList(); alert(`✅ تم تعديل اسم "${oldName}" إلى "${newName}" بنجاح.`); editingIndex=-1; } else alert("❌ حدث خطأ أثناء التعديل."); }
+    function saveEditedName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; const inp=row.querySelector('.student-edit-input'), newName=inp.value.trim(), oldName=inp.dataset.originalName; if(!newName){ alert("الاسم لا يمكن أن يكون فارغاً!"); return; } if(newName===oldName){ cancelEditName(orig); return; } const cls=getStudentNamesSelectedClass(); if(!appData[cls]) return; if(appData[cls].includes(newName)){ alert(`الاسم "${newName}" موجود مسبقاً!`); return; } if(updateStudentNameInAllData(oldName,newName,cls)){ updateTextareaAfterRename(cls); renderEditStudentList(); alert(`✅ تم تعديل اسم "${oldName}" إلى "${newName}" بنجاح.`); editingIndex=-1; } else alert("❌ حدث خطأ أثناء التعديل."); }
     function cancelEditName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; row.classList.remove('editing'); if(editingIndex===orig) editingIndex=-1; }
     function updateStudentNameInAllData(oldName,newName,cls){ let idx=appData[cls].indexOf(oldName); if(idx===-1) return false; appData[cls][idx]=newName; if(studentNotesData[cls]&&studentNotesData[cls][oldName]!==undefined){ studentNotesData[cls][newName]=studentNotesData[cls][oldName]; delete studentNotesData[cls][oldName]; } for(let date in records){ if(records[date]&&records[date][cls]&&records[date][cls][oldName]!==undefined){ records[date][cls][newName]=records[date][cls][oldName]; delete records[date][cls][oldName]; } } for(let date in permissionRecords){ if(permissionRecords[date]&&permissionRecords[date][cls]&&permissionRecords[date][cls][oldName]!==undefined){ permissionRecords[date][cls][newName]=permissionRecords[date][cls][oldName]; delete permissionRecords[date][cls][oldName]; } } for(let key in followupData){ if(key.startsWith(cls+'_')){ if(followupData[key][oldName]!==undefined){ followupData[key][newName]=followupData[key][oldName]; delete followupData[key][oldName]; } } } Object.values(understandingData?.[cls]||{}).forEach(unitStates=>Object.values(unitStates||{}).forEach(lessonStates=>{ if(lessonStates[oldName]!==undefined){ lessonStates[newName]=lessonStates[oldName]; delete lessonStates[oldName]; } })); saveData(); renderStudents(); renderPermissionStudents(); return true; }
     function updateTextareaAfterRename(cls){ if(appData[cls]) document.getElementById('studentNamesTextarea').value=appData[cls].join('\n'); }
@@ -5029,10 +5079,10 @@ ${description}`)) return;
       VIOLATION_DEFINITIONS.forEach(item=>{ const inp=document.getElementById(`penalty_input_${item.id}`); if(inp){ const num=parseFloat(inp.value); penaltiesData[item.id]=!isNaN(num)?num:0; } });
       saveData(); closePenaltyConfigModal(); alert("✅ تم حفظ الدرجات بنجاح!");
     }
-    function loadClassTextarea(){ const cls=document.getElementById('modalClassSelect').value; if(cls) ensureActiveGradeForClass(cls); document.getElementById('studentNamesTextarea').value=(cls&&appData[cls])?appData[cls].join('\n'):''; }
-    function saveStudentsFromTextarea(){ const cls=document.getElementById('modalClassSelect').value; if(!cls) return; const names=document.getElementById('studentNamesTextarea').value.split('\n').map(n=>n.trim()).filter(n=>n!==''); appData[cls]=names; saveData(); document.getElementById('classSelect').value=cls; renderStudents(); if(document.getElementById('editStudentNameModal').style.display==='flex') renderEditStudentList(); closeManageModal(); }
-    function toggleAddClassBox(){ const box=document.getElementById('inlineAddBox'); box.style.display=box.style.display==='flex'?'none':'flex'; if(box.style.display==='flex') document.getElementById('newClassInput').focus(); }
-    function saveNewClass(){ const inp=document.getElementById('newClassInput'), sectionName=inp.value.trim(), newName=gradeClassName(activeGradeName,sectionName); if(!newName) return; if(appData[newName]){ alert("هذا الفصل موجود بالفعل!"); return; } appData[newName]=[]; saveData(); initClassSelects(); document.getElementById('modalClassSelect').value=newName; document.getElementById('classSelect').value=newName; inp.value=''; document.getElementById('inlineAddBox').style.display='none'; loadClassTextarea(); renderStudents(); }
+    function loadClassTextarea(){ const cls=getStudentNamesSelectedClass(); if(cls) ensureActiveGradeForClass(cls); document.getElementById('studentNamesTextarea').value=(cls&&appData[cls])?appData[cls].join('\n'):''; }
+    function saveStudentsFromTextarea(){ const cls=getStudentNamesSelectedClass(); if(!cls){ alert('اختر فصلاً أولاً.'); return; } const names=document.getElementById('studentNamesTextarea').value.split('\n').map(n=>n.trim()).filter(n=>n!==''); appData[cls]=names; saveData(); const classSelect=document.getElementById('classSelect'); if(classSelect&&[...classSelect.options].some(option=>option.value===cls)) classSelect.value=cls; renderStudents(); if(document.getElementById('editStudentNameModal').style.display==='flex') renderEditStudentList(); }
+    function toggleAddClassBox(){ const box=document.getElementById('inlineAddBox'); if(!activeGradeName){ alert('أضف صفاً أولاً ثم أضف فصوله.'); return; } const opening=box.style.display!=='grid'; box.style.display=opening?'grid':'none'; if(opening){ document.getElementById('newClassGradeLabel').textContent=activeGradeName; document.getElementById('newClassInput').focus(); } }
+    function saveNewClass(){ const inp=document.getElementById('newClassInput'), sectionName=inp.value.trim(), newName=gradeClassName(activeGradeName,sectionName); if(!activeGradeName){ alert('أضف صفاً أولاً.'); return; } if(!sectionName){ alert('اكتب رقم الفصل أولاً.'); inp.focus(); return; } if(appData[newName]){ alert("هذا الفصل موجود بالفعل!"); return; } appData[newName]=[]; saveData(); initClassSelects(); ['modalClassSelect','studentNamesClassSelect','classSelect'].forEach(id=>{ const select=document.getElementById(id); if(select&&[...select.options].some(option=>option.value===newName)) select.value=newName; }); inp.value=''; document.getElementById('inlineAddBox').style.display='none'; renderStudents(); }
     function promptDeleteClass(){ const cls=document.getElementById('modalClassSelect').value; if(!cls) return; itemToDelete=cls; deleteTargetType='class'; document.getElementById('confirmDeleteText').innerText=`هل أنت تأكد من حذف "${cls}" بالكامل وبشكل نهائي؟`; document.getElementById('confirmDeleteModal').style.display='flex'; }
     function promptDeleteUnit(){ const unit=document.getElementById('modalUnitSelect').value; if(Object.keys(unitsData).length<=1){ alert("يجب أن تبقى وحدة واحدة على الأقل!"); return; } if(!unit) return; itemToDelete=unit; deleteTargetType='unit'; document.getElementById('confirmDeleteText').innerText=`هل أنت متأكد من حذف "${unit}"؟`; document.getElementById('confirmDeleteModal').style.display='flex'; }
     function closeConfirmModal(){ document.getElementById('confirmDeleteModal').style.display='none'; itemToDelete=''; deleteTargetType=''; }
@@ -6045,8 +6095,21 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       saveData(); renderStudents();
     }
 
-    function openManageModal(){ document.getElementById('manageModal').style.display='flex'; initClassSelects(); const cls=document.getElementById('classSelect').value; if(cls) document.getElementById('modalClassSelect').value=cls; loadClassTextarea(); }
-    function closeManageModal(){ document.getElementById('manageModal').style.display='none'; document.getElementById('inlineAddBox').style.display='none'; closeEditStudentNameModal(); }
+    function openManageModal(){
+      document.getElementById('manageModal').style.display='flex'; initClassSelects();
+      const cls=document.getElementById('classSelect').value;
+      if(cls&&[...document.getElementById('modalClassSelect').options].some(option=>option.value===cls)) document.getElementById('modalClassSelect').value=cls;
+      document.getElementById('activeGradeRenameBox').style.display='none';
+      document.getElementById('inlineAddBox').style.display='none';
+    }
+    function closeManageModal(){ document.getElementById('manageModal').style.display='none'; document.getElementById('inlineAddBox').style.display='none'; document.getElementById('activeGradeRenameBox').style.display='none'; }
+    function openStudentsManageModal(){
+      document.getElementById('studentsManageModal').style.display='flex'; initClassSelects();
+      const cls=document.getElementById('classSelect').value, select=document.getElementById('studentNamesClassSelect');
+      if(cls&&[...select.options].some(option=>option.value===cls)) select.value=cls;
+      loadClassTextarea();
+    }
+    function closeStudentsManageModal(){ document.getElementById('studentsManageModal').style.display='none'; closeEditStudentNameModal(); }
     function formatLocalSaveTime(value){
       if(!value) return 'لم يسجل حفظ بعد في هذه الجلسة';
       try{return new Date(value).toLocaleString('ar-SA',{hour:'2-digit',minute:'2-digit',year:'numeric',month:'numeric',day:'numeric'});}catch(_){return 'تم الحفظ محلياً';}
@@ -6860,7 +6923,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; permissionRecords={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); unitLocks={}; followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; classScheduleSettings=normalizeClassScheduleSettings({}); persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيعاد فتح التطبيق فارغاً خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { gradeWorkspaces={}; activeGradeName=''; resetActiveGradeWorkspaceToBlank(); buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; classScheduleSettings=normalizeClassScheduleSettings({}); persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات. التطبيق الآن فارغ وجاهز لإضافة أول صف.'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
