@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-62-safe-grade-delete';
+const CACHE_NAME = 'attendance-app-v21-63-streamlined-grade-class-management';
 const urlsToCache = [
   './',
   './index.html',

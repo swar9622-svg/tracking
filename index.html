@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.62";</script>
+  <script>const APP_VERSION = "21.63";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -588,6 +588,34 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     html.startup-disabled #startupSplash{display:none!important;}
     #startupSplash{position:fixed;inset:0;z-index:1000000;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 34%,rgba(0,122,255,.12) 0%,rgba(242,242,247,0) 55%),#F2F2F7;color:#1C1C1E;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,sans-serif;}
     #startupSplash .startup-inner{width:min(90vw,420px);display:flex;flex-direction:column;align-items:center;}#startupSplash .startup-icon-wrap{position:relative;width:96px;height:96px;margin-bottom:22px;}#startupSplash .startup-halo{position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(0,122,255,.28) 0%,rgba(0,122,255,0) 70%);opacity:0;animation:startup-halo .7s ease-out forwards .05s;}#startupSplash .startup-icon{position:relative;width:96px;height:96px;border-radius:24px;background:linear-gradient(150deg,#2B9BFF 0%,#007AFF 55%,#0A5FCC 100%);box-shadow:0 10px 26px rgba(0,122,255,.38),inset 0 1px 1px rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.4) rotate(-8deg);animation:startup-icon .55s cubic-bezier(.2,1.5,.35,1) forwards .05s;}#startupSplash .startup-icon img{display:block;width:100%;height:100%;padding:5px;object-fit:contain;border-radius:20px;background:#FFF;}#startupSplash .startup-badge{position:absolute;bottom:-6px;left:-6px;width:30px;height:30px;border-radius:50%;background:#34C759;border:3px solid #F2F2F7;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.3);animation:startup-badge .4s cubic-bezier(.2,1.6,.4,1) forwards .78s;}#startupSplash .startup-badge svg{width:14px;height:14px;fill:none;stroke:#FFF;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}#startupSplash .startup-chip-row{display:flex;gap:8px;margin-bottom:20px;height:30px;}#startupSplash .startup-chip{display:flex;align-items:center;gap:5px;padding:0 12px;height:30px;border-radius:15px;font-size:12px;font-weight:800;color:#FFF;opacity:0;transform:translateY(10px) scale(.85);animation:startup-chip .38s cubic-bezier(.2,1.4,.4,1) forwards;white-space:nowrap;}#startupSplash .startup-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.85);}#startupSplash .startup-chip:nth-child(1){background:#34C759;animation-delay:.95s;}#startupSplash .startup-chip:nth-child(2){background:#FF9500;animation-delay:1.05s;}#startupSplash .startup-chip:nth-child(3){background:#FF3B30;animation-delay:1.15s;}#startupSplash .startup-chip:nth-child(4){background:#AF52DE;animation-delay:1.25s;}#startupSplash .startup-title{background:#007AFF;color:#FFF;font-size:17px;font-weight:800;text-align:center;padding:12px 22px;border-radius:13px;box-shadow:0 4px 14px rgba(0,122,255,.35);opacity:0;transform:translateY(14px);animation:startup-title .45s cubic-bezier(.2,1.2,.4,1) forwards 1.4s;}#startupSplash .startup-subtitle{margin-top:10px;font-size:12.5px;font-weight:700;color:#8E8E93;opacity:0;animation:startup-fade .35s ease-out forwards 1.75s;}#startupSplash .startup-progress{margin-top:26px;width:150px;height:5px;border-radius:999px;background:#E2E2E8;overflow:hidden;opacity:0;animation:startup-fade .3s ease-out forwards 1.9s;}#startupSplash .startup-progress b{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#2B9BFF,#007AFF);animation:startup-progress 1s cubic-bezier(.3,.1,.2,1) forwards 1.95s;}#startupSplash.startup-leaving{animation:startup-out .42s cubic-bezier(.4,0,.2,1) forwards;}@keyframes startup-halo{to{opacity:1;transform:scale(1)}}@keyframes startup-icon{60%{opacity:1;transform:scale(1.08) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}@keyframes startup-fade{to{opacity:1}}@keyframes startup-check{to{stroke-dashoffset:0}}@keyframes startup-badge{60%{opacity:1;transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}@keyframes startup-chip{to{opacity:1;transform:translateY(0) scale(1)}}@keyframes startup-title{to{opacity:1;transform:translateY(0)}}@keyframes startup-progress{to{width:100%}}@keyframes startup-out{to{opacity:0;transform:scale(1.04);filter:blur(5px)}}@media(prefers-reduced-motion:reduce){#startupSplash *{animation-duration:.01ms!important;animation-delay:0ms!important;}}
+    #manageModal .modal-content{max-width:24rem;width:93%;max-height:92vh;padding:.82rem .72rem;}
+    .manage-modal-header{display:flex;align-items:center;justify-content:space-between;gap:.55rem;margin-bottom:.7rem;}
+    .manage-modal-header .modal-title{margin:0;font-size:1.15rem;line-height:1.25;}
+    .manage-section{border:1px solid #E5E7EB;border-radius:.85rem;padding:.62rem;margin-bottom:.55rem;background:#fff;}
+    .manage-section-grade{background:#F6FAFF;border-color:#CFE4FA;}
+    .manage-section-classes{background:#FBFFFC;border-color:#D2EFD9;}
+    .manage-section-students{background:#FCFBFF;border-color:#E3D9F8;}
+    .manage-section-heading{display:flex;align-items:center;gap:.38rem;margin:0 0 .42rem;color:#1F2937;font-size:.83rem;font-weight:900;}
+    .manage-section-number{display:inline-flex;align-items:center;justify-content:center;width:1.22rem;height:1.22rem;border-radius:50%;background:#1677E8;color:#fff;font-size:.66rem;flex:0 0 1.22rem;}
+    .manage-section-classes .manage-section-number{background:#22A858;}
+    .manage-section-students .manage-section-number{background:#8446BF;}
+    .manage-help{margin:0 0 .42rem;color:#6B7280;font-size:.66rem;font-weight:700;line-height:1.35;}
+    #manageModal .field-label{font-size:.72rem;margin:0 0 .28rem;color:#5B6470;}
+    .manage-form-row{display:flex;gap:.35rem;align-items:center;margin-top:.34rem;}
+    .manage-form-row input{min-width:0;flex:1;height:2.12rem;padding:.38rem .52rem;font-size:.76rem;}
+    .manage-compact-btn{width:auto!important;min-height:2.12rem!important;height:2.12rem!important;padding:0 .6rem!important;border-radius:.58rem!important;font-size:.69rem!important;white-space:nowrap;}
+    .manage-class-actions{display:flex;gap:.35rem;margin-top:.38rem;}
+    .manage-class-actions button{flex:1;min-height:2.12rem!important;height:2.12rem!important;padding:0 .45rem!important;border-radius:.58rem!important;font-size:.7rem!important;}
+    #manageModal .inline-add-box{margin:.38rem 0 0;padding:.42rem;border-radius:.58rem;}
+    #manageModal .inline-add-box input{min-width:0;height:2rem;font-size:.72rem;}
+    #manageModal .inline-add-box .btn-confirm-add{width:auto;min-height:2rem;padding:0 .55rem;font-size:.68rem;}
+    .manage-delete-link{display:block;width:100%;border:0!important;background:transparent!important;color:#C7372F!important;font:inherit!important;font-size:.67rem!important;font-weight:800!important;padding:.38rem .2rem .04rem!important;min-height:auto!important;text-decoration:underline;cursor:pointer;}
+    #manageModal textarea{min-height:9rem;max-height:31vh;margin:.1rem 0 .38rem;padding:.5rem .58rem;font-size:.84rem;line-height:1.45;}
+    .manage-student-actions{display:flex;gap:.35rem;}
+    .manage-student-actions button{flex:1;min-height:2.16rem!important;height:2.16rem!important;padding:0 .4rem!important;border-radius:.58rem!important;font-size:.68rem!important;}
+    .manage-modal-footer{margin-top:.25rem;}
+    .manage-modal-footer .btn-modal-cancel{min-height:2.2rem;font-size:.73rem;}
+    @media(max-width:390px){#manageModal .modal-content{padding:.72rem .62rem;}.manage-section{padding:.55rem}.manage-modal-header .modal-title{font-size:1.04rem}.manage-form-row input{font-size:.7rem}.manage-compact-btn,.manage-class-actions button{font-size:.64rem!important;}}
   </style>
 </head>
 <body class="startup-active">
@@ -1448,42 +1476,51 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </div>
   </div>
   <div class="modal" id="manageModal">
-    <div class="modal-content" style="max-height:90vh;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div class="modal-title" style="margin:0;">⚙️ إدارة الصفوف والفصول والأسماء</div>
-        <button class="btn-close-circle" onclick="closeManageModal()">✕</button>
+    <div class="modal-content">
+      <div class="manage-modal-header">
+        <div class="modal-title">⚙️ إدارة الصفوف والفصول</div>
+        <button class="btn-close-circle" onclick="closeManageModal()" aria-label="إغلاق">✕</button>
       </div>
-      
-      <div style="padding:.62rem;border:1px solid #CFE4FA;border-radius:.75rem;background:#F6FAFF;margin-bottom:.65rem;">
-        <span class="field-label" style="margin-top:0;">الصف الحالي:</span>
+      <section class="manage-section manage-section-grade">
+        <h3 class="manage-section-heading"><span class="manage-section-number">1</span> الصفوف</h3>
+        <p class="manage-help">اختر الصف الذي تريد العمل عليه، أو أضف صفاً جديداً.</p>
+        <label class="field-label" for="manageGradeSelect">الصف المختار</label>
         <select id="manageGradeSelect" class="select-class-full" onchange="onGradeSelectionChange(this.value)"></select>
-        <div style="display:flex;gap:.35rem;margin-top:.42rem;">
-          <input id="activeGradeNameInput" type="text" placeholder="اسم الصف" style="min-width:0;flex:1;">
-          <button type="button" class="btn-confirm-add" style="width:auto;padding-inline:.72rem;" onclick="saveActiveGradeName()">حفظ الاسم</button>
+        <div class="manage-form-row">
+          <input id="activeGradeNameInput" type="text" placeholder="تعديل اسم الصف">
+          <button type="button" class="btn-confirm-add manage-compact-btn" onclick="saveActiveGradeName()">حفظ الاسم</button>
         </div>
-        <div style="display:flex;gap:.35rem;margin-top:.42rem;">
-          <input id="newGradeInput" type="text" placeholder="إضافة صف جديد، مثل: أولى" style="min-width:0;flex:1;">
-          <button type="button" class="btn-add-cls-btn" style="width:auto;padding-inline:.72rem;" onclick="saveNewGrade()">➕ صف</button>
+        <div class="manage-form-row">
+          <input id="newGradeInput" type="text" placeholder="اسم صف جديد، مثل: أولى">
+          <button type="button" class="btn-add-cls-btn manage-compact-btn" onclick="saveNewGrade()">+ إضافة</button>
         </div>
-        <button type="button" class="btn-del-cls-btn" style="width:100%;margin-top:.42rem;" onclick="confirmDeleteActiveGrade()">🗑️ حذف الصف الحالي</button>
-      </div>
-      <span class="field-label">اختر الفصل للتعديل:</span>
-      <select id="modalClassSelect" class="select-class-full" onchange="loadClassTextarea()"></select>
-      <div class="class-manage-btns">
-        <button type="button" class="btn-add-cls-btn" onclick="toggleAddClassBox()">➕ إضافة فصل</button>
-        <button type="button" class="btn-del-cls-btn" onclick="promptDeleteClass()">🗑️ حذف الفصل</button>
-      </div>
-      <div class="inline-add-box" id="inlineAddBox">
-        <input type="text" id="newClassInput" placeholder="رقم أو اسم الفصل، مثل: 4">
-        <button class="btn-confirm-add" onclick="saveNewClass()">حفظ</button>
-      </div>
-      <span class="field-label">أسماء الطلاب (كل اسم في سطر):</span>
-      <textarea id="studentNamesTextarea" placeholder="أدخل أسماء الطلاب..."></textarea>
-      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
-        <button class="btn-action" style="background-color:var(--accent);flex:1;font-size:12px;min-height:36px;" onclick="saveStudentsFromTextarea()">💾 حفظ الأسماء</button>
-        <button class="btn-action" style="background-color:#8E44AD;flex:1;font-size:12px;min-height:36px;" onclick="openEditStudentNameModal()">✏️ تعديل اسم طالب</button>
-      </div>
-      <div class="modal-actions"><button class="btn-modal-cancel" onclick="closeManageModal()">إلغاء</button></div>
+        <button type="button" class="manage-delete-link" onclick="confirmDeleteActiveGrade()">حذف هذا الصف…</button>
+      </section>
+      <section class="manage-section manage-section-classes">
+        <h3 class="manage-section-heading"><span class="manage-section-number">2</span> الفصول</h3>
+        <p class="manage-help">تظهر هنا الفصول التابعة للصف المختار فقط.</p>
+        <label class="field-label" for="modalClassSelect">الفصل الذي تعمل عليه</label>
+        <select id="modalClassSelect" class="select-class-full" onchange="loadClassTextarea()"></select>
+        <div class="manage-class-actions">
+          <button type="button" class="btn-add-cls-btn" onclick="toggleAddClassBox()">+ إضافة فصل</button>
+          <button type="button" class="btn-del-cls-btn" onclick="promptDeleteClass()">حذف الفصل</button>
+        </div>
+        <div class="inline-add-box" id="inlineAddBox">
+          <input type="text" id="newClassInput" placeholder="رقم الفصل، مثل: 4">
+          <button class="btn-confirm-add" onclick="saveNewClass()">إضافة</button>
+        </div>
+      </section>
+      <section class="manage-section manage-section-students">
+        <h3 class="manage-section-heading"><span class="manage-section-number">3</span> أسماء الطلاب</h3>
+        <p class="manage-help">اكتب كل اسم في سطر، ثم احفظ القائمة للفصل المختار.</p>
+        <label class="field-label" for="studentNamesTextarea">قائمة الطلاب</label>
+        <textarea id="studentNamesTextarea" placeholder="أدخل أسماء الطلاب..."></textarea>
+        <div class="manage-student-actions">
+          <button class="btn-action" style="background-color:var(--accent);" onclick="saveStudentsFromTextarea()">💾 حفظ الأسماء</button>
+          <button class="btn-action" style="background-color:#8E44AD;" onclick="openEditStudentNameModal()">✏️ تعديل اسم</button>
+        </div>
+      </section>
+      <div class="modal-actions manage-modal-footer"><button class="btn-modal-cancel" onclick="closeManageModal()">إغلاق</button></div>
     </div>
   </div>
 
