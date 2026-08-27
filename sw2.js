@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-72-fast-touch-restore';
+const CACHE_NAME = 'attendance-app-v21-73-compact-units';
 const urlsToCache = [
   './',
   './index.html',

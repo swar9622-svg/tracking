@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.72";</script>
+  <script>const APP_VERSION = "21.73";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -412,32 +412,34 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .page-footer { text-align: center; font-size: 0.6rem; color: #999; border-top: 1px dashed #ddd; padding-top: 0.3rem; margin-top: 0.3rem; }
     #unitsManageModal{align-items:flex-start;overflow:hidden;overscroll-behavior:contain;padding:12px;}
     #unitsManageModal .modal-content{max-width:24rem;width:93%;max-height:calc(100dvh - 24px);overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;padding:.82rem .72rem;}
-    .units-manage-section{border:1px solid #E5E7EB;border-radius:.85rem;padding:.62rem;margin-bottom:.55rem;background:#FFF;}
+    .units-manage-section{border:1px solid #E5E7EB;border-radius:.72rem;padding:.42rem .48rem;margin-bottom:.38rem;background:#FFF;}
     .units-manage-section.is-grade{background:#F6FAFF;border-color:#CFE4FA;}
     .units-manage-section.is-units{background:#FBFFFC;border-color:#D2EFD9;}
     .units-manage-section.is-lessons{background:#FCFBFF;border-color:#E3D9F8;}
-    .units-manage-heading{display:flex;align-items:center;gap:.38rem;margin:0 0 .42rem;color:#1F2937;font-size:.83rem;font-weight:900;}
+    .units-manage-heading{display:flex;align-items:center;gap:.30rem;margin:0;color:#1F2937;font-size:.76rem;font-weight:900;white-space:nowrap;}
     .units-manage-number{display:inline-flex;align-items:center;justify-content:center;width:1.22rem;height:1.22rem;border-radius:50%;background:#1677E8;color:#FFF;font-size:.66rem;flex:0 0 1.22rem;}
     .units-manage-section.is-units .units-manage-number{background:#22A858;}
     .units-manage-section.is-lessons .units-manage-number{background:#8446BF;}
-    .units-manage-help{margin:0 0 .42rem;color:#6B7280;font-size:.66rem;font-weight:700;line-height:1.35;}
     #unitsManageModal .field-label{font-size:.72rem;margin:0 0 .28rem;color:#5B6470;}
-    .units-inline-actions{display:flex;gap:.34rem;flex-wrap:wrap;margin-top:.35rem;}
-    .units-small-action{border:none;border-radius:.52rem;min-height:1.95rem;padding:0 .52rem;font-family:inherit;font-size:.65rem;font-weight:900;cursor:pointer;white-space:nowrap;}
+    .units-compact-field{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:.38rem;min-width:0;}
+    .units-compact-field .select-class-full{min-width:0;height:2.1rem;margin:0;padding:.18rem .48rem;font-size:.78rem;}
+    .units-compact-field .field-label{margin:0;font-size:.69rem;white-space:nowrap;color:#4B5563;}
+    .units-inline-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.26rem;margin-top:.32rem;}
+    .units-small-action{border:none;border-radius:.48rem;min-height:1.92rem;padding:.14rem .16rem;font-family:inherit;font-size:.57rem;font-weight:900;cursor:pointer;white-space:nowrap;}
     .units-small-action.is-add{background:#EAF7EE;color:#166534;border:1px solid #A9DFBF;}
     .units-small-action.is-edit{background:#EAF3FF;color:#0B5394;border:1px solid #BBD7F3;}
     .units-small-action.is-delete{background:#FFF0F0;color:#C7372F;border:1px solid #F5B7B1;}
     .units-optional-box{display:none;grid-template-columns:1fr auto;gap:.35rem;align-items:center;margin-top:.42rem;padding:.42rem;background:#FFF;border:1px solid #D8EAFB;border-radius:.6rem;}
     .units-optional-box input{min-width:0;height:2rem;padding:.38rem .52rem;font-size:.72rem;}
     .units-optional-box .btn-confirm-add{width:auto;min-height:2rem;padding:0 .55rem;font-size:.68rem;white-space:nowrap;}
-    .units-lesson-title{display:block;padding:.42rem .52rem;border-radius:.58rem;background:#F6F0FC;color:#6C3483;text-align:center;font-size:.72rem;font-weight:900;margin-bottom:.43rem;}
-    .units-count-row{display:grid;grid-template-columns:1fr auto;gap:.35rem;align-items:end;margin-bottom:.46rem;}
-    .units-count-row input{height:2.08rem;box-sizing:border-box;text-align:center;margin:0;}
-    .units-count-row button{min-height:2.08rem;padding:0 .55rem;font-size:.67rem;}
+    .units-lesson-title{display:block;padding:.30rem .44rem;border-radius:.50rem;background:#F6F0FC;color:#6C3483;text-align:center;font-size:.70rem;font-weight:900;margin-bottom:.34rem;}
+    .units-count-row{display:grid;grid-template-columns:auto 4.2rem;gap:.35rem;align-items:center;margin-bottom:.34rem;justify-content:start;}
+    .units-count-row .field-label{margin:0;font-size:.68rem;white-space:nowrap;}
+    .units-count-row input{height:1.95rem;box-sizing:border-box;text-align:center;margin:0;padding:.15rem;font-size:.77rem;}
     .lesson-edit-row{display:grid;grid-template-columns:auto 1fr;gap:.34rem;align-items:center;margin-bottom:.32rem;}
     .lesson-edit-index{display:inline-flex;align-items:center;justify-content:center;min-width:1.7rem;height:1.92rem;border-radius:.48rem;background:#EEE8F8;color:#6C3483;font-size:.67rem;font-weight:900;}
     .lesson-edit-row input{min-width:0;height:1.92rem;padding:.3rem .5rem;border-radius:.48rem;border:1px solid #D8D1E8;font-size:.76rem;font-weight:800;box-sizing:border-box;}
-    #lessonNamesInputsContainer{max-height:31vh;overflow-y:auto;padding:.12rem .12rem .12rem .22rem;margin-bottom:.55rem!important;}
+    #lessonNamesInputsContainer{max-height:34vh;overflow-y:auto;padding:.08rem .10rem .08rem .18rem;margin-bottom:.34rem!important;}
     .units-save-notice{display:none;margin:.1rem 0 .48rem;padding:.42rem .5rem;border-radius:.56rem;background:#EAF7EE;color:#166534;border:1px solid #A9DFBF;text-align:center;font-size:.69rem;font-weight:800;line-height:1.35;}
     @media(max-width:390px){#unitsManageModal .modal-content{padding:.72rem .62rem;}.units-manage-section{padding:.55rem}.units-count-row button{font-size:.62rem;}}
     .edit-student-item { display: flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.5rem; margin-bottom: 0.3rem; background: #f9f9fb; border-radius: 0.5rem; border: 1px solid #e5e5ea; transition: background 0.15s; }
@@ -1180,25 +1182,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
   <div class="modal" id="unitsManageModal">
     <div class="modal-content">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <div class="modal-title" style="margin:0;">⚙️ إدارة الوحدات والدروس</div>
         <button class="btn-close-circle" onclick="closeUnitsManageModal()">✕</button>
       </div>
       <section class="units-manage-section is-grade">
-        <h3 class="units-manage-heading"><span class="units-manage-number">1</span> اختر الصف</h3>
-        <p class="units-manage-help">لكل صف وحداته ودروسه المستقلة.</p>
-        <label class="field-label" for="unitsManageGradeSelect">الصف</label>
-        <select id="unitsManageGradeSelect" class="select-class-full" onchange="onUnitsManageGradeChange(this.value)"></select>
+        <div class="units-compact-field"><h3 class="units-manage-heading"><span class="units-manage-number">1</span> اختر الصف</h3><select id="unitsManageGradeSelect" class="select-class-full" aria-label="الصف" onchange="onUnitsManageGradeChange(this.value)"></select></div>
       </section>
       <section class="units-manage-section is-units">
-        <h3 class="units-manage-heading"><span class="units-manage-number">2</span> الوحدات</h3>
-        <p class="units-manage-help">اختر وحدة لتظهر دروسها بالأسفل، أو أضف وحدة جديدة.</p>
-        <label class="field-label" for="modalUnitSelect">الوحدة المختارة</label>
-        <select id="modalUnitSelect" class="select-class-full" onchange="loadUnitDetailsToModal()"></select>
+        <div class="units-compact-field"><h3 class="units-manage-heading"><span class="units-manage-number">2</span> الوحدة</h3><select id="modalUnitSelect" class="select-class-full" aria-label="الوحدة" onchange="loadUnitDetailsToModal()"></select></div>
         <div class="units-inline-actions">
-          <button type="button" class="units-small-action is-add" onclick="toggleAddUnitBox()">+ إضافة وحدة</button>
-          <button type="button" class="units-small-action is-edit" onclick="toggleUnitRenameBox()">✏️ تعديل الاسم</button>
-          <button type="button" class="units-small-action is-delete" onclick="promptDeleteUnit()">حذف الوحدة</button>
+          <button type="button" class="units-small-action is-add" onclick="toggleAddUnitBox()">+ إضافة</button>
+          <button type="button" class="units-small-action is-edit" onclick="toggleUnitRenameBox()">تعديل</button>
+          <button type="button" class="units-small-action is-delete" onclick="promptDeleteUnit()">حذف</button>
         </div>
         <div class="units-optional-box" id="inlineAddUnitBox">
           <input type="text" id="newUnitNameInput" placeholder="اسم الوحدة، مثل: الوحدة 1">
@@ -1210,12 +1206,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         </div>
       </section>
       <section class="units-manage-section is-lessons">
-        <h3 class="units-manage-heading"><span class="units-manage-number">3</span> الدروس</h3>
         <span class="units-lesson-title" id="unitLessonsHeading">اختر وحدة أولاً</span>
-        <p class="units-manage-help">حدد العدد، فتُجهز الأسماء تلقائياً مثل 1-1 و1-2. يمكنك تعديل الاسم داخل الخانة عند الحاجة.</p>
         <div class="units-count-row">
-          <div><label class="field-label" for="unitLessonsCountInput">عدد الدروس</label><input type="number" id="unitLessonsCountInput" min="1" max="50" value="1"></div>
-          <button type="button" class="btn-confirm-add" onclick="generateLessonNameInputs()">تجهيز الأسماء</button>
+          <label class="field-label" for="unitLessonsCountInput">عدد الدروس للوحدة</label><input type="number" id="unitLessonsCountInput" min="1" max="50" value="1" inputmode="numeric" oninput="generateLessonNameInputs()" onchange="generateLessonNameInputs()">
         </div>
         <div id="lessonNamesInputsContainer" style="display:flex;flex-direction:column;gap:4px;"></div>
       </section>
@@ -5053,7 +5046,7 @@ ${description}`)) return;
       if(!u||!unitsData[u]){ heading.textContent='أضف أو اختر وحدة أولاً'; countInput.value=1; countInput.disabled=true; container.innerHTML=''; return; }
       const lessons=normalizeAutomaticLessonNames(u); countInput.disabled=false; countInput.value=lessons.length||1; heading.textContent=`دروس ${u}`; renderLessonNameInputs(lessons); document.getElementById('unitNameEditInput').value=u;
     }
-    function generateLessonNameInputs(){ const count=Math.min(50,Math.max(1,parseInt(document.getElementById('unitLessonsCountInput').value)||1)), sel=document.getElementById('modalUnitSelect'), u=sel.value; if(!u||!unitsData[u]){ alert('أضف أو اختر وحدة أولاً.'); return; } const existing=normalizeAutomaticLessonNames(u); let lessons=[]; for(let i=0;i<count;i++) lessons.push(existing[i]||getAutoLessonName(u,i+1)); document.getElementById('unitLessonsCountInput').value=count; renderLessonNameInputs(lessons); }
+    function generateLessonNameInputs(){ const count=Math.min(50,Math.max(1,parseInt(document.getElementById('unitLessonsCountInput').value)||1)), sel=document.getElementById('modalUnitSelect'), u=sel.value; if(!u||!unitsData[u]) return; const typed=[...document.querySelectorAll('.lesson-name-input')].map(input=>input.value.trim()).filter(Boolean), existing=typed.length?typed:normalizeAutomaticLessonNames(u); let lessons=[]; for(let i=0;i<count;i++) lessons.push(existing[i]||getAutoLessonName(u,i+1)); document.getElementById('unitLessonsCountInput').value=count; renderLessonNameInputs(lessons); }
     function renderLessonNameInputs(lessons){ const cont=document.getElementById('lessonNamesInputsContainer'); cont.innerHTML=''; lessons.forEach((lesson,index)=>{ const row=document.createElement('div'); row.className='lesson-edit-row'; row.innerHTML=`<span class="lesson-edit-index">${index+1}</span><input type="text" class="lesson-name-input" data-index="${index}" value="${escapeTextForHtml(lesson)}" placeholder="اسم الدرس ${index+1}">`; cont.appendChild(row); }); }
     function toggleAddUnitBox(){ const box=document.getElementById('inlineAddUnitBox'); if(!activeGradeName){ alert('أضف صفاً أولاً من إدارة الصفوف والفصول.'); return; } const opening=box.style.display!=='grid'; box.style.display=opening?'grid':'none'; document.getElementById('unitRenameBox').style.display='none'; if(opening) document.getElementById('newUnitNameInput').focus(); }
     function toggleUnitRenameBox(){ const sel=document.getElementById('modalUnitSelect'), unit=sel.value; if(!unit||!unitsData[unit]){ alert('أضف أو اختر وحدة أولاً.'); return; } const box=document.getElementById('unitRenameBox'), input=document.getElementById('unitNameEditInput'), opening=box.style.display!=='grid'; box.style.display=opening?'grid':'none'; document.getElementById('inlineAddUnitBox').style.display='none'; if(opening){ input.value=unit; input.focus(); input.select(); } }
