@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-66-compact-permission-column';
+const CACHE_NAME = 'attendance-app-v21-67-balanced-student-report';
 const urlsToCache = [
   './',
   './index.html',
