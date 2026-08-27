@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.48";</script>
+  <script>const APP_VERSION = "21.49";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -799,8 +799,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <select id="detailedNotificationClassSelect" class="select-class-full" onchange="onDetailedStudentNotificationClassChange()" style="margin:0;" aria-label="اختر الفصل"></select>
           <select id="detailedNotificationStudentSelect" class="select-class-full" onchange="renderDetailedStudentNotificationPreview()" style="margin:0;" aria-label="اختر الطالب"></select>
         </div>
-        <button type="button" class="btn-action detailed-notification-html" id="btnExportStudentHtmlZip" onclick="exportStudentHtmlPagesZip()">📦 تصدير صفحات HTML ZIP</button>
-        <button type="button" class="btn-action detailed-notification-html" id="btnExportStudentDataJson" onclick="openStudentHtmlDataJsonModeModal()">🗂️ تصدير data.json — جميع الفصول</button>
         <div id="detailedStudentNotificationPreview"></div>
       </div>
     </div>
@@ -4049,7 +4047,8 @@ ${description}`)) return;
         const actAvg = raw.actAvg;
         const excellenceScore = raw.excellenceRaw;
 
-        let rowHtml=`<td data-group="index" style="font-weight:bold;color:var(--text-secondary);">${idx+1}</td><td data-group="name" class="student-name-td" style="font-weight:900;font-size:14px;text-align:right;${nameColor}" onclick="toggleFollowupRowHighlight(this)">${student}</td>`;
+        const encodedClass=encodeURIComponent(cls), encodedStudentForNotification=encodeURIComponent(student);
+        let rowHtml=`<td data-group="index" style="font-weight:bold;color:var(--text-secondary);">${idx+1}</td><td data-group="name" class="student-name-td" style="font-weight:900;font-size:14px;text-align:right;cursor:pointer;${nameColor}" onclick="toggleFollowupRowHighlight(this)" ondblclick="openDetailedStudentNotificationForStudent('${encodedClass}','${encodedStudentForNotification}')" title="اضغط مرتين لفتح إشعار الطالب التفصيلي">${student}</td>`;
         // الواجبات
         lessons.forEach(l=>{ let val=(stData.hw&&stData.hw[l]!==undefined)?stData.hw[l]:''; rowHtml+=`<td data-group="hw-details" style="background:#EAFAF1;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="واجب" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'hw','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // عمود الموزونه (الواجبات)
@@ -4057,7 +4056,7 @@ ${description}`)) return;
         // الأنشطة المدخلة: لكل درس من 10 درجات.
         lessons.forEach(l=>{ let val=(stData.act&&stData.act[l]!==undefined)?stData.act[l]:''; rowHtml+=`<td data-group="act-details" style="background:#FEF9E7;padding:4px;"><input type="number" step="0.5" min="0" max="10" value="${val}" data-student="${encodeURIComponent(student)}" data-column-name="${encodeURIComponent(l)}" data-assessment-label="نشاط" style="width:50px;text-align:center;padding:4px;background:white;" onfocus="showStudentNameTooltip(this)" onblur="hideStudentNameTooltip(this)" onchange="validateAndUpdate(this,'act','${encodeURIComponent(l)}',10)" onkeydown="handleFollowupCellKeydown(event,this)" title="Enter: الخلية بالأسفل | Shift+Enter: الخلية بالأعلى | Tab: الخلية التالية"></td>`; });
         // تحقق وموزونة الأنشطة الأصلية بلا تميز؛ فقاعات تحقق والتميز تشرح التفاصيل المسجلة فقط.
-        const excellenceLessons=getExcellentLessonNames(cls,student,unitName), encodedClass=encodeURIComponent(cls), encodedStudent=encodeURIComponent(student), encodedUnit=encodeURIComponent(unitName);
+        const excellenceLessons=getExcellentLessonNames(cls,student,unitName), encodedStudent=encodeURIComponent(student), encodedUnit=encodeURIComponent(unitName);
         const excellenceCell=excellenceScore>0?`<button type="button" class="excellence-lessons-trigger" data-group="excellence" onclick="toggleExcellenceLessonsBubble(this,'${encodedClass}','${encodedStudent}','${encodedUnit}',event)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleExcellenceLessonsBubble(this,'${encodedClass}','${encodedStudent}','${encodedUnit}',event)}" title="عرض الدروس المتميزة" style="border:0;background:transparent;color:#A04B00;font:inherit;font-weight:900;cursor:pointer;padding:5px;min-width:44px;">+${formatGrade(excellenceScore)}</button>`:'—';
         const understandingCell=`<button type="button" class="understanding-details-trigger" onclick="toggleUnderstandingDetailsBubble(this,'${encodedClass}','${encodedStudent}','${encodedUnit}',event)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleUnderstandingDetailsBubble(this,'${encodedClass}','${encodedStudent}','${encodedUnit}',event)}" title="عرض حالات تحقق من فهمك" style="border:0;background:transparent;color:inherit;font:inherit;font-weight:900;cursor:pointer;padding:5px;min-width:38px;">${formatGrade(understandingScore)}</button>`;
         rowHtml+=`<td data-group="act" class="followup-understanding-column" style="font-weight:900;text-align:center;font-size:0.8rem;">${understandingCell}</td><td data-group="act" style="background:#FCF3CF;color:#7D6608;font-weight:900;text-align:center;font-size:0.8rem;">${formatGrade(actAvg)}</td><td data-group="excellence" style="background:#FFF0D8;color:#A04B00;font-weight:900;text-align:center;font-size:0.8rem;">${excellenceCell}</td>`;
@@ -5191,16 +5190,21 @@ ${description}`)) return;
       if(!Number.isFinite(testValue)) return {key:'pending',label:'لم يقيّم بعد'};
       return testValue>=17?{key:'excellent',label:'ممتاز'}:testValue>=14?{key:'good',label:'جيد'}:testValue>=10?{key:'average',label:'متوسط'}:{key:'weak',label:'ضعيف'};
     }
-    function openDetailedStudentNotificationModal(){
-      const fallback=document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
+    function openDetailedStudentNotificationModal(selectedClass='',selectedStudent=''){
+      const fallback=selectedClass||document.getElementById('followupClassSelect').value||document.getElementById('classSelect').value;
       const classSelect=document.getElementById('detailedNotificationClassSelect');
       const classes=Object.keys(appData).filter(cls=>(appData[cls]||[]).length>0);
       if(classes.length===0){ alert('يرجى اختيار فصل يحتوي على طلاب أولاً.'); return; }
       classSelect.innerHTML=classes.map(cls=>`<option value="${escapeTextForHtml(cls)}">${escapeTextForHtml(cls)}</option>`).join('');
       classSelect.value=classes.includes(fallback)?fallback:classes[0];
-      detailedStudentNotificationSelected='';
+      detailedStudentNotificationSelected=selectedStudent&&classes.includes(classSelect.value)&&(appData[classSelect.value]||[]).includes(selectedStudent)?selectedStudent:'';
       renderDetailedStudentNotificationStudents();
       document.getElementById('detailedStudentNotificationModal').style.display='flex';
+    }
+    function openDetailedStudentNotificationForStudent(encodedClass,encodedStudent){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||'');
+      if(!cls||!student||!(appData[cls]||[]).includes(student)) return;
+      openDetailedStudentNotificationModal(cls,student);
     }
     function closeDetailedStudentNotificationModal(){ document.getElementById('detailedStudentNotificationModal').style.display='none'; }
     function onDetailedStudentNotificationClassChange(){ detailedStudentNotificationSelected=''; renderDetailedStudentNotificationStudents(); }

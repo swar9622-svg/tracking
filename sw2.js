@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-48-manual-class-screen-sync';
+const CACHE_NAME = 'attendance-app-v21-49-detailed-notification-shortcut';
 const urlsToCache = [
   './',
   './index.html',
