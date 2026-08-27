@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.47";</script>
+  <script>const APP_VERSION = "21.48";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -576,7 +576,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar">
-        <select id="classSelect" onchange="renderStudents()"></select>
+        <select id="classSelect" onchange="onAttendanceClassChange(this.value)"></select>
         <input type="date" id="dateSelect" onchange="renderStudents()">
         <select id="attendanceUnitSelect" onchange="onAttendanceUnitChange(this.value)" title="وحدة الغياب والتأخر والمخالفات"></select>
       </div>
@@ -611,7 +611,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar understanding-controls">
-        <select id="understandingClassSelect" onchange="renderUnderstandingScreen()" title="الفصل"></select>
+        <select id="understandingClassSelect" onchange="onUnderstandingClassChange(this.value)" title="الفصل"></select>
         <select id="understandingUnitSelect" onchange="onUnderstandingUnitChange()" title="الوحدة"></select>
         <select id="understandingLessonSelect" onchange="renderUnderstandingScreen()" title="الدرس"></select>
       </div>
@@ -1303,6 +1303,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="btn-action app-management-option is-grades" onclick="closeAppManagementModal();openGradesManageModal()">🧮 الدرجات والتقييم</button>
         <button class="btn-action app-management-option is-student-numbers" onclick="closeAppManagementModal();openStudentNumbersModal()">🔢 أرقام الطلاب</button>
         <button class="btn-action app-management-option is-schedule" onclick="closeAppManagementModal();openClassScheduleModal()">🗓️ جدول الحصص</button>
+      </div>
+      <div id="classScreenSyncCard" style="display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:#F4F7FC;border:1px solid #D8E4F4;border-radius:.7rem;padding:.48rem .62rem;margin-top:.72rem;">
+        <div style="min-width:0;text-align:right;"><b style="display:block;color:#245B91;font-size:.73rem;">توحيد الفصل بين الشاشات</b><small style="display:block;color:#637895;font-size:.57rem;font-weight:700;line-height:1.35;margin-top:1px;">أي اختيار يدوي للفصل ينتقل إلى الغياب والتحقق والمتابعة.</small></div>
+        <label class="class-schedule-compact-switch" title="تفعيل أو إيقاف توحيد اختيار الفصل بين الشاشات">
+          <input id="classScreenSyncToggle" type="checkbox" onchange="toggleClassScreenSync(this.checked)">
+          <span class="class-schedule-compact-slider"></span>
+        </label>
       </div>
     </div>
   </div>
@@ -2129,10 +2136,11 @@ ${description}`)) return;
     let startupSettings={enabled:(()=>{ try{return localStorage.getItem('school_followup_startup_enabled')!=='0';}catch(_){return true;} })()};
     const CLASS_SCHEDULE_DAYS=[{key:'sunday',label:'الأحد'},{key:'monday',label:'الاثنين'},{key:'tuesday',label:'الثلاثاء'},{key:'wednesday',label:'الأربعاء'},{key:'thursday',label:'الخميس'}];
     const CLASS_SCHEDULE_PERIOD_COUNT=7;
-    function createDefaultClassScheduleSettings(){ return {version:2,autoSyncEnabled:true,times:Array.from({length:CLASS_SCHEDULE_PERIOD_COUNT},()=>({start:'',end:''})),assignments:Object.fromEntries(CLASS_SCHEDULE_DAYS.map(day=>[day.key,Array(CLASS_SCHEDULE_PERIOD_COUNT).fill('')]))}; }
+    function createDefaultClassScheduleSettings(){ return {version:3,autoSyncEnabled:true,manualScreenSyncEnabled:false,times:Array.from({length:CLASS_SCHEDULE_PERIOD_COUNT},()=>({start:'',end:''})),assignments:Object.fromEntries(CLASS_SCHEDULE_DAYS.map(day=>[day.key,Array(CLASS_SCHEDULE_PERIOD_COUNT).fill('')]))}; }
     function normalizeClassScheduleSettings(value){
       const defaults=createDefaultClassScheduleSettings(), source=value&&typeof value==='object'?value:{};
       defaults.autoSyncEnabled=source.autoSyncEnabled!==false;
+      defaults.manualScreenSyncEnabled=source.manualScreenSyncEnabled===true;
       const rawTimes=Array.isArray(source.times)?source.times:[];
       defaults.times=defaults.times.map((item,index)=>{ const raw=rawTimes[index]&&typeof rawTimes[index]==='object'?rawTimes[index]:{}; return {start:typeof raw.start==='string'?raw.start:'',end:typeof raw.end==='string'?raw.end:''}; });
       const rawAssignments=source.assignments&&typeof source.assignments==='object'?source.assignments:{};
@@ -4166,7 +4174,7 @@ ${description}`)) return;
       if(sourceInput) refreshFollowupCalculatedCells(sourceInput.closest('tr'),cls,student,unit);
       else renderFollowupTable(currentActiveUnit);
     }
-    function onFollowupClassChange(cls){ renderUnitsDropdown(); renderFollowupTable(currentActiveUnit); }
+    function onFollowupClassChange(cls){ syncManualClassSelection(cls,()=>{ renderUnitsDropdown(); renderFollowupTable(currentActiveUnit); }); }
     function onUnitDropdownChange(unit){ currentActiveUnit=unit; refreshUnitLockIndicators(); renderFollowupTable(unit); }
 
     function renderUnitsDropdown() {
@@ -5503,7 +5511,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       info.style.color=usageNote?'#8A5A00':'#245B91';
     }
     function openDataMenuModal(){ document.getElementById('dataMenuModal').style.display='flex'; refreshStorageHealthInfo(); }
-    function openAppManagementModal(){ document.getElementById('appManagementModal').style.display='flex'; }
+    function openAppManagementModal(){ updateClassScreenSyncControl(); document.getElementById('appManagementModal').style.display='flex'; }
     function closeAppManagementModal(){ document.getElementById('appManagementModal').style.display='none'; }
     /* ألوان الفصول مستقلة عمداً عن أخضر وتركوازي رؤوس الجدول. الترتيب الرقمي يعطي كل فصل لونه الثابت. */
     const CLASS_SCHEDULE_CLASS_COLORS=[
@@ -5523,6 +5531,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     }
     function formatClassScheduleTimeRange(periodIndex){ const time=classScheduleSettings.times[periodIndex]||{}; return time.start&&time.end?`${time.start} - ${time.end}`:'حدّد الوقت'; }
     function updateClassScheduleAutoSyncControl(){ const toggle=document.getElementById('classScheduleAutoSyncToggle'), card=document.getElementById('classScheduleAutoSyncCard'); if(!toggle||!card) return; const enabled=classScheduleSettings.autoSyncEnabled!==false; toggle.checked=enabled; card.style.background=enabled?'#F1F8F7':'#F8F8F8'; card.style.borderColor=enabled?'#CBE9E4':'#E0E0E0'; }
+    function updateClassScreenSyncControl(){ const toggle=document.getElementById('classScreenSyncToggle'), card=document.getElementById('classScreenSyncCard'); if(!toggle||!card) return; const enabled=classScheduleSettings.manualScreenSyncEnabled===true; toggle.checked=enabled; card.style.background=enabled?'#EEF7F4':'#F4F7FC'; card.style.borderColor=enabled?'#C5E8DA':'#D8E4F4'; }
     function renderClassScheduleGrid(){
       classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings);
       const host=document.getElementById('classScheduleGrid'); if(!host) return;
@@ -5538,6 +5547,20 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       ['classSelect','understandingClassSelect','followupClassSelect'].forEach(id=>{ const select=document.getElementById(id); if(select&&[...select.options].some(option=>option.value===cls)) select.value=cls; });
       if(refresh){ renderStudents(); refreshUnderstandingUnitSelect(); renderUnderstandingScreen(); renderUnitsDropdown(); renderFollowupTable(currentActiveUnit); }
       return true;
+    }
+    function refreshClassScreensAfterManualSync(){ renderStudents(); refreshUnderstandingUnitSelect(); renderUnderstandingScreen(); renderUnitsDropdown(); renderFollowupTable(currentActiveUnit); }
+    function getSelectedClassForActiveScreen(){ const active=document.querySelector('.screen.active-screen')?.id, selectId=active==='understandingScreen'?'understandingClassSelect':active==='followupScreen'?'followupClassSelect':'classSelect'; return document.getElementById(selectId)?.value||document.getElementById('classSelect')?.value||''; }
+    function syncManualClassSelection(cls,renderCurrent){
+      if(classScheduleSettings.manualScreenSyncEnabled===true&&syncClassScheduleAcrossScreens(cls,false)){ refreshClassScreensAfterManualSync(); return; }
+      renderCurrent();
+    }
+    function onAttendanceClassChange(cls){ syncManualClassSelection(cls,renderStudents); }
+    function onUnderstandingClassChange(cls){ syncManualClassSelection(cls,renderUnderstandingScreen); }
+    function toggleClassScreenSync(enabled){
+      classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings);
+      classScheduleSettings.manualScreenSyncEnabled=!!enabled;
+      saveData(); updateClassScreenSyncControl();
+      if(enabled){ const cls=getSelectedClassForActiveScreen(); if(cls&&syncClassScheduleAcrossScreens(cls,false)) refreshClassScreensAfterManualSync(); }
     }
     function toggleClassScheduleAutoSync(enabled){ classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings); classScheduleSettings.autoSyncEnabled=!!enabled; saveData(); updateClassScheduleAutoSyncControl(); if(enabled) applyScheduledClassAtStartup(new Date(),true); }
     function findClassScheduleTimeConflict(periodIndex,startMinutes,endMinutes){

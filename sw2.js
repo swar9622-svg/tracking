@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-47-balanced-unit-details-rounding';
+const CACHE_NAME = 'attendance-app-v21-48-manual-class-screen-sync';
 const urlsToCache = [
   './',
   './index.html',
