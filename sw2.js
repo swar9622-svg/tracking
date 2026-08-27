@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-64-permission-detail-reports';
+const CACHE_NAME = 'attendance-app-v21-65-integrated-permission-reports';
 const urlsToCache = [
   './',
   './index.html',
