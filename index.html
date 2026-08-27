@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.60";</script>
+  <script>const APP_VERSION = "21.61";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -73,12 +73,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .controls-bar select, .controls-bar input[type="date"] { flex: 1; text-align: center; }
     /* شريط الغياب: عرض ثابت ومرن للجوال كي لا يدفع رمز القفل الصفحة أفقياً. */
     #absenceScreen .controls-bar{gap:0.42rem;margin-bottom:0.58rem;min-width:0;align-items:stretch;}
-    #absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{flex:1 1 0;width:0;min-width:0;max-width:100%;padding:0.43rem 0.32rem;font-size:0.74rem;line-height:1.18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    #absenceScreen #gradeSelect{flex:0.62 1 0;font-weight:900;}
+    #absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{flex:1 1 0;width:0;min-width:0;max-width:100%;padding:0.43rem 0.32rem;font-size:0.79rem;line-height:1.18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     #absenceScreen #classSelect{flex:.82 1 0;}
     #absenceScreen #dateSelect{flex:1.08 1 0;}
     #absenceScreen #attendanceUnitSelect{flex:1.10 1 0;}
-    @media(max-width:390px){#absenceScreen .controls-bar{gap:0.30rem;}#absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{padding:0.40rem 0.18rem;font-size:0.68rem;}}
+    @media(max-width:390px){#absenceScreen .controls-bar{gap:0.34rem;}#absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{padding:0.40rem 0.22rem;font-size:0.76rem;}}
     .stats-container { display: flex; gap: 0.375rem; }
     .stat-card { flex: 1; background: #F9F9FB; border-radius: 0.625rem; padding: 0.5rem 0.125rem; text-align: center; border: 1px solid #E5E5EA; cursor: default; }
     .stat-card.clickable { cursor: pointer; transition: background 0.15s; }
@@ -604,7 +603,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar">
-        <select id="gradeSelect" onchange="onGradeSelectionChange(this.value)" title="الصف"></select>
         <select id="classSelect" onchange="onAttendanceClassChange(this.value)"></select>
         <input type="date" id="dateSelect" onchange="renderStudents()">
         <select id="attendanceUnitSelect" onchange="onAttendanceUnitChange(this.value)" title="وحدة الغياب والتأخر والمخالفات"></select>
@@ -640,7 +638,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar understanding-controls">
-        <select id="understandingGradeSelect" onchange="onGradeSelectionChange(this.value)" title="الصف"></select>
         <select id="understandingClassSelect" onchange="onUnderstandingClassChange(this.value)" title="الفصل"></select>
         <select id="understandingUnitSelect" onchange="onUnderstandingUnitChange()" title="الوحدة"></select>
         <select id="understandingLessonSelect" onchange="renderUnderstandingScreen()" title="الدرس"></select>
@@ -705,7 +702,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="units-wrapper followup-controls">
-        <select id="followupGradeSelect" class="unit-dropdown-select" onchange="onGradeSelectionChange(this.value)" title="الصف"></select>
         <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)" title="الفصل"></select>
         <select id="unitDropdownSelect" class="unit-dropdown-select" onchange="onUnitDropdownChange(this.value)" title="الوحدة"></select>
       </div>
@@ -1124,6 +1120,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="modal-title" style="margin:0;">⚙️ إدارة الوحدات والدروس</div>
         <button class="btn-close-circle" onclick="closeUnitsManageModal()">✕</button>
       </div>
+      <span class="field-label">اختر الصف لوحداته ودروسه:</span>
+      <select id="unitsManageGradeSelect" class="select-class-full" onchange="onUnitsManageGradeChange(this.value)"></select>
       <span class="field-label">اسم الوحدة:</span>
       <div class="unit-name-edit-row">
         <input type="text" id="unitNameEditInput" placeholder="أدخل اسم الوحدة الجديد..." style="flex:1;padding:0.5rem;border-radius:0.5rem;border:1px solid #ccc;font-size:0.875rem;font-weight:700;min-width:0;">
@@ -2908,6 +2906,14 @@ ${description}`)) return;
       cleanupEmptyAttendanceDay(date,cls);
     }
 
+    function getAllGradeClassNames(){ return Object.values(gradeWorkspaces||{}).flatMap(workspace=>Object.keys(workspace?.appData||{})); }
+    function getGradeForClass(cls){ return Object.keys(gradeWorkspaces||{}).find(grade=>Object.prototype.hasOwnProperty.call(gradeWorkspaces[grade]?.appData||{},cls))||''; }
+    function ensureActiveGradeForClass(cls){
+      const grade=getGradeForClass(cls); if(!grade) return false;
+      if(grade!==activeGradeName) switchActiveGrade(grade);
+      ['classSelect','modalClassSelect','followupClassSelect','understandingClassSelect','permissionClassSelect'].forEach(id=>{ const select=document.getElementById(id); if(select&&[...select.options].some(option=>option.value===cls)) select.value=cls; });
+      return true;
+    }
     function initClassSelects() {
       initGradeSelects();
       const selectIds=['classSelect','modalClassSelect','followupClassSelect','studentNumbersClassSelect','understandingClassSelect','permissionClassSelect'];
@@ -2916,7 +2922,7 @@ ${description}`)) return;
       selects.forEach(([,select])=>select.innerHTML='');
       const studentNumbersSelect=document.getElementById('studentNumbersClassSelect');
       if(studentNumbersSelect) studentNumbersSelect.innerHTML='<option value="">-- اختر فصل --</option><option value="__no_numbers__">🔴 طلاب بدون أرقام</option>';
-      const keys = Object.keys(appData);
+      const keys = getAllGradeClassNames();
       keys.forEach(cls=>{ selects.forEach(([,select])=>{ select.innerHTML += `<option value="${cls}">${cls}</option>`; }); });
       const restoreClassSelect=(id,value)=>{ const select=document.getElementById(id); if(select&&keys.includes(value)) select.value=value; };
       restoreClassSelect('classSelect',vals.classSelect);
@@ -2930,7 +2936,7 @@ ${description}`)) return;
     function initGradeSelects(){
       if(!isValidGradeName(activeGradeName)) activeGradeName='ثالث';
       if(!gradeWorkspaces[activeGradeName]) gradeWorkspaces[activeGradeName]=captureActiveGradeWorkspace();
-      const gradeNames=Object.keys(gradeWorkspaces), selectIds=['gradeSelect','understandingGradeSelect','followupGradeSelect','manageGradeSelect'];
+      const gradeNames=Object.keys(gradeWorkspaces), selectIds=['manageGradeSelect','unitsManageGradeSelect'];
       selectIds.forEach(id=>{ const select=document.getElementById(id); if(!select) return; select.innerHTML=gradeNames.map(grade=>`<option value="${escapeTextForHtml(grade)}">${escapeTextForHtml(grade)}</option>`).join(''); select.value=activeGradeName; });
       const nameInput=document.getElementById('activeGradeNameInput'); if(nameInput) nameInput.value=activeGradeName;
     }
@@ -2948,6 +2954,9 @@ ${description}`)) return;
       syncActiveGradeWorkspace(); activeGradeName=target; applyGradeWorkspace(gradeWorkspaces[target]); refreshAfterGradeChange(); saveData();
     }
     function onGradeSelectionChange(grade){ switchActiveGrade(grade); }
+    function onUnitsManageGradeChange(grade){
+      switchActiveGrade(grade); initUnitsModalSelect(); loadUnitDetailsToModal(); const nameInput=document.getElementById('unitNameEditInput'), unitSelect=document.getElementById('modalUnitSelect'); if(nameInput&&unitSelect) nameInput.value=unitSelect.value||'';
+    }
     function saveNewGrade(){
       const input=document.getElementById('newGradeInput'), name=String(input?.value||'').trim();
       if(!name){ alert('اكتب اسم الصف أولاً.'); return; }
@@ -4628,7 +4637,7 @@ ${description}`)) return;
       if(sourceInput) refreshFollowupCalculatedCells(sourceInput.closest('tr'),cls,student,unit);
       else renderFollowupTable(currentActiveUnit);
     }
-    function onFollowupClassChange(cls){ syncManualClassSelection(cls,()=>{ renderUnitsDropdown(); renderFollowupTable(currentActiveUnit); }); }
+    function onFollowupClassChange(cls){ ensureActiveGradeForClass(cls); syncManualClassSelection(cls,()=>{ renderUnitsDropdown(); renderFollowupTable(currentActiveUnit); }); }
     function onUnitDropdownChange(unit){ currentActiveUnit=unit; refreshUnitLockIndicators(); renderFollowupTable(unit); }
 
     function renderUnitsDropdown() {
@@ -4933,7 +4942,7 @@ ${description}`)) return;
       VIOLATION_DEFINITIONS.forEach(item=>{ const inp=document.getElementById(`penalty_input_${item.id}`); if(inp){ const num=parseFloat(inp.value); penaltiesData[item.id]=!isNaN(num)?num:0; } });
       saveData(); closePenaltyConfigModal(); alert("✅ تم حفظ الدرجات بنجاح!");
     }
-    function loadClassTextarea(){ const cls=document.getElementById('modalClassSelect').value; document.getElementById('studentNamesTextarea').value=(cls&&appData[cls])?appData[cls].join('\n'):''; }
+    function loadClassTextarea(){ const cls=document.getElementById('modalClassSelect').value; if(cls) ensureActiveGradeForClass(cls); document.getElementById('studentNamesTextarea').value=(cls&&appData[cls])?appData[cls].join('\n'):''; }
     function saveStudentsFromTextarea(){ const cls=document.getElementById('modalClassSelect').value; if(!cls) return; const names=document.getElementById('studentNamesTextarea').value.split('\n').map(n=>n.trim()).filter(n=>n!==''); appData[cls]=names; saveData(); document.getElementById('classSelect').value=cls; renderStudents(); if(document.getElementById('editStudentNameModal').style.display==='flex') renderEditStudentList(); closeManageModal(); }
     function toggleAddClassBox(){ const box=document.getElementById('inlineAddBox'); box.style.display=box.style.display==='flex'?'none':'flex'; if(box.style.display==='flex') document.getElementById('newClassInput').focus(); }
     function saveNewClass(){ const inp=document.getElementById('newClassInput'), sectionName=inp.value.trim(), newName=gradeClassName(activeGradeName,sectionName); if(!newName) return; if(appData[newName]){ alert("هذا الفصل موجود بالفعل!"); return; } appData[newName]=[]; saveData(); initClassSelects(); document.getElementById('modalClassSelect').value=newName; document.getElementById('classSelect').value=newName; inp.value=''; document.getElementById('inlineAddBox').style.display='none'; loadClassTextarea(); renderStudents(); }
@@ -6017,8 +6026,8 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       if(classScheduleSettings.manualScreenSyncEnabled===true&&syncClassScheduleAcrossScreens(cls,false)){ refreshClassScreensAfterManualSync(); return; }
       renderCurrent();
     }
-    function onAttendanceClassChange(cls){ syncManualClassSelection(cls,renderStudents); }
-    function onUnderstandingClassChange(cls){ syncManualClassSelection(cls,renderUnderstandingScreen); }
+    function onAttendanceClassChange(cls){ ensureActiveGradeForClass(cls); syncManualClassSelection(cls,renderStudents); }
+    function onUnderstandingClassChange(cls){ ensureActiveGradeForClass(cls); syncManualClassSelection(cls,renderUnderstandingScreen); }
     function toggleClassScreenSync(enabled){
       classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings);
       classScheduleSettings.manualScreenSyncEnabled=!!enabled;
@@ -6035,8 +6044,8 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       classScheduleEditingCell={dayKey,periodIndex}; const current=classScheduleSettings.assignments[dayKey]?.[periodIndex]||'';
       document.getElementById('classScheduleCellHint').textContent=`${day.label} · الحصة ${periodIndex+1} · ${formatClassScheduleTimeRange(periodIndex)}`;
       const select=document.getElementById('classScheduleCellSelect'); select.innerHTML='<option value="">— لا يوجد فصل —</option>';
-      Object.keys(appData).forEach(cls=>{ const option=document.createElement('option'); option.value=cls; option.textContent=cls; select.appendChild(option); });
-      select.value=Object.prototype.hasOwnProperty.call(appData,current)?current:'';
+      getAllGradeClassNames().forEach(cls=>{ const option=document.createElement('option'); option.value=cls; option.textContent=cls; select.appendChild(option); });
+      select.value=getAllGradeClassNames().includes(current)?current:'';
       document.getElementById('classScheduleCellModal').style.display='flex';
     }
     function closeClassScheduleCellModal(){ classScheduleEditingCell=null; document.getElementById('classScheduleCellModal').style.display='none'; }
@@ -6105,7 +6114,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       return scheduledClass?syncClassScheduleAcrossScreens(scheduledClass,refresh):false;
     }
     function closeDataMenuModal(){ document.getElementById('dataMenuModal').style.display='none'; }
-    function openUnitsManageModal(){ document.getElementById('unitsManageModal').style.display='flex'; initUnitsModalSelect(); loadUnitDetailsToModal(); document.getElementById('unitNameEditInput').value=document.getElementById('modalUnitSelect').value||''; }
+    function openUnitsManageModal(){ document.getElementById('unitsManageModal').style.display='flex'; initGradeSelects(); initUnitsModalSelect(); loadUnitDetailsToModal(); document.getElementById('unitNameEditInput').value=document.getElementById('modalUnitSelect').value||''; }
     function closeUnitsManageModal(){ document.getElementById('unitsManageModal').style.display='none'; document.getElementById('inlineAddUnitBox').style.display='none'; }
 
     // ===== التقارير الشاملة =====

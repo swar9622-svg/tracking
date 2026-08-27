@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-60-grade-class-curriculum-structure';
+const CACHE_NAME = 'attendance-app-v21-61-single-class-picker-grade-units-management';
 const urlsToCache = [
   './',
   './index.html',
