@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.50";</script>
+  <script>const APP_VERSION = "21.51";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5206,8 +5206,10 @@ ${description}`)) return;
       classSelect.innerHTML=classes.map(cls=>`<option value="${escapeTextForHtml(cls)}">${escapeTextForHtml(cls)}</option>`).join('');
       classSelect.value=classes.includes(fallback)?fallback:classes[0];
       detailedStudentNotificationSelected=selectedStudent&&classes.includes(classSelect.value)&&(appData[classSelect.value]||[]).includes(selectedStudent)?selectedStudent:'';
-      renderDetailedStudentNotificationStudents();
-      document.getElementById('detailedStudentNotificationModal').style.display='flex';
+      const modal=document.getElementById('detailedStudentNotificationModal'), preview=document.getElementById('detailedStudentNotificationPreview');
+      if(preview) preview.innerHTML='<div style="text-align:center;padding:1.15rem;color:#667085;font-weight:800;">جارٍ تجهيز إشعار الطالب…</div>';
+      modal.style.display='flex';
+      requestAnimationFrame(()=>setTimeout(()=>{ if(modal.style.display==='flex') renderDetailedStudentNotificationStudents(); },0));
     }
     function openDetailedStudentNotificationForStudent(encodedClass,encodedStudent){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||'');
