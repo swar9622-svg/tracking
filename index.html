@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.70";</script>
+  <script>const APP_VERSION = "21.71";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -356,6 +356,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .import-icon-test:hover { background-color: #F5CCC8; }
     .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 0.75rem; }
     .modal-content { background: white; border-radius: 1.5rem; padding: 0.875rem 0.75rem; width: 92%; max-width: 23.75rem; max-height: 96vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    body.units-modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:none;}
     .modal-content.wide { max-width: 32rem; }
     .modal-title { font-size: 1.0625rem; font-weight: 900; text-align: center; margin-bottom: 0.75rem; }
     .violations-list-container { display: flex; flex-direction: column; gap: 0.3125rem; margin-top: 0.5rem; margin-bottom: 0.625rem; width: 100%; }
@@ -418,7 +419,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .notification-input { width: 100%; padding: 0.4rem 0.6rem; border-radius: 0.5rem; border: 1px solid #ccc; font-size: 0.875rem; font-weight: 700; text-align: center; background: #f9f9fb; }
     .preserve-newlines { white-space: pre-wrap; text-align: center; }
     .page-footer { text-align: center; font-size: 0.6rem; color: #999; border-top: 1px dashed #ddd; padding-top: 0.3rem; margin-top: 0.3rem; }
-    #unitsManageModal .modal-content{max-width:24rem;width:93%;max-height:92vh;padding:.82rem .72rem;}
+    #unitsManageModal{align-items:flex-start;overflow:hidden;overscroll-behavior:contain;padding:12px;}
+    #unitsManageModal .modal-content{max-width:24rem;width:93%;max-height:calc(100dvh - 24px);overflow-y:scroll;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;touch-action:pan-y;padding:.82rem .72rem;}
     .units-manage-section{border:1px solid #E5E7EB;border-radius:.85rem;padding:.62rem;margin-bottom:.55rem;background:#FFF;}
     .units-manage-section.is-grade{background:#F6FAFF;border-color:#CFE4FA;}
     .units-manage-section.is-units{background:#FBFFFC;border-color:#D2EFD9;}
@@ -445,6 +447,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .lesson-edit-index{display:inline-flex;align-items:center;justify-content:center;min-width:1.7rem;height:1.92rem;border-radius:.48rem;background:#EEE8F8;color:#6C3483;font-size:.67rem;font-weight:900;}
     .lesson-edit-row input{min-width:0;height:1.92rem;padding:.3rem .5rem;border-radius:.48rem;border:1px solid #D8D1E8;font-size:.76rem;font-weight:800;box-sizing:border-box;}
     #lessonNamesInputsContainer{max-height:31vh;overflow-y:auto;padding:.12rem .12rem .12rem .22rem;margin-bottom:.55rem!important;}
+    .units-save-notice{display:none;margin:.1rem 0 .48rem;padding:.42rem .5rem;border-radius:.56rem;background:#EAF7EE;color:#166534;border:1px solid #A9DFBF;text-align:center;font-size:.69rem;font-weight:800;line-height:1.35;}
     @media(max-width:390px){#unitsManageModal .modal-content{padding:.72rem .62rem;}.units-manage-section{padding:.55rem}.units-count-row button{font-size:.62rem;}}
     .edit-student-item { display: flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.5rem; margin-bottom: 0.3rem; background: #f9f9fb; border-radius: 0.5rem; border: 1px solid #e5e5ea; transition: background 0.15s; }
     .edit-student-item:hover { background: #f0f0f5; }
@@ -1225,6 +1228,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         </div>
         <div id="lessonNamesInputsContainer" style="display:flex;flex-direction:column;gap:4px;"></div>
       </section>
+      <div id="unitsSaveNotice" class="units-save-notice" role="status" aria-live="polite"></div>
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closeUnitsManageModal()">إلغاء</button>
         <button class="btn-modal-save" onclick="saveUnitConfig()">حفظ الدروس</button>
@@ -1960,7 +1964,7 @@ ${description}`)) return;
     let gradeWorkspacesMigrated=false;
     function isValidGradeName(value){ return typeof value==='string'&&value.trim().length>0; }
     function createEmptyGradeWorkspace(){
-      return {appData:{},records:{},permissionRecords:{},unitsData:{},unitLocks:{},followupData:{},understandingData:{},studentNotesData:{},penaltiesData:cloneData(defaultPenalties),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:[],projectDistributionOrder:{},excellenceSettings:cloneData(excellenceSettings),participationSettings:{mode:'cumulative',activeUnit:''},studentNumberMap:{},weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:{enabled:false},noteEntryWindow:cloneData(DEFAULT_NOTE_ENTRY_WINDOW)};
+      return {appData:{},records:{},permissionRecords:{},unitsData:{},unitLocks:{},followupData:{},understandingData:{},studentNotesData:{},penaltiesData:cloneData(defaultPenalties),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:[],projectDistributionOrder:{},excellenceSettings:cloneData(excellenceSettings),participationSettings:{mode:'per_unit',activeUnit:''},studentNumberMap:{},weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:{enabled:true},noteEntryWindow:cloneData(DEFAULT_NOTE_ENTRY_WINDOW)};
     }
     function captureActiveGradeWorkspace(){
       return {appData:cloneData(appData),records:cloneData(records),permissionRecords:cloneData(permissionRecords),unitsData:cloneData(unitsData),unitLocks:cloneData(unitLocks),followupData:cloneData(followupData),understandingData:cloneData(understandingData),studentNotesData:cloneData(studentNotesData),penaltiesData:cloneData(penaltiesData),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:cloneData(period1SelectedUnits),projectDistributionOrder:cloneData(projectDistributionOrder),excellenceSettings:cloneData(excellenceSettings),participationSettings:cloneData(participationSettings),studentNumberMap:cloneData(queryStudentNumberMap),weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:cloneData(gradeRoundingSettings),noteEntryWindow:cloneData(noteEntryWindow)};
@@ -1974,7 +1978,7 @@ ${description}`)) return;
       defaults.penaltiesData=source.penaltiesData&&typeof source.penaltiesData==='object'?cloneData(source.penaltiesData):createDefaultPenalties();
       defaults.excellenceSettings=normalizeExcellenceSettings(source.excellenceSettings);
       defaults.participationSettings=source.participationSettings&&typeof source.participationSettings==='object'?cloneData(source.participationSettings):defaults.participationSettings;
-      if(!['cumulative','per_unit'].includes(defaults.participationSettings.mode)) defaults.participationSettings.mode='cumulative';
+      if(!['cumulative','per_unit'].includes(defaults.participationSettings.mode)) defaults.participationSettings.mode='per_unit';
       defaults.weakStudentsThresholds=normalizeWeakStudentsThresholds(source.weakStudentsThresholds);
       defaults.gradeRoundingSettings=normalizeGradeRoundingSettings(source.gradeRoundingSettings);
       defaults.noteEntryWindow=normalizeNoteEntryWindow(source.noteEntryWindow);
@@ -2014,8 +2018,8 @@ ${description}`)) return;
     function resetActiveGradeWorkspaceToBlank(){
       appData={}; records={}; permissionRecords={}; unitsData={}; unitLocks={}; followupData={}; understandingData={}; studentNotesData={};
       VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=cloneData(defaultPenalties);
-      period1SelectedUnits=[]; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); participationSettings={mode:'cumulative',activeUnit:''};
-      currentActiveUnit=''; currentAttendanceUnit=''; queryStudentNumberMap={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; gradeRoundingSettings={enabled:false}; noteEntryWindow=cloneData(DEFAULT_NOTE_ENTRY_WINDOW);
+      period1SelectedUnits=[]; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); participationSettings={mode:'per_unit',activeUnit:''};
+      currentActiveUnit=''; currentAttendanceUnit=''; queryStudentNumberMap={}; weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; gradeRoundingSettings={enabled:true}; noteEntryWindow=cloneData(DEFAULT_NOTE_ENTRY_WINDOW);
     }
     function hydrateGradeWorkspaces(state){
       const hasWorkspaceState=!!(state&&Object.prototype.hasOwnProperty.call(state,'gradeWorkspaces'));
@@ -2037,7 +2041,7 @@ ${description}`)) return;
     let selectedPeriodName = 'الأولى';
     let currentActiveUnit = Object.keys(unitsData)[0] || "";
     const PARTICIPATION_SETTINGS_KEY = 'attendance_participation_settings';
-    let participationSettings = {mode:'cumulative', activeUnit:currentActiveUnit};
+    let participationSettings = {mode:'per_unit', activeUnit:currentActiveUnit};
     // تظل الملاحظات مفتوحة افتراضياً بعد التحديث كي لا يتغير سلوك المستخدمين الحاليين.
     const DEFAULT_NOTE_ENTRY_WINDOW={alwaysOpen:true,start:'07:00',end:'14:00'};
     function normalizeNoteEntryWindow(value){
@@ -2046,8 +2050,8 @@ ${description}`)) return;
     }
     let noteEntryWindow={...DEFAULT_NOTE_ENTRY_WINDOW};
     // الجبر اختياري ويطبّق على نواتج الحساب فقط، لا على الدرجات المدخلة أو بياناتها الأصلية.
-    let gradeRoundingSettings = {enabled:false};
-    function normalizeGradeRoundingSettings(value){ return {enabled:!!(value&&value.enabled)}; }
+    let gradeRoundingSettings = {enabled:true};
+    function normalizeGradeRoundingSettings(value){ return {enabled:!(value&&value.enabled===false)}; }
     function applyWeightedGradeRounding(value, cap=Infinity){
       let n=Number(value); if(!Number.isFinite(n)) n=0; n=Math.max(0,Math.min(n,cap));
       return gradeRoundingSettings.enabled ? Math.min(Math.ceil(n-1e-9),cap) : n;
@@ -2583,7 +2587,7 @@ ${description}`)) return;
       if(state.projectDistributionOrder&&typeof state.projectDistributionOrder==='object') projectDistributionOrder=state.projectDistributionOrder;
       excellenceSettings=normalizeExcellenceSettings(state.excellenceSettings);
       currentActiveUnit=Object.keys(unitsData)[0]||'الوحدة الأولى';
-      participationSettings=state.participationSettings&&typeof state.participationSettings==='object'?state.participationSettings:{mode:'cumulative',activeUnit:currentActiveUnit};
+      participationSettings=state.participationSettings&&typeof state.participationSettings==='object'?state.participationSettings:{mode:'per_unit',activeUnit:currentActiveUnit};
       if(!['cumulative','per_unit'].includes(participationSettings.mode)) participationSettings.mode='cumulative';
       currentAttendanceUnit=participationSettings.activeUnit||currentActiveUnit;
       queryStudentNumberMap=state.studentNumberMap&&typeof state.studentNumberMap==='object'?state.studentNumberMap:{};
@@ -5021,7 +5025,11 @@ ${description}`)) return;
       unitsData[uName].lessons=newLessons;
       for(let key in followupData){ if(key.endsWith(suffix)){ const stData=followupData[key]; for(let student in stData){ for(let i=0;i<minLen;i++){ const oldN=oldLessons[i], newN=newLessons[i]; if(oldN!==newN){ if(stData[student].hw&&stData[student].hw[oldN]!==undefined){ stData[student].hw[newN]=stData[student].hw[oldN]; delete stData[student].hw[oldN]; } if(stData[student].act&&stData[student].act[oldN]!==undefined){ stData[student].act[newN]=stData[student].act[oldN]; delete stData[student].act[oldN]; } } } } } }
       Object.keys(understandingData||{}).forEach(cls=>{ const unitStates=understandingData[cls]?.[uName]; if(!unitStates) return; for(let i=0;i<minLen;i++){ const oldN=oldLessons[i], newN=newLessons[i]; if(oldN!==newN&&unitStates[oldN]!==undefined){ unitStates[newN]=unitStates[oldN]; delete unitStates[oldN]; } } });
-      saveData(); renderFollowupTable(currentActiveUnit); closeUnitsManageModal(); alert("✅ تم حفظ تعديلات الوحدة ونقل الدرجات بنجاح!");
+      saveData(); renderFollowupTable(currentActiveUnit);
+      const allUnits=Object.keys(unitsData), currentIndex=allUnits.indexOf(uName), nextUnit=allUnits[currentIndex+1]||allUnits[0]||uName;
+      sel.value=nextUnit; loadUnitDetailsToModal();
+      const modalContent=document.querySelector('#unitsManageModal .modal-content'); if(modalContent) modalContent.scrollTop=0;
+      const notice=document.getElementById('unitsSaveNotice'); if(notice){ notice.textContent=nextUnit!==uName?`✅ تم حفظ دروس «${uName}». يمكنك الآن إدخال دروس «${nextUnit}».`:`✅ تم حفظ دروس «${uName}».`; notice.style.display='block'; clearTimeout(notice._hideTimer); notice._hideTimer=setTimeout(()=>{ notice.style.display='none'; },3500); }
     }
     function getStudentNamesSelectedClass(){ return document.getElementById('studentNamesClassSelect')?.value||''; }
     function openEditStudentNameModal(){ const cls=getStudentNamesSelectedClass(); if(!cls||!appData[cls]||appData[cls].length===0){ alert("لا يوجد طلاب في هذا الفصل لتعديل أسمائهم."); return; } renderEditStudentList(); document.getElementById('editStudentNameModal').style.display='flex'; }
@@ -6334,8 +6342,15 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       return scheduledClass?syncClassScheduleAcrossScreens(scheduledClass,refresh):false;
     }
     function closeDataMenuModal(){ document.getElementById('dataMenuModal').style.display='none'; }
-    function openUnitsManageModal(){ document.getElementById('unitsManageModal').style.display='flex'; initGradeSelects(); initUnitsModalSelect(); document.getElementById('inlineAddUnitBox').style.display='none'; document.getElementById('unitRenameBox').style.display='none'; loadUnitDetailsToModal(); }
-    function closeUnitsManageModal(){ document.getElementById('unitsManageModal').style.display='none'; document.getElementById('inlineAddUnitBox').style.display='none'; document.getElementById('unitRenameBox').style.display='none'; }
+    let unitsModalPageScrollY=0;
+    function openUnitsManageModal(){
+      unitsModalPageScrollY=window.scrollY||window.pageYOffset||0; document.body.style.top=`-${unitsModalPageScrollY}px`; document.body.classList.add('units-modal-open');
+      document.getElementById('unitsManageModal').style.display='flex'; initGradeSelects(); initUnitsModalSelect(); document.getElementById('inlineAddUnitBox').style.display='none'; document.getElementById('unitRenameBox').style.display='none'; document.getElementById('unitsSaveNotice').style.display='none'; loadUnitDetailsToModal();
+    }
+    function closeUnitsManageModal(){
+      document.getElementById('unitsManageModal').style.display='none'; document.getElementById('inlineAddUnitBox').style.display='none'; document.getElementById('unitRenameBox').style.display='none'; document.getElementById('unitsSaveNotice').style.display='none';
+      document.body.classList.remove('units-modal-open'); document.body.style.top=''; window.scrollTo(0,unitsModalPageScrollY);
+    }
 
     // ===== التقارير الشاملة =====
     function openReportModal(){
