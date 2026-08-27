@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-56-guardian-exit-final';
+const CACHE_NAME = 'attendance-app-v21-57-isolated-safari-longpress';
 const urlsToCache = [
   './',
   './index.html',

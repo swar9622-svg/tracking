@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.56";</script>
+  <script>const APP_VERSION = "21.57";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2871,7 +2871,7 @@ ${description}`)) return;
     function moveAttendancePermissionSwipe(event){
       const state=attendanceSwipePointerStates.get(event.pointerId); if(!state) return;
       const dx=event.clientX-state.startX, dy=event.clientY-state.startY;
-      if(!state.swiping){ const threshold=state.startedOnName?16:7; if(Math.abs(dx)<threshold&&Math.abs(dy)<threshold) return; if(Math.abs(dx)<=Math.abs(dy)){ attendanceSwipePointerStates.delete(event.pointerId); return; } if(state.startedOnName) cancelAttendanceStudentNamePress(); state.swiping=true; state.shell.querySelector('.attendance-swipe-track').style.transition='none'; closeAttendancePermissionSwipes(state.shell); }
+      if(!state.swiping){ const threshold=state.startedOnName?32:7; if(Math.abs(dx)<threshold&&Math.abs(dy)<threshold) return; if(Math.abs(dx)<=Math.abs(dy)){ attendanceSwipePointerStates.delete(event.pointerId); return; } if(state.startedOnName) cancelAttendanceStudentNamePress(); state.swiping=true; state.shell.querySelector('.attendance-swipe-track').style.transition='none'; closeAttendancePermissionSwipes(state.shell); }
       event.preventDefault();
       state.offset=Math.max(-132,Math.min(0,(state.open?-132:0)+dx));
       state.shell.querySelector('.attendance-swipe-track').style.transform=`translateX(${state.offset}px)`;
@@ -2981,8 +2981,8 @@ ${description}`)) return;
         event.preventDefault(); lastAttendanceNameTap={student:'',at:0}; toggleAttendanceStudentNotesPanel(student);
       }else lastAttendanceNameTap={student,at:now};
     }
-    let attendanceNameLongPressTimer=null, attendanceNameLongPressPoint=null, attendanceNameLongPressOpened=false;
-    function cancelAttendanceStudentNamePress(){ if(attendanceNameLongPressTimer){ clearTimeout(attendanceNameLongPressTimer); attendanceNameLongPressTimer=null; } attendanceNameLongPressPoint=null; }
+    let attendanceNameLongPressTimer=null, attendanceNameLongPressPoint=null, attendanceNameLongPressOpened=false, attendanceNameLongPressStudent='';
+    function cancelAttendanceStudentNamePress(){ if(attendanceNameLongPressTimer){ clearTimeout(attendanceNameLongPressTimer); attendanceNameLongPressTimer=null; } attendanceNameLongPressPoint=null; attendanceNameLongPressStudent=''; }
     function hideAttendanceStudentSummaryBubble(){
       if(!openAttendanceStudentSummary) return;
       openAttendanceStudentSummary='';
@@ -2990,11 +2990,11 @@ ${description}`)) return;
     }
     function startAttendanceStudentNamePress(event,student){
       if(event.pointerType==='mouse'&&event.button!==0) return;
-      if(event.pointerType==='touch'&&event.cancelable) event.preventDefault();
       cancelAttendanceStudentNamePress();
-      attendanceNameLongPressPoint={x:event.clientX,y:event.clientY};
+      attendanceNameLongPressPoint={x:event.clientX,y:event.clientY,inputType:event.pointerType||'touch'};
+      attendanceNameLongPressStudent=student;
       attendanceNameLongPressOpened=false;
-      attendanceNameLongPressTimer=setTimeout(()=>{ attendanceNameLongPressTimer=null; attendanceNameLongPressOpened=true; openAttendanceStudentSummary=student; renderStudents(); },560);
+      attendanceNameLongPressTimer=setTimeout(()=>{ attendanceNameLongPressTimer=null; attendanceNameLongPressOpened=true; openAttendanceStudentSummary=attendanceNameLongPressStudent; renderStudents(); },440);
     }
     function safariTouchPoint(event){ const touch=event.changedTouches?.[0]||event.touches?.[0]||{}; return {pointerType:'touch',pointerId:touch.identifier??0,clientX:touch.clientX??0,clientY:touch.clientY??0,cancelable:event.cancelable,preventDefault:()=>event.preventDefault(),stopPropagation:()=>event.stopPropagation(),type:event.type}; }
     function startAttendanceStudentNameTouch(event,student){ startAttendanceStudentNamePress(safariTouchPoint(event),student); }
@@ -3003,7 +3003,8 @@ ${description}`)) return;
     function endAttendanceStudentNameTouch(event,student){ endAttendanceStudentNamePress(safariTouchPoint(event),student); }
     function moveAttendanceStudentNamePress(event){
       if(!attendanceNameLongPressTimer||!attendanceNameLongPressPoint) return;
-      if(Math.hypot(event.clientX-attendanceNameLongPressPoint.x,event.clientY-attendanceNameLongPressPoint.y)>12) cancelAttendanceStudentNamePress();
+      const tolerance=attendanceNameLongPressPoint.inputType==='touch'?28:12;
+      if(Math.hypot(event.clientX-attendanceNameLongPressPoint.x,event.clientY-attendanceNameLongPressPoint.y)>tolerance) cancelAttendanceStudentNamePress();
     }
     function endAttendanceStudentNamePress(event,student){
       const opened=attendanceNameLongPressOpened;
@@ -3011,6 +3012,11 @@ ${description}`)) return;
       if(opened){ attendanceSwipePointerStates.delete(event.pointerId); event.preventDefault(); event.stopPropagation(); return; }
       if(event.pointerType==='touch') handleAttendanceStudentNameTap(event,student);
     }
+    function getAttendanceStudentNameFromTouch(event){ const target=event.target, element=target&&typeof target.closest==='function'?target.closest('#studentList .student-name'):null; if(!element||event.touches?.length>1) return ''; return [...element.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE).map(node=>String(node.textContent||'').trim()).filter(Boolean).join(' ').trim(); }
+    document.addEventListener('touchstart',event=>{ const student=getAttendanceStudentNameFromTouch(event); if(!student) return; event.stopPropagation(); startAttendanceStudentNamePress(safariTouchPoint(event),student); },{capture:true,passive:false});
+    document.addEventListener('touchmove',event=>{ if(!attendanceNameLongPressTimer&&!attendanceNameLongPressOpened) return; event.stopPropagation(); moveAttendanceStudentNamePress(safariTouchPoint(event)); },{capture:true,passive:false});
+    document.addEventListener('touchend',event=>{ if(!attendanceNameLongPressTimer&&!attendanceNameLongPressOpened) return; event.stopPropagation(); endAttendanceStudentNamePress(safariTouchPoint(event),attendanceNameLongPressStudent); },{capture:true,passive:false});
+    document.addEventListener('touchcancel',()=>cancelAttendanceStudentNamePress(),{capture:true,passive:true});
     document.addEventListener('pointerdown',()=>hideAttendanceStudentSummaryBubble(),true);
     document.addEventListener('click',event=>{
       if(!openAttendanceStudentStats||event.target.closest('.student-card')) return;
