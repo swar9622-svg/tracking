@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.52";</script>
+  <script>const APP_VERSION = "21.53";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -105,6 +105,23 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .attendance-summary-bubble > span{display:flex;align-items:center;justify-content:space-between;gap:0.25rem;min-width:0;border-radius:0.34rem;padding:0.22rem 0.30rem;font-size:0.54rem;font-weight:900;white-space:nowrap;line-height:1.04;}
     .attendance-summary-bubble b{font-size:0.72rem;font-weight:900;}.attendance-summary-bubble .absent{background:#FFF0F0;color:#C0392B;}.attendance-summary-bubble .late{background:#FFF8E1;color:#B7770D;}.attendance-summary-bubble .violations{background:#F5EEF8;color:#7D3C98;}
     .attendance-buttons { display: flex; gap: 0.25rem; flex-shrink: 0; }
+    /* مسار استئذان بالسحب: يكشف الزر من اليمين كما في بطاقات iPhone. */
+    #absenceScreen .attendance-swipe-shell{order:1;position:relative;flex:1 0 100%;min-width:0;overflow:hidden;border-radius:0.64rem;touch-action:pan-y;isolation:isolate;}
+    #absenceScreen .attendance-swipe-track{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;min-height:2.25rem;background:var(--card-bg);transform:translateX(0);will-change:transform;transition:transform .24s cubic-bezier(.23,1,.32,1);}
+    #absenceScreen .attendance-swipe-actions{position:absolute;inset:0 0 0 auto;z-index:1;display:flex;align-items:stretch;justify-content:flex-end;width:6.4rem;background:#167C88;color:#FFF;}
+    #absenceScreen .attendance-swipe-action{width:100%;border:0;background:transparent;color:#FFF;font:inherit;font-size:0.66rem;font-weight:900;line-height:1.18;cursor:pointer;padding:0.28rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.10rem;-webkit-tap-highlight-color:transparent;}
+    #absenceScreen .attendance-swipe-action .swipe-action-icon{font-size:0.98rem;line-height:1;}
+    #absenceScreen .attendance-swipe-action.return-action{background:#2E9A61;}
+    #absenceScreen .attendance-swipe-shell.is-swipe-open .attendance-swipe-track{transform:translateX(-6.4rem);}
+    #absenceScreen .attendance-swipe-action:active{filter:brightness(.92);transform:scale(.98);}
+    #absenceScreen .student-permission-count-badge{position:absolute;top:-0.34rem;right:-0.30rem;z-index:5;display:flex;align-items:center;justify-content:center;min-width:1.50rem;height:1.16rem;padding:0 0.28rem;border:2px solid #FFF;border-radius:999px;background:#167C88;color:#FFF;box-shadow:0 2px 7px rgba(22,124,136,.30);font-size:0.58rem;font-weight:900;line-height:1;direction:ltr;pointer-events:none;}
+    #absenceScreen .attendance-permission-live{display:block;margin-top:0.13rem;color:#0E7280;font-size:0.59rem;font-weight:900;line-height:1.15;}
+    .attendance-summary-bubble .permission{background:#E8F8F5;color:#16704B;}
+    .permission-reason-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.42rem;margin-top:0.12rem;}
+    .permission-reason-choice{min-height:3.15rem;border:1px solid #BDE3E6;border-radius:0.65rem;background:#F0FBFC;color:#176671;font-family:inherit;font-size:0.70rem;font-weight:900;line-height:1.25;cursor:pointer;padding:0.36rem 0.24rem;}
+    .permission-reason-choice .reason-icon{display:block;font-size:0.98rem;line-height:1;margin-bottom:0.12rem;}.permission-reason-choice:active{background:#DDF3F5;transform:scale(.98);}.permission-reason-other{grid-column:1/-1;min-height:2.45rem;background:#F6F8FC;border-color:#C9D8EF;color:#1759A6;}
+    /* بقيت الحاوية المخفية فقط لتوافق البيانات الحالية؛ لا توجد شاشة أو زر استئذان مستقلان. */
+    #permissionScreen{display:none!important;}
     .student-stats-bubble{display:none;order:3;flex:1 0 100%;gap:7px;margin-top:0.05rem;padding:0.4rem;background:#F8F9FB;border:1px solid #E5E5EA;border-radius:0.62rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.75);animation:student-stats-pop .18s ease-out both;}
     .student-stats-bubble.is-open{display:grid;}
     .student-stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;}
@@ -575,7 +592,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="screen-navigation-btn nav-absence is-active" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short"><small>غياب</small></span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
         <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short"><small>تحقق</small></span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
         <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
-        <button class="screen-navigation-btn nav-permission" type="button" data-screen-nav="permission" onclick="switchToPermissionScreen()"><span class="screen-nav-short"><small>استئذان</small></span><span class="screen-nav-full">كشف الاستئذان</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar">
@@ -611,7 +627,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short"><small>غياب</small></span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
         <button class="screen-navigation-btn nav-understanding is-active" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short"><small>تحقق</small></span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
         <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
-        <button class="screen-navigation-btn nav-permission" type="button" data-screen-nav="permission" onclick="switchToPermissionScreen()"><span class="screen-nav-short"><small>استئذان</small></span><span class="screen-nav-full">كشف الاستئذان</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar understanding-controls">
@@ -676,7 +691,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short"><small>غياب</small></span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
         <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short"><small>تحقق</small></span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
         <button class="screen-navigation-btn nav-followup is-active" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
-        <button class="screen-navigation-btn nav-permission" type="button" data-screen-nav="permission" onclick="switchToPermissionScreen()"><span class="screen-nav-short"><small>استئذان</small></span><span class="screen-nav-full">كشف الاستئذان</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="units-wrapper followup-controls">
@@ -724,6 +738,24 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </header>
     <div class="attendance-search-wrap"><input id="permissionStudentSearch" class="attendance-search-input" type="search" autocomplete="off" placeholder="ابحث باسم الطالب" aria-label="ابحث باسم الطالب" oninput="renderPermissionStudents()"></div>
     <main class="student-list" id="permissionStudentList"></main>
+  </div>
+
+  <!-- ===== قائمة الاستئذان السريعة داخل كشف الغياب ===== -->
+  <div class="modal" id="permissionReasonModal" style="z-index:171;">
+    <div class="modal-content" style="max-width:430px;width:94%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.40rem;"><div class="modal-title" style="margin:0;color:#176671;">🕒 سبب الاستئذان</div><button class="btn-close-circle" onclick="closeInlinePermissionReasonModal()">✕</button></div>
+      <div id="permissionReasonStudentLabel" style="text-align:center;padding:0.48rem;background:#EDF9FA;border:1px solid #CFE8EA;border-radius:0.62rem;color:#176671;font-size:0.78rem;font-weight:900;margin-bottom:0.55rem;"></div>
+      <input type="hidden" id="permissionReasonClass"><input type="hidden" id="permissionReasonStudent"><input type="hidden" id="permissionReasonDate">
+      <div class="permission-reason-grid">
+        <button type="button" class="permission-reason-choice" onclick="saveInlinePermissionReason('دورة المياه')"><span class="reason-icon">🚻</span>دورة المياه</button>
+        <button type="button" class="permission-reason-choice" onclick="saveInlinePermissionReason('شرب الماء')"><span class="reason-icon">💧</span>شرب الماء</button>
+        <button type="button" class="permission-reason-choice" onclick="saveInlinePermissionReason('مراجعة وكيل المدرسة')"><span class="reason-icon">🏫</span>مراجعة وكيل المدرسة</button>
+        <button type="button" class="permission-reason-choice" onclick="saveInlinePermissionReason('مراجعة المرشد الطلابي')"><span class="reason-icon">🤝</span>مراجعة المرشد الطلابي</button>
+        <button type="button" class="permission-reason-choice" onclick="saveInlinePermissionReason('زيارة العيادة المدرسية')"><span class="reason-icon">🩺</span>زيارة العيادة المدرسية</button>
+        <button type="button" class="permission-reason-choice" onclick="saveInlinePermissionReason('مهمة مدرسية')"><span class="reason-icon">📋</span>مهمة مدرسية</button>
+        <button type="button" class="permission-reason-choice permission-reason-other" onclick="openInlinePermissionCustomReason()">✎ سبب آخر أو تعديل وقت الخروج</button>
+      </div>
+    </div>
   </div>
 
   <!-- ===== باقي النوافذ المنبثقة ===== -->
@@ -2811,9 +2843,57 @@ ${description}`)) return;
       const entryMarkup=`<div class="student-note-entry"><textarea class="student-note-input" rows="1" placeholder="اكتب ملاحظة…" oninput="autoGrowAttendanceStudentNote(this)"></textarea><button type="button" class="student-note-save" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ</button></div>`;
       return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite"><div class="student-notes-section" style="border-top:0;padding-top:0;">${entryMarkup}<button type="button" class="student-notes-toggle" onclick="toggleAttendanceStudentNotes()">${notesAreVisible?'إخفاء الملاحظات':`إظهار الملاحظات (${notes.length})`}</button>${notesAreVisible?`<div class="student-notes-list">${notesMarkup}</div>`:''}</div></div>`;
     }
+    function getStudentPermissionCount(cls,student){ return Object.values(permissionRecords||{}).reduce((total,day)=>total+(day?.[cls]?.[student]?.outTime?1:0),0); }
     function getAttendanceStudentSummaryBubble(cls,student){
-      const stats=getStudentAttendanceStats(cls,student,'__all__');
-      return `<span class="attendance-summary-bubble" role="status"><span class="absent">غياب<b>${stats.absent}</b></span><span class="late">متأخر<b>${stats.late}</b></span><span class="violations">مخالفات<b>${stats.violations}</b></span></span>`;
+      const stats=getStudentAttendanceStats(cls,student,'__all__'), permissionCount=getStudentPermissionCount(cls,student);
+      return `<span class="attendance-summary-bubble" role="status"><span class="absent">غياب<b>${stats.absent}</b></span><span class="late">متأخر<b>${stats.late}</b></span><span class="violations">مخالفات<b>${stats.violations}</b></span><span class="permission">استئذان<b>${permissionCount}</b></span></span>`;
+    }
+    let attendanceSwipePointerStates=new Map();
+    function closeAttendancePermissionSwipes(except=null){ document.querySelectorAll('#studentList .attendance-swipe-shell.is-swipe-open').forEach(shell=>{ if(shell!==except) shell.classList.remove('is-swipe-open'); }); }
+    function startAttendancePermissionSwipe(event){
+      const shell=event.currentTarget;
+      if(shell.dataset.swipeEnabled!=='true'||event.target.closest('.attendance-swipe-action')) return;
+      if(event.pointerType==='mouse'&&event.button!==0) return;
+      attendanceSwipePointerStates.set(event.pointerId,{shell,startX:event.clientX,startY:event.clientY,open:shell.classList.contains('is-swipe-open'),swiping:false,offset:shell.classList.contains('is-swipe-open')?-102.4:0});
+    }
+    function moveAttendancePermissionSwipe(event){
+      const state=attendanceSwipePointerStates.get(event.pointerId); if(!state) return;
+      const dx=event.clientX-state.startX, dy=event.clientY-state.startY;
+      if(!state.swiping){ if(Math.abs(dx)<7&&Math.abs(dy)<7) return; if(Math.abs(dx)<=Math.abs(dy)){ attendanceSwipePointerStates.delete(event.pointerId); return; } state.swiping=true; state.shell.querySelector('.attendance-swipe-track').style.transition='none'; closeAttendancePermissionSwipes(state.shell); }
+      event.preventDefault();
+      state.offset=Math.max(-102.4,Math.min(0,(state.open?-102.4:0)+dx));
+      state.shell.querySelector('.attendance-swipe-track').style.transform=`translateX(${state.offset}px)`;
+    }
+    function endAttendancePermissionSwipe(event){
+      const state=attendanceSwipePointerStates.get(event.pointerId); if(!state) return;
+      attendanceSwipePointerStates.delete(event.pointerId);
+      if(!state.swiping) return;
+      event.preventDefault();
+      const shouldOpen=state.offset<-41;
+      state.shell.querySelector('.attendance-swipe-track').style.transition=''; state.shell.querySelector('.attendance-swipe-track').style.transform='';
+      state.shell.classList.toggle('is-swipe-open',shouldOpen);
+      if(shouldOpen) closeAttendancePermissionSwipes(state.shell);
+    }
+    function cancelAttendancePermissionSwipe(event){ const state=attendanceSwipePointerStates.get(event.pointerId); if(!state) return; attendanceSwipePointerStates.delete(event.pointerId); state.shell.querySelector('.attendance-swipe-track').style.transition=''; state.shell.querySelector('.attendance-swipe-track').style.transform=''; state.shell.classList.toggle('is-swipe-open',state.open); }
+    function openInlinePermissionAction(encodedClass,encodedStudent,encodedDate){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), record=getPermissionRecord(date,cls,student);
+      closeAttendancePermissionSwipes();
+      if(!cls||!student||!date||record?.returnTime) return;
+      if(record?.outTime){ openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,'return'); return; }
+      document.getElementById('permissionReasonClass').value=cls; document.getElementById('permissionReasonStudent').value=student; document.getElementById('permissionReasonDate').value=date;
+      document.getElementById('permissionReasonStudentLabel').textContent=`${student} — ${cls}`;
+      document.getElementById('permissionReasonModal').style.display='flex';
+    }
+    function closeInlinePermissionReasonModal(){ document.getElementById('permissionReasonModal').style.display='none'; }
+    function saveInlinePermissionReason(reason){
+      const cls=document.getElementById('permissionReasonClass').value, student=document.getElementById('permissionReasonStudent').value, date=document.getElementById('permissionReasonDate').value;
+      if(!cls||!student||!date) return;
+      const record=getMutablePermissionRecord(date,cls,student); record.outTime=permissionNowTime(); record.returnTime=''; record.reason=String(reason||'').trim(); record.updatedAt=new Date().toISOString();
+      closeInlinePermissionReasonModal(); saveData(); renderStudents();
+    }
+    function openInlinePermissionCustomReason(){
+      const cls=document.getElementById('permissionReasonClass').value, student=document.getElementById('permissionReasonStudent').value, date=document.getElementById('permissionReasonDate').value;
+      closeInlinePermissionReasonModal(); if(cls&&student&&date) openPermissionEntryModal(encodeURIComponent(cls),encodeURIComponent(student),encodeURIComponent(date),'out');
     }
     function autoGrowAttendanceStudentNote(input){ const styles=getComputedStyle(input),lineHeight=parseFloat(styles.lineHeight)||16,padding=parseFloat(styles.paddingTop)+parseFloat(styles.paddingBottom),minHeight=Math.max(27,Math.ceil(lineHeight+padding)),maxHeight=128; input.style.height=`${minHeight}px`; const nextHeight=Math.min(maxHeight,Math.max(minHeight,input.scrollHeight)); input.style.height=`${nextHeight}px`; input.style.overflowY=input.scrollHeight>maxHeight?'auto':'hidden'; const saveButton=input.closest('.student-note-entry')?.querySelector('.student-note-save'); if(saveButton) saveButton.style.height=`${nextHeight}px`; const inlineActions=input.closest('.student-note-item')?.querySelectorAll('.student-note-action'); inlineActions?.forEach(button=>{ button.style.minHeight='24px'; button.style.maxHeight='24px'; button.style.height='24px'; }); }
     function addAttendanceStudentNote(cls,student){
@@ -2908,15 +2988,15 @@ ${description}`)) return;
         const vClass=vList.length>0?'active-violation':'', statusBlocksNotes=status==='غائب'||status==='بعذر', disabled=statusBlocksNotes?'disabled-btn':'';
         const noteCount=getAttendanceStudentNotes(cls,s).length;
         const noteCountBadge=noteCount?`<span class="student-note-count-badge" aria-label="${noteCount} ملاحظات">${noteCount}</span>`:'';
+        const permissionRecord=getPermissionRecord(date,cls,s), permissionCount=getStudentPermissionCount(cls,s), permissionActive=!!(permissionRecord?.outTime&&!permissionRecord?.returnTime), permissionReturned=!!permissionRecord?.returnTime;
+        const permissionCountBadge=permissionCount?`<span class="student-permission-count-badge" aria-label="${permissionCount} استئذان"><span>🕒</span>&nbsp;${permissionCount}</span>`:'';
         const card=document.createElement('div'); card.className='student-card';
         const nameColor=dup.includes(s)?'color:#FF3B30;':'';
         const safeStudent=CSS.escape(s);
         const summaryBubble=openAttendanceStudentSummary===s?getAttendanceStudentSummaryBubble(cls,s):'';
-        card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}</div><div class="attendance-buttons">
-          <button class="btn-status ${(status==='غائب'||status==='بعذر')?'active-absent':''}" onclick="setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غائب'}</button>
-          <button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button>
-          <button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button>
-        </div>${getAttendanceStudentStatsMarkup(cls,s)}`;
+        const safeClass=encodeURIComponent(cls), encodedStudent=encodeURIComponent(s), safeDate=encodeURIComponent(date), actionLabel=permissionActive?'تسجيل العودة':'استئذان', actionIcon=permissionActive?'↩️':'🕒', actionClass=permissionActive?'return-action':'';
+        const actionMarkup=permissionReturned?'':`<div class="attendance-swipe-actions"><button type="button" class="attendance-swipe-action ${actionClass}" onclick="openInlinePermissionAction('${safeClass}','${encodedStudent}','${safeDate}')"><span class="swipe-action-icon">${actionIcon}</span>${actionLabel}</button></div>`;
+        card.innerHTML=`${noteCountBadge}${permissionCountBadge}<div class="attendance-swipe-shell" data-swipe-enabled="${permissionReturned?'false':'true'}" onpointerdown="startAttendancePermissionSwipe(event)" onpointermove="moveAttendancePermissionSwipe(event)" onpointerup="endAttendancePermissionSwipe(event)" onpointercancel="cancelAttendancePermissionSwipe(event)">${actionMarkup}<div class="attendance-swipe-track"><div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}${permissionActive?`<span class="attendance-permission-live">🕒 خارج منذ ${escapeTextForHtml(permissionRecord.outTime)}</span>`:''}</div><div class="attendance-buttons"><button class="btn-status ${(status==='غائب'||status==='بعذر')?'active-absent':''}" onclick="setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غائب'}</button><button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button><button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button></div></div></div>${getAttendanceStudentStatsMarkup(cls,s)}`;
         cont.appendChild(card);
       });
       document.getElementById('absentCount').innerText=absent;
@@ -2994,12 +3074,12 @@ ${description}`)) return;
       if((mode==='return'||mode==='edit')&&returnTime&&returnTime<outTime){ alert('وقت العودة يجب أن يكون بعد وقت الخروج.'); return; }
       const record=getMutablePermissionRecord(date,cls,student); record.outTime=outTime; record.reason=reason;
       if(mode==='return'||mode==='edit') record.returnTime=returnTime; else record.returnTime='';
-      record.updatedAt=new Date().toISOString(); saveData(); closePermissionEntryModal(); renderPermissionStudents();
+      record.updatedAt=new Date().toISOString(); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents();
     }
     function deletePermissionEntry(){
       const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value;
       if(!confirm(`هل تريد حذف سجل استئذان الطالب «${student}» في هذا التاريخ؟`)) return;
-      cleanupPermissionRecord(date,cls,student); saveData(); closePermissionEntryModal(); renderPermissionStudents();
+      cleanupPermissionRecord(date,cls,student); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents();
     }
     function openPermissionReportModal(){
       const classSelect=document.getElementById('permissionReportClassSelect'), current=document.getElementById('permissionClassSelect')?.value||'', classes=Object.keys(appData).filter(cls=>(appData[cls]||[]).length);
