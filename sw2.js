@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-67-balanced-student-report';
+const CACHE_NAME = 'attendance-app-v21-68-automatic-lesson-names';
 const urlsToCache = [
   './',
   './index.html',

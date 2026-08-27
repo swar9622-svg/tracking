@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.67";</script>
+  <script>const APP_VERSION = "21.68";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4980,14 +4980,18 @@ ${description}`)) return;
     function updateLessonName(idx){ const inp=document.querySelector(`.lesson-name-input[data-index="${idx}"]`); if(!inp) return; const newName=inp.value.trim(); if(!newName){ alert("الرجاء إدخال اسم صحيح للدرس!"); return; } const sel=document.getElementById('modalUnitSelect'), unit=sel.value; if(!unit||!unitsData[unit]) return; const old=unitsData[unit].lessons[idx]; if(newName===old){ alert("الاسم الجديد مطابق للاسم القديم."); return; } unitsData[unit].lessons[idx]=newName; const suffix=`_${unit}`; for(let key in followupData){ if(key.endsWith(suffix)){ const stData=followupData[key]; for(let student in stData){ if(stData[student].hw&&stData[student].hw[old]!==undefined){ stData[student].hw[newName]=stData[student].hw[old]; delete stData[student].hw[old]; } if(stData[student].act&&stData[student].act[old]!==undefined){ stData[student].act[newName]=stData[student].act[old]; delete stData[student].act[old]; } } } } Object.keys(understandingData||{}).forEach(cls=>{ const unitStates=understandingData[cls]?.[unit]; if(unitStates?.[old]!==undefined){ unitStates[newName]=unitStates[old]; delete unitStates[old]; } }); saveData(); loadUnitDetailsToModal(); renderFollowupTable(currentActiveUnit); alert(`✅ تم تغيير اسم الدرس من "${old}" إلى "${newName}" بنجاح!`); }
     function initUnitsModalSelect(){ const sel=document.getElementById('modalUnitSelect'), val=sel.value; sel.innerHTML=''; Object.keys(unitsData).forEach(u=>{ sel.innerHTML+=`<option value="${u}">${u}</option>`; }); if(unitsData[val]) sel.value=val; document.getElementById('unitNameEditInput').value=sel.value||''; }
     function loadUnitDetailsToModal(){ const sel=document.getElementById('modalUnitSelect'), u=sel.value; if(!u||!unitsData[u]) return; const lessons=unitsData[u].lessons||[]; document.getElementById('unitLessonsCountInput').value=lessons.length; renderLessonNameInputs(lessons); document.getElementById('unitNameEditInput').value=u; }
-    function generateLessonNameInputs(){ const count=parseInt(document.getElementById('unitLessonsCountInput').value)||1, sel=document.getElementById('modalUnitSelect'), u=sel.value, existing=unitsData[u]&&unitsData[u].lessons?unitsData[u].lessons:[]; let lessons=[]; for(let i=0;i<count;i++) lessons.push(existing[i]||`درس ${i+1}`); renderLessonNameInputs(lessons); }
+    function getAutoLessonName(unitName, lessonNumber){
+      const cleanUnitName=String(unitName||'').trim().replace(/^الوحدة\s*/,'').trim() || String(unitName||'').trim() || 'درس';
+      return `${cleanUnitName}-${lessonNumber}`;
+    }
+    function generateLessonNameInputs(){ const count=parseInt(document.getElementById('unitLessonsCountInput').value)||1, sel=document.getElementById('modalUnitSelect'), u=sel.value, existing=unitsData[u]&&unitsData[u].lessons?unitsData[u].lessons:[]; let lessons=[]; for(let i=0;i<count;i++) lessons.push(existing[i]||getAutoLessonName(u,i+1)); renderLessonNameInputs(lessons); }
     function renderLessonNameInputs(lessons){ const cont=document.getElementById('lessonNamesInputsContainer'); cont.innerHTML=''; lessons.forEach((l,idx)=>{ const row=document.createElement('div'); row.className='lesson-edit-row'; row.innerHTML=`<input type="text" class="lesson-name-input" data-index="${idx}" value="${l}" placeholder="اسم الدرس ${idx+1}" style="flex:1;padding:0.3rem 0.5rem;border-radius:0.375rem;border:1px solid #ccc;font-size:0.8rem;min-width:0;"><button type="button" onclick="updateLessonName(${idx})" style="padding:0.2rem 0.5rem;border-radius:0.375rem;border:none;background:var(--accent);color:white;font-weight:700;font-size:0.7rem;cursor:pointer;white-space:nowrap;">تعديل</button>`; cont.appendChild(row); }); }
     function toggleAddUnitBox(){ const box=document.getElementById('inlineAddUnitBox'); box.style.display=box.style.display==='flex'?'none':'flex'; if(box.style.display==='flex') document.getElementById('newUnitNameInput').focus(); }
     function saveNewUnit(){
       const inp=document.getElementById('newUnitNameInput'), newName=inp.value.trim();
       if(!newName) return;
       if(unitsData[newName]){ alert("هذه الوحدة موجودة بالفعل!"); return; }
-      unitsData[newName]={lessons:["درس 1","درس 2","درس 3"]};
+      unitsData[newName]={lessons:[1,2,3].map(number=>getAutoLessonName(newName,number))};
       saveData(); initUnitsModalSelect(); document.getElementById('modalUnitSelect').value=newName; loadUnitDetailsToModal(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); inp.value=''; document.getElementById('inlineAddUnitBox').style.display='none';
     }
 
