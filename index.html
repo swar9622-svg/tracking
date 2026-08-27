@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.65";</script>
+  <script>const APP_VERSION = "21.66";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -915,7 +915,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <select id="studentReportUnitSelect" class="select-class-full" onchange="onStudentReportUnitChange(this.value)" style="margin:0;"></select>
       </div>
       <div class="table-responsive-wrapper" style="max-height:45vh;overflow-y:auto;margin-bottom:12px;">
-        <table class="report-table" id="studentReportDetailTable" style="width:100%;"><thead><tr><th>التاريخ</th><th style="width:44px;min-width:44px;">الوحدة</th><th>الغياب</th><th>التأخر</th><th>عدد المخالفات</th><th style="min-width:138px;">الاستئذان</th></tr></thead><tbody id="studentReportDetailTableBody"></tbody></table>
+        <table class="report-table" id="studentReportDetailTable" style="width:100%;table-layout:fixed;"><colgroup><col style="width:16%"><col style="width:11%"><col style="width:15%"><col style="width:15%"><col style="width:17%"><col style="width:26%"></colgroup><thead><tr><th>التاريخ</th><th>الوحدة</th><th>الغياب</th><th>التأخر</th><th>عدد المخالفات</th><th>الاستئذان</th></tr></thead><tbody id="studentReportDetailTableBody"></tbody></table>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;">
         <button class="btn-export-period" id="btnExportSingleStudentPDF" onclick="openPdfSizeModal('singleStudent')" style="background-color:var(--accent);margin-bottom:0;">📄 تصدير PDF</button>
@@ -3312,8 +3312,7 @@ ${description}`)) return;
     function getStudentPermissionCount(cls,student){ let count=0; Object.keys(permissionRecords||{}).forEach(date=>{ count+=getStudentPermissionEntries(date,cls,student).filter(record=>!isGuardianExitRecord(record)).length; }); return count; }
     function getStudentPermissionDetailsMarkup(date,cls,student,pdf=false){
       const entries=getStudentPermissionEntries(date,cls,student); if(!entries.length) return '-';
-      const lineBreak=pdf?'<br>':'<br>';
-      return entries.map(record=>{ const guardian=isGuardianExitRecord(record), period=record.periodLabel||'الحصة غير محددة', duration=formatPermissionDuration(date,record), reason=String(record.reason||'').trim()||'لا يوجد سبب'; const type=guardian?'خروج مع ولي الأمر':'استئذان'; return `<span style="display:block;line-height:1.45;margin-bottom:3px;"><b style="color:${guardian?'#A14C15':'#1769AA'};">${type}</b> · ${escapeTextForHtml(period)}${lineBreak}<span style="font-size:${pdf?'9px':'11px'};">${escapeTextForHtml(duration)} · ${escapeTextForHtml(reason)}</span></span>`; }).join('');
+      return entries.map(record=>{ const guardian=isGuardianExitRecord(record), duration=formatPermissionDuration(date,record), type=guardian?'خروج ولي الأمر':'استئذان'; return `<span style="display:block;line-height:1.45;margin-bottom:3px;text-align:center;"><b style="color:${guardian?'#A14C15':'#1769AA'};">${type}</b><br><span style="font-size:${pdf?'9px':'11px'};">${escapeTextForHtml(duration)}</span></span>`; }).join('');
     }
     function formatPermissionReason(record){
       const reason=String(record?.reason||'').trim(), autoNote=String(record?.autoCloseNote||'').trim(), parts=[];
@@ -5711,7 +5710,7 @@ ${description}`)) return;
         const token=encodeStudentReportAbsenceToken({date,cls,student:selectedStudentForReport,targetUnits:targetUnits||[]});
         const absenceCell=(isAbs||isExcused)?`<button type="button" data-report-absence="${token}" onclick="toggleStudentReportExcusedAbsence(this.dataset.reportAbsence)" title="اضغط للتحويل بين غائب وبعذر" style="border:0;border-radius:8px;padding:5px 8px;background:${isExcused?'#FFF0F0':'transparent'};color:var(--red);font-weight:900;cursor:pointer;">${isExcused?'بعذر':'غائب'}</button>`:'-';
         const unitLabel=currentStudentReportUnitSelection==='__all__'?'-':unit, permissionCell=permissionEntries.length?getStudentPermissionDetailsMarkup(date,cls,selectedStudentForReport):'-';
-        tbody.innerHTML+=`<tr><td style="font-weight:700;white-space:nowrap;">${date}</td><td style="font-weight:800;color:var(--accent);font-size:11px;">${escapeTextForHtml(unitLabel)}</td><td>${absenceCell}</td><td>${isLate?'<span style="color:var(--yellow);font-weight:900;">متأخر</span>':'-'}</td><td>${vio>0?`<span class="badge-num badge-violation">${vio}</span>`:'-'}</td><td style="text-align:right;min-width:138px;">${permissionCell}</td></tr>`;
+        tbody.innerHTML+=`<tr><td style="font-weight:700;white-space:nowrap;font-size:11px;">${date}</td><td style="font-weight:800;color:var(--accent);font-size:11px;overflow-wrap:anywhere;">${escapeTextForHtml(unitLabel)}</td><td>${absenceCell}</td><td>${isLate?'<span style="color:var(--yellow);font-weight:900;">متأخر</span>':'-'}</td><td>${vio>0?`<span class="badge-num badge-violation">${vio}</span>`:'-'}</td><td style="text-align:center;font-size:11px;overflow-wrap:anywhere;">${permissionCell}</td></tr>`;
       });
       if(reportRows.length===0) tbody.innerHTML='<tr><td colspan="6" style="padding:15px;color:var(--text-secondary);">لا توجد أي حالات مسجلة لهذا الطالب ضمن الوحدة المحددة.</td></tr>';
       document.getElementById('studentReportDetailModal').style.display='flex';
@@ -6259,8 +6258,8 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       if(!record?.outTime) return '—';
       if(!record.returnTime) return 'قيد الاستئذان';
       const start=timeTextToMinutes(record.outTime), end=timeTextToMinutes(record.returnTime); if(start===null||end===null) return '—';
-      const diff=(end>=start?end:start+1440)-start, hours=Math.floor(diff/60), minutes=diff%60;
-      return hours?`${hours} س ${minutes?`و ${minutes} د`:''}`:`${minutes} د`;
+      const elapsedMinutes=Math.max(1,Math.ceil((end>=start?end:start+1440)-start));
+      return `${elapsedMinutes} دقيقة`;
     }
     function getPermissionReportWorkspace(grade){ return grade===activeGradeName?{appData,permissionRecords}:gradeWorkspaces?.[grade]||{appData:{},permissionRecords:{}}; }
     function fillPermissionDetailReportClasses(){
@@ -7133,11 +7132,11 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
         const violationCountCell=`<td style="border:1px solid #D1D1D6;padding:6px;text-align:center;min-width:36px;color:${violationNames.length?'#AF52DE':'#333'};font-weight:${violationNames.length?'900':'normal'};">${violationCount}</td>`;
         const violationNameCell=showViolationNames?`<td style="border:1px solid #D1D1D6;padding:6px;text-align:right;line-height:1.5;white-space:normal;overflow-wrap:anywhere;color:${violationNames.length?'#AF52DE':'#333'};font-weight:${violationNames.length?'900':'normal'};">${violationNamesVertical}</td>`:'';
         const unitLabel=scope==='__all__'?'-':unit, permissionCell=permissionEntries.length?getStudentPermissionDetailsMarkup(date,cls,selectedStudentForReport,true):'-';
-        rows+=`<tr><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:6px;text-align:center;font-weight:bold;white-space:nowrap;">${date}</td><td style="border:1px solid #D1D1D6;padding:6px 3px;text-align:center;width:42px;font-size:9px;font-weight:bold;color:#007AFF;overflow-wrap:anywhere;">${escapeTextForHtml(unitLabel)}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${(isAbs||isExcused)?'#FF3B30':'#333'};font-weight:${(isAbs||isExcused)?'900':'normal'};">${isAbs?'غائب':isExcused?'بعذر':'-'}</td><td style="border:1px solid #D1D1D6;padding:6px;text-align:center;color:${isLate?'#FF9500':'#333'};font-weight:${isLate?'900':'normal'};">${isLate?'متأخر':'-'}</td>${violationCountCell}${violationNameCell}<td style="border:1px solid #D1D1D6;padding:5px;text-align:right;min-width:112px;color:#334155;overflow-wrap:anywhere;">${permissionCell}</td></tr>`;
+        rows+=`<tr><td class="pdf-student-name-cell" style="border:1px solid #D1D1D6;padding:5px 3px;text-align:center;font-weight:bold;white-space:nowrap;">${date}</td><td style="border:1px solid #D1D1D6;padding:5px 2px;text-align:center;font-size:9px;font-weight:bold;color:#007AFF;overflow-wrap:anywhere;">${escapeTextForHtml(unitLabel)}</td><td style="border:1px solid #D1D1D6;padding:5px 3px;text-align:center;color:${(isAbs||isExcused)?'#FF3B30':'#333'};font-weight:${(isAbs||isExcused)?'900':'normal'};">${isAbs?'غائب':isExcused?'بعذر':'-'}</td><td style="border:1px solid #D1D1D6;padding:5px 3px;text-align:center;color:${isLate?'#FF9500':'#333'};font-weight:${isLate?'900':'normal'};">${isLate?'متأخر':'-'}</td>${violationCountCell}${violationNameCell}<td style="border:1px solid #D1D1D6;padding:5px 3px;text-align:center;color:#334155;overflow-wrap:anywhere;">${permissionCell}</td></tr>`;
       });
       if(!rows) rows=`<tr><td colspan="${showViolationNames?7:6}" style="border:1px solid #D1D1D6;padding:10px;text-align:center;">لا توجد حالات مسجلة.</td></tr>`;
       const violationHeader=showViolationNames?`<th colspan="2" style="border:1px solid #007AFF;padding:6px;text-align:center;min-width:150px;">عدد المخالفات</th>`:`<th style="border:1px solid #007AFF;padding:6px;text-align:center;">عدد المخالفات</th>`;
-      const table=`<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:auto;"><thead><tr style="background:#007AFF;color:white;"><th style="border:1px solid #007AFF;padding:6px;text-align:center;">التاريخ</th><th style="border:1px solid #007AFF;padding:6px 3px;text-align:center;width:42px;">الوحدة</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">الغياب</th><th style="border:1px solid #007AFF;padding:6px;text-align:center;">التأخر</th>${violationHeader}<th style="border:1px solid #007AFF;padding:6px;text-align:center;min-width:112px;">الاستئذان</th></tr></thead><tbody>${rows}</tbody></table>`;
+      const table=`<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;"><colgroup><col style="width:16%"><col style="width:11%"><col style="width:15%"><col style="width:15%"><col style="width:17%"><col style="width:26%"></colgroup><thead><tr style="background:#007AFF;color:white;"><th style="border:1px solid #007AFF;padding:6px 3px;text-align:center;">التاريخ</th><th style="border:1px solid #007AFF;padding:6px 2px;text-align:center;">الوحدة</th><th style="border:1px solid #007AFF;padding:6px 3px;text-align:center;">الغياب</th><th style="border:1px solid #007AFF;padding:6px 3px;text-align:center;">التأخر</th>${violationHeader}<th style="border:1px solid #007AFF;padding:6px 3px;text-align:center;">الاستئذان</th></tr></thead><tbody>${rows}</tbody></table>`;
       const title=`تقرير مخالفات الطالب: ${selectedStudentForReport} — ${scopeLabel}`, sub=`<span>الفصل: ${cls}</span><span>الوحدة: ${scopeLabel}</span><span>تاريخ الإصدار: ${today}</span>`;
       const sizes=getPdfSizes('singleStudent'), el=buildPdfElement(table,title,sub,'',sizes); await exportPdf(el,`تقرير_مخالفات_${selectedStudentForReport}_${scopeLabel}.pdf`,{jsPDF:{unit:'mm',format:'a4',orientation:getPdfOrientation(sizes,'portrait')},margin:getPdfMargins(sizes)});
     }
