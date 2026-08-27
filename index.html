@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.58";</script>
+  <script>const APP_VERSION = "21.59";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -109,6 +109,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .student-inline-permission-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0.28rem;margin:0 0 0.38rem;direction:rtl;}
     .student-inline-permission-actions button{min-height:2.02rem;border-radius:0.52rem;border:1px solid transparent;font:inherit;font-size:0.61rem;font-weight:900;line-height:1;cursor:pointer;padding:0.18rem 0.12rem;-webkit-tap-highlight-color:transparent;}
     .student-inline-permission-actions .inline-permission{background:#E6F3FF;color:#1265A8;border-color:#ADD6F5;}.student-inline-permission-actions .inline-return{background:#E5F8EC;color:#197646;border-color:#A8DDBA;}.student-inline-permission-actions .inline-guardian{background:#FFF0F0;color:#B42318;border-color:#F2B8B5;}.student-inline-permission-actions .inline-edit{background:#F0E9FF;color:#7040AE;border-color:#CDB9ED;}.student-inline-permission-actions button:disabled{background:#EEF1F4;color:#98A2B3;border-color:#D8DEE5;cursor:not-allowed;}
+    .student-permission-blocked-note{margin:-0.08rem 0 0.34rem;text-align:center;color:#9C5B00;font-size:0.58rem;font-weight:800;line-height:1.25;}
     /* مسار استئذان بالسحب: يكشف الزر من اليمين كما في بطاقات iPhone. */
     #absenceScreen .attendance-swipe-shell{order:1;position:relative;flex:1 0 100%;min-width:0;overflow:hidden;border-radius:0.64rem;touch-action:pan-y;isolation:isolate;background:transparent;}
     #absenceScreen .attendance-swipe-track{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;min-height:2.25rem;background:var(--card-bg);border:0;box-shadow:none;transform:translateX(0);will-change:transform;transition:transform .24s cubic-bezier(.23,1,.32,1);}
@@ -2856,10 +2857,11 @@ ${description}`)) return;
       }).join(''):'<div class="student-notes-empty">لا توجد ملاحظات محفوظة لهذا الطالب.</div>';
       const notesAreVisible=openAttendanceStudentStats===student&&showAttendanceStudentNotes;
       const entryMarkup=`<div class="student-note-entry"><textarea class="student-note-input" rows="1" placeholder="اكتب ملاحظة…" oninput="autoGrowAttendanceStudentNote(this)"></textarea><button type="button" class="student-note-save" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ</button></div>`;
-      const date=document.getElementById('dateSelect')?.value||'', encodedClass=encodeURIComponent(cls), encodedStudent=encodeURIComponent(student), encodedDate=encodeURIComponent(date), openRecord=date?getOpenPermissionRecord(date,cls,student):null, guardianExit=date?getGuardianExitRecord(date,cls,student):null;
-      const controls=openAttendanceStudentStats===student?`<div class="student-inline-permission-actions"><button type="button" class="${openRecord?'inline-return':'inline-permission'}" ${guardianExit?'disabled':''} onclick="openInlinePermissionAction('${encodedClass}','${encodedStudent}','${encodedDate}')">${openRecord?'↩ عودة':'🕒 استئذان'}</button><button type="button" class="inline-guardian" ${openRecord||guardianExit?'disabled':''} onclick="saveInlineGuardianExit('${encodedClass}','${encodedStudent}','${encodedDate}')">👤 خروج</button><button type="button" class="inline-edit" onclick="openInlinePermissionEditModal('${encodedClass}','${encodedStudent}')">✎ تعديل</button></div>`:'';
+      const date=document.getElementById('dateSelect')?.value||'', encodedClass=encodeURIComponent(cls), encodedStudent=encodeURIComponent(student), encodedDate=encodeURIComponent(date), openRecord=date?getOpenPermissionRecord(date,cls,student):null, guardianExit=date?getGuardianExitRecord(date,cls,student):null, permissionBlocked=date?isAttendancePermissionBlocked(date,cls,student):false;
+      const controls=openAttendanceStudentStats===student?`<div class="student-inline-permission-actions"><button type="button" class="${openRecord?'inline-return':'inline-permission'}" ${guardianExit||permissionBlocked?'disabled':''} onclick="${openRecord?`returnInlinePermissionNow('${encodedClass}','${encodedStudent}','${encodedDate}')`:`openInlinePermissionAction('${encodedClass}','${encodedStudent}','${encodedDate}')`}">${openRecord?'↩ عودة':'🕒 استئذان'}</button><button type="button" class="inline-guardian" ${openRecord||guardianExit||permissionBlocked?'disabled':''} onclick="saveInlineGuardianExit('${encodedClass}','${encodedStudent}','${encodedDate}')">👤 خروج</button><button type="button" class="inline-edit" onclick="openInlinePermissionEditModal('${encodedClass}','${encodedStudent}')">✎ تعديل</button></div>${permissionBlocked?'<div class="student-permission-blocked-note">الطالب غائب أو بعذر؛ لا يُسجل له استئذان أو خروج.</div>':''}`:'';
       return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite">${controls}<div class="student-notes-section" style="border-top:0;padding-top:0;">${entryMarkup}<button type="button" class="student-notes-toggle" onclick="toggleAttendanceStudentNotes()">${notesAreVisible?'إخفاء الملاحظات':`إظهار الملاحظات (${notes.length})`}</button>${notesAreVisible?`<div class="student-notes-list">${notesMarkup}</div>`:''}</div></div>`;
     }
+    function isAttendancePermissionBlocked(date,cls,student){ const status=getStudentDayRecord(date,cls,student,currentAttendanceUnit).status; return status==='غائب'||status==='بعذر'; }
     function getStudentPermissionCount(cls,student){ return Object.entries(permissionRecords||{}).reduce((total,[date])=>total+getPermissionRecords(date,cls,student).filter(record=>!isGuardianExitRecord(record)).length,0); }
     function getAttendanceStudentSummaryBubble(cls,student){
       const stats=getStudentAttendanceStats(cls,student,'__all__'), permissionCount=getStudentPermissionCount(cls,student);
@@ -2897,6 +2899,7 @@ ${description}`)) return;
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), record=getOpenPermissionRecord(date,cls,student);
       closeAttendancePermissionSwipes();
       if(!cls||!student||!date) return;
+      if(isAttendancePermissionBlocked(date,cls,student)){ alert('الطالب غائب أو بعذر؛ لا يمكن تسجيل استئذان أو خروج له.'); return; }
       if(record?.outTime){ openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,'return',encodeURIComponent(record.id||'')); return; }
       document.getElementById('permissionReasonClass').value=cls; document.getElementById('permissionReasonStudent').value=student; document.getElementById('permissionReasonDate').value=date;
       document.getElementById('permissionReasonStudentLabel').textContent=`${student} — ${cls}`;
@@ -2906,9 +2909,15 @@ ${description}`)) return;
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||'');
       closeAttendancePermissionSwipes();
       if(!cls||!student||!date) return;
+      if(isAttendancePermissionBlocked(date,cls,student)){ alert('الطالب غائب أو بعذر؛ لا يمكن تسجيل استئذان أو خروج له.'); return; }
       if(getOpenPermissionRecord(date,cls,student)){ alert('سجّل عودة الاستئذان أولاً قبل تسجيل خروج الطالب مع ولي الأمر.'); return; }
       if(getGuardianExitRecord(date,cls,student)){ alert('تم تسجيل خروج الطالب مع ولي الأمر اليوم. يمكنك استخدام «تعديل» لتغييره أو حذفه.'); return; }
       const record=createPermissionRecord(date,cls,student); record.entryType='guardian-exit'; record.outTime=permissionNowTime(); record.returnTime=''; record.reason='خرج مع ولي الأمر'; record.updatedAt=new Date().toISOString(); saveData(); renderStudents();
+    }
+    function returnInlinePermissionNow(encodedClass,encodedStudent,encodedDate){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), record=getOpenPermissionRecord(date,cls,student);
+      if(!cls||!student||!date||!record) return;
+      record.returnTime=permissionNowTime(); record.updatedAt=new Date().toISOString(); record.autoCloseNote=''; record.periodEndAt=''; record.periodEndTime=''; record.periodLabel=''; saveData(); renderStudents(); schedulePermissionAutoClose();
     }
     function openInlinePermissionEditModal(encodedClass,encodedStudent){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||'');
@@ -2931,9 +2940,10 @@ ${description}`)) return;
     function saveInlinePermissionReason(reason){
       const cls=document.getElementById('permissionReasonClass').value, student=document.getElementById('permissionReasonStudent').value, date=document.getElementById('permissionReasonDate').value;
       if(!cls||!student||!date) return;
+      if(isAttendancePermissionBlocked(date,cls,student)){ closeInlinePermissionReasonModal(); alert('الطالب غائب أو بعذر؛ لا يمكن تسجيل استئذان أو خروج له.'); return; }
       if(getOpenPermissionRecord(date,cls,student)){ closeInlinePermissionReasonModal(); alert('سجّل عودة الطالب أولاً قبل تسجيل استئذان جديد.'); return; }
-      const record=createPermissionRecord(date,cls,student); record.outTime=permissionNowTime(); record.returnTime=''; record.reason=String(reason||'').trim(); record.updatedAt=new Date().toISOString();
-      closeInlinePermissionReasonModal(); saveData(); renderStudents();
+      const record=createPermissionRecord(date,cls,student); record.outTime=permissionNowTime(); record.returnTime=''; record.reason=String(reason||'').trim(); assignPermissionPeriodDeadline(record,date,cls); record.updatedAt=new Date().toISOString();
+      closeInlinePermissionReasonModal(); saveData(); renderStudents(); schedulePermissionAutoClose();
     }
     function openInlinePermissionCustomReason(){
       const cls=document.getElementById('permissionReasonClass').value, student=document.getElementById('permissionReasonStudent').value, date=document.getElementById('permissionReasonDate').value;
@@ -3089,8 +3099,10 @@ ${description}`)) return;
     function cleanupPermissionRecord(date,cls,student){ const records=getPermissionRecords(date,cls,student); records.forEach(record=>removePermissionRecord(date,cls,student,record.id)); }
     function getPermissionStats(date,cls){ const values=Object.keys(permissionRecords?.[date]?.[cls]||{}).flatMap(student=>getPermissionRecords(date,cls,student)).filter(record=>!isGuardianExitRecord(record)); return {total:values.length,active:values.filter(record=>!record.returnTime).length}; }
     function formatPermissionReason(record){
-      const reason=String(record?.reason||'').trim();
-      return reason?`السبب: ${escapeTextForHtml(reason)}`:'لا يوجد سبب مسجل';
+      const reason=String(record?.reason||'').trim(), autoNote=String(record?.autoCloseNote||'').trim(), parts=[];
+      if(reason) parts.push(`السبب: ${escapeTextForHtml(reason)}`);
+      if(autoNote) parts.push(`ملاحظة: ${escapeTextForHtml(autoNote)}`);
+      return parts.join('<br>')||'لا يوجد سبب مسجل';
     }
     function onPermissionClassChange(){ renderPermissionStudents(); }
     function renderPermissionStudents(){
@@ -3116,6 +3128,7 @@ ${description}`)) return;
     function openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,mode='out',encodedRecordId=''){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), recordId=decodeURIComponent(encodedRecordId||''), record=mode==='out'?{}:((recordId?getPermissionRecordById(date,cls,student,recordId):null)||(mode==='return'?getOpenPermissionRecord(date,cls,student):getPermissionRecord(date,cls,student))||{});
       if(!cls||!student||!date) return;
+      if(mode==='out'&&isAttendancePermissionBlocked(date,cls,student)){ alert('الطالب غائب أو بعذر؛ لا يمكن تسجيل استئذان أو خروج له.'); return; }
       const isReturn=mode==='return', isEdit=mode==='edit', title=isReturn?'↩️ تسجيل عودة الطالب':isEdit?'✏️ تعديل الاستئذان':'🕒 تسجيل استئذان';
       document.getElementById('permissionEntryTitle').textContent=title;
       document.getElementById('permissionEntryStudentLabel').textContent=`${student} — ${cls}`;
@@ -3134,11 +3147,13 @@ ${description}`)) return;
       const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value, mode=document.getElementById('permissionEntryMode').value, recordId=document.getElementById('permissionEntryRecordId').value;
       const outTime=document.getElementById('permissionOutTimeInput').value, returnTime=document.getElementById('permissionReturnTimeInput').value, reason=String(document.getElementById('permissionReasonInput').value||'').trim();
       if(!outTime){ alert('اختر وقت الخروج أولاً.'); return; }
+      if(mode==='out'&&isAttendancePermissionBlocked(date,cls,student)){ alert('الطالب غائب أو بعذر؛ لا يمكن تسجيل استئذان أو خروج له.'); return; }
       if(mode==='return'&&!returnTime){ alert('اختر وقت العودة أولاً.'); return; }
       if((mode==='return'||mode==='edit')&&returnTime&&returnTime<outTime){ alert('وقت العودة يجب أن يكون بعد وقت الخروج.'); return; }
       const record=(recordId&&getPermissionRecordById(date,cls,student,recordId))||(mode==='return'&&getOpenPermissionRecord(date,cls,student))||createPermissionRecord(date,cls,student); record.outTime=outTime; record.reason=reason;
-      if(mode==='return'||mode==='edit') record.returnTime=returnTime; else record.returnTime='';
-      record.updatedAt=new Date().toISOString(); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents();
+      if(mode==='return'||mode==='edit') record.returnTime=returnTime; else { record.returnTime=''; assignPermissionPeriodDeadline(record,date,cls); }
+      if(record.returnTime){ record.autoCloseNote=''; record.periodEndAt=''; record.periodEndTime=''; record.periodLabel=''; }
+      record.updatedAt=new Date().toISOString(); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents(); schedulePermissionAutoClose();
     }
     function deletePermissionEntry(){
       const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value, recordId=document.getElementById('permissionEntryRecordId').value;
@@ -5927,6 +5942,38 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       for(let index=0;index<CLASS_SCHEDULE_PERIOD_COUNT;index++){ const time=classScheduleSettings.times[index]||{}, start=timeToMinutes(time.start), end=timeToMinutes(time.end), cls=classScheduleSettings.assignments[day.key][index]||''; if(cls&&start!==null&&end!==null&&currentMinutes>=start&&currentMinutes<end) return cls; }
       return '';
     }
+    let permissionAutoCloseTimer=null;
+    function localDateKey(date=new Date()){ return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; }
+    function getScheduledPeriodForDate(date=new Date(),cls=''){
+      classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings); const day=CLASS_SCHEDULE_DAYS[date.getDay()]; if(!day) return null;
+      const currentMinutes=date.getHours()*60+date.getMinutes();
+      for(let index=0;index<CLASS_SCHEDULE_PERIOD_COUNT;index++){ const time=classScheduleSettings.times[index]||{}, start=timeToMinutes(time.start), end=timeToMinutes(time.end), periodClass=classScheduleSettings.assignments[day.key][index]||''; if(periodClass&&start!==null&&end!==null&&currentMinutes>=start&&currentMinutes<end&&(!cls||periodClass===cls)) return {index,cls:periodClass,end:time.end,endMinutes:end}; }
+      return null;
+    }
+    function assignPermissionPeriodDeadline(record,date,cls){
+      const now=new Date(); if(date!==localDateKey(now)) return;
+      const period=getScheduledPeriodForDate(now,cls); if(!period) return;
+      const endAt=new Date(now); endAt.setHours(Math.floor(period.endMinutes/60),period.endMinutes%60,0,0);
+      record.periodEndAt=endAt.toISOString(); record.periodEndTime=period.end; record.periodLabel=`الحصة ${period.index+1}`;
+    }
+    function closeExpiredPermissionRecords(now=new Date()){
+      let changed=false;
+      Object.entries(permissionRecords||{}).forEach(([date,classes])=>Object.entries(classes||{}).forEach(([cls,students])=>Object.entries(students||{}).forEach(([student])=>getPermissionRecords(date,cls,student).forEach(record=>{
+        if(record.returnTime||isGuardianExitRecord(record)||!record.periodEndAt||new Date(record.periodEndAt).getTime()>now.getTime()) return;
+        record.returnTime=record.periodEndTime||permissionNowTime(); record.autoCloseNote=`تأخر إلى نهاية ${record.periodLabel||'الحصة'} (${record.returnTime}).`; record.updatedAt=now.toISOString(); changed=true;
+      }))));
+      if(changed){ saveData(); renderStudents(); }
+      return changed;
+    }
+    function schedulePermissionAutoClose(){
+      if(permissionAutoCloseTimer){ clearTimeout(permissionAutoCloseTimer); permissionAutoCloseTimer=null; }
+      closeExpiredPermissionRecords(new Date()); let nextAt=Infinity;
+      Object.entries(permissionRecords||{}).forEach(([date,classes])=>Object.entries(classes||{}).forEach(([cls,students])=>Object.entries(students||{}).forEach(([student])=>getPermissionRecords(date,cls,student).forEach(record=>{ const due=record.returnTime||isGuardianExitRecord(record)?NaN:new Date(record.periodEndAt||'').getTime(); if(Number.isFinite(due)&&due<nextAt) nextAt=due; }))));
+      if(!Number.isFinite(nextAt)) return;
+      const delay=Math.max(0,nextAt-Date.now())+120; permissionAutoCloseTimer=setTimeout(()=>{ closeExpiredPermissionRecords(new Date()); schedulePermissionAutoClose(); },Math.min(delay,2147483000));
+    }
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ closeExpiredPermissionRecords(new Date()); schedulePermissionAutoClose(); } });
+    window.addEventListener('focus',()=>{ closeExpiredPermissionRecords(new Date()); schedulePermissionAutoClose(); });
     function applyScheduledClassAtStartup(date=new Date(),refresh=false){
       classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings);
       if(classScheduleSettings.autoSyncEnabled===false) return false;
@@ -6940,6 +6987,8 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
         initClassSelects();
         document.getElementById('permissionDateSelect').valueAsDate = new Date();
         applyScheduledClassAtStartup();
+        closeExpiredPermissionRecords(new Date());
+        schedulePermissionAutoClose();
         renderAttendanceUnitsDropdown();
         renderStudents();
         renderUnitsDropdown();
