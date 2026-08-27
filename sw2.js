@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-49-detailed-notification-shortcut';
+const CACHE_NAME = 'attendance-app-v21-50-ios-double-tap-notification';
 const urlsToCache = [
   './',
   './index.html',
