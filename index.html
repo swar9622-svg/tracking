@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.53";</script>
+  <script>const APP_VERSION = "21.54";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -106,13 +106,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .attendance-summary-bubble b{font-size:0.72rem;font-weight:900;}.attendance-summary-bubble .absent{background:#FFF0F0;color:#C0392B;}.attendance-summary-bubble .late{background:#FFF8E1;color:#B7770D;}.attendance-summary-bubble .violations{background:#F5EEF8;color:#7D3C98;}
     .attendance-buttons { display: flex; gap: 0.25rem; flex-shrink: 0; }
     /* مسار استئذان بالسحب: يكشف الزر من اليمين كما في بطاقات iPhone. */
-    #absenceScreen .attendance-swipe-shell{order:1;position:relative;flex:1 0 100%;min-width:0;overflow:hidden;border-radius:0.64rem;touch-action:pan-y;isolation:isolate;}
-    #absenceScreen .attendance-swipe-track{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;min-height:2.25rem;background:var(--card-bg);transform:translateX(0);will-change:transform;transition:transform .24s cubic-bezier(.23,1,.32,1);}
-    #absenceScreen .attendance-swipe-actions{position:absolute;inset:0 0 0 auto;z-index:1;display:flex;align-items:stretch;justify-content:flex-end;width:6.4rem;background:#167C88;color:#FFF;}
-    #absenceScreen .attendance-swipe-action{width:100%;border:0;background:transparent;color:#FFF;font:inherit;font-size:0.66rem;font-weight:900;line-height:1.18;cursor:pointer;padding:0.28rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.10rem;-webkit-tap-highlight-color:transparent;}
-    #absenceScreen .attendance-swipe-action .swipe-action-icon{font-size:0.98rem;line-height:1;}
-    #absenceScreen .attendance-swipe-action.return-action{background:#2E9A61;}
-    #absenceScreen .attendance-swipe-shell.is-swipe-open .attendance-swipe-track{transform:translateX(-6.4rem);}
+    #absenceScreen .attendance-swipe-shell{order:1;position:relative;flex:1 0 100%;min-width:0;overflow:hidden;border-radius:0.64rem;touch-action:pan-y;isolation:isolate;background:transparent;}
+    #absenceScreen .attendance-swipe-track{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;min-height:2.25rem;background:var(--card-bg);border:0;box-shadow:none;transform:translateX(0);will-change:transform;transition:transform .24s cubic-bezier(.23,1,.32,1);}
+    #absenceScreen .attendance-swipe-track .student-name{background:transparent!important;border:0!important;box-shadow:none!important;}
+    #absenceScreen .attendance-swipe-actions{position:absolute;inset:0 0 0 auto;z-index:1;display:flex;align-items:stretch;justify-content:flex-end;width:8.55rem;background:#167C88;color:#FFF;}
+    #absenceScreen .attendance-swipe-action{width:2.85rem;border:0;border-left:1px solid rgba(255,255,255,.34);background:#167C88;color:#FFF;font:inherit;font-size:0.61rem;font-weight:900;line-height:1.18;cursor:pointer;padding:0.24rem 0.08rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.10rem;-webkit-tap-highlight-color:transparent;}
+    #absenceScreen .attendance-swipe-action .swipe-action-icon{font-size:0.88rem;line-height:1;}
+    #absenceScreen .attendance-swipe-action.return-action{background:#2E9A61;}.attendance-swipe-action.guardian-action{background:#E57A12;}.attendance-swipe-action.edit-action{background:#65727E;}.attendance-swipe-action.is-disabled{background:#AAB4BC;color:#F6F8FA;cursor:not-allowed;}
+    #absenceScreen .attendance-swipe-shell.is-swipe-open .attendance-swipe-track{transform:translateX(-8.55rem);}
     #absenceScreen .attendance-swipe-action:active{filter:brightness(.92);transform:scale(.98);}
     #absenceScreen .student-permission-count-badge{position:absolute;top:-0.34rem;right:-0.30rem;z-index:5;display:flex;align-items:center;justify-content:center;min-width:1.50rem;height:1.16rem;padding:0 0.28rem;border:2px solid #FFF;border-radius:999px;background:#167C88;color:#FFF;box-shadow:0 2px 7px rgba(22,124,136,.30);font-size:0.58rem;font-weight:900;line-height:1;direction:ltr;pointer-events:none;}
     #absenceScreen .attendance-permission-live{display:block;margin-top:0.13rem;color:#0E7280;font-size:0.59rem;font-weight:900;line-height:1.15;}
@@ -120,6 +121,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .permission-reason-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.42rem;margin-top:0.12rem;}
     .permission-reason-choice{min-height:3.15rem;border:1px solid #BDE3E6;border-radius:0.65rem;background:#F0FBFC;color:#176671;font-family:inherit;font-size:0.70rem;font-weight:900;line-height:1.25;cursor:pointer;padding:0.36rem 0.24rem;}
     .permission-reason-choice .reason-icon{display:block;font-size:0.98rem;line-height:1;margin-bottom:0.12rem;}.permission-reason-choice:active{background:#DDF3F5;transform:scale(.98);}.permission-reason-other{grid-column:1/-1;min-height:2.45rem;background:#F6F8FC;border-color:#C9D8EF;color:#1759A6;}
+    .permission-edit-list{display:flex;flex-direction:column;gap:0.46rem;max-height:56vh;overflow:auto;padding:0.08rem;}.permission-edit-item{display:flex;align-items:center;gap:0.42rem;padding:0.50rem;background:#F8FBFC;border:1px solid #D8EAEC;border-radius:0.60rem;}.permission-edit-details{flex:1;min-width:0;color:#3E5660;font-size:0.68rem;font-weight:800;line-height:1.42;}.permission-edit-details b{display:block;color:#176671;font-size:0.72rem;}.permission-edit-item button{border:0;border-radius:0.45rem;padding:0.34rem 0.42rem;font:inherit;font-size:0.61rem;font-weight:900;cursor:pointer;}.permission-edit-item .permission-edit-open{background:#EAF2FF;color:#1759A6;}.permission-edit-item .permission-edit-delete{background:#FFF0F0;color:#B42318;}
     /* بقيت الحاوية المخفية فقط لتوافق البيانات الحالية؛ لا توجد شاشة أو زر استئذان مستقلان. */
     #permissionScreen{display:none!important;}
     .student-stats-bubble{display:none;order:3;flex:1 0 100%;gap:7px;margin-top:0.05rem;padding:0.4rem;background:#F8F9FB;border:1px solid #E5E5EA;border-radius:0.62rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.75);animation:student-stats-pop .18s ease-out both;}
@@ -758,13 +760,21 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </div>
   </div>
 
+  <div class="modal" id="permissionEditModal" style="z-index:172;">
+    <div class="modal-content" style="max-width:440px;width:94%;max-height:82vh;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.40rem;"><div class="modal-title" style="margin:0;color:#52606D;">✏️ تعديل الاستئذانات</div><button class="btn-close-circle" onclick="closeInlinePermissionEditModal()">✕</button></div>
+      <div id="permissionEditStudentLabel" style="text-align:center;padding:0.46rem;background:#F3F6F8;border:1px solid #D8EAEC;border-radius:0.62rem;color:#52606D;font-size:0.76rem;font-weight:900;margin-bottom:0.55rem;"></div>
+      <div id="permissionEditList" class="permission-edit-list"></div>
+    </div>
+  </div>
+
   <!-- ===== باقي النوافذ المنبثقة ===== -->
 
   <div class="modal" id="permissionEntryModal" style="z-index:170;">
     <div class="modal-content" style="max-width:430px;width:94%;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><div class="modal-title" id="permissionEntryTitle" style="margin:0;color:#176671;">🕒 تسجيل استئذان</div><button class="btn-close-circle" onclick="closePermissionEntryModal()">✕</button></div>
       <div id="permissionEntryStudentLabel" style="text-align:center;padding:0.54rem;background:#EDF9FA;border:1px solid #CFE8EA;border-radius:0.62rem;color:#176671;font-size:0.82rem;font-weight:900;margin-bottom:0.58rem;"></div>
-      <input type="hidden" id="permissionEntryClass"><input type="hidden" id="permissionEntryStudent"><input type="hidden" id="permissionEntryDate"><input type="hidden" id="permissionEntryMode">
+      <input type="hidden" id="permissionEntryClass"><input type="hidden" id="permissionEntryStudent"><input type="hidden" id="permissionEntryDate"><input type="hidden" id="permissionEntryMode"><input type="hidden" id="permissionEntryRecordId">
       <label class="field-label" for="permissionOutTimeInput">وقت الخروج</label><input id="permissionOutTimeInput" type="time" style="width:100%;box-sizing:border-box;margin:0.25rem 0 0.58rem;">
       <div id="permissionReturnTimeRow" style="display:none;"><label class="field-label" for="permissionReturnTimeInput">وقت العودة</label><input id="permissionReturnTimeInput" type="time" style="width:100%;box-sizing:border-box;margin:0.25rem 0 0.58rem;"></div>
       <label class="field-label" for="permissionReasonInput">السبب <span style="font-weight:700;color:#98A2B3;">(اختياري)</span></label><textarea id="permissionReasonInput" rows="2" placeholder="مثال: مراجعة الإدارة أو موعد" style="width:100%;box-sizing:border-box;resize:vertical;margin-top:0.25rem;"></textarea>
@@ -2843,7 +2853,7 @@ ${description}`)) return;
       const entryMarkup=`<div class="student-note-entry"><textarea class="student-note-input" rows="1" placeholder="اكتب ملاحظة…" oninput="autoGrowAttendanceStudentNote(this)"></textarea><button type="button" class="student-note-save" onclick="addAttendanceStudentNote('${safeClass}','${safeStudent}')">حفظ</button></div>`;
       return `<div class="student-stats-bubble ${openAttendanceStudentStats===student?'is-open':''}" aria-live="polite"><div class="student-notes-section" style="border-top:0;padding-top:0;">${entryMarkup}<button type="button" class="student-notes-toggle" onclick="toggleAttendanceStudentNotes()">${notesAreVisible?'إخفاء الملاحظات':`إظهار الملاحظات (${notes.length})`}</button>${notesAreVisible?`<div class="student-notes-list">${notesMarkup}</div>`:''}</div></div>`;
     }
-    function getStudentPermissionCount(cls,student){ return Object.values(permissionRecords||{}).reduce((total,day)=>total+(day?.[cls]?.[student]?.outTime?1:0),0); }
+    function getStudentPermissionCount(cls,student){ return Object.entries(permissionRecords||{}).reduce((total,[date])=>total+getPermissionRecords(date,cls,student).length,0); }
     function getAttendanceStudentSummaryBubble(cls,student){
       const stats=getStudentAttendanceStats(cls,student,'__all__'), permissionCount=getStudentPermissionCount(cls,student);
       return `<span class="attendance-summary-bubble" role="status"><span class="absent">غياب<b>${stats.absent}</b></span><span class="late">متأخر<b>${stats.late}</b></span><span class="violations">مخالفات<b>${stats.violations}</b></span><span class="permission">استئذان<b>${permissionCount}</b></span></span>`;
@@ -2854,14 +2864,15 @@ ${description}`)) return;
       const shell=event.currentTarget;
       if(shell.dataset.swipeEnabled!=='true'||event.target.closest('.attendance-swipe-action')) return;
       if(event.pointerType==='mouse'&&event.button!==0) return;
-      attendanceSwipePointerStates.set(event.pointerId,{shell,startX:event.clientX,startY:event.clientY,open:shell.classList.contains('is-swipe-open'),swiping:false,offset:shell.classList.contains('is-swipe-open')?-102.4:0});
+      const startedOnName=!!event.target.closest('.student-name');
+      attendanceSwipePointerStates.set(event.pointerId,{shell,startX:event.clientX,startY:event.clientY,open:shell.classList.contains('is-swipe-open'),swiping:false,startedOnName,offset:shell.classList.contains('is-swipe-open')?-136.8:0});
     }
     function moveAttendancePermissionSwipe(event){
       const state=attendanceSwipePointerStates.get(event.pointerId); if(!state) return;
       const dx=event.clientX-state.startX, dy=event.clientY-state.startY;
-      if(!state.swiping){ if(Math.abs(dx)<7&&Math.abs(dy)<7) return; if(Math.abs(dx)<=Math.abs(dy)){ attendanceSwipePointerStates.delete(event.pointerId); return; } state.swiping=true; state.shell.querySelector('.attendance-swipe-track').style.transition='none'; closeAttendancePermissionSwipes(state.shell); }
+      if(!state.swiping){ const threshold=state.startedOnName?16:7; if(Math.abs(dx)<threshold&&Math.abs(dy)<threshold) return; if(Math.abs(dx)<=Math.abs(dy)){ attendanceSwipePointerStates.delete(event.pointerId); return; } if(state.startedOnName) cancelAttendanceStudentNamePress(); state.swiping=true; state.shell.querySelector('.attendance-swipe-track').style.transition='none'; closeAttendancePermissionSwipes(state.shell); }
       event.preventDefault();
-      state.offset=Math.max(-102.4,Math.min(0,(state.open?-102.4:0)+dx));
+      state.offset=Math.max(-136.8,Math.min(0,(state.open?-136.8:0)+dx));
       state.shell.querySelector('.attendance-swipe-track').style.transform=`translateX(${state.offset}px)`;
     }
     function endAttendancePermissionSwipe(event){
@@ -2869,26 +2880,50 @@ ${description}`)) return;
       attendanceSwipePointerStates.delete(event.pointerId);
       if(!state.swiping) return;
       event.preventDefault();
-      const shouldOpen=state.offset<-41;
+      const shouldOpen=state.offset<-55;
       state.shell.querySelector('.attendance-swipe-track').style.transition=''; state.shell.querySelector('.attendance-swipe-track').style.transform='';
       state.shell.classList.toggle('is-swipe-open',shouldOpen);
       if(shouldOpen) closeAttendancePermissionSwipes(state.shell);
     }
     function cancelAttendancePermissionSwipe(event){ const state=attendanceSwipePointerStates.get(event.pointerId); if(!state) return; attendanceSwipePointerStates.delete(event.pointerId); state.shell.querySelector('.attendance-swipe-track').style.transition=''; state.shell.querySelector('.attendance-swipe-track').style.transform=''; state.shell.classList.toggle('is-swipe-open',state.open); }
     function openInlinePermissionAction(encodedClass,encodedStudent,encodedDate){
-      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), record=getPermissionRecord(date,cls,student);
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), record=getOpenPermissionRecord(date,cls,student);
       closeAttendancePermissionSwipes();
-      if(!cls||!student||!date||record?.returnTime) return;
-      if(record?.outTime){ openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,'return'); return; }
+      if(!cls||!student||!date) return;
+      if(record?.outTime){ openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,'return',encodeURIComponent(record.id||'')); return; }
       document.getElementById('permissionReasonClass').value=cls; document.getElementById('permissionReasonStudent').value=student; document.getElementById('permissionReasonDate').value=date;
       document.getElementById('permissionReasonStudentLabel').textContent=`${student} — ${cls}`;
       document.getElementById('permissionReasonModal').style.display='flex';
+    }
+    function saveInlineGuardianExit(encodedClass,encodedStudent,encodedDate){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||'');
+      closeAttendancePermissionSwipes();
+      if(!cls||!student||!date) return;
+      if(getOpenPermissionRecord(date,cls,student)){ alert('سجّل عودة الطالب أولاً قبل تسجيل خروج جديد.'); return; }
+      const record=createPermissionRecord(date,cls,student); record.outTime=permissionNowTime(); record.returnTime=''; record.reason='خرج مع ولي الأمر'; record.updatedAt=new Date().toISOString(); saveData(); renderStudents();
+    }
+    function openInlinePermissionEditModal(encodedClass,encodedStudent,encodedDate){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), records=getPermissionRecords(date,cls,student);
+      closeAttendancePermissionSwipes();
+      if(!cls||!student||!date){ return; }
+      document.getElementById('permissionEditStudentLabel').textContent=`${student} — ${date}`;
+      const list=document.getElementById('permissionEditList');
+      list.innerHTML=records.length?records.slice().reverse().map(record=>{ const recordId=encodeURIComponent(record.id||''), text=`خرج ${escapeTextForHtml(record.outTime||'-')} · ${record.returnTime?`عاد ${escapeTextForHtml(record.returnTime)}`:'لم يعد بعد'}`; return `<div class="permission-edit-item"><div class="permission-edit-details"><b>${text}</b><span>${formatPermissionReason(record)}</span></div><button type="button" class="permission-edit-open" onclick="openInlinePermissionRecordEdit('${encodeURIComponent(cls)}','${encodeURIComponent(student)}','${encodeURIComponent(date)}','${recordId}')">تعديل</button><button type="button" class="permission-edit-delete" onclick="deleteInlinePermissionRecord('${encodeURIComponent(cls)}','${encodeURIComponent(student)}','${encodeURIComponent(date)}','${recordId}')">حذف</button></div>`; }).join(''):'<div style="text-align:center;color:#667085;padding:1rem;font-size:.72rem;font-weight:800;">لا يوجد استئذان مسجل لهذا الطالب اليوم.</div>';
+      document.getElementById('permissionEditModal').style.display='flex';
+    }
+    function closeInlinePermissionEditModal(){ document.getElementById('permissionEditModal').style.display='none'; }
+    function openInlinePermissionRecordEdit(encodedClass,encodedStudent,encodedDate,encodedRecordId){ closeInlinePermissionEditModal(); openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,'edit',encodedRecordId); }
+    function deleteInlinePermissionRecord(encodedClass,encodedStudent,encodedDate,encodedRecordId){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), recordId=decodeURIComponent(encodedRecordId||'');
+      if(!recordId||!confirm('هل تريد حذف هذا الاستئذان؟')) return;
+      removePermissionRecord(date,cls,student,recordId); saveData(); renderStudents(); openInlinePermissionEditModal(encodedClass,encodedStudent,encodedDate);
     }
     function closeInlinePermissionReasonModal(){ document.getElementById('permissionReasonModal').style.display='none'; }
     function saveInlinePermissionReason(reason){
       const cls=document.getElementById('permissionReasonClass').value, student=document.getElementById('permissionReasonStudent').value, date=document.getElementById('permissionReasonDate').value;
       if(!cls||!student||!date) return;
-      const record=getMutablePermissionRecord(date,cls,student); record.outTime=permissionNowTime(); record.returnTime=''; record.reason=String(reason||'').trim(); record.updatedAt=new Date().toISOString();
+      if(getOpenPermissionRecord(date,cls,student)){ closeInlinePermissionReasonModal(); alert('سجّل عودة الطالب أولاً قبل تسجيل استئذان جديد.'); return; }
+      const record=createPermissionRecord(date,cls,student); record.outTime=permissionNowTime(); record.returnTime=''; record.reason=String(reason||'').trim(); record.updatedAt=new Date().toISOString();
       closeInlinePermissionReasonModal(); saveData(); renderStudents();
     }
     function openInlinePermissionCustomReason(){
@@ -2966,7 +3001,7 @@ ${description}`)) return;
     function endAttendanceStudentNamePress(event,student){
       const opened=attendanceNameLongPressOpened;
       cancelAttendanceStudentNamePress();
-      if(opened){ event.preventDefault(); event.stopPropagation(); return; }
+      if(opened){ attendanceSwipePointerStates.delete(event.pointerId); event.preventDefault(); event.stopPropagation(); return; }
       if(event.pointerType==='touch') handleAttendanceStudentNameTap(event,student);
     }
     document.addEventListener('pointerdown',()=>hideAttendanceStudentSummaryBubble(),true);
@@ -2988,15 +3023,15 @@ ${description}`)) return;
         const vClass=vList.length>0?'active-violation':'', statusBlocksNotes=status==='غائب'||status==='بعذر', disabled=statusBlocksNotes?'disabled-btn':'';
         const noteCount=getAttendanceStudentNotes(cls,s).length;
         const noteCountBadge=noteCount?`<span class="student-note-count-badge" aria-label="${noteCount} ملاحظات">${noteCount}</span>`:'';
-        const permissionRecord=getPermissionRecord(date,cls,s), permissionCount=getStudentPermissionCount(cls,s), permissionActive=!!(permissionRecord?.outTime&&!permissionRecord?.returnTime), permissionReturned=!!permissionRecord?.returnTime;
-        const permissionCountBadge=permissionCount?`<span class="student-permission-count-badge" aria-label="${permissionCount} استئذان"><span>🕒</span>&nbsp;${permissionCount}</span>`:'';
+        const permissionRecord=getOpenPermissionRecord(date,cls,s), permissionCount=getStudentPermissionCount(cls,s), permissionActive=!!permissionRecord;
+        const permissionCountBadge=permissionCount?`<span class="student-permission-count-badge" aria-label="${permissionCount} استئذان">${permissionActive?'<span>🕒</span>&nbsp;':''}${permissionCount}</span>`:'';
         const card=document.createElement('div'); card.className='student-card';
         const nameColor=dup.includes(s)?'color:#FF3B30;':'';
         const safeStudent=CSS.escape(s);
         const summaryBubble=openAttendanceStudentSummary===s?getAttendanceStudentSummaryBubble(cls,s):'';
-        const safeClass=encodeURIComponent(cls), encodedStudent=encodeURIComponent(s), safeDate=encodeURIComponent(date), actionLabel=permissionActive?'تسجيل العودة':'استئذان', actionIcon=permissionActive?'↩️':'🕒', actionClass=permissionActive?'return-action':'';
-        const actionMarkup=permissionReturned?'':`<div class="attendance-swipe-actions"><button type="button" class="attendance-swipe-action ${actionClass}" onclick="openInlinePermissionAction('${safeClass}','${encodedStudent}','${safeDate}')"><span class="swipe-action-icon">${actionIcon}</span>${actionLabel}</button></div>`;
-        card.innerHTML=`${noteCountBadge}${permissionCountBadge}<div class="attendance-swipe-shell" data-swipe-enabled="${permissionReturned?'false':'true'}" onpointerdown="startAttendancePermissionSwipe(event)" onpointermove="moveAttendancePermissionSwipe(event)" onpointerup="endAttendancePermissionSwipe(event)" onpointercancel="cancelAttendancePermissionSwipe(event)">${actionMarkup}<div class="attendance-swipe-track"><div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}${permissionActive?`<span class="attendance-permission-live">🕒 خارج منذ ${escapeTextForHtml(permissionRecord.outTime)}</span>`:''}</div><div class="attendance-buttons"><button class="btn-status ${(status==='غائب'||status==='بعذر')?'active-absent':''}" onclick="setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غائب'}</button><button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button><button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button></div></div></div>${getAttendanceStudentStatsMarkup(cls,s)}`;
+        const safeClass=encodeURIComponent(cls), encodedStudent=encodeURIComponent(s), safeDate=encodeURIComponent(date), permissionLabel=permissionActive?'عودة':'استئذان', permissionIcon=permissionActive?'↩️':'🕒', permissionClass=permissionActive?'return-action':'', guardianClass=permissionActive?'is-disabled':'';
+        const actionMarkup=`<div class="attendance-swipe-actions"><button type="button" class="attendance-swipe-action ${permissionClass}" onclick="openInlinePermissionAction('${safeClass}','${encodedStudent}','${safeDate}')"><span class="swipe-action-icon">${permissionIcon}</span>${permissionLabel}</button><button type="button" class="attendance-swipe-action guardian-action ${guardianClass}" title="خروج مع ولي الأمر" onclick="saveInlineGuardianExit('${safeClass}','${encodedStudent}','${safeDate}')"><span class="swipe-action-icon">👤</span>خروج</button><button type="button" class="attendance-swipe-action edit-action" onclick="openInlinePermissionEditModal('${safeClass}','${encodedStudent}','${safeDate}')"><span class="swipe-action-icon">✎</span>تعديل</button></div>`;
+        card.innerHTML=`${noteCountBadge}${permissionCountBadge}<div class="attendance-swipe-shell" data-swipe-enabled="true" onpointerdown="startAttendancePermissionSwipe(event)" onpointermove="moveAttendancePermissionSwipe(event)" onpointerup="endAttendancePermissionSwipe(event)" onpointercancel="cancelAttendancePermissionSwipe(event)">${actionMarkup}<div class="attendance-swipe-track"><div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}${permissionActive?`<span class="attendance-permission-live">🕒 خارج منذ ${escapeTextForHtml(permissionRecord.outTime)}</span>`:''}</div><div class="attendance-buttons"><button class="btn-status ${(status==='غائب'||status==='بعذر')?'active-absent':''}" onclick="setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غائب'}</button><button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button><button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button></div></div></div>${getAttendanceStudentStatsMarkup(cls,s)}`;
         cont.appendChild(card);
       });
       document.getElementById('absentCount').innerText=absent;
@@ -3008,22 +3043,32 @@ ${description}`)) return;
       applyButtonColorsDelayed();
     }
 
-    // ===== كشف الاستئذان التجريبي: بياناته منفصلة تماماً عن سجل الغياب والدرجات =====
+    // ===== كشف الاستئذان التجريبي: بياناته مستقلة وتدعم أكثر من استئذان في اليوم =====
     function permissionNowTime(){ const now=new Date(); return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`; }
-    function getPermissionRecord(date,cls,student){ return permissionRecords?.[date]?.[cls]?.[student]||null; }
-    function getMutablePermissionRecord(date,cls,student){
-      if(!permissionRecords[date]) permissionRecords[date]={};
-      if(!permissionRecords[date][cls]) permissionRecords[date][cls]={};
-      if(!permissionRecords[date][cls][student]) permissionRecords[date][cls][student]={outTime:'',returnTime:'',reason:'',createdAt:new Date().toISOString()};
-      return permissionRecords[date][cls][student];
+    function permissionRecordId(){ return `permission_${Date.now()}_${Math.random().toString(36).slice(2,8)}`; }
+    function normalizePermissionEntries(date,cls,student,create=false){
+      if(!permissionRecords[date]){ if(!create) return []; permissionRecords[date]={}; }
+      if(!permissionRecords[date][cls]){ if(!create) return []; permissionRecords[date][cls]={}; }
+      const current=permissionRecords[date][cls][student];
+      if(!current){ if(!create) return []; permissionRecords[date][cls][student]={entries:[]}; return permissionRecords[date][cls][student].entries; }
+      if(Array.isArray(current)){ permissionRecords[date][cls][student]={entries:current}; return permissionRecords[date][cls][student].entries; }
+      if(Array.isArray(current.entries)) return current.entries;
+      if(current.outTime){ const legacy={...current,id:current.id||`legacy_${date}_${cls}_${student}_${current.createdAt||'0'}`}; permissionRecords[date][cls][student]={entries:[legacy]}; return permissionRecords[date][cls][student].entries; }
+      permissionRecords[date][cls][student]={entries:[]}; return permissionRecords[date][cls][student].entries;
     }
-    function cleanupPermissionRecord(date,cls,student){
-      if(permissionRecords?.[date]?.[cls]){ delete permissionRecords[date][cls][student]; if(Object.keys(permissionRecords[date][cls]).length===0) delete permissionRecords[date][cls]; if(Object.keys(permissionRecords[date]).length===0) delete permissionRecords[date]; }
+    function getPermissionRecords(date,cls,student){ return normalizePermissionEntries(date,cls,student,false).filter(record=>record&&record.outTime); }
+    function getOpenPermissionRecord(date,cls,student){ return getPermissionRecords(date,cls,student).filter(record=>!record.returnTime).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')))[0]||null; }
+    function getPermissionRecord(date,cls,student){ const records=getPermissionRecords(date,cls,student); return getOpenPermissionRecord(date,cls,student)||records.at(-1)||null; }
+    function getPermissionRecordById(date,cls,student,recordId){ return getPermissionRecords(date,cls,student).find(record=>record.id===recordId)||null; }
+    function createPermissionRecord(date,cls,student){ const record={id:permissionRecordId(),outTime:'',returnTime:'',reason:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}; normalizePermissionEntries(date,cls,student,true).push(record); return record; }
+    function removePermissionRecord(date,cls,student,recordId){
+      const entries=normalizePermissionEntries(date,cls,student,false), remaining=entries.filter(record=>record?.id!==recordId);
+      if(!permissionRecords?.[date]?.[cls]) return;
+      if(remaining.length) permissionRecords[date][cls][student]={entries:remaining};
+      else { delete permissionRecords[date][cls][student]; if(Object.keys(permissionRecords[date][cls]).length===0) delete permissionRecords[date][cls]; if(Object.keys(permissionRecords[date]).length===0) delete permissionRecords[date]; }
     }
-    function getPermissionStats(date,cls){
-      const dayRecords=permissionRecords?.[date]?.[cls]||{}, values=Object.values(dayRecords).filter(record=>record&&record.outTime);
-      return {total:values.length,active:values.filter(record=>!record.returnTime).length};
-    }
+    function cleanupPermissionRecord(date,cls,student){ const records=getPermissionRecords(date,cls,student); records.forEach(record=>removePermissionRecord(date,cls,student,record.id)); }
+    function getPermissionStats(date,cls){ const values=Object.keys(permissionRecords?.[date]?.[cls]||{}).flatMap(student=>getPermissionRecords(date,cls,student)); return {total:values.length,active:values.filter(record=>!record.returnTime).length}; }
     function formatPermissionReason(record){
       const reason=String(record?.reason||'').trim();
       return reason?`السبب: ${escapeTextForHtml(reason)}`:'لا يوجد سبب مسجل';
@@ -3049,13 +3094,13 @@ ${description}`)) return;
       const stats=getPermissionStats(date,cls); document.getElementById('permissionTodayCount').textContent=stats.total; document.getElementById('permissionActiveCount').textContent=stats.active;
     }
     function closePermissionEntryModal(){ document.getElementById('permissionEntryModal').style.display='none'; }
-    function openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,mode='out'){
-      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), record=getPermissionRecord(date,cls,student)||{};
+    function openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,mode='out',encodedRecordId=''){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), recordId=decodeURIComponent(encodedRecordId||''), record=mode==='out'?{}:((recordId?getPermissionRecordById(date,cls,student,recordId):null)||(mode==='return'?getOpenPermissionRecord(date,cls,student):getPermissionRecord(date,cls,student))||{});
       if(!cls||!student||!date) return;
       const isReturn=mode==='return', isEdit=mode==='edit', title=isReturn?'↩️ تسجيل عودة الطالب':isEdit?'✏️ تعديل الاستئذان':'🕒 تسجيل استئذان';
       document.getElementById('permissionEntryTitle').textContent=title;
       document.getElementById('permissionEntryStudentLabel').textContent=`${student} — ${cls}`;
-      document.getElementById('permissionEntryClass').value=cls; document.getElementById('permissionEntryStudent').value=student; document.getElementById('permissionEntryDate').value=date; document.getElementById('permissionEntryMode').value=mode;
+      document.getElementById('permissionEntryClass').value=cls; document.getElementById('permissionEntryStudent').value=student; document.getElementById('permissionEntryDate').value=date; document.getElementById('permissionEntryMode').value=mode; document.getElementById('permissionEntryRecordId').value=record.id||'';
       document.getElementById('permissionOutTimeInput').value=record.outTime||permissionNowTime();
       document.getElementById('permissionReturnTimeInput').value=isReturn?permissionNowTime():(record.returnTime||'');
       document.getElementById('permissionReasonInput').value=record.reason||'';
@@ -3067,19 +3112,19 @@ ${description}`)) return;
       document.getElementById('permissionEntryModal').style.display='flex';
     }
     function savePermissionEntry(){
-      const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value, mode=document.getElementById('permissionEntryMode').value;
+      const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value, mode=document.getElementById('permissionEntryMode').value, recordId=document.getElementById('permissionEntryRecordId').value;
       const outTime=document.getElementById('permissionOutTimeInput').value, returnTime=document.getElementById('permissionReturnTimeInput').value, reason=String(document.getElementById('permissionReasonInput').value||'').trim();
       if(!outTime){ alert('اختر وقت الخروج أولاً.'); return; }
       if(mode==='return'&&!returnTime){ alert('اختر وقت العودة أولاً.'); return; }
       if((mode==='return'||mode==='edit')&&returnTime&&returnTime<outTime){ alert('وقت العودة يجب أن يكون بعد وقت الخروج.'); return; }
-      const record=getMutablePermissionRecord(date,cls,student); record.outTime=outTime; record.reason=reason;
+      const record=(recordId&&getPermissionRecordById(date,cls,student,recordId))||(mode==='return'&&getOpenPermissionRecord(date,cls,student))||createPermissionRecord(date,cls,student); record.outTime=outTime; record.reason=reason;
       if(mode==='return'||mode==='edit') record.returnTime=returnTime; else record.returnTime='';
       record.updatedAt=new Date().toISOString(); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents();
     }
     function deletePermissionEntry(){
-      const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value;
-      if(!confirm(`هل تريد حذف سجل استئذان الطالب «${student}» في هذا التاريخ؟`)) return;
-      cleanupPermissionRecord(date,cls,student); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents();
+      const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value, recordId=document.getElementById('permissionEntryRecordId').value;
+      if(!recordId||!confirm(`هل تريد حذف سجل الاستئذان المحدد للطالب «${student}»؟`)) return;
+      removePermissionRecord(date,cls,student,recordId); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents();
     }
     function openPermissionReportModal(){
       const classSelect=document.getElementById('permissionReportClassSelect'), current=document.getElementById('permissionClassSelect')?.value||'', classes=Object.keys(appData).filter(cls=>(appData[cls]||[]).length);
@@ -3094,7 +3139,7 @@ ${description}`)) return;
     }
     function renderPermissionReport(){
       const cls=document.getElementById('permissionReportClassSelect').value, student=document.getElementById('permissionReportStudentSelect').value, body=document.getElementById('permissionReportTableBody'), summary=document.getElementById('permissionReportSummary');
-      const rows=Object.keys(permissionRecords).sort().reverse().map(date=>({date,record:getPermissionRecord(date,cls,student)})).filter(item=>item.record?.outTime);
+      const rows=Object.keys(permissionRecords).sort().reverse().flatMap(date=>getPermissionRecords(date,cls,student).map(record=>({date,record})));
       summary.textContent=`إجمالي استئذانات ${student||'الطالب'}: ${rows.length}`;
       body.innerHTML=rows.length?rows.map(({date,record})=>`<tr><td>${escapeTextForHtml(date)}</td><td>${escapeTextForHtml(record.outTime)}</td><td class="${record.returnTime?'':'permission-report-active'}">${record.returnTime?escapeTextForHtml(record.returnTime):'لم يعد بعد'}</td><td>${formatPermissionReason(record)}</td></tr>`).join(''):'<tr><td colspan="4" style="padding:1.1rem;color:#667085;">لا توجد سجلات استئذان لهذا الطالب.</td></tr>';
     }

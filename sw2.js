@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-53-inline-permission-swipe';
+const CACHE_NAME = 'attendance-app-v21-54-multi-permission-swipe';
 const urlsToCache = [
   './',
   './index.html',
