@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-57-isolated-safari-longpress';
+const CACHE_NAME = 'attendance-app-v21-58-doubletap-permission';
 const urlsToCache = [
   './',
   './index.html',
