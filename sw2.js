@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-59-auto-return-period-end';
+const CACHE_NAME = 'attendance-app-v21-60-grade-class-curriculum-structure';
 const urlsToCache = [
   './',
   './index.html',

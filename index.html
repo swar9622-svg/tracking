@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.59";</script>
+  <script>const APP_VERSION = "21.60";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -73,11 +73,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .controls-bar select, .controls-bar input[type="date"] { flex: 1; text-align: center; }
     /* شريط الغياب: عرض ثابت ومرن للجوال كي لا يدفع رمز القفل الصفحة أفقياً. */
     #absenceScreen .controls-bar{gap:0.42rem;margin-bottom:0.58rem;min-width:0;align-items:stretch;}
-    #absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{flex:1 1 0;width:0;min-width:0;max-width:100%;padding:0.43rem 0.32rem;font-size:0.79rem;line-height:1.18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    #absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{flex:1 1 0;width:0;min-width:0;max-width:100%;padding:0.43rem 0.32rem;font-size:0.74rem;line-height:1.18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    #absenceScreen #gradeSelect{flex:0.62 1 0;font-weight:900;}
     #absenceScreen #classSelect{flex:.82 1 0;}
     #absenceScreen #dateSelect{flex:1.08 1 0;}
     #absenceScreen #attendanceUnitSelect{flex:1.10 1 0;}
-    @media(max-width:390px){#absenceScreen .controls-bar{gap:0.34rem;}#absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{padding:0.40rem 0.22rem;font-size:0.76rem;}}
+    @media(max-width:390px){#absenceScreen .controls-bar{gap:0.30rem;}#absenceScreen .controls-bar select,#absenceScreen .controls-bar input[type="date"]{padding:0.40rem 0.18rem;font-size:0.68rem;}}
     .stats-container { display: flex; gap: 0.375rem; }
     .stat-card { flex: 1; background: #F9F9FB; border-radius: 0.625rem; padding: 0.5rem 0.125rem; text-align: center; border: 1px solid #E5E5EA; cursor: default; }
     .stat-card.clickable { cursor: pointer; transition: background 0.15s; }
@@ -603,6 +604,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar">
+        <select id="gradeSelect" onchange="onGradeSelectionChange(this.value)" title="الصف"></select>
         <select id="classSelect" onchange="onAttendanceClassChange(this.value)"></select>
         <input type="date" id="dateSelect" onchange="renderStudents()">
         <select id="attendanceUnitSelect" onchange="onAttendanceUnitChange(this.value)" title="وحدة الغياب والتأخر والمخالفات"></select>
@@ -638,6 +640,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar understanding-controls">
+        <select id="understandingGradeSelect" onchange="onGradeSelectionChange(this.value)" title="الصف"></select>
         <select id="understandingClassSelect" onchange="onUnderstandingClassChange(this.value)" title="الفصل"></select>
         <select id="understandingUnitSelect" onchange="onUnderstandingUnitChange()" title="الوحدة"></select>
         <select id="understandingLessonSelect" onchange="renderUnderstandingScreen()" title="الدرس"></select>
@@ -702,6 +705,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="units-wrapper followup-controls">
+        <select id="followupGradeSelect" class="unit-dropdown-select" onchange="onGradeSelectionChange(this.value)" title="الصف"></select>
         <select id="followupClassSelect" class="unit-dropdown-select" onchange="onFollowupClassChange(this.value)" title="الفصل"></select>
         <select id="unitDropdownSelect" class="unit-dropdown-select" onchange="onUnitDropdownChange(this.value)" title="الوحدة"></select>
       </div>
@@ -1448,18 +1452,30 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <div class="modal" id="manageModal">
     <div class="modal-content" style="max-height:90vh;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div class="modal-title" style="margin:0;">⚙️ إدارة الأسماء والصفوف</div>
+        <div class="modal-title" style="margin:0;">⚙️ إدارة الصفوف والفصول والأسماء</div>
         <button class="btn-close-circle" onclick="closeManageModal()">✕</button>
       </div>
       
-      <span class="field-label">اختر الصف للتعديل:</span>
+      <div style="padding:.62rem;border:1px solid #CFE4FA;border-radius:.75rem;background:#F6FAFF;margin-bottom:.65rem;">
+        <span class="field-label" style="margin-top:0;">الصف الحالي:</span>
+        <select id="manageGradeSelect" class="select-class-full" onchange="onGradeSelectionChange(this.value)"></select>
+        <div style="display:flex;gap:.35rem;margin-top:.42rem;">
+          <input id="activeGradeNameInput" type="text" placeholder="اسم الصف" style="min-width:0;flex:1;">
+          <button type="button" class="btn-confirm-add" style="width:auto;padding-inline:.72rem;" onclick="saveActiveGradeName()">حفظ الاسم</button>
+        </div>
+        <div style="display:flex;gap:.35rem;margin-top:.42rem;">
+          <input id="newGradeInput" type="text" placeholder="إضافة صف جديد، مثل: أولى" style="min-width:0;flex:1;">
+          <button type="button" class="btn-add-cls-btn" style="width:auto;padding-inline:.72rem;" onclick="saveNewGrade()">➕ صف</button>
+        </div>
+      </div>
+      <span class="field-label">اختر الفصل للتعديل:</span>
       <select id="modalClassSelect" class="select-class-full" onchange="loadClassTextarea()"></select>
       <div class="class-manage-btns">
         <button type="button" class="btn-add-cls-btn" onclick="toggleAddClassBox()">➕ إضافة فصل</button>
         <button type="button" class="btn-del-cls-btn" onclick="promptDeleteClass()">🗑️ حذف الفصل</button>
       </div>
       <div class="inline-add-box" id="inlineAddBox">
-        <input type="text" id="newClassInput" placeholder="اسم الفصل الجديد...">
+        <input type="text" id="newClassInput" placeholder="رقم أو اسم الفصل، مثل: 4">
         <button class="btn-confirm-add" onclick="saveNewClass()">حفظ</button>
       </div>
       <span class="field-label">أسماء الطلاب (كل اسم في سطر):</span>
@@ -1812,6 +1828,75 @@ ${description}`)) return;
     let understandingData = {};
     // ملاحظات كلية مستقلة لكل طالب: لا تغير الغياب أو التأخر أو الدرجات.
     let studentNotesData = {};
+    // كل صف يحتفظ بفصوله ووحداته ودروسه وطلابه وسجلاته في مساحة مستقلة.
+    // تبقى المتغيرات القديمة أدناه هي مساحة الصف النشط فقط، لحماية الدوال القائمة.
+    let gradeWorkspaces={};
+    let activeGradeName='ثالث';
+    let gradeWorkspacesMigrated=false;
+    function isValidGradeName(value){ return typeof value==='string'&&value.trim().length>0; }
+    function createEmptyGradeWorkspace(){
+      return {appData:{},records:{},permissionRecords:{},unitsData:cloneData(defaultUnits),unitLocks:{},followupData:{},understandingData:{},studentNotesData:{},penaltiesData:cloneData(defaultPenalties),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:[],projectDistributionOrder:{},excellenceSettings:cloneData(excellenceSettings),participationSettings:{mode:'cumulative',activeUnit:Object.keys(defaultUnits)[0]||''},studentNumberMap:{},weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:{enabled:false},noteEntryWindow:cloneData(DEFAULT_NOTE_ENTRY_WINDOW)};
+    }
+    function captureActiveGradeWorkspace(){
+      return {appData:cloneData(appData),records:cloneData(records),permissionRecords:cloneData(permissionRecords),unitsData:cloneData(unitsData),unitLocks:cloneData(unitLocks),followupData:cloneData(followupData),understandingData:cloneData(understandingData),studentNotesData:cloneData(studentNotesData),penaltiesData:cloneData(penaltiesData),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:cloneData(period1SelectedUnits),projectDistributionOrder:cloneData(projectDistributionOrder),excellenceSettings:cloneData(excellenceSettings),participationSettings:cloneData(participationSettings),studentNumberMap:cloneData(queryStudentNumberMap),weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:cloneData(gradeRoundingSettings),noteEntryWindow:cloneData(noteEntryWindow)};
+    }
+    function normalizeGradeWorkspace(value){
+      const defaults=createEmptyGradeWorkspace(), source=value&&typeof value==='object'?value:{};
+      Object.keys(defaults).forEach(key=>{ if(source[key]&&typeof source[key]==='object') defaults[key]=cloneData(source[key]); });
+      defaults.unitsData=source.unitsData&&typeof source.unitsData==='object'&&Object.keys(source.unitsData).length?cloneData(source.unitsData):cloneData(defaultUnits);
+      defaults.unitLocks=normalizeUnitLocks(source.unitLocks);
+      defaults.violationDefinitions=normalizeViolationDefinitions(source.violationDefinitions||defaults.violationDefinitions);
+      defaults.penaltiesData=source.penaltiesData&&typeof source.penaltiesData==='object'?cloneData(source.penaltiesData):createDefaultPenalties();
+      defaults.excellenceSettings=normalizeExcellenceSettings(source.excellenceSettings);
+      defaults.participationSettings=source.participationSettings&&typeof source.participationSettings==='object'?cloneData(source.participationSettings):defaults.participationSettings;
+      if(!['cumulative','per_unit'].includes(defaults.participationSettings.mode)) defaults.participationSettings.mode='cumulative';
+      defaults.weakStudentsThresholds=normalizeWeakStudentsThresholds(source.weakStudentsThresholds);
+      defaults.gradeRoundingSettings=normalizeGradeRoundingSettings(source.gradeRoundingSettings);
+      defaults.noteEntryWindow=normalizeNoteEntryWindow(source.noteEntryWindow);
+      return defaults;
+    }
+    function applyGradeWorkspace(workspace){
+      const state=normalizeGradeWorkspace(workspace);
+      appData=state.appData; records=state.records; permissionRecords=state.permissionRecords; unitsData=state.unitsData; unitLocks=state.unitLocks; followupData=state.followupData; understandingData=state.understandingData; studentNotesData=state.studentNotesData;
+      VIOLATION_DEFINITIONS=state.violationDefinitions; syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=state.penaltiesData; period1SelectedUnits=state.period1SelectedUnits; projectDistributionOrder=state.projectDistributionOrder; excellenceSettings=state.excellenceSettings;
+      participationSettings=state.participationSettings; currentActiveUnit=Object.keys(unitsData)[0]||'الوحدة الأولى'; currentAttendanceUnit=participationSettings.activeUnit||currentActiveUnit; if(!unitsData[currentAttendanceUnit]) currentAttendanceUnit=currentActiveUnit;
+      queryStudentNumberMap=state.studentNumberMap; weakStudentsThresholds=state.weakStudentsThresholds; gradeRoundingSettings=state.gradeRoundingSettings; noteEntryWindow=state.noteEntryWindow;
+    }
+    function syncActiveGradeWorkspace(){
+      if(!isValidGradeName(activeGradeName)) activeGradeName='ثالث';
+      gradeWorkspaces[activeGradeName]=captureActiveGradeWorkspace();
+    }
+    function gradeClassName(grade,section){
+      const prefix=`${String(grade||'').trim()} `, raw=String(section||'').trim();
+      if(!raw) return '';
+      if(raw.startsWith(prefix)) return raw;
+      return `${prefix}${raw.replace(/^فصل\s+/,'').trim()}`;
+    }
+    function renameClassInActiveWorkspace(oldName,newName){
+      if(!oldName||!newName||oldName===newName||appData[newName]!==undefined) return false;
+      if(appData[oldName]!==undefined){ appData[newName]=appData[oldName]; delete appData[oldName]; }
+      [records,permissionRecords].forEach(collection=>Object.values(collection||{}).forEach(day=>{ if(day&&day[oldName]!==undefined){ day[newName]=day[oldName]; delete day[oldName]; } }));
+      if(studentNotesData[oldName]!==undefined){ studentNotesData[newName]=studentNotesData[oldName]; delete studentNotesData[oldName]; }
+      if(understandingData[oldName]!==undefined){ understandingData[newName]=understandingData[oldName]; delete understandingData[oldName]; }
+      if(unitLocks[oldName]!==undefined){ unitLocks[newName]=unitLocks[oldName]; delete unitLocks[oldName]; }
+      const followupPrefix=`${oldName}_`; Object.keys(followupData||{}).forEach(key=>{ if(key.startsWith(followupPrefix)){ followupData[`${newName}_${key.slice(followupPrefix.length)}`]=followupData[key]; delete followupData[key]; } });
+      classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings); CLASS_SCHEDULE_DAYS.forEach(day=>{ classScheduleSettings.assignments[day.key]=classScheduleSettings.assignments[day.key].map(value=>value===oldName?newName:value); });
+      return true;
+    }
+    function normalizeCurrentGradeClassNames(){
+      Object.keys(appData||{}).forEach(oldName=>{ const fullName=gradeClassName(activeGradeName,oldName); if(fullName!==oldName) renameClassInActiveWorkspace(oldName,fullName); });
+    }
+    function hydrateGradeWorkspaces(state){
+      const source=state&&state.gradeWorkspaces&&typeof state.gradeWorkspaces==='object'?state.gradeWorkspaces:null;
+      if(source&&Object.keys(source).length){
+        gradeWorkspaces={}; Object.keys(source).forEach(grade=>{ if(isValidGradeName(grade)) gradeWorkspaces[grade.trim()]=normalizeGradeWorkspace(source[grade]); });
+        activeGradeName=isValidGradeName(state.activeGradeName)&&gradeWorkspaces[state.activeGradeName.trim()]?state.activeGradeName.trim():Object.keys(gradeWorkspaces)[0]||'ثالث';
+        if(!gradeWorkspaces[activeGradeName]) gradeWorkspaces[activeGradeName]=createEmptyGradeWorkspace();
+        applyGradeWorkspace(gradeWorkspaces[activeGradeName]);
+      }else{
+        activeGradeName='ثالث'; gradeWorkspaces={}; normalizeCurrentGradeClassNames(); syncActiveGradeWorkspace(); gradeWorkspacesMigrated=true;
+      }
+    }
     let penaltiesData = JSON.parse(JSON.stringify(defaultPenalties));
     let period1SelectedUnits = [];
     let selectedPeriodName = 'الأولى';
@@ -2313,13 +2398,14 @@ ${description}`)) return;
     function normalizeStartupSettings(value){ return {enabled:!(value&&value.enabled===false)}; }
     function persistStartupPreference(){ try{ localStorage.setItem('school_followup_startup_enabled',startupSettings.enabled?'1':'0'); }catch(_){} }
     function buildPersistentState(){
+      syncActiveGradeWorkspace();
       return {
-        schemaVersion:1,
+        schemaVersion:2,
         appData:cloneData(appData), records:cloneData(records), permissionRecords:cloneData(permissionRecords), unitsData:cloneData(unitsData), unitLocks:cloneData(unitLocks), followupData:cloneData(followupData), understandingData:cloneData(understandingData), studentNotesData:cloneData(studentNotesData),
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), excellenceSettings:cloneData(excellenceSettings), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
         fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), startupSettings:cloneData(startupSettings), classScheduleSettings:cloneData(classScheduleSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
-        weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), noteEntryWindow:cloneData(noteEntryWindow), savedAt:new Date().toISOString()
+        weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), noteEntryWindow:cloneData(noteEntryWindow), gradeWorkspaces:cloneData(gradeWorkspaces), activeGradeName, savedAt:new Date().toISOString()
       };
     }
     async function writeIndexedDBSnapshot(snapshot){
@@ -2378,11 +2464,12 @@ ${description}`)) return;
       weakStudentsThresholds=normalizeWeakStudentsThresholds(state.weakStudentsThresholds);
       gradeRoundingSettings=normalizeGradeRoundingSettings(state.gradeRoundingSettings);
       noteEntryWindow=normalizeNoteEntryWindow(state.noteEntryWindow);
+      hydrateGradeWorkspaces(state);
     }
     async function initializeIndexedDBStorage(){
       const state=await getIndexedDBState();
       indexedDBReady=true;
-      if(state) { applyPersistentState(state); if(buttonColorsMigrated) await saveIndexedDBState(); }
+      if(state) { applyPersistentState(state); if(buttonColorsMigrated||gradeWorkspacesMigrated) await saveIndexedDBState(); }
       else await saveIndexedDBState();
     }
 
@@ -2822,6 +2909,7 @@ ${description}`)) return;
     }
 
     function initClassSelects() {
+      initGradeSelects();
       const selectIds=['classSelect','modalClassSelect','followupClassSelect','studentNumbersClassSelect','understandingClassSelect','permissionClassSelect'];
       const selects=selectIds.map(id=>[id,document.getElementById(id)]).filter(([,select])=>select);
       const vals=Object.fromEntries(selects.map(([id,select])=>[id,select.value]));
@@ -2838,6 +2926,42 @@ ${description}`)) return;
       restoreClassSelect('permissionClassSelect',vals.permissionClassSelect);
       if(studentNumbersSelect&&(vals.studentNumbersClassSelect==='__no_numbers__'||keys.includes(vals.studentNumbersClassSelect))) studentNumbersSelect.value=vals.studentNumbersClassSelect;
       renderAttendanceUnitsDropdown();
+    }
+    function initGradeSelects(){
+      if(!isValidGradeName(activeGradeName)) activeGradeName='ثالث';
+      if(!gradeWorkspaces[activeGradeName]) gradeWorkspaces[activeGradeName]=captureActiveGradeWorkspace();
+      const gradeNames=Object.keys(gradeWorkspaces), selectIds=['gradeSelect','understandingGradeSelect','followupGradeSelect','manageGradeSelect'];
+      selectIds.forEach(id=>{ const select=document.getElementById(id); if(!select) return; select.innerHTML=gradeNames.map(grade=>`<option value="${escapeTextForHtml(grade)}">${escapeTextForHtml(grade)}</option>`).join(''); select.value=activeGradeName; });
+      const nameInput=document.getElementById('activeGradeNameInput'); if(nameInput) nameInput.value=activeGradeName;
+    }
+    function setClassSelectsForActiveGrade(){
+      const classNames=Object.keys(appData||{}), selected=classNames[0]||'';
+      ['classSelect','modalClassSelect','followupClassSelect','understandingClassSelect','permissionClassSelect'].forEach(id=>{ const select=document.getElementById(id); if(select&&classNames.includes(selected)) select.value=selected; });
+      return selected;
+    }
+    function refreshAfterGradeChange(){
+      openAttendanceStudentStats=''; showAttendanceStudentNotes=false; openAttendanceStudentSummary=''; currentStudentForViolation='';
+      initClassSelects(); setClassSelectsForActiveGrade(); renderAttendanceUnitsDropdown(); refreshUnderstandingUnitSelect(); renderUnitsDropdown(); renderStudents(); renderUnderstandingScreen(); renderFollowupTable(currentActiveUnit); refreshUnitLockIndicators();
+    }
+    function switchActiveGrade(grade){
+      const target=String(grade||'').trim(); if(!gradeWorkspaces[target]||target===activeGradeName){ initGradeSelects(); return; }
+      syncActiveGradeWorkspace(); activeGradeName=target; applyGradeWorkspace(gradeWorkspaces[target]); refreshAfterGradeChange(); saveData();
+    }
+    function onGradeSelectionChange(grade){ switchActiveGrade(grade); }
+    function saveNewGrade(){
+      const input=document.getElementById('newGradeInput'), name=String(input?.value||'').trim();
+      if(!name){ alert('اكتب اسم الصف أولاً.'); return; }
+      if(gradeWorkspaces[name]){ alert('هذا الصف موجود بالفعل.'); return; }
+      syncActiveGradeWorkspace(); gradeWorkspaces[name]=createEmptyGradeWorkspace(); activeGradeName=name; applyGradeWorkspace(gradeWorkspaces[name]); if(input) input.value=''; refreshAfterGradeChange(); saveData();
+    }
+    function saveActiveGradeName(){
+      const input=document.getElementById('activeGradeNameInput'), next=String(input?.value||'').trim(), previous=activeGradeName;
+      if(!next){ alert('اسم الصف لا يمكن أن يكون فارغاً.'); return; }
+      if(next===previous){ initGradeSelects(); return; }
+      if(gradeWorkspaces[next]){ alert('يوجد صف بالاسم نفسه.'); return; }
+      const workspace=captureActiveGradeWorkspace(), previousPrefix=`${previous} `;
+      Object.keys(appData||{}).forEach(oldClass=>{ const section=oldClass.startsWith(previousPrefix)?oldClass.slice(previousPrefix.length):oldClass; const nextClass=gradeClassName(next,section); if(nextClass!==oldClass) renameClassInActiveWorkspace(oldClass,nextClass); });
+      delete gradeWorkspaces[previous]; activeGradeName=next; gradeWorkspaces[next]=captureActiveGradeWorkspace(); refreshAfterGradeChange(); saveData();
     }
 
     let openAttendanceStudentStats='', showAttendanceStudentNotes=false, lastAttendanceNameTap={student:'',at:0};
@@ -4812,7 +4936,7 @@ ${description}`)) return;
     function loadClassTextarea(){ const cls=document.getElementById('modalClassSelect').value; document.getElementById('studentNamesTextarea').value=(cls&&appData[cls])?appData[cls].join('\n'):''; }
     function saveStudentsFromTextarea(){ const cls=document.getElementById('modalClassSelect').value; if(!cls) return; const names=document.getElementById('studentNamesTextarea').value.split('\n').map(n=>n.trim()).filter(n=>n!==''); appData[cls]=names; saveData(); document.getElementById('classSelect').value=cls; renderStudents(); if(document.getElementById('editStudentNameModal').style.display==='flex') renderEditStudentList(); closeManageModal(); }
     function toggleAddClassBox(){ const box=document.getElementById('inlineAddBox'); box.style.display=box.style.display==='flex'?'none':'flex'; if(box.style.display==='flex') document.getElementById('newClassInput').focus(); }
-    function saveNewClass(){ const inp=document.getElementById('newClassInput'), newName=inp.value.trim(); if(!newName) return; if(appData[newName]){ alert("هذا الفصل موجود بالفعل!"); return; } appData[newName]=[]; saveData(); initClassSelects(); document.getElementById('modalClassSelect').value=newName; document.getElementById('classSelect').value=newName; inp.value=''; document.getElementById('inlineAddBox').style.display='none'; loadClassTextarea(); renderStudents(); }
+    function saveNewClass(){ const inp=document.getElementById('newClassInput'), sectionName=inp.value.trim(), newName=gradeClassName(activeGradeName,sectionName); if(!newName) return; if(appData[newName]){ alert("هذا الفصل موجود بالفعل!"); return; } appData[newName]=[]; saveData(); initClassSelects(); document.getElementById('modalClassSelect').value=newName; document.getElementById('classSelect').value=newName; inp.value=''; document.getElementById('inlineAddBox').style.display='none'; loadClassTextarea(); renderStudents(); }
     function promptDeleteClass(){ const cls=document.getElementById('modalClassSelect').value; if(!cls) return; itemToDelete=cls; deleteTargetType='class'; document.getElementById('confirmDeleteText').innerText=`هل أنت تأكد من حذف "${cls}" بالكامل وبشكل نهائي؟`; document.getElementById('confirmDeleteModal').style.display='flex'; }
     function promptDeleteUnit(){ const unit=document.getElementById('modalUnitSelect').value; if(Object.keys(unitsData).length<=1){ alert("يجب أن تبقى وحدة واحدة على الأقل!"); return; } if(!unit) return; itemToDelete=unit; deleteTargetType='unit'; document.getElementById('confirmDeleteText').innerText=`هل أنت متأكد من حذف "${unit}"؟`; document.getElementById('confirmDeleteModal').style.display='flex'; }
     function closeConfirmModal(){ document.getElementById('confirmDeleteModal').style.display='none'; itemToDelete=''; deleteTargetType=''; }
@@ -6559,7 +6683,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:5,storageBackend:'IndexedDB',appData,records,permissionRecords,unitsData,unitLocks,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,classScheduleSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ syncActiveGradeWorkspace(); const data={backupVersion:6,storageBackend:'IndexedDB',appData,records,permissionRecords,unitsData,unitLocks,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,classScheduleSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds,gradeWorkspaces,activeGradeName}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
@@ -6582,6 +6706,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
         if(imported.pdfSizeSettings) pdfSizeSettings=imported.pdfSizeSettings;
         if(imported.permissionRecords&&typeof imported.permissionRecords==='object') permissionRecords=imported.permissionRecords;
         if(imported.weakStudentsThresholds) weakStudentsThresholds=normalizeWeakStudentsThresholds(imported.weakStudentsThresholds);
+        hydrateGradeWorkspaces(imported);
         if(!(await saveData())) throw new Error('تعذر حفظ النسخة الاحتياطية المستوردة.'); initClassSelects(); renderStudents(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); applyFontSettings(); applyButtonColors(); alert("✅ تم استعادة النسخة الاحتياطية بنجاح!");
       } catch(err){ console.error(err); alert("❌ ملف النسخة الاحتياطي غير صالح!"); } }; reader.readAsText(file);
     }
