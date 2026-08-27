@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.61";</script>
+  <script>const APP_VERSION = "21.62";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1465,6 +1465,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <input id="newGradeInput" type="text" placeholder="إضافة صف جديد، مثل: أولى" style="min-width:0;flex:1;">
           <button type="button" class="btn-add-cls-btn" style="width:auto;padding-inline:.72rem;" onclick="saveNewGrade()">➕ صف</button>
         </div>
+        <button type="button" class="btn-del-cls-btn" style="width:100%;margin-top:.42rem;" onclick="confirmDeleteActiveGrade()">🗑️ حذف الصف الحالي</button>
       </div>
       <span class="field-label">اختر الفصل للتعديل:</span>
       <select id="modalClassSelect" class="select-class-full" onchange="loadClassTextarea()"></select>
@@ -2971,6 +2972,17 @@ ${description}`)) return;
       const workspace=captureActiveGradeWorkspace(), previousPrefix=`${previous} `;
       Object.keys(appData||{}).forEach(oldClass=>{ const section=oldClass.startsWith(previousPrefix)?oldClass.slice(previousPrefix.length):oldClass; const nextClass=gradeClassName(next,section); if(nextClass!==oldClass) renameClassInActiveWorkspace(oldClass,nextClass); });
       delete gradeWorkspaces[previous]; activeGradeName=next; gradeWorkspaces[next]=captureActiveGradeWorkspace(); refreshAfterGradeChange(); saveData();
+    }
+    function confirmDeleteActiveGrade(){
+      const grade=activeGradeName, gradeNames=Object.keys(gradeWorkspaces||{});
+      if(gradeNames.length<=1){ alert('لا يمكن حذف الصف الوحيد. أضف صفاً آخر أولاً.'); return; }
+      const classes=Object.keys(appData||{}), detail=classes.length?`\nالفصول التي ستُحذف: ${classes.join('، ')}`:'\nلا توجد فصول داخل هذا الصف.';
+      if(!confirm(`سيُحذف الصف «${grade}» مع وحداته ودروسه وطلابه ودرجاته وسجلاته نهائياً.${detail}\n\nهل تريد المتابعة؟`)) return;
+      syncActiveGradeWorkspace();
+      classScheduleSettings=normalizeClassScheduleSettings(classScheduleSettings);
+      CLASS_SCHEDULE_DAYS.forEach(day=>{ classScheduleSettings.assignments[day.key]=classScheduleSettings.assignments[day.key].map(cls=>classes.includes(cls)?'':cls); });
+      delete gradeWorkspaces[grade]; activeGradeName=Object.keys(gradeWorkspaces)[0]; applyGradeWorkspace(gradeWorkspaces[activeGradeName]); refreshAfterGradeChange(); saveData();
+      alert(`تم حذف الصف «${grade}» بنجاح.`);
     }
 
     let openAttendanceStudentStats='', showAttendanceStudentNotes=false, lastAttendanceNameTap={student:'',at:0};
