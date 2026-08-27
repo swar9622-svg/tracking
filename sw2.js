@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-55-safari-longpress-swipe';
+const CACHE_NAME = 'attendance-app-v21-56-guardian-exit-final';
 const urlsToCache = [
   './',
   './index.html',
