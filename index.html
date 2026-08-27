@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.71";</script>
+  <script>const APP_VERSION = "21.72";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -111,16 +111,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .student-inline-permission-actions .inline-permission{background:#E6F3FF;color:#1265A8;border-color:#ADD6F5;}.student-inline-permission-actions .inline-return{background:#E5F8EC;color:#197646;border-color:#A8DDBA;}.student-inline-permission-actions .inline-guardian{background:#FFF0F0;color:#B42318;border-color:#F2B8B5;}.student-inline-permission-actions .inline-edit{background:#F0E9FF;color:#7040AE;border-color:#CDB9ED;}.student-inline-permission-actions button:disabled{background:#EEF1F4;color:#98A2B3;border-color:#D8DEE5;cursor:not-allowed;}
     .student-permission-blocked-note{margin:-0.08rem 0 0.34rem;text-align:center;color:#9C5B00;font-size:0.58rem;font-weight:800;line-height:1.25;}
     /* مسار استئذان بالسحب: يكشف الزر من اليمين كما في بطاقات iPhone. */
-    #absenceScreen .attendance-swipe-shell{order:1;position:relative;flex:1 0 100%;min-width:0;overflow:hidden;border-radius:0.64rem;touch-action:pan-y;isolation:isolate;background:transparent;}
-    #absenceScreen .attendance-swipe-track{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;min-height:2.25rem;background:var(--card-bg);border:0;box-shadow:none;transform:translateX(0);will-change:transform;transition:transform .24s cubic-bezier(.23,1,.32,1);}
-    #absenceScreen .attendance-swipe-track .student-name{background:transparent!important;border:0!important;box-shadow:none!important;}
-    #absenceScreen .attendance-swipe-actions{position:absolute;top:50%;right:0;z-index:1;display:flex;align-items:center;justify-content:flex-end;gap:0.14rem;width:8.25rem;height:2.12rem;transform:translateY(-50%);background:transparent;color:#FFF;}
-    #absenceScreen .attendance-swipe-action{width:2.65rem;height:2.12rem;min-height:2.12rem;border:1px solid transparent;border-radius:0.56rem;background:#E6F3FF;color:#1265A8;font:inherit;font-size:0.57rem;font-weight:900;line-height:1.04;cursor:pointer;padding:0.16rem 0.06rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.08rem;box-shadow:0 1px 2px rgba(0,0,0,.08);-webkit-tap-highlight-color:transparent;}
-    #absenceScreen .attendance-swipe-action .swipe-action-icon{font-size:0.78rem;line-height:1;}
-    #absenceScreen .attendance-swipe-action.return-action{background:#E5F8EC;color:#197646;border-color:#A8DDBA;}.attendance-swipe-action.guardian-action{background:#FFF1DF;color:#B45D08;border-color:#F4CC98;}.attendance-swipe-action.edit-action{background:#F0E9FF;color:#7040AE;border-color:#CDB9ED;}.attendance-swipe-action.is-disabled{background:#EEF1F4;color:#9AA5AF;border-color:#D7DDE2;cursor:not-allowed;}
-    #absenceScreen .attendance-swipe-shell.is-swipe-open .attendance-swipe-track{transform:translateX(-8.25rem);}
-    #absenceScreen .attendance-swipe-shell.is-swipe-open .attendance-swipe-track .student-name{margin-right:0.72rem;padding-left:0.18rem;text-align:left;}
-    #absenceScreen .attendance-swipe-action:active{filter:brightness(.92);transform:scale(.98);}
+    #absenceScreen .student-name{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
     #absenceScreen .student-permission-count-badge{position:absolute;top:-0.34rem;right:-0.30rem;z-index:5;display:flex;align-items:center;justify-content:center;min-width:1.50rem;height:1.16rem;padding:0 0.28rem;border:2px solid #FFF;border-radius:999px;background:#167C88;color:#FFF;box-shadow:0 2px 7px rgba(22,124,136,.30);font-size:0.58rem;font-weight:900;line-height:1;direction:ltr;pointer-events:none;}
     #absenceScreen .attendance-permission-live{display:block;margin-top:0.13rem;color:#0E7280;font-size:0.59rem;font-weight:900;line-height:1.15;}
     .attendance-summary-bubble .permission{background:#E8F8F5;color:#16704B;}
@@ -3164,37 +3155,8 @@ ${description}`)) return;
       const stats=getStudentAttendanceStats(cls,student,'__all__'), permissionCount=getStudentPermissionCount(cls,student);
       return `<span class="attendance-summary-bubble" role="status"><span class="absent">غياب<b>${stats.absent}</b></span><span class="late">متأخر<b>${stats.late}</b></span><span class="violations">مخالفات<b>${stats.violations}</b></span><span class="permission">استئذان<b>${permissionCount}</b></span></span>`;
     }
-    let attendanceSwipePointerStates=new Map();
-    function closeAttendancePermissionSwipes(except=null){ document.querySelectorAll('#studentList .attendance-swipe-shell.is-swipe-open').forEach(shell=>{ if(shell!==except) shell.classList.remove('is-swipe-open'); }); }
-    function startAttendancePermissionSwipe(event){
-      const shell=event.currentTarget;
-      if(shell.dataset.swipeEnabled!=='true'||event.target.closest('.attendance-swipe-action')) return;
-      if(event.pointerType==='mouse'&&event.button!==0) return;
-      const startedOnName=!!event.target.closest('.student-name');
-      attendanceSwipePointerStates.set(event.pointerId,{shell,startX:event.clientX,startY:event.clientY,open:shell.classList.contains('is-swipe-open'),swiping:false,startedOnName,offset:shell.classList.contains('is-swipe-open')?-132:0});
-    }
-    function moveAttendancePermissionSwipe(event){
-      const state=attendanceSwipePointerStates.get(event.pointerId); if(!state) return;
-      const dx=event.clientX-state.startX, dy=event.clientY-state.startY;
-      if(!state.swiping){ const threshold=state.startedOnName?32:7; if(Math.abs(dx)<threshold&&Math.abs(dy)<threshold) return; if(Math.abs(dx)<=Math.abs(dy)){ attendanceSwipePointerStates.delete(event.pointerId); return; } if(state.startedOnName) cancelAttendanceStudentNamePress(); state.swiping=true; state.shell.querySelector('.attendance-swipe-track').style.transition='none'; closeAttendancePermissionSwipes(state.shell); }
-      event.preventDefault();
-      state.offset=Math.max(-132,Math.min(0,(state.open?-132:0)+dx));
-      state.shell.querySelector('.attendance-swipe-track').style.transform=`translateX(${state.offset}px)`;
-    }
-    function endAttendancePermissionSwipe(event){
-      const state=attendanceSwipePointerStates.get(event.pointerId); if(!state) return;
-      attendanceSwipePointerStates.delete(event.pointerId);
-      if(!state.swiping) return;
-      event.preventDefault();
-      const shouldOpen=state.offset<-55;
-      state.shell.querySelector('.attendance-swipe-track').style.transition=''; state.shell.querySelector('.attendance-swipe-track').style.transform='';
-      state.shell.classList.toggle('is-swipe-open',shouldOpen);
-      if(shouldOpen) closeAttendancePermissionSwipes(state.shell);
-    }
-    function cancelAttendancePermissionSwipe(event){ const state=attendanceSwipePointerStates.get(event.pointerId); if(!state) return; attendanceSwipePointerStates.delete(event.pointerId); state.shell.querySelector('.attendance-swipe-track').style.transition=''; state.shell.querySelector('.attendance-swipe-track').style.transform=''; state.shell.classList.toggle('is-swipe-open',state.open); }
     function openInlinePermissionAction(encodedClass,encodedStudent,encodedDate){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), record=getOpenPermissionRecord(date,cls,student);
-      closeAttendancePermissionSwipes();
       if(!cls||!student||!date) return;
       if(isAttendancePermissionBlocked(date,cls,student)){ alert('الطالب غائب أو بعذر؛ لا يمكن تسجيل استئذان أو خروج له.'); return; }
       if(record?.outTime){ openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,'return',encodeURIComponent(record.id||'')); return; }
@@ -3204,7 +3166,6 @@ ${description}`)) return;
     }
     function saveInlineGuardianExit(encodedClass,encodedStudent,encodedDate){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||'');
-      closeAttendancePermissionSwipes();
       if(!cls||!student||!date) return;
       if(isAttendancePermissionBlocked(date,cls,student)){ alert('الطالب غائب أو بعذر؛ لا يمكن تسجيل استئذان أو خروج له.'); return; }
       if(getOpenPermissionRecord(date,cls,student)){ alert('سجّل عودة الاستئذان أولاً قبل تسجيل خروج الطالب مع ولي الأمر.'); return; }
@@ -3218,7 +3179,6 @@ ${description}`)) return;
     }
     function openInlinePermissionEditModal(encodedClass,encodedStudent){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||'');
-      closeAttendancePermissionSwipes();
       if(!cls||!student){ return; }
       const records=Object.keys(permissionRecords||{}).flatMap(date=>getPermissionRecords(date,cls,student).map(record=>({date,record}))).sort((a,b)=>`${b.date}|${b.record.outTime}`.localeCompare(`${a.date}|${a.record.outTime}`));
       document.getElementById('permissionEditStudentLabel').textContent=`${student} — جميع التواريخ`;
@@ -3310,11 +3270,6 @@ ${description}`)) return;
       attendanceNameLongPressOpened=false;
       attendanceNameLongPressTimer=setTimeout(()=>{ attendanceNameLongPressTimer=null; attendanceNameLongPressOpened=true; openAttendanceStudentSummary=attendanceNameLongPressStudent; renderStudents(); },440);
     }
-    function safariTouchPoint(event){ const touch=event.changedTouches?.[0]||event.touches?.[0]||{}; return {pointerType:'touch',pointerId:touch.identifier??0,clientX:touch.clientX??0,clientY:touch.clientY??0,cancelable:event.cancelable,preventDefault:()=>event.preventDefault(),stopPropagation:()=>event.stopPropagation(),type:event.type}; }
-    function startAttendanceStudentNameTouch(event,student){ startAttendanceStudentNamePress(safariTouchPoint(event),student); }
-    function moveAttendanceStudentNameTouch(event){ moveAttendanceStudentNamePress(safariTouchPoint(event)); }
-    function cancelAttendanceStudentNameTouch(){ cancelAttendanceStudentNamePress(); }
-    function endAttendanceStudentNameTouch(event,student){ endAttendanceStudentNamePress(safariTouchPoint(event),student); }
     function moveAttendanceStudentNamePress(event){
       if(!attendanceNameLongPressTimer||!attendanceNameLongPressPoint) return;
       const tolerance=attendanceNameLongPressPoint.inputType==='touch'?28:12;
@@ -3323,14 +3278,9 @@ ${description}`)) return;
     function endAttendanceStudentNamePress(event,student){
       const opened=attendanceNameLongPressOpened;
       cancelAttendanceStudentNamePress();
-      if(opened){ attendanceSwipePointerStates.delete(event.pointerId); event.preventDefault(); event.stopPropagation(); return; }
+      if(opened){ event.preventDefault(); event.stopPropagation(); return; }
       if(event.pointerType==='touch') handleAttendanceStudentNameTap(event,student);
     }
-    function getAttendanceStudentNameFromTouch(event){ const target=event.target, element=target&&typeof target.closest==='function'?target.closest('#studentList .student-name'):null; if(!element||event.touches?.length>1) return ''; return [...element.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE).map(node=>String(node.textContent||'').trim()).filter(Boolean).join(' ').trim(); }
-    document.addEventListener('touchstart',event=>{ const student=getAttendanceStudentNameFromTouch(event); if(!student) return; event.stopPropagation(); startAttendanceStudentNamePress(safariTouchPoint(event),student); },{capture:true,passive:false});
-    document.addEventListener('touchmove',event=>{ if(!attendanceNameLongPressTimer&&!attendanceNameLongPressOpened) return; event.stopPropagation(); moveAttendanceStudentNamePress(safariTouchPoint(event)); },{capture:true,passive:false});
-    document.addEventListener('touchend',event=>{ if(!attendanceNameLongPressTimer&&!attendanceNameLongPressOpened) return; event.stopPropagation(); endAttendanceStudentNamePress(safariTouchPoint(event),attendanceNameLongPressStudent); },{capture:true,passive:false});
-    document.addEventListener('touchcancel',()=>cancelAttendanceStudentNamePress(),{capture:true,passive:true});
     document.addEventListener('pointerdown',()=>hideAttendanceStudentSummaryBubble(),true);
     document.addEventListener('click',event=>{
       if(!openAttendanceStudentStats||event.target.closest('.student-card')) return;
@@ -3355,7 +3305,7 @@ ${description}`)) return;
         const nameColor=dup.includes(s)?'color:#FF3B30;':'';
         const safeStudent=CSS.escape(s);
         const summaryBubble=openAttendanceStudentSummary===s?getAttendanceStudentSummaryBubble(cls,s):'';
-        card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات والاستئذان" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="if(event.pointerType!=='touch')startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="if(event.pointerType!=='touch')moveAttendanceStudentNamePress(event)" onpointercancel="if(event.pointerType!=='touch')cancelAttendanceStudentNamePress()" onpointerup="if(event.pointerType!=='touch')endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}${guardianExitRecord?`<span class="attendance-permission-live">👤 خرج مع ولي الأمر ${escapeTextForHtml(guardianExitRecord.outTime)}</span>`:permissionActive?`<span class="attendance-permission-live">🕒 خارج منذ ${escapeTextForHtml(permissionRecord.outTime)}</span>`:''}</div><div class="attendance-buttons"><button class="btn-status ${(status==='غائب'||status==='بعذر')?'active-absent':''}" onclick="setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غائب'}</button><button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button><button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button></div>${getAttendanceStudentStatsMarkup(cls,s)}`;
+        card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات والاستئذان" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}${guardianExitRecord?`<span class="attendance-permission-live">👤 خرج مع ولي الأمر ${escapeTextForHtml(guardianExitRecord.outTime)}</span>`:permissionActive?`<span class="attendance-permission-live">🕒 خارج منذ ${escapeTextForHtml(permissionRecord.outTime)}</span>`:''}</div><div class="attendance-buttons"><button class="btn-status ${(status==='غائب'||status==='بعذر')?'active-absent':''}" onclick="setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غائب'}</button><button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button><button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button></div>${getAttendanceStudentStatsMarkup(cls,s)}`;
         cont.appendChild(card);
       });
       document.getElementById('absentCount').innerText=absent;
