@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.51";</script>
+  <script>const APP_VERSION = "21.52";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -550,8 +550,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .screen-navigation-btn.nav-absence.is-active{background:#34C759;}
     .screen-navigation-btn.nav-understanding.is-active{background:#007AFF;}
     .screen-navigation-btn.nav-followup.is-active{background:#5856D6;}
+    .screen-navigation-btn.nav-permission.is-active{background:#1B9AAA;}
     .screen-version-label{padding:0.08rem 0.75rem 0.35rem;text-align:center;color:#AEAEB2;font-size:0.53rem;font-weight:700;letter-spacing:.02em;line-height:1;}
     .followup-understanding-column{background:#FEF9E7 !important;color:#7D6608 !important;}
+    #permissionScreen{padding-bottom:1.2rem;}.permission-controls{gap:0.42rem;margin-bottom:0.45rem;}.permission-controls select,.permission-controls input{flex:1;min-width:0;padding:0.42rem 0.28rem;font-size:0.80rem;font-weight:900;border:1px solid #A8D9DD;border-radius:0.62rem;background:#EDF9FA;color:#11616B;font-family:inherit;}.permission-stats{grid-template-columns:repeat(3,minmax(0,1fr));}.permission-stats .stat-card{min-height:3.9rem;}.permission-stats .stat-number{color:#117A85;}.permission-stats .stat-label{color:#276D75;}.permission-stats .student-report .stat-label{color:#0B5394;}.permission-card{border-color:#CFE8EA;background:linear-gradient(135deg,#FFFFFF,#F8FEFE);}.permission-card.is-active{border-right:4px solid #1B9AAA;background:#EAF9FA;}.permission-card.is-returned{border-right:4px solid #55B984;background:#F5FCF8;}.permission-card-main{display:flex;align-items:center;justify-content:space-between;gap:0.55rem;min-width:0;}.permission-student-name{font-size:0.90rem;font-weight:900;color:#17434A;overflow-wrap:anywhere;}.permission-status{flex:0 0 auto;border-radius:999px;padding:0.22rem 0.48rem;font-size:0.63rem;font-weight:900;white-space:nowrap;background:#E8F8F5;color:#16704B;border:1px solid #A9DFBF;}.permission-card.is-active .permission-status{background:#E1F5F6;color:#0C6D78;border-color:#8ED4D9;}.permission-card-meta{margin-top:0.30rem;font-size:0.67rem;font-weight:800;color:#667085;line-height:1.5;}.permission-actions{display:flex;gap:0.4rem;margin-top:0.48rem;}.permission-actions button{flex:1;border:0;border-radius:0.56rem;min-height:2.28rem;padding:0.36rem 0.5rem;font:inherit;font-size:0.72rem;font-weight:900;cursor:pointer;}.permission-actions .permission-entry{background:#1B9AAA;color:#FFFFFF;}.permission-actions .permission-return{background:#34A66C;color:#FFFFFF;}.permission-actions .permission-edit{background:#EAF3FF;color:#1759A6;border:1px solid #BBD7F3;}.permission-report-summary{margin:0.25rem 0 0.65rem;padding:0.52rem 0.6rem;border-radius:0.60rem;background:#EDF9FA;border:1px solid #CFE8EA;color:#176671;text-align:center;font-size:0.73rem;font-weight:900;}.permission-report-table{width:100%;border-collapse:collapse;font-size:0.72rem;}.permission-report-table th,.permission-report-table td{border:1px solid #DDE7E8;padding:0.42rem 0.3rem;text-align:center;vertical-align:top;}.permission-report-table th{background:#EDF9FA;color:#176671;font-weight:900;}.permission-report-table td:nth-child(4){text-align:right;white-space:normal;word-break:break-word;}.permission-report-active{color:#A96800;font-weight:900;background:#FFF7E6;}
     @media(max-width:360px){.understanding-controls select{font-size:0.62rem;}.understanding-buttons{flex-basis:132px;}.understanding-buttons .btn-status{font-size:0.53rem;}.screen-navigation{gap:0.24rem;padding-inline:0.5rem;}.screen-navigation-btn{height:2.42rem;flex-basis:3rem;min-width:3rem;font-size:0.66rem;}.screen-navigation-btn .screen-nav-short{font-size:0.69rem;}.screen-navigation-btn .screen-nav-short small{font:inherit;}.screen-navigation-btn .screen-nav-full{font-size:0.9rem;}}
     /* شاشة افتتاح مستقلة: لا يظهر التطبيق خلفها قبل اكتمالها. */
     body.startup-active{overflow:hidden!important;}
@@ -573,6 +575,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="screen-navigation-btn nav-absence is-active" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short"><small>غياب</small></span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
         <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short"><small>تحقق</small></span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
         <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
+        <button class="screen-navigation-btn nav-permission" type="button" data-screen-nav="permission" onclick="switchToPermissionScreen()"><span class="screen-nav-short"><small>استئذان</small></span><span class="screen-nav-full">كشف الاستئذان</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar">
@@ -608,6 +611,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short"><small>غياب</small></span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
         <button class="screen-navigation-btn nav-understanding is-active" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short"><small>تحقق</small></span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
         <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
+        <button class="screen-navigation-btn nav-permission" type="button" data-screen-nav="permission" onclick="switchToPermissionScreen()"><span class="screen-nav-short"><small>استئذان</small></span><span class="screen-nav-full">كشف الاستئذان</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="controls-bar understanding-controls">
@@ -672,6 +676,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short"><small>غياب</small></span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
         <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short"><small>تحقق</small></span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
         <button class="screen-navigation-btn nav-followup is-active" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
+        <button class="screen-navigation-btn nav-permission" type="button" data-screen-nav="permission" onclick="switchToPermissionScreen()"><span class="screen-nav-short"><small>استئذان</small></span><span class="screen-nav-full">كشف الاستئذان</span></button>
       </div>
       <div class="screen-version-label"><span class="app-version-label"></span></div>
       <div class="units-wrapper followup-controls">
@@ -697,7 +702,52 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </div>
   </div>
 
+  <!-- ===== الشاشة الرابعة: كشف الاستئذان التجريبي ===== -->
+  <div id="permissionScreen" class="screen">
+    <header>
+      <div class="screen-navigation" aria-label="التنقل بين الكشوف">
+        <button class="screen-navigation-btn nav-absence" type="button" data-screen-nav="absence" onclick="switchToAbsenceScreen()"><span class="screen-nav-short"><small>غياب</small></span><span class="screen-nav-full">كشف الغياب والمخالفات</span></button>
+        <button class="screen-navigation-btn nav-understanding" type="button" data-screen-nav="understanding" onclick="switchToUnderstandingScreen()"><span class="screen-nav-short"><small>تحقق</small></span><span class="screen-nav-full">كشف تحقق من فهمك</span></button>
+        <button class="screen-navigation-btn nav-followup" type="button" data-screen-nav="followup" onclick="switchToFollowupScreen()"><span class="screen-nav-short"><small>متابعة</small></span><span class="screen-nav-full">كشف المتابعة والدرجات</span></button>
+        <button class="screen-navigation-btn nav-permission is-active" type="button" data-screen-nav="permission" onclick="switchToPermissionScreen()"><span class="screen-nav-short"><small>استئذان</small></span><span class="screen-nav-full">كشف الاستئذان</span></button>
+      </div>
+      <div class="screen-version-label"><span class="app-version-label"></span></div>
+      <div class="controls-bar permission-controls">
+        <select id="permissionClassSelect" onchange="onPermissionClassChange(this.value)" title="الفصل"></select>
+        <input type="date" id="permissionDateSelect" onchange="renderPermissionStudents()" title="تاريخ الاستئذان">
+      </div>
+      <div class="stats-container permission-stats">
+        <div class="stat-card"><div class="stat-number" id="permissionTodayCount">0</div><div class="stat-label">استئذانات اليوم</div></div>
+        <div class="stat-card"><div class="stat-number" id="permissionActiveCount">0</div><div class="stat-label">خارج الفصل الآن</div></div>
+        <div class="stat-card student-report clickable" onclick="openPermissionReportModal()" style="background:#EAF3FF;border-color:#BBD7F3;"><div class="stat-number">👤</div><div class="stat-label">تقرير طالب</div></div>
+      </div>
+    </header>
+    <div class="attendance-search-wrap"><input id="permissionStudentSearch" class="attendance-search-input" type="search" autocomplete="off" placeholder="ابحث باسم الطالب" aria-label="ابحث باسم الطالب" oninput="renderPermissionStudents()"></div>
+    <main class="student-list" id="permissionStudentList"></main>
+  </div>
+
   <!-- ===== باقي النوافذ المنبثقة ===== -->
+
+  <div class="modal" id="permissionEntryModal" style="z-index:170;">
+    <div class="modal-content" style="max-width:430px;width:94%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><div class="modal-title" id="permissionEntryTitle" style="margin:0;color:#176671;">🕒 تسجيل استئذان</div><button class="btn-close-circle" onclick="closePermissionEntryModal()">✕</button></div>
+      <div id="permissionEntryStudentLabel" style="text-align:center;padding:0.54rem;background:#EDF9FA;border:1px solid #CFE8EA;border-radius:0.62rem;color:#176671;font-size:0.82rem;font-weight:900;margin-bottom:0.58rem;"></div>
+      <input type="hidden" id="permissionEntryClass"><input type="hidden" id="permissionEntryStudent"><input type="hidden" id="permissionEntryDate"><input type="hidden" id="permissionEntryMode">
+      <label class="field-label" for="permissionOutTimeInput">وقت الخروج</label><input id="permissionOutTimeInput" type="time" style="width:100%;box-sizing:border-box;margin:0.25rem 0 0.58rem;">
+      <div id="permissionReturnTimeRow" style="display:none;"><label class="field-label" for="permissionReturnTimeInput">وقت العودة</label><input id="permissionReturnTimeInput" type="time" style="width:100%;box-sizing:border-box;margin:0.25rem 0 0.58rem;"></div>
+      <label class="field-label" for="permissionReasonInput">السبب <span style="font-weight:700;color:#98A2B3;">(اختياري)</span></label><textarea id="permissionReasonInput" rows="2" placeholder="مثال: مراجعة الإدارة أو موعد" style="width:100%;box-sizing:border-box;resize:vertical;margin-top:0.25rem;"></textarea>
+      <div style="display:flex;gap:0.45rem;margin-top:0.76rem;"><button id="permissionSaveButton" class="btn-modal-save" style="flex:1;background:#1B9AAA;" onclick="savePermissionEntry()">💾 تسجيل الاستئذان</button><button id="permissionDeleteButton" class="btn-modal-cancel" style="display:none;flex:0 0 auto;background:#FFF0F0;color:#B42318;border:1px solid #F4B6B6;" onclick="deletePermissionEntry()">حذف</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="permissionReportModal" style="z-index:165;">
+    <div class="modal-content" style="max-width:590px;width:95%;max-height:88vh;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;flex:0 0 auto;"><div class="modal-title" style="margin:0;color:#176671;">📋 تقرير استئذان طالب</div><button class="btn-close-circle" onclick="closePermissionReportModal()">✕</button></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.42rem;flex:0 0 auto;"><select id="permissionReportClassSelect" onchange="onPermissionReportClassChange()"></select><select id="permissionReportStudentSelect" onchange="renderPermissionReport()"></select></div>
+      <div id="permissionReportSummary" class="permission-report-summary"></div>
+      <div style="overflow:auto;flex:1;"><table class="permission-report-table"><thead><tr><th>التاريخ</th><th>الخروج</th><th>العودة</th><th>السبب / الحالة</th></tr></thead><tbody id="permissionReportTableBody"></tbody></table></div>
+    </div>
+  </div>
 
   <!-- نافذة استيراد/تصدير عامة للدرجات -->
   <div class="modal import-export-modal" id="importExportModal" style="z-index:150;">
@@ -1593,6 +1643,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 
     let appData = JSON.parse(JSON.stringify(defaultData));
     let records = {};
+    // الاستئذان مستقل تماماً عن الغياب والتأخر والمخالفات والدرجات.
+    // البنية: التاريخ ← الفصل ← الطالب ← وقت الخروج / وقت العودة / السبب.
+    let permissionRecords = {};
     let unitsData = JSON.parse(JSON.stringify(defaultUnits));
     // القفل مرتبط بالفصل والوحدة حتى لا تتعطل بقية الفصول التي ما زالت تعمل في الوحدة نفسها.
     let unitLocks = {};
@@ -2214,7 +2267,7 @@ ${description}`)) return;
     function buildPersistentState(){
       return {
         schemaVersion:1,
-        appData:cloneData(appData), records:cloneData(records), unitsData:cloneData(unitsData), unitLocks:cloneData(unitLocks), followupData:cloneData(followupData), understandingData:cloneData(understandingData), studentNotesData:cloneData(studentNotesData),
+        appData:cloneData(appData), records:cloneData(records), permissionRecords:cloneData(permissionRecords), unitsData:cloneData(unitsData), unitLocks:cloneData(unitLocks), followupData:cloneData(followupData), understandingData:cloneData(understandingData), studentNotesData:cloneData(studentNotesData),
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), excellenceSettings:cloneData(excellenceSettings), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
         fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), startupSettings:cloneData(startupSettings), classScheduleSettings:cloneData(classScheduleSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
@@ -2247,6 +2300,7 @@ ${description}`)) return;
       lastSuccessfulLocalSaveAt=typeof state.savedAt==='string'?state.savedAt:'';
       if(state.appData&&typeof state.appData==='object') appData=state.appData;
       if(state.records&&typeof state.records==='object') records=state.records;
+      if(state.permissionRecords&&typeof state.permissionRecords==='object') permissionRecords=state.permissionRecords;
       if(state.unitsData&&typeof state.unitsData==='object') unitsData=state.unitsData;
       unitLocks=normalizeUnitLocks(state.unitLocks);
       if(state.followupData&&typeof state.followupData==='object') followupData=state.followupData;
@@ -2720,7 +2774,7 @@ ${description}`)) return;
     }
 
     function initClassSelects() {
-      const selectIds=['classSelect','modalClassSelect','followupClassSelect','studentNumbersClassSelect','understandingClassSelect'];
+      const selectIds=['classSelect','modalClassSelect','followupClassSelect','studentNumbersClassSelect','understandingClassSelect','permissionClassSelect'];
       const selects=selectIds.map(id=>[id,document.getElementById(id)]).filter(([,select])=>select);
       const vals=Object.fromEntries(selects.map(([id,select])=>[id,select.value]));
       selects.forEach(([,select])=>select.innerHTML='');
@@ -2733,6 +2787,7 @@ ${description}`)) return;
       restoreClassSelect('modalClassSelect',vals.modalClassSelect);
       restoreClassSelect('followupClassSelect',vals.followupClassSelect);
       restoreClassSelect('understandingClassSelect',vals.understandingClassSelect);
+      restoreClassSelect('permissionClassSelect',vals.permissionClassSelect);
       if(studentNumbersSelect&&(vals.studentNumbersClassSelect==='__no_numbers__'||keys.includes(vals.studentNumbersClassSelect))) studentNumbersSelect.value=vals.studentNumbersClassSelect;
       renderAttendanceUnitsDropdown();
     }
@@ -2871,6 +2926,97 @@ ${description}`)) return;
         cont.querySelectorAll('.attendance-buttons button').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
       }
       applyButtonColorsDelayed();
+    }
+
+    // ===== كشف الاستئذان التجريبي: بياناته منفصلة تماماً عن سجل الغياب والدرجات =====
+    function permissionNowTime(){ const now=new Date(); return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`; }
+    function getPermissionRecord(date,cls,student){ return permissionRecords?.[date]?.[cls]?.[student]||null; }
+    function getMutablePermissionRecord(date,cls,student){
+      if(!permissionRecords[date]) permissionRecords[date]={};
+      if(!permissionRecords[date][cls]) permissionRecords[date][cls]={};
+      if(!permissionRecords[date][cls][student]) permissionRecords[date][cls][student]={outTime:'',returnTime:'',reason:'',createdAt:new Date().toISOString()};
+      return permissionRecords[date][cls][student];
+    }
+    function cleanupPermissionRecord(date,cls,student){
+      if(permissionRecords?.[date]?.[cls]){ delete permissionRecords[date][cls][student]; if(Object.keys(permissionRecords[date][cls]).length===0) delete permissionRecords[date][cls]; if(Object.keys(permissionRecords[date]).length===0) delete permissionRecords[date]; }
+    }
+    function getPermissionStats(date,cls){
+      const dayRecords=permissionRecords?.[date]?.[cls]||{}, values=Object.values(dayRecords).filter(record=>record&&record.outTime);
+      return {total:values.length,active:values.filter(record=>!record.returnTime).length};
+    }
+    function formatPermissionReason(record){
+      const reason=String(record?.reason||'').trim();
+      return reason?`السبب: ${escapeTextForHtml(reason)}`:'لا يوجد سبب مسجل';
+    }
+    function onPermissionClassChange(){ renderPermissionStudents(); }
+    function renderPermissionStudents(){
+      const classSelect=document.getElementById('permissionClassSelect'), dateInput=document.getElementById('permissionDateSelect'), container=document.getElementById('permissionStudentList');
+      if(!classSelect||!dateInput||!container) return;
+      const cls=classSelect.value, date=dateInput.value, query=String(document.getElementById('permissionStudentSearch')?.value||'').trim().toLocaleLowerCase('ar');
+      const allStudents=[...(appData[cls]||[])].sort((a,b)=>a.localeCompare(b,'ar')), students=query?allStudents.filter(student=>String(student).toLocaleLowerCase('ar').includes(query)):allStudents;
+      container.innerHTML='';
+      if(!cls||!date||!allStudents.length){ container.innerHTML='<div style="padding:1.5rem;text-align:center;color:#667085;font-weight:800;">اختر فصلاً يحتوي على طلاب أولاً.</div>'; }
+      else if(!students.length){ container.innerHTML='<div style="padding:1.5rem;text-align:center;color:#667085;font-weight:800;">لا توجد أسماء مطابقة للبحث.</div>'; }
+      else students.forEach(student=>{
+        const record=getPermissionRecord(date,cls,student), safeClass=encodeURIComponent(cls), safeStudent=encodeURIComponent(student), safeDate=encodeURIComponent(date), active=!!(record?.outTime&&!record?.returnTime), returned=!!record?.returnTime;
+        const card=document.createElement('div'); card.className=`student-card permission-card${active?' is-active':''}${returned?' is-returned':''}`;
+        const status=active?`خارج منذ ${record.outTime}`:returned?`عاد ${record.returnTime}`:'لا يوجد استئذان';
+        const details=record?.outTime?`خرج ${record.outTime}${record.returnTime?` · عاد ${record.returnTime}`:' · لم يعد بعد'}<br>${formatPermissionReason(record)}`:'سجّل الاستئذان عند خروج الطالب من الفصل.';
+        const actions=active?`<button type="button" class="permission-return" onclick="openPermissionEntryModal('${safeClass}','${safeStudent}','${safeDate}','return')">↩️ تسجيل العودة</button><button type="button" class="permission-edit" onclick="openPermissionEntryModal('${safeClass}','${safeStudent}','${safeDate}','edit')">تعديل</button>`:`<button type="button" class="permission-entry" onclick="openPermissionEntryModal('${safeClass}','${safeStudent}','${safeDate}','${record?'edit':'out'}')">${record?'✏️ تعديل السجل':'🕒 تسجيل استئذان'}</button>`;
+        card.innerHTML=`<div class="permission-card-main"><div class="permission-student-name">${escapeTextForHtml(student)}</div><span class="permission-status">${status}</span></div><div class="permission-card-meta">${details}</div><div class="permission-actions">${actions}</div>`;
+        container.appendChild(card);
+      });
+      const stats=getPermissionStats(date,cls); document.getElementById('permissionTodayCount').textContent=stats.total; document.getElementById('permissionActiveCount').textContent=stats.active;
+    }
+    function closePermissionEntryModal(){ document.getElementById('permissionEntryModal').style.display='none'; }
+    function openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,mode='out'){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), record=getPermissionRecord(date,cls,student)||{};
+      if(!cls||!student||!date) return;
+      const isReturn=mode==='return', isEdit=mode==='edit', title=isReturn?'↩️ تسجيل عودة الطالب':isEdit?'✏️ تعديل الاستئذان':'🕒 تسجيل استئذان';
+      document.getElementById('permissionEntryTitle').textContent=title;
+      document.getElementById('permissionEntryStudentLabel').textContent=`${student} — ${cls}`;
+      document.getElementById('permissionEntryClass').value=cls; document.getElementById('permissionEntryStudent').value=student; document.getElementById('permissionEntryDate').value=date; document.getElementById('permissionEntryMode').value=mode;
+      document.getElementById('permissionOutTimeInput').value=record.outTime||permissionNowTime();
+      document.getElementById('permissionReturnTimeInput').value=isReturn?permissionNowTime():(record.returnTime||'');
+      document.getElementById('permissionReasonInput').value=record.reason||'';
+      document.getElementById('permissionReturnTimeRow').style.display=(isReturn||isEdit)?'block':'none';
+      document.getElementById('permissionOutTimeInput').disabled=isReturn;
+      document.getElementById('permissionReasonInput').disabled=isReturn;
+      const save=document.getElementById('permissionSaveButton'); save.textContent=isReturn?'💾 حفظ العودة':isEdit?'💾 حفظ التعديل':'💾 تسجيل الاستئذان'; save.style.background=isReturn?'#34A66C':'#1B9AAA';
+      document.getElementById('permissionDeleteButton').style.display=isEdit?'block':'none';
+      document.getElementById('permissionEntryModal').style.display='flex';
+    }
+    function savePermissionEntry(){
+      const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value, mode=document.getElementById('permissionEntryMode').value;
+      const outTime=document.getElementById('permissionOutTimeInput').value, returnTime=document.getElementById('permissionReturnTimeInput').value, reason=String(document.getElementById('permissionReasonInput').value||'').trim();
+      if(!outTime){ alert('اختر وقت الخروج أولاً.'); return; }
+      if(mode==='return'&&!returnTime){ alert('اختر وقت العودة أولاً.'); return; }
+      if((mode==='return'||mode==='edit')&&returnTime&&returnTime<outTime){ alert('وقت العودة يجب أن يكون بعد وقت الخروج.'); return; }
+      const record=getMutablePermissionRecord(date,cls,student); record.outTime=outTime; record.reason=reason;
+      if(mode==='return'||mode==='edit') record.returnTime=returnTime; else record.returnTime='';
+      record.updatedAt=new Date().toISOString(); saveData(); closePermissionEntryModal(); renderPermissionStudents();
+    }
+    function deletePermissionEntry(){
+      const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value;
+      if(!confirm(`هل تريد حذف سجل استئذان الطالب «${student}» في هذا التاريخ؟`)) return;
+      cleanupPermissionRecord(date,cls,student); saveData(); closePermissionEntryModal(); renderPermissionStudents();
+    }
+    function openPermissionReportModal(){
+      const classSelect=document.getElementById('permissionReportClassSelect'), current=document.getElementById('permissionClassSelect')?.value||'', classes=Object.keys(appData).filter(cls=>(appData[cls]||[]).length);
+      if(!classes.length){ alert('لا توجد فصول بها طلاب بعد.'); return; }
+      classSelect.innerHTML=classes.map(cls=>`<option value="${escapeTextForHtml(cls)}">${escapeTextForHtml(cls)}</option>`).join(''); classSelect.value=classes.includes(current)?current:classes[0];
+      onPermissionReportClassChange(); document.getElementById('permissionReportModal').style.display='flex';
+    }
+    function closePermissionReportModal(){ document.getElementById('permissionReportModal').style.display='none'; }
+    function onPermissionReportClassChange(){
+      const cls=document.getElementById('permissionReportClassSelect').value, studentSelect=document.getElementById('permissionReportStudentSelect'), current=studentSelect.value, students=[...(appData[cls]||[])].sort((a,b)=>a.localeCompare(b,'ar'));
+      studentSelect.innerHTML=students.map(student=>`<option value="${escapeTextForHtml(student)}">${escapeTextForHtml(student)}</option>`).join(''); if(students.includes(current)) studentSelect.value=current; renderPermissionReport();
+    }
+    function renderPermissionReport(){
+      const cls=document.getElementById('permissionReportClassSelect').value, student=document.getElementById('permissionReportStudentSelect').value, body=document.getElementById('permissionReportTableBody'), summary=document.getElementById('permissionReportSummary');
+      const rows=Object.keys(permissionRecords).sort().reverse().map(date=>({date,record:getPermissionRecord(date,cls,student)})).filter(item=>item.record?.outTime);
+      summary.textContent=`إجمالي استئذانات ${student||'الطالب'}: ${rows.length}`;
+      body.innerHTML=rows.length?rows.map(({date,record})=>`<tr><td>${escapeTextForHtml(date)}</td><td>${escapeTextForHtml(record.outTime)}</td><td class="${record.returnTime?'':'permission-report-active'}">${record.returnTime?escapeTextForHtml(record.returnTime):'لم يعد بعد'}</td><td>${formatPermissionReason(record)}</td></tr>`).join(''):'<tr><td colspan="4" style="padding:1.1rem;color:#667085;">لا توجد سجلات استئذان لهذا الطالب.</td></tr>';
     }
 
     const UNDERSTANDING_STATUS_CONFIG={
@@ -3307,6 +3453,7 @@ ${description}`)) return;
       if(document.getElementById('understandingScreen').classList.contains('active-screen')) return;
       document.getElementById('absenceScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.remove('active-screen');
+      document.getElementById('permissionScreen').classList.remove('active-screen');
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
       document.getElementById('gradeSheetScreen').classList.remove('active-screen');
       document.getElementById('understandingScreen').classList.add('active-screen');
@@ -3317,6 +3464,7 @@ ${description}`)) return;
       if(document.getElementById('followupScreen').classList.contains('active-screen')) return;
       document.getElementById('absenceScreen').classList.remove('active-screen');
       document.getElementById('understandingScreen').classList.remove('active-screen');
+      document.getElementById('permissionScreen').classList.remove('active-screen');
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
       document.getElementById('gradeSheetScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.add('active-screen');
@@ -3328,12 +3476,28 @@ ${description}`)) return;
       if(document.getElementById('absenceScreen').classList.contains('active-screen')) return;
       document.getElementById('followupScreen').classList.remove('active-screen');
       document.getElementById('understandingScreen').classList.remove('active-screen');
+      document.getElementById('permissionScreen').classList.remove('active-screen');
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
       document.getElementById('gradeSheetScreen').classList.remove('active-screen');
       document.getElementById('absenceScreen').classList.add('active-screen');
       updateScreenNavigation('absence');
       initClassSelects(); renderAttendanceUnitsDropdown(); renderStudents(); applyButtonColorsDelayed();
       window.scrollTo(0,0);
+    }
+    function switchToPermissionScreen(){
+      if(document.getElementById('permissionScreen').classList.contains('active-screen')) return;
+      document.getElementById('absenceScreen').classList.remove('active-screen');
+      document.getElementById('understandingScreen').classList.remove('active-screen');
+      document.getElementById('followupScreen').classList.remove('active-screen');
+      document.getElementById('weakStudentsScreen').classList.remove('active-screen');
+      document.getElementById('gradeSheetScreen').classList.remove('active-screen');
+      document.getElementById('permissionScreen').classList.add('active-screen');
+      updateScreenNavigation('permission');
+      initClassSelects();
+      const dateInput=document.getElementById('permissionDateSelect'); if(dateInput&&!dateInput.value) dateInput.valueAsDate=new Date();
+      const permissionSelect=document.getElementById('permissionClassSelect'), absenceSelect=document.getElementById('classSelect');
+      if(permissionSelect&&absenceSelect&&[...permissionSelect.options].some(option=>option.value===absenceSelect.value)) permissionSelect.value=absenceSelect.value;
+      renderPermissionStudents(); window.scrollTo(0,0);
     }
 
     function validateAndUpdate(el,type,lessonEnc,maxVal) {
@@ -4418,7 +4582,7 @@ ${description}`)) return;
     function startEditName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; if(editingIndex!==-1&&editingIndex!==orig) cancelEditName(editingIndex); row.classList.add('editing'); row.querySelector('.student-edit-input').value=row.querySelector('.student-display-name').textContent; row.querySelector('.student-edit-input').focus(); row.querySelector('.student-edit-input').select(); editingIndex=orig; }
     function saveEditedName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; const inp=row.querySelector('.student-edit-input'), newName=inp.value.trim(), oldName=inp.dataset.originalName; if(!newName){ alert("الاسم لا يمكن أن يكون فارغاً!"); return; } if(newName===oldName){ cancelEditName(orig); return; } const cls=document.getElementById('modalClassSelect').value; if(appData[cls].includes(newName)){ alert(`الاسم "${newName}" موجود مسبقاً!`); return; } if(updateStudentNameInAllData(oldName,newName,cls)){ updateTextareaAfterRename(cls); renderEditStudentList(); alert(`✅ تم تعديل اسم "${oldName}" إلى "${newName}" بنجاح.`); editingIndex=-1; } else alert("❌ حدث خطأ أثناء التعديل."); }
     function cancelEditName(orig){ const row=document.getElementById(`edit-row-${orig}`); if(!row) return; row.classList.remove('editing'); if(editingIndex===orig) editingIndex=-1; }
-    function updateStudentNameInAllData(oldName,newName,cls){ let idx=appData[cls].indexOf(oldName); if(idx===-1) return false; appData[cls][idx]=newName; if(studentNotesData[cls]&&studentNotesData[cls][oldName]!==undefined){ studentNotesData[cls][newName]=studentNotesData[cls][oldName]; delete studentNotesData[cls][oldName]; } for(let date in records){ if(records[date]&&records[date][cls]&&records[date][cls][oldName]!==undefined){ records[date][cls][newName]=records[date][cls][oldName]; delete records[date][cls][oldName]; } } for(let key in followupData){ if(key.startsWith(cls+'_')){ if(followupData[key][oldName]!==undefined){ followupData[key][newName]=followupData[key][oldName]; delete followupData[key][oldName]; } } } Object.values(understandingData?.[cls]||{}).forEach(unitStates=>Object.values(unitStates||{}).forEach(lessonStates=>{ if(lessonStates[oldName]!==undefined){ lessonStates[newName]=lessonStates[oldName]; delete lessonStates[oldName]; } })); saveData(); renderStudents(); return true; }
+    function updateStudentNameInAllData(oldName,newName,cls){ let idx=appData[cls].indexOf(oldName); if(idx===-1) return false; appData[cls][idx]=newName; if(studentNotesData[cls]&&studentNotesData[cls][oldName]!==undefined){ studentNotesData[cls][newName]=studentNotesData[cls][oldName]; delete studentNotesData[cls][oldName]; } for(let date in records){ if(records[date]&&records[date][cls]&&records[date][cls][oldName]!==undefined){ records[date][cls][newName]=records[date][cls][oldName]; delete records[date][cls][oldName]; } } for(let date in permissionRecords){ if(permissionRecords[date]&&permissionRecords[date][cls]&&permissionRecords[date][cls][oldName]!==undefined){ permissionRecords[date][cls][newName]=permissionRecords[date][cls][oldName]; delete permissionRecords[date][cls][oldName]; } } for(let key in followupData){ if(key.startsWith(cls+'_')){ if(followupData[key][oldName]!==undefined){ followupData[key][newName]=followupData[key][oldName]; delete followupData[key][oldName]; } } } Object.values(understandingData?.[cls]||{}).forEach(unitStates=>Object.values(unitStates||{}).forEach(lessonStates=>{ if(lessonStates[oldName]!==undefined){ lessonStates[newName]=lessonStates[oldName]; delete lessonStates[oldName]; } })); saveData(); renderStudents(); renderPermissionStudents(); return true; }
     function updateTextareaAfterRename(cls){ if(appData[cls]) document.getElementById('studentNamesTextarea').value=appData[cls].join('\n'); }
 
     function updateUnitName(){
@@ -4693,6 +4857,7 @@ ${description}`)) return;
       renderWeakStudentsClassSelect(cls);
       document.getElementById('absenceScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.remove('active-screen');
+      document.getElementById('permissionScreen').classList.remove('active-screen');
       document.getElementById('weakStudentsScreen').classList.add('active-screen');
       renderWeakStudentsUnitsChooser();
       renderWeakStudentsReport();
@@ -4737,6 +4902,7 @@ ${description}`)) return;
       closeGradesReportsMenu(); gradeSheetSelectedUnits=Object.keys(unitsData); renderGradeSheetClassSelect(cls);
       document.getElementById('absenceScreen').classList.remove('active-screen');
       document.getElementById('followupScreen').classList.remove('active-screen');
+      document.getElementById('permissionScreen').classList.remove('active-screen');
       document.getElementById('weakStudentsScreen').classList.remove('active-screen');
       document.getElementById('gradeSheetScreen').classList.add('active-screen');
       renderGradeSheetUnitsChooser(); renderGradeSheetReport(); window.scrollTo(0,0);
@@ -6202,7 +6368,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ const data={backupVersion:4,storageBackend:'IndexedDB',appData,records,unitsData,unitLocks,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,classScheduleSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ const data={backupVersion:5,storageBackend:'IndexedDB',appData,records,permissionRecords,unitsData,unitLocks,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,classScheduleSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
@@ -6223,6 +6389,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
         startupSettings=normalizeStartupSettings(imported.startupSettings); persistStartupPreference();
         classScheduleSettings=normalizeClassScheduleSettings(imported.classScheduleSettings);
         if(imported.pdfSizeSettings) pdfSizeSettings=imported.pdfSizeSettings;
+        if(imported.permissionRecords&&typeof imported.permissionRecords==='object') permissionRecords=imported.permissionRecords;
         if(imported.weakStudentsThresholds) weakStudentsThresholds=normalizeWeakStudentsThresholds(imported.weakStudentsThresholds);
         if(!(await saveData())) throw new Error('تعذر حفظ النسخة الاحتياطية المستوردة.'); initClassSelects(); renderStudents(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); applyFontSettings(); applyButtonColors(); alert("✅ تم استعادة النسخة الاحتياطية بنجاح!");
       } catch(err){ console.error(err); alert("❌ ملف النسخة الاحتياطي غير صالح!"); } }; reader.readAsText(file);
@@ -6232,7 +6399,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
 
     // ===== مسح البيانات =====
     function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); unitLocks={}; followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; classScheduleSettings=normalizeClassScheduleSettings({}); persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
+    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيتم إعادة تهيئة البرنامج خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { appData=JSON.parse(JSON.stringify(defaultData)); records={}; permissionRecords={}; unitsData=JSON.parse(JSON.stringify(defaultUnits)); unitLocks={}; followupData={}; understandingData={}; studentNotesData={}; VIOLATION_DEFINITIONS=createDefaultViolationDefinitions(); syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=JSON.parse(JSON.stringify(defaultPenalties)); period1SelectedUnits=[]; queryStudentNumberMap={}; projectDistributionOrder={}; excellenceSettings=normalizeExcellenceSettings(EXCELLENCE_DEFAULT_SETTINGS); weakStudentsThresholds={...DEFAULT_WEAK_STUDENTS_THRESHOLDS}; participationSettings={mode:'cumulative',activeUnit:Object.keys(unitsData)[0]||''}; currentAttendanceUnit=participationSettings.activeUnit; buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; classScheduleSettings=normalizeClassScheduleSettings({}); persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات وإعادة تهيئة البرنامج بنجاح!'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
 
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
@@ -6627,6 +6794,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
         bootStage='عرض واجهة التطبيق';
         loadStudentNumberMap();
         initClassSelects();
+        document.getElementById('permissionDateSelect').valueAsDate = new Date();
         applyScheduledClassAtStartup();
         renderAttendanceUnitsDropdown();
         renderStudents();
