@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-63-streamlined-grade-class-management';
+const CACHE_NAME = 'attendance-app-v21-64-permission-detail-reports';
 const urlsToCache = [
   './',
   './index.html',

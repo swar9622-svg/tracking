@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.63";</script>
+  <script>const APP_VERSION = "21.64";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -616,6 +616,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .manage-modal-footer{margin-top:.25rem;}
     .manage-modal-footer .btn-modal-cancel{min-height:2.2rem;font-size:.73rem;}
     @media(max-width:390px){#manageModal .modal-content{padding:.72rem .62rem;}.manage-section{padding:.55rem}.manage-modal-header .modal-title{font-size:1.04rem}.manage-form-row input{font-size:.7rem}.manage-compact-btn,.manage-class-actions button{font-size:.64rem!important;}}
+    #permissionDetailReportModal .modal-content{max-width:34rem;width:94%;max-height:92vh;padding:.9rem .75rem;}
+    .permission-report-open{width:100%;border:0;border-radius:.7rem;background:#EFF8FF;color:#1769AA;padding:.56rem .65rem;margin:.58rem 0 .05rem;font:inherit;font-size:.76rem;font-weight:900;cursor:pointer;}
+    .permission-report-filters{display:grid;grid-template-columns:1fr 1fr;gap:.42rem;padding:.58rem;border:1px solid #D9EAF9;border-radius:.75rem;background:#F8FBFF;margin:.2rem 0 .58rem;}
+    .permission-report-filter{min-width:0;}.permission-report-filter label{display:block;color:#576573;font-size:.65rem;font-weight:800;margin:0 0 .18rem;}.permission-report-filter select,.permission-report-filter input{width:100%;box-sizing:border-box;height:2.1rem;margin:0;font-size:.73rem;padding:.35rem .4rem;}
+    .permission-report-summary{display:flex;align-items:center;justify-content:space-between;gap:.45rem;padding:.48rem .6rem;border-radius:.65rem;background:#F1FAF4;color:#247646;font-size:.7rem;font-weight:900;margin-bottom:.55rem;}
+    .permission-report-list{display:grid;gap:.48rem;}.permission-report-empty{text-align:center;color:#667085;background:#F7F8FA;border-radius:.75rem;padding:1.35rem .75rem;font-size:.78rem;font-weight:800;}
+    .permission-report-card{border:1px solid #E3E8EE;border-radius:.78rem;padding:.58rem;background:#fff;box-shadow:0 2px 7px rgba(27,55,88,.05);}.permission-report-card.guardian{border-right:4px solid #8B5E3C;}.permission-report-card.permission{border-right:4px solid #1976D2;}
+    .permission-report-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.35rem;}.permission-report-student{font-size:.84rem;font-weight:900;color:#202938;}.permission-report-meta{font-size:.64rem;font-weight:800;color:#697586;text-align:left;line-height:1.35;}
+    .permission-report-badges{display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.42rem;}.permission-report-badge{padding:.16rem .38rem;border-radius:999px;font-size:.6rem;font-weight:900;}.permission-report-badge.type{background:#E7F2FF;color:#1769AA;}.permission-report-badge.guardian{background:#FFF2E8;color:#A14C15;}.permission-report-badge.period{background:#F0EBFF;color:#6547A5;}
+    .permission-report-times{display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;margin:.15rem 0 .42rem;}.permission-report-time{background:#F8FAFC;border-radius:.52rem;padding:.32rem .25rem;text-align:center;}.permission-report-time span{display:block;font-size:.56rem;color:#718096;font-weight:800;margin-bottom:.06rem;}.permission-report-time strong{display:block;font-size:.67rem;color:#263142;}
+    .permission-report-reason{border-top:1px solid #EEF1F4;padding-top:.38rem;color:#4E5968;font-size:.67rem;line-height:1.5;font-weight:700;}.permission-report-reason b{color:#263142;}
+    @media(max-width:390px){#permissionDetailReportModal .modal-content{padding:.75rem .62rem;}.permission-report-filters{gap:.34rem;padding:.48rem;}.permission-report-filter select,.permission-report-filter input{font-size:.67rem;height:2rem;}.permission-report-student{font-size:.78rem;}.permission-report-times{gap:.22rem;}}
   </style>
 </head>
 <body class="startup-active">
@@ -1199,6 +1211,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <button class="report-tab-btn active" id="tabSummaryBtn" onclick="switchReportTab('summary')">📋 تقارير شامل</button>
         <button class="report-tab-btn" id="tabViolationsBtn" onclick="switchReportTab('violations')">⚠️ تقرير بالمخالفات</button>
       </div>
+      <button type="button" class="permission-report-open" onclick="openPermissionDetailReportModal()">🕒 تقارير الاستئذان التفصيلية</button>
       <div style="margin:10px 0;display:flex;align-items:center;gap:8px;">
         <span class="field-label" style="margin:0;white-space:nowrap;">الوحدة:</span>
         <select id="reportUnitSelect" class="select-class-full" onchange="onReportUnitChange(this.value)" style="margin:0;"></select>
@@ -1211,6 +1224,22 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </div>
   </div>
 
+  <div class="modal" id="permissionDetailReportModal" style="z-index:130;">
+    <div class="modal-content">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem;">
+        <div class="modal-title" style="margin:0;font-size:1.08rem;">🕒 تقارير الاستئذان</div>
+        <button class="btn-close-circle" onclick="closePermissionDetailReportModal()" aria-label="إغلاق">✕</button>
+      </div>
+      <div class="permission-report-filters">
+        <div class="permission-report-filter"><label for="permissionDetailReportGradeSelect">الصف</label><select id="permissionDetailReportGradeSelect" onchange="onPermissionDetailReportGradeChange()"></select></div>
+        <div class="permission-report-filter"><label for="permissionDetailReportClassSelect">الفصل</label><select id="permissionDetailReportClassSelect" onchange="renderPermissionDetailReport()"></select></div>
+        <div class="permission-report-filter"><label for="permissionDetailReportFromDate">من تاريخ</label><input id="permissionDetailReportFromDate" type="date" onchange="renderPermissionDetailReport()"></div>
+        <div class="permission-report-filter"><label for="permissionDetailReportToDate">إلى تاريخ</label><input id="permissionDetailReportToDate" type="date" onchange="renderPermissionDetailReport()"></div>
+      </div>
+      <div id="permissionDetailReportSummary" class="permission-report-summary"></div>
+      <div id="permissionDetailReportContent"></div>
+    </div>
+  </div>
   <div class="modal" id="followupReportModal">
     <div class="modal-content" style="max-width:600px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -6205,6 +6234,48 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       VIOLATION_DEFINITIONS.forEach(item=>html+=`<th class="th-mobile-normal">${escapeTextForHtml(item.name)}</th>`); html+=`<th style="min-width:45px;background:#6A1B9A;">الإجمالي</th></tr></thead><tbody>`;
       students.forEach((s,i)=>{ let total=0; const color=dup.includes(s)?'color:#FF3B30;':''; html+=`<tr><td style="color:var(--text-secondary);font-weight:bold;font-size:11px;">${i+1}</td><td class="student-name-td" style="font-size:15px;font-weight:900;white-space:nowrap;${color}">${s}</td>`; VIOLATION_DEFINITIONS.forEach(item=>{ const cnt=vioCounts[s][item.id]||0; total+=cnt; html+=`<td style="font-size:11px;padding:2px;">${cnt>0?`<b style="color:var(--purple);">${cnt}</b>`:'-'}</td>`; }); html+=`<td style="padding:2px;"><span class="badge-num badge-violation">${total}</span></td></tr>`; });
       html+='</tbody></table></div>'; cont.innerHTML=html;
+    }
+
+    function getPermissionEntriesFromSource(source,date,cls,student){
+      const raw=source?.[date]?.[cls]?.[student];
+      if(Array.isArray(raw?.entries)) return raw.entries.filter(record=>record&&record.outTime);
+      return raw?.outTime?[raw]:[];
+    }
+    function formatPermissionReportDate(date){ const parts=String(date||'').split('-'); return parts.length===3?`${parts[2]}/${parts[1]}/${parts[0]}`:String(date||'—'); }
+    function timeTextToMinutes(value){ const match=String(value||'').match(/^(\d{1,2}):(\d{2})$/); if(!match) return null; const hours=Number(match[1]), minutes=Number(match[2]); return hours>=0&&hours<24&&minutes>=0&&minutes<60?hours*60+minutes:null; }
+    function formatPermissionDuration(date,record){
+      if(isGuardianExitRecord(record)) return 'خروج نهائي';
+      if(!record?.outTime) return '—';
+      if(!record.returnTime) return 'قيد الاستئذان';
+      const start=timeTextToMinutes(record.outTime), end=timeTextToMinutes(record.returnTime); if(start===null||end===null) return '—';
+      const diff=(end>=start?end:start+1440)-start, hours=Math.floor(diff/60), minutes=diff%60;
+      return hours?`${hours} س ${minutes?`و ${minutes} د`:''}`:`${minutes} د`;
+    }
+    function getPermissionReportWorkspace(grade){ return grade===activeGradeName?{appData,permissionRecords}:gradeWorkspaces?.[grade]||{appData:{},permissionRecords:{}}; }
+    function fillPermissionDetailReportClasses(){
+      const gradeSelect=document.getElementById('permissionDetailReportGradeSelect'), classSelect=document.getElementById('permissionDetailReportClassSelect'); if(!gradeSelect||!classSelect) return;
+      const workspace=getPermissionReportWorkspace(gradeSelect.value), classes=Object.keys(workspace.appData||{}), previous=classSelect.value;
+      classSelect.innerHTML='<option value="__all__">جميع فصول الصف</option>'+classes.map(cls=>`<option value="${escapeTextForHtml(cls)}">${escapeTextForHtml(cls)}</option>`).join('');
+      const currentClass=gradeSelect.value===activeGradeName?document.getElementById('classSelect')?.value:'';
+      classSelect.value=classes.includes(previous)?previous:(classes.includes(currentClass)?currentClass:'__all__');
+    }
+    function openPermissionDetailReportModal(){
+      const gradeSelect=document.getElementById('permissionDetailReportGradeSelect'), grades=Object.keys(gradeWorkspaces||{});
+      gradeSelect.innerHTML=grades.map(grade=>`<option value="${escapeTextForHtml(grade)}">${escapeTextForHtml(grade)}</option>`).join('');
+      gradeSelect.value=grades.includes(activeGradeName)?activeGradeName:(grades[0]||'');
+      document.getElementById('permissionDetailReportFromDate').value=''; document.getElementById('permissionDetailReportToDate').value='';
+      fillPermissionDetailReportClasses(); renderPermissionDetailReport(); document.getElementById('permissionDetailReportModal').style.display='flex';
+    }
+    function closePermissionDetailReportModal(){ document.getElementById('permissionDetailReportModal').style.display='none'; }
+    function onPermissionDetailReportGradeChange(){ fillPermissionDetailReportClasses(); renderPermissionDetailReport(); }
+    function renderPermissionDetailReport(){
+      const grade=document.getElementById('permissionDetailReportGradeSelect')?.value||'', selectedClass=document.getElementById('permissionDetailReportClassSelect')?.value||'__all__', from=document.getElementById('permissionDetailReportFromDate')?.value||'', to=document.getElementById('permissionDetailReportToDate')?.value||'', workspace=getPermissionReportWorkspace(grade), source=workspace.permissionRecords||{}, classes=selectedClass==='__all__'?Object.keys(workspace.appData||{}):[selectedClass], rows=[];
+      Object.keys(source).forEach(date=>{ if((from&&date<from)||(to&&date>to)) return; classes.forEach(cls=>Object.keys(source?.[date]?.[cls]||{}).forEach(student=>getPermissionEntriesFromSource(source,date,cls,student).forEach(record=>rows.push({date,cls,student,record})))); });
+      rows.sort((a,b)=>`${b.date} ${b.record.outTime||''}`.localeCompare(`${a.date} ${a.record.outTime||''}`,'en'));
+      const standardCount=rows.filter(row=>!isGuardianExitRecord(row.record)).length, guardianCount=rows.length-standardCount, summary=document.getElementById('permissionDetailReportSummary'), content=document.getElementById('permissionDetailReportContent');
+      summary.innerHTML=`<span>السجلات: ${rows.length}</span><span>استئذان: ${standardCount}</span><span>خروج نهائي: ${guardianCount}</span>`;
+      if(!rows.length){ content.innerHTML='<div class="permission-report-empty">لا توجد سجلات استئذان ضمن الفلاتر المختارة.</div>'; return; }
+      content.innerHTML=`<div class="permission-report-list">${rows.map(({date,cls,student,record})=>{ const guardian=isGuardianExitRecord(record), reason=String(record.reason||'').trim()||'لا يوجد سبب مسجل', note=String(record.autoCloseNote||'').trim(), periodLabel=record.periodLabel||'الحصة غير محددة'; return `<article class="permission-report-card ${guardian?'guardian':'permission'}"><div class="permission-report-card-top"><div><div class="permission-report-student">${escapeTextForHtml(student)}</div><div class="permission-report-badges"><span class="permission-report-badge ${guardian?'guardian':'type'}">${guardian?'خروج مع ولي الأمر':'استئذان'}</span><span class="permission-report-badge period">${escapeTextForHtml(periodLabel)}</span></div></div><div class="permission-report-meta">${escapeTextForHtml(cls)}<br>${formatPermissionReportDate(date)}</div></div><div class="permission-report-times"><div class="permission-report-time"><span>الخروج</span><strong>${escapeTextForHtml(record.outTime||'—')}</strong></div><div class="permission-report-time"><span>العودة</span><strong>${guardian?'—':escapeTextForHtml(record.returnTime||'لم يعد')}</strong></div><div class="permission-report-time"><span>المدة</span><strong>${formatPermissionDuration(date,record)}</strong></div></div><div class="permission-report-reason"><b>السبب:</b> ${escapeTextForHtml(reason)}${note?`<br><b>ملاحظة:</b> ${escapeTextForHtml(note)}`:''}</div></article>`; }).join('')}</div>`;
     }
 
     function closeReportModal(){ document.getElementById('reportModal').style.display='none'; }
