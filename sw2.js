@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-74-student-report-options';
+const CACHE_NAME = 'attendance-app-v21-75-compact-backup-screen';
 const urlsToCache = [
   './',
   './index.html',
