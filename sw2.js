@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-75-compact-backup-screen';
+const CACHE_NAME = 'attendance-app-v21-76-reset-confirmation';
 const urlsToCache = [
   './',
   './index.html',

@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.75";</script>
+  <script>const APP_VERSION = "21.76";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -507,12 +507,25 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .upload-status.success { color: var(--green); background: #E8F8F5; }
     .upload-status.error { color: var(--red); background: #FDEDEC; }
     .upload-status.info { color: var(--accent); background: #EBF3FF; }
-    .btn-danger { background-color: #FF3B30; color: white; border: none; padding: 0.625rem; border-radius: 0.625rem; font-weight: 700; font-size: 0.8125rem; cursor: pointer; width: 100%; margin-top: 0.25rem; transition: opacity 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.375rem; }
+    .btn-danger { background-color: #FF3B30; color: white; border: none; padding: 0.45rem 0.55rem; border-radius: 0.625rem; font-weight: 800; font-size: 0.72rem; cursor: pointer; width:100%; max-width:260px; margin:0.25rem auto 0; transition: opacity 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.25rem; }
     .btn-danger:active { opacity: 0.8; }
     .btn-danger:hover { opacity: 0.9; }
     .danger-box { border: 2px solid #FF3B30; background: #FFF5F5; border-radius: 0.75rem; padding: 0.75rem; margin-bottom: 0.875rem; }
     .danger-box .data-box-title { color: #FF3B30; }
-    .danger-box .warning-text { font-size: 0.65rem; color: #FF3B30; text-align: center; margin-top: 4px; }
+    .danger-box .warning-text { font-size: 0.62rem; color: #FF3B30; text-align: center; margin-top: 4px; line-height:1.35; }
+    .reset-confirm-overlay { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(0,0,0,.58); overscroll-behavior:contain; }
+    .reset-confirm-card { width:min(360px,100%); box-sizing:border-box; background:#fff; border-radius:20px; padding:18px 16px; text-align:center; box-shadow:0 18px 48px rgba(0,0,0,.3); }
+    .reset-confirm-icon { font-size:34px; margin-bottom:4px; }
+    .reset-confirm-title { color:#FF3B30; font-size:18px; font-weight:900; margin-bottom:8px; }
+    .reset-confirm-text { color:#5B5B60; font-size:13px; line-height:1.55; margin-bottom:12px; }
+    .reset-confirm-text strong { color:#FF3B30; }
+    .reset-confirm-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .reset-confirm-actions button { border:0; border-radius:11px; padding:10px 7px; font-size:13px; font-weight:800; cursor:pointer; }
+    .reset-cancel-button { background:#E5E5EA; color:#3A3A3C; }
+    .reset-delete-button,.reset-final-delete-button { background:#FF3B30; color:#fff; }
+    .reset-final-delete-button:disabled { background:#C7C7CC; color:#fff; cursor:not-allowed; }
+    .reset-approval-input { width:100%; box-sizing:border-box; border:2px solid #D1D1D6; border-radius:11px; padding:10px; text-align:center; font-size:16px; font-weight:800; margin:3px 0 12px; outline:none; }
+    .reset-approval-input:focus { border-color:#FF3B30; box-shadow:0 0 0 3px rgba(255,59,48,.12); }
     .import-export-modal .modal-content { max-width: 320px; }
     .import-export-modal .btn-import-option { width: 100%; padding: 0.75rem; border-radius: 0.75rem; border: none; font-size: 0.9375rem; font-weight: 800; cursor: pointer; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: white; transition: opacity 0.15s; user-select: none; }
     .import-export-modal .btn-import-option:active { opacity: 0.8; }
@@ -6972,9 +6985,43 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     function downloadFile(content,filename,type){ const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),1000); }
 
     // ===== مسح البيانات =====
-    function confirmResetAllData(){ const div=document.createElement('div'); div.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;'; div.innerHTML=`<div style="background:white;border-radius:20px;padding:24px 20px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:48px;margin-bottom:10px;">⚠️</div><div style="font-size:20px;font-weight:900;color:#FF3B30;margin-bottom:8px;">تحذير! مسح جميع البيانات</div><div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">سيتم حذف <strong>جميع البيانات</strong> بشكل نهائي:<br>• جميع الطلاب والصفوف<br>• سجلات الغياب والتأخر والمخالفات<br>• جميع الدرجات والمتابعات<br>• أرقام الطلاب المحفوظة<br><br><span style="color:#FF3B30;font-weight:700;">⚠️ هذا الإجراء لا يمكن التراجع عنه!</span><br><br><span style="font-size:13px;color:#888;">هل أنت متأكد من رغبتك في المتابعة؟</span></div><div style="display:flex;gap:10px;"><button onclick="this.closest('div[style]').parentElement.remove()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#E5E5EA;color:var(--text-primary);font-weight:700;font-size:16px;cursor:pointer;">إلغاء</button><button onclick="executeResetAllData()" style="flex:1;padding:12px;border-radius:12px;border:none;background:#FF3B30;color:white;font-weight:700;font-size:16px;cursor:pointer;">🗑️ مسح الكل</button></div></div>`; document.body.appendChild(div); }
-    function executeResetAllData(){ const div=document.querySelector('div[style*="position: fixed"][style*="z-index: 9999"]'); if(div) div.remove(); const load=document.createElement('div'); load.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;'; load.innerHTML=`<div style="background:white;border-radius:20px;padding:30px;text-align:center;"><div style="font-size:40px;margin-bottom:10px;">⏳</div><div style="font-size:18px;font-weight:700;color:var(--text-primary);">جاري مسح جميع البيانات...</div><div style="font-size:13px;color:#888;margin-top:4px;">سيعاد فتح التطبيق فارغاً خلال ثوانٍ</div></div>`; document.body.appendChild(load); setTimeout(async()=>{ try { gradeWorkspaces={}; activeGradeName=''; resetActiveGradeWorkspaceToBlank(); buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; classScheduleSettings=normalizeClassScheduleSettings({}); persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); if(load.parentElement) load.remove(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات. التطبيق الآن فارغ وجاهز لإضافة أول صف.'); location.reload(); },500); } catch(err){ console.error(err); if(load.parentElement) load.remove(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },800); }
-
+    function removeResetOverlays(){
+      document.getElementById('resetConfirmOverlay')?.remove();
+      document.getElementById('resetFinalConfirmOverlay')?.remove();
+      document.getElementById('resetLoadingOverlay')?.remove();
+      document.body.classList.remove('modal-open');
+      document.body.style.removeProperty('overflow');
+      document.body.style.removeProperty('touch-action');
+    }
+    function cancelResetConfirmation(){ removeResetOverlays(); }
+    function confirmResetAllData(){
+      removeResetOverlays();
+      const div=document.createElement('div');
+      div.id='resetConfirmOverlay';
+      div.className='reset-confirm-overlay';
+      div.innerHTML='<div class="reset-confirm-card"><div class="reset-confirm-icon">⚠️</div><div class="reset-confirm-title">تحذير! مسح جميع البيانات</div><div class="reset-confirm-text">سيتم حذف جميع الطلاب والصفوف وسجلات الغياب والتأخر والمخالفات والاستئذان والدرجات وأرقام الطلاب نهائياً.<br><strong>هذا الإجراء لا يمكن التراجع عنه.</strong></div><div class="reset-confirm-actions"><button type="button" class="reset-cancel-button" onclick="cancelResetConfirmation()">إلغاء</button><button type="button" class="reset-delete-button" onclick="openFinalResetConfirmation()">متابعة لمسح الكل</button></div></div>';
+      document.body.appendChild(div);
+    }
+    function openFinalResetConfirmation(){
+      document.getElementById('resetConfirmOverlay')?.remove();
+      const div=document.createElement('div');
+      div.id='resetFinalConfirmOverlay';
+      div.className='reset-confirm-overlay';
+      div.innerHTML=`<div class="reset-confirm-card"><div class="reset-confirm-title">التأكيد النهائي</div><div class="reset-confirm-text">اكتب كلمة <strong>موافق</strong> في المربع ثم اضغط تنفيذ المسح.</div><input id="resetApprovalInput" class="reset-approval-input" type="text" autocomplete="off" placeholder="اكتب: موافق" oninput="this.closest('.reset-confirm-card').querySelector('.reset-final-delete-button').disabled=this.value.trim()!=='موافق'"><div class="reset-confirm-actions"><button type="button" class="reset-cancel-button" onclick="cancelResetConfirmation()">إلغاء</button><button type="button" class="reset-final-delete-button" disabled onclick="executeResetAllData()">تنفيذ المسح</button></div></div>`
+      document.body.appendChild(div);
+      setTimeout(()=>document.getElementById('resetApprovalInput')?.focus(),50);
+    }
+    function executeResetAllData(){
+      const approval=document.getElementById('resetApprovalInput');
+      if(approval && approval.value.trim()!=='موافق') return;
+      removeResetOverlays();
+      const load=document.createElement('div');
+      load.id='resetLoadingOverlay';
+      load.className='reset-confirm-overlay';
+      load.innerHTML='<div class="reset-confirm-card"><div class="reset-confirm-icon">⏳</div><div class="reset-confirm-title">جاري مسح جميع البيانات...</div><div class="reset-confirm-text">سيعاد فتح التطبيق فارغاً خلال ثوانٍ.</div></div>';
+      document.body.appendChild(load);
+      setTimeout(async()=>{ try { gradeWorkspaces={}; activeGradeName=''; resetActiveGradeWorkspaceToBlank(); buttonColors=JSON.parse(JSON.stringify(DEFAULT_BUTTON_COLORS)); fontSettings=normalizeFontSettings({family:'IBM+Plex+Sans+Arabic',weight:'700'}); notificationSettings={}; startupSettings={enabled:true}; classScheduleSettings=normalizeClassScheduleSettings({}); persistStartupPreference(); pdfSizeSettings={}; if(!(await saveData())) throw new Error('تعذر حفظ إعادة التهيئة.'); removeResetOverlays(); setTimeout(()=>{ alert('✅ تم مسح جميع البيانات. التطبيق الآن فارغ وجاهز لإضافة أول صف.'); location.reload(); },500); } catch(err){ console.error(err); removeResetOverlays(); alert('❌ حدث خطأ أثناء مسح البيانات. يرجى المحاولة مرة أخرى.'); } },300);
+    }
     // ===== إشعارات الطلاب =====
     const NOTIF_STORAGE_KEY='notification_export_settings';
     function loadNotificationSettings(){
