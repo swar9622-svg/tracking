@@ -1,4 +1,4 @@
-const CACHE_NAME = 'attendance-app-v21-77-student-roster-camera';
+const CACHE_NAME = 'attendance-app-v21-76-reset-confirmation';
 const urlsToCache = [
   './',
   './index.html',
