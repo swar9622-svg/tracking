@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.79";</script>
+  <script>const APP_VERSION = "21.80";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -693,6 +693,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .global-permission-empty{text-align:center;color:#667085;padding:18px 8px;font-size:.75rem;font-weight:800}
     #globalPermissionBubble{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none;}
     .global-permission-row .permission-return{flex:0 0 auto;border:0;border-radius:0.56rem;min-height:2.28rem;padding:0.36rem 0.5rem;background:#34A66C;color:#FFFFFF;font:inherit;font-size:0.72rem;font-weight:900;cursor:pointer;white-space:nowrap;}
+    .permission-stat{cursor:pointer;}.permission-stat:active{transform:scale(.98);}
+    .stat-card[ondblclick]{cursor:pointer;}.stat-card[ondblclick]:active{transform:scale(.98);}
+    .daily-stats-hint{font-size:.70rem;line-height:1.5;color:#667085;font-weight:800;text-align:center;margin:-2px 0 8px;}
+    .daily-stats-list{overflow-y:auto;display:flex;flex-direction:column;gap:7px;}
+    .daily-stats-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #DDE7E8;border-radius:10px;background:#FAFEFE;padding:8px 9px;}
+    .daily-stats-name{min-width:0;color:#17434A;font-size:.77rem;font-weight:900;line-height:1.45;overflow-wrap:anywhere;}
+    .daily-stats-detail{display:block;color:#667085;font-size:.64rem;font-weight:800;}
+    .daily-stats-delete{flex:0 0 auto;border:1px solid #F4B6B6;border-radius:.56rem;min-height:2.18rem;padding:.34rem .52rem;background:#FFF0F0;color:#B42318;font:inherit;font-size:.68rem;font-weight:900;cursor:pointer;}
+    .daily-stats-empty{text-align:center;color:#667085;padding:18px 8px;font-size:.75rem;font-weight:800;}
   </style>
 </head>
 <body class="startup-active">
@@ -713,9 +722,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <select id="attendanceUnitSelect" onchange="onAttendanceUnitChange(this.value)" title="وحدة الغياب والتأخر والمخالفات"></select>
       </div>
       <div class="stats-container">
-        <div class="stat-card absent"><div class="stat-number" id="absentCount">0</div><div class="stat-label">غياب اليوم</div></div>
-        <div class="stat-card late"><div class="stat-number" id="lateCount">0</div><div class="stat-label">تأخر اليوم</div></div>
-        <div class="stat-card violation"><div class="stat-number" id="violationCount">0</div><div class="stat-label">مخالفات اليوم</div></div>
+        <div class="stat-card absent" ondblclick="openDailyStatsModal('absent')" title="اضغط مرتين لعرض وحذف الغياب"><div class="stat-number" id="absentCount">0</div><div class="stat-label">غياب اليوم</div></div>
+        <div class="stat-card late" ondblclick="openDailyStatsModal('late')" title="اضغط مرتين لعرض وحذف التأخر"><div class="stat-number" id="lateCount">0</div><div class="stat-label">تأخر اليوم</div></div>
+        <div class="stat-card violation" ondblclick="openDailyStatsModal('violations')" title="اضغط مرتين لعرض وحذف المخالفات"><div class="stat-number" id="violationCount">0</div><div class="stat-label">مخالفات اليوم</div></div>
+        <div class="stat-card permission-stat" ondblclick="openDailyStatsModal('permission')" title="اضغط مرتين لعرض وحذف الاستئذانات"><div class="stat-number" id="todayPermissionCount">0</div><div class="stat-label">استئذان اليوم</div></div>
         <div class="stat-card student-report clickable" onclick="openStudentReportSelectModal()" style="background-color:#EBF3FF;border-color:#B3D7FF;">
           <div class="stat-number">👤</div>
           <div class="stat-label" style="color:var(--accent);">تقرير عن طالب</div>
@@ -844,7 +854,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <input type="date" id="permissionDateSelect" onchange="renderPermissionStudents()" title="تاريخ الاستئذان">
       </div>
       <div class="stats-container permission-stats">
-        <div class="stat-card"><div class="stat-number" id="permissionTodayCount">0</div><div class="stat-label">استئذانات اليوم</div></div>
+        <div class="stat-card permission-stat" ondblclick="openDailyStatsModal('permission')" title="اضغط مرتين لعرض وحذف الاستئذانات"><div class="stat-number" id="permissionTodayCount">0</div><div class="stat-label">استئذانات اليوم</div></div>
         <div class="stat-card"><div class="stat-number" id="permissionActiveCount">0</div><div class="stat-label">خارج الفصل الآن</div></div>
         <div class="stat-card student-report clickable" onclick="openPermissionReportModal()" style="background:#EAF3FF;border-color:#BBD7F3;"><div class="stat-number">👤</div><div class="stat-label">تقرير طالب</div></div>
       </div>
@@ -863,6 +873,15 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;"><div class="modal-title" style="margin:0;color:#176671;font-size:1rem;">🕒 الطلاب المستأذنون الآن</div><button class="btn-close-circle" onclick="closeGlobalPermissionModal()" aria-label="إغلاق">✕</button></div>
       <div class="global-permission-hint">اختر «تسجيل العودة» بجانب الطالب لإعادته مباشرة، أو استخدم زر العودة المعتاد من كشف الاستئذان.</div>
       <div id="globalPermissionList"></div>
+    </div>
+  </div>
+
+
+  <div class="modal" id="dailyStatsModal" style="z-index:1210;">
+    <div class="modal-content" style="max-width:440px;width:94%;max-height:82vh;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><div class="modal-title" id="dailyStatsModalTitle" style="margin:0;color:#176671;font-size:1rem;"></div><button class="btn-close-circle" onclick="closeDailyStatsModal()" aria-label="إغلاق">✕</button></div>
+      <div id="dailyStatsModalHint" class="daily-stats-hint"></div>
+      <div id="dailyStatsModalList" class="daily-stats-list"></div>
     </div>
   </div>
 
@@ -3374,12 +3393,37 @@ ${description}`)) return;
       document.getElementById('absentCount').innerText=absent;
       document.getElementById('lateCount').innerText=late;
       document.getElementById('violationCount').innerText=totalV;
+      const todayPermissionCount=document.getElementById('todayPermissionCount');
+      if(todayPermissionCount) todayPermissionCount.textContent=String(Object.keys(permissionRecords?.[date]?.[cls]||{}).reduce((total,student)=>total+getPermissionRecords(date,cls,student).filter(record=>!isGuardianExitRecord(record)).length,0));
       if(unitIsLocked){
         cont.querySelectorAll('.attendance-buttons button').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
       }
       applyButtonColorsDelayed();
     }
 
+
+
+    // ===== إدارة الإحصاءات اليومية بالضغط المزدوج =====
+    const DAILY_STATS_LABELS={absent:'الطلاب الغائبون اليوم',late:'الطلاب المتأخرون اليوم',violations:'طلاب المخالفات اليوم',permission:'استئذانات اليوم'};
+    function openDailyStatsModal(type){
+      const cls=document.getElementById('classSelect')?.value||'', date=document.getElementById('dateSelect')?.value||''; if(!cls||!date) return;
+      const list=document.getElementById('dailyStatsModalList'), title=document.getElementById('dailyStatsModalTitle'), hint=document.getElementById('dailyStatsModalHint'); if(!list||!title) return;
+      title.textContent=`📋 ${DAILY_STATS_LABELS[type]||'السجل اليومي'}`; hint.textContent=`الفصل: ${cls} · التاريخ: ${date} — اضغط «حذف» لإزالة السجل المحدد.`;
+      const students=[...(appData[cls]||[])].sort((a,b)=>a.localeCompare(b,'ar')), rows=[];
+      students.forEach(student=>{
+        if(type==='permission') getPermissionRecords(date,cls,student).forEach(record=>{ if(!isGuardianExitRecord(record)) rows.push({student,detail:`خرج ${record.outTime||'-'}${record.returnTime?` · عاد ${record.returnTime}`:' · لم يعد بعد'}`,id:record.id}); });
+        else { const rec=getStudentDayRecord(date,cls,student,currentAttendanceUnit); if(type==='absent'&&rec.status==='غائب') rows.push({student,detail:'غائب'}); if(type==='late'&&rec.status==='متأخر') rows.push({student,detail:'متأخر'}); if(type==='violations'&&rec.violations.length) rows.push({student,detail:rec.violations.map(id=>getViolationById(id)?.name||String(id)).join('، ')}); }
+      });
+      list.innerHTML=rows.length?rows.map(row=>{ const es=encodeURIComponent(row.student), er=encodeURIComponent(row.id||''); return `<div class="daily-stats-row"><div class="daily-stats-name">${escapeTextForHtml(row.student)}<span class="daily-stats-detail">${escapeTextForHtml(row.detail)}</span></div><button type="button" class="daily-stats-delete" onclick="deleteDailyStatsEntry('${type}','${es}','${er}')">حذف</button></div>`; }).join(''):'<div class="daily-stats-empty">لا توجد سجلات من هذا النوع اليوم.</div>';
+      document.getElementById('dailyStatsModal').style.display='flex';
+    }
+    function closeDailyStatsModal(){ document.getElementById('dailyStatsModal').style.display='none'; }
+    function deleteDailyStatsEntry(type,encodedStudent,encodedRecordId){
+      const cls=document.getElementById('classSelect')?.value||'', date=document.getElementById('dateSelect')?.value||'', student=decodeURIComponent(encodedStudent||''), recordId=decodeURIComponent(encodedRecordId||''); if(!cls||!date||!student) return;
+      if(type==='permission'){ if(recordId) removePermissionRecord(date,cls,student,recordId); }
+      else { const rec=getStudentDayRecord(date,cls,student,currentAttendanceUnit); if(type==='violations') rec.violations=[]; else if((type==='absent'&&rec.status==='غائب')||(type==='late'&&rec.status==='متأخر')) rec.status=''; cleanupMutableAttendanceRecord(date,cls,student); }
+      saveData(); renderStudents(); renderPermissionStudents(); updateGlobalPermissionBubble(); openDailyStatsModal(type);
+    }
 
     // ===== فقاعة الاستئذانات النشطة المشتركة بين الشاشات =====
     function getActivePermissionEntries(){
@@ -3405,7 +3449,7 @@ ${description}`)) return;
       if(!active.length){ list.innerHTML='<div class="global-permission-empty">لا يوجد طلاب خارج الفصل حالياً.</div>'; return; }
       list.innerHTML=active.map(({date,cls,student,record})=>{
         const ec=encodeURIComponent(cls), es=encodeURIComponent(student), ed=encodeURIComponent(date), er=encodeURIComponent(record.id||'');
-        return `<div class="global-permission-row"><div class="global-permission-details"><div class="global-permission-name">${escapeTextForHtml(student)}</div><div class="global-permission-meta">${escapeTextForHtml(cls)} · خرج ${escapeTextForHtml(record.outTime)} · ${escapeTextForHtml(String(record.reason||'').trim()||'استئذان')}</div></div><button type="button" class="permission-return" onclick="returnFromGlobalPermission('${ec}','${es}','${ed}','${er}')">↩️ تسجيل العودة</button></div>`;
+        return `<div class="global-permission-row"><div class="global-permission-details"><div class="global-permission-name">${escapeTextForHtml(student)}</div><div class="global-permission-meta">${escapeTextForHtml(cls)} · خرج ${escapeTextForHtml(record.outTime)} · ${escapeTextForHtml(String(record.reason||'').trim()||'استئذان')}</div></div><button type="button" class="permission-return" onclick="returnFromGlobalPermission('${ec}','${es}','${ed}','${er}')">↩ عودة</button></div>`;
       }).join('');
     }
     function openGlobalPermissionModal(){ renderGlobalPermissionList(); document.getElementById('globalPermissionModal').style.display='flex'; }
@@ -3480,7 +3524,7 @@ ${description}`)) return;
         const card=document.createElement('div'); card.className=`student-card permission-card${active?' is-active':''}${returned?' is-returned':''}`;
         const status=active?`خارج منذ ${record.outTime}`:returned?`عاد ${record.returnTime}`:'لا يوجد استئذان';
         const details=record?.outTime?`خرج ${record.outTime}${record.returnTime?` · عاد ${record.returnTime}`:' · لم يعد بعد'}<br>${formatPermissionReason(record)}`:'سجّل الاستئذان عند خروج الطالب من الفصل.';
-        const actions=active?`<button type="button" class="permission-return" onclick="openPermissionEntryModal('${safeClass}','${safeStudent}','${safeDate}','return')">↩️ تسجيل العودة</button><button type="button" class="permission-edit" onclick="openPermissionEntryModal('${safeClass}','${safeStudent}','${safeDate}','edit')">تعديل</button>`:`<button type="button" class="permission-entry" onclick="openPermissionEntryModal('${safeClass}','${safeStudent}','${safeDate}','${record?'edit':'out'}')">${record?'✏️ تعديل السجل':'🕒 تسجيل استئذان'}</button>`;
+        const actions=active?`<button type="button" class="permission-return" onclick="openPermissionEntryModal('${safeClass}','${safeStudent}','${safeDate}','return')">↩ عودة</button><button type="button" class="permission-edit" onclick="openPermissionEntryModal('${safeClass}','${safeStudent}','${safeDate}','edit')">تعديل</button>`:`<button type="button" class="permission-entry" onclick="openPermissionEntryModal('${safeClass}','${safeStudent}','${safeDate}','${record?'edit':'out'}')">${record?'✏️ تعديل السجل':'🕒 تسجيل استئذان'}</button>`;
         card.innerHTML=`<div class="permission-card-main"><div class="permission-student-name">${escapeTextForHtml(student)}</div><span class="permission-status">${status}</span></div><div class="permission-card-meta">${details}</div><div class="permission-actions">${actions}</div>`;
         container.appendChild(card);
       });
