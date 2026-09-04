@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.81";</script>
+  <script>const APP_VERSION = "21.82";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -100,11 +100,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #absenceScreen .student-name { position:relative; cursor:pointer; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
     #absenceScreen .student-name:active { opacity:1; }
     /* فقاعة إحصاءات الغياب: تظهر بالضغط المطول فقط وتعرض كل الوحدات. */
-    .attendance-summary-bubble{position:absolute;z-index:20;left:50%;bottom:calc(100% + 0.34rem);transform:translateX(-50%);display:flex;flex-direction:column;align-items:stretch;gap:2px;width:6.45rem;max-width:calc(100vw - 0.9rem);padding:0.24rem;border:1px solid #D1D1D6;border-radius:0.60rem;background:#FFFFFF;box-shadow:0 3px 10px rgba(0,0,0,.16);direction:rtl;pointer-events:none;user-select:none;-webkit-user-select:none;}
-    .attendance-summary-bubble::after{content:'';position:absolute;left:50%;bottom:-5px;width:9px;height:9px;background:#FFFFFF;border-right:1px solid #D1D1D6;border-bottom:1px solid #D1D1D6;transform:translateX(-50%) rotate(45deg);}
-    .attendance-summary-bubble > span{display:flex;align-items:center;justify-content:space-between;gap:0.25rem;min-width:0;border-radius:0.34rem;padding:0.22rem 0.30rem;font-size:0.54rem;font-weight:900;white-space:nowrap;line-height:1.04;}
+    .attendance-summary-bubble{position:absolute;z-index:20;left:50%;bottom:calc(100% + 0.34rem);transform:translateX(-50%);display:flex;flex-direction:column;align-items:stretch;gap:2px;width:6.45rem;max-width:calc(100vw - 0.9rem);padding:0.24rem;border:1px solid #D1D1D6;border-radius:0.60rem;background:#FFFFFF;box-shadow:0 3px 10px rgba(0,0,0,.16);direction:rtl;pointer-events:auto;user-select:none;-webkit-user-select:none;}
+    .attendance-summary-bubble::after{content:'';position:absolute;left:50%;bottom:-5px;width:9px;height:9px;background:#FFFFFF;border-right:1px solid #D1D1D6;border-bottom:1px solid #D1D1D6;transform:translateX(-50%) rotate(45deg);pointer-events:none;}
+    .attendance-summary-bubble > button{display:flex;align-items:center;justify-content:space-between;gap:0.25rem;min-width:0;border:0;border-radius:0.34rem;padding:0.22rem 0.30rem;font:inherit;font-size:0.54rem;font-weight:900;white-space:nowrap;line-height:1.04;cursor:pointer;direction:rtl;}
     .attendance-summary-bubble b{font-size:0.72rem;font-weight:900;}.attendance-summary-bubble .absent{background:#FFF0F0;color:#C0392B;}.attendance-summary-bubble .late{background:#FFF8E1;color:#B7770D;}.attendance-summary-bubble .violations{background:#F5EEF8;color:#7D3C98;}
-    .attendance-summary-bubble .permission{background:#E9F5FF;color:#1265A8;}
+    .attendance-summary-bubble .permission{background:#E9F5FF;color:#1265A8;}.attendance-summary-bubble > button:active{transform:scale(.98);}
     .attendance-buttons { display: flex; gap: 0.25rem; flex-shrink: 0; }
     .student-inline-permission-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0.28rem;margin:0 0 0.38rem;direction:rtl;}
     .student-inline-permission-actions button{min-height:2.02rem;border-radius:0.52rem;border:1px solid transparent;font:inherit;font-size:0.61rem;font-weight:900;line-height:1;cursor:pointer;padding:0.18rem 0.12rem;-webkit-tap-highlight-color:transparent;}
@@ -702,6 +702,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .daily-stats-detail{display:block;color:#667085;font-size:.64rem;font-weight:800;}
     .daily-stats-delete{flex:0 0 auto;border:1px solid #F4B6B6;border-radius:.56rem;min-height:2.18rem;padding:.34rem .52rem;background:#FFF0F0;color:#B42318;font:inherit;font-size:.68rem;font-weight:900;cursor:pointer;}
     .daily-stats-empty{text-align:center;color:#667085;padding:18px 8px;font-size:.75rem;font-weight:800;}
+    .student-history-trigger{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;}.student-history-trigger:active{transform:scale(.96);}
   </style>
 </head>
 <body class="startup-active">
@@ -3231,9 +3232,11 @@ ${description}`)) return;
     function isAttendancePermissionBlocked(date,cls,student){ const status=getStudentDayRecord(date,cls,student,currentAttendanceUnit).status; return status==='غائب'||status==='بعذر'; }
     function getStudentPermissionCount(cls,student){ return Object.entries(permissionRecords||{}).reduce((total,[date])=>total+getPermissionRecords(date,cls,student).filter(record=>!isGuardianExitRecord(record)).length,0); }
     function getAttendanceStudentSummaryBubble(cls,student){
-      const stats=getStudentAttendanceStats(cls,student,'__all__'), permissionCount=getStudentPermissionCount(cls,student);
-      return `<span class="attendance-summary-bubble" role="status"><span class="absent">غياب<b>${stats.absent}</b></span><span class="late">متأخر<b>${stats.late}</b></span><span class="violations">مخالفات<b>${stats.violations}</b></span><span class="permission">استئذان<b>${permissionCount}</b></span></span>`;
+      const stats=getStudentAttendanceStats(cls,student,'__all__'), permissionCount=getStudentPermissionCount(cls,student), encodedClass=encodeStudentHistoryValue(cls), encodedStudent=encodeStudentHistoryValue(student);
+      const field=(type,label,count,className)=>`<button type="button" class="${className}" title="عرض جميع التواريخ وحذف السجل المحدد" onpointerdown="event.stopPropagation()" onpointerup="event.stopPropagation()" onclick="event.preventDefault();event.stopPropagation();openStudentHistoryModal('${type}','${encodedClass}','${encodedStudent}','__all__')"><span>${label}</span><b>${count}</b></button>`;
+      return `<span class="attendance-summary-bubble" role="dialog" aria-label="إحصائية ${escapeTextForHtml(student)}">${field('absent','غياب',stats.absent,'absent')}${field('late','متأخر',stats.late,'late')}${field('violations','مخالفات',stats.violations,'violations')}${field('permission','استئذان',permissionCount,'permission')}</span>`;
     }
+
     function openInlinePermissionAction(encodedClass,encodedStudent,encodedDate){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), record=getOpenPermissionRecord(date,cls,student);
       if(!cls||!student||!date) return;
@@ -3360,7 +3363,7 @@ ${description}`)) return;
       if(opened){ event.preventDefault(); event.stopPropagation(); return; }
       if(event.pointerType==='touch') handleAttendanceStudentNameTap(event,student);
     }
-    document.addEventListener('pointerdown',()=>hideAttendanceStudentSummaryBubble(),true);
+    document.addEventListener('pointerdown',event=>{ if(event.target instanceof Element&&event.target.closest('#studentList .attendance-summary-bubble')) return; hideAttendanceStudentSummaryBubble(); },true);
     document.addEventListener('click',event=>{
       if(!openAttendanceStudentStats||event.target.closest('.student-card')) return;
       openAttendanceStudentStats=''; showAttendanceStudentNotes=false; renderStudents();
@@ -3406,6 +3409,7 @@ ${description}`)) return;
     // ===== إدارة الإحصاءات اليومية بالضغط المزدوج =====
     const DAILY_STATS_LABELS={absent:'الطلاب الغائبون اليوم',late:'الطلاب المتأخرون اليوم',violations:'طلاب المخالفات اليوم',permission:'استئذانات اليوم'};
     function openDailyStatsModal(type){
+      studentHistoryModalContext=null;
       const cls=document.getElementById('classSelect')?.value||'', date=document.getElementById('dateSelect')?.value||''; if(!cls||!date) return;
       const list=document.getElementById('dailyStatsModalList'), title=document.getElementById('dailyStatsModalTitle'), hint=document.getElementById('dailyStatsModalHint'); if(!list||!title) return;
       title.textContent=`📋 ${DAILY_STATS_LABELS[type]||'السجل اليومي'}`; hint.textContent=`الفصل: ${cls} · التاريخ: ${date} — اضغط «حذف» لإزالة السجل المحدد.`;
@@ -3417,7 +3421,127 @@ ${description}`)) return;
       list.innerHTML=rows.length?rows.map(row=>{ const es=encodeURIComponent(row.student), er=encodeURIComponent(row.id||''); return `<div class="daily-stats-row"><div class="daily-stats-name">${escapeTextForHtml(row.student)}<span class="daily-stats-detail">${escapeTextForHtml(row.detail)}</span></div><button type="button" class="daily-stats-delete" onclick="deleteDailyStatsEntry('${type}','${es}','${er}')">حذف</button></div>`; }).join(''):'<div class="daily-stats-empty">لا توجد سجلات من هذا النوع اليوم.</div>';
       document.getElementById('dailyStatsModal').style.display='flex';
     }
-    function closeDailyStatsModal(){ document.getElementById('dailyStatsModal').style.display='none'; }
+    function closeDailyStatsModal(){ studentHistoryModalContext=null; document.getElementById('dailyStatsModal').style.display='none'; }
+
+    // ===== سجل الطالب عبر جميع التواريخ =====
+    const STUDENT_HISTORY_LABELS={absent:'تواريخ غياب الطالب',late:'تواريخ تأخر الطالب',violations:'تواريخ مخالفات الطالب',permission:'تواريخ استئذان الطالب'};
+    let studentHistoryModalContext=null, lastStudentHistoryNumberTap={key:'',at:0};
+    function encodeStudentHistoryValue(value){ return encodeURIComponent(String(value??'')).replace(/'/g,'%27'); }
+    function decodeStudentHistoryReference(value){ try{return JSON.parse(decodeURIComponent(value||''));}catch(_){return null;} }
+    function handleStudentHistoryNumberTap(event,type,encodedClass,encodedStudent,encodedScope){
+      if(event.type==='dblclick'){ event.preventDefault(); event.stopPropagation(); lastStudentHistoryNumberTap={key:'',at:0}; openStudentHistoryModal(type,encodedClass,encodedStudent,encodedScope); return; }
+      if(event.pointerType!=='touch') return;
+      const key=`${type}|${encodedClass}|${encodedStudent}|${encodedScope}`, now=Date.now();
+      if(lastStudentHistoryNumberTap.key===key&&now-lastStudentHistoryNumberTap.at<420){ event.preventDefault(); event.stopPropagation(); lastStudentHistoryNumberTap={key:'',at:0}; openStudentHistoryModal(type,encodedClass,encodedStudent,encodedScope); }
+      else lastStudentHistoryNumberTap={key,at:now};
+    }
+    function getStudentHistoryBadgeMarkup(type,count,cls,student,scope,className='',style=''){
+      const encodedClass=encodeStudentHistoryValue(cls), encodedStudent=encodeStudentHistoryValue(student), encodedScope=encodeStudentHistoryValue(scope||'__all__'), label=STUDENT_HISTORY_LABELS[type]||'سجل الطالب';
+      return `<span class="badge-num ${className} student-history-trigger" style="${style}" role="button" tabindex="0" title="اضغط مرتين لعرض ${label} وحذف السجل المحدد" ondblclick="handleStudentHistoryNumberTap(event,'${type}','${encodedClass}','${encodedStudent}','${encodedScope}')" onpointerup="handleStudentHistoryNumberTap(event,'${type}','${encodedClass}','${encodedStudent}','${encodedScope}')">${count}</span>`;
+    }
+    function getStoredAttendanceSources(date,cls,student,selectedUnit='__all__'){
+      const raw=rawStudentAttendanceRecord(date,cls,student), sources=[]; if(!raw) return sources;
+      const rootLabel=isPerUnitParticipationMode()?'سجلات سابقة':'سجل تراكمي', add=(key,label,value)=>{ const record=normalizeAttendanceRecord(value); if(hasAttendanceData(record)) sources.push({key,label,record}); };
+      if(typeof raw==='string'){ if(selectedUnit==='__all__') add('__legacy__',rootLabel,raw); return sources; }
+      if(raw&&typeof raw==='object'){
+        if(selectedUnit==='__all__') add('__legacy__',rootLabel,raw);
+        if(raw.units&&typeof raw.units==='object'){
+          const unitNames=selectedUnit&&selectedUnit!=='__all__'?[selectedUnit]:Object.keys(raw.units);
+          unitNames.forEach(unit=>{ if(raw.units[unit]!==undefined) add(unit,unit,raw.units[unit]); });
+        }
+      }
+      return sources;
+    }
+    function getStudentHistoryRows(cls,student,type,selectedUnit='__all__'){
+      const rows=[], dates=Object.keys(type==='permission'?(permissionRecords||{}):(records||{})).sort((a,b)=>b.localeCompare(a));
+      if(type==='permission'){
+        dates.forEach(date=>getPermissionRecords(date,cls,student).filter(record=>!isGuardianExitRecord(record)).sort((a,b)=>String(b.outTime||'').localeCompare(String(a.outTime||''))).forEach(record=>{
+          const returned=record.returnTime?`عاد ${record.returnTime}`:'لم يعد بعد', reason=String(record.reason||'').trim();
+          rows.push({date,detail:`خرج ${record.outTime||'-'} · ${returned}${reason?` · ${reason}`:''}`,reference:{recordId:record.id||''}});
+        }));
+        return rows;
+      }
+      const targetStatus=type==='absent'?'غائب':'متأخر', scope=isPerUnitParticipationMode()?selectedUnit:'__all__';
+      dates.forEach(date=>{
+        const raw=rawStudentAttendanceRecord(date,cls,student); if(!raw) return;
+        const sources=getStoredAttendanceSources(date,cls,student,scope);
+        if(type==='absent'||type==='late'){
+          if(!isPerUnitParticipationMode()){
+            const aggregate=getCumulativeAttendanceRecord(raw);
+            if(aggregate.status===targetStatus){
+              const labels=sources.filter(source=>source.record.status===targetStatus).map(source=>source.label).filter(label=>label&&label!=='سجل تراكمي');
+              rows.push({date,detail:`${targetStatus}${labels.length?` · ${labels.join('، ')}`:''}`,reference:{source:'__aggregate__',status:targetStatus}});
+            }
+          }else sources.forEach(source=>{ if(source.record.status===targetStatus) rows.push({date,detail:`${targetStatus} · ${source.label}`,reference:{source:source.key,status:targetStatus}}); });
+        }else if(type==='violations'){
+          sources.forEach(source=>(source.record.violations||[]).forEach((id,index)=>{
+            const name=getViolationById(id)?.name||String(id); rows.push({date,detail:`${name} · ${source.label}`,reference:{source:source.key,violationId:id,violationIndex:index}});
+          }));
+        }
+      });
+      return rows;
+    }
+    function openStudentHistoryModal(type,encodedClass,encodedStudent,encodedScope='__all__'){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), scope=decodeURIComponent(encodedScope||'__all__');
+      if(!cls||!student) return;
+      studentHistoryModalContext={type,cls,student,scope}; renderStudentHistoryModal(); document.getElementById('dailyStatsModal').style.display='flex';
+    }
+    function renderStudentHistoryModal(){
+      const context=studentHistoryModalContext; if(!context) return;
+      const {type,cls,student,scope}=context, list=document.getElementById('dailyStatsModalList'), title=document.getElementById('dailyStatsModalTitle'), hint=document.getElementById('dailyStatsModalHint'); if(!list||!title||!hint) return;
+      const rows=getStudentHistoryRows(cls,student,type,scope), scopeText=type!=='permission'&&isPerUnitParticipationMode()&&scope&&scope!=='__all__'?` · الوحدة: ${scope}`:'';
+      title.textContent=`📋 ${STUDENT_HISTORY_LABELS[type]||'سجل الطالب'} — ${student}`;
+      hint.textContent=`الفصل: ${cls}${scopeText} · جميع التواريخ — اضغط «حذف» لإزالة السجل المحدد.`;
+      const encodedClass=encodeStudentHistoryValue(cls), encodedStudent=encodeStudentHistoryValue(student);
+      list.innerHTML=rows.length?rows.map(row=>{ const encodedDate=encodeStudentHistoryValue(row.date), encodedReference=encodeStudentHistoryValue(JSON.stringify(row.reference)); return `<div class="daily-stats-row"><div class="daily-stats-name">${escapeTextForHtml(row.date)}<span class="daily-stats-detail">${escapeTextForHtml(row.detail)}</span></div><button type="button" class="daily-stats-delete" onclick="deleteStudentHistoryEntry('${type}','${encodedClass}','${encodedStudent}','${encodedDate}','${encodedReference}')">حذف</button></div>`; }).join(''):'<div class="daily-stats-empty">لا توجد سجلات من هذا النوع لهذا الطالب.</div>';
+    }
+    function getMutableStoredAttendanceSource(date,cls,student,sourceKey){
+      let raw=rawStudentAttendanceRecord(date,cls,student); if(!raw) return null;
+      if(sourceKey==='__legacy__'){
+        if(typeof raw==='string'){ raw=normalizeAttendanceRecord(raw); records[date][cls][student]=raw; }
+        return raw&&typeof raw==='object'?raw:null;
+      }
+      if(raw&&typeof raw==='object'&&raw.units&&raw.units[sourceKey]!==undefined){
+        if(typeof raw.units[sourceKey]==='string') raw.units[sourceKey]=normalizeAttendanceRecord(raw.units[sourceKey]);
+        return raw.units[sourceKey];
+      }
+      return null;
+    }
+    function cleanupStudentAttendanceStorage(date,cls,student){
+      const raw=rawStudentAttendanceRecord(date,cls,student); if(!raw||!records?.[date]?.[cls]) return;
+      if(typeof raw==='object'){
+        if(raw.units&&typeof raw.units==='object'){
+          Object.keys(raw.units).forEach(unit=>{ if(!hasAttendanceData(normalizeAttendanceRecord(raw.units[unit]))) delete raw.units[unit]; });
+          if(Object.keys(raw.units).length===0) delete raw.units;
+        }
+        if(!hasAttendanceData(normalizeAttendanceRecord(raw))&&!raw.units) delete records[date][cls][student];
+      }else if(!raw) delete records[date][cls][student];
+      if(records[date]?.[cls]&&Object.keys(records[date][cls]).length===0) delete records[date][cls];
+      if(records[date]&&Object.keys(records[date]).length===0) delete records[date];
+    }
+    function clearStudentHistoryStatus(date,cls,student,sourceKey,status){
+      const clearSource=key=>{ const record=getMutableStoredAttendanceSource(date,cls,student,key); if(record&&record.status===status) record.status=''; };
+      if(sourceKey==='__aggregate__'){
+        const raw=rawStudentAttendanceRecord(date,cls,student); if(!raw) return;
+        clearSource('__legacy__'); Object.keys(raw?.units||{}).forEach(unit=>clearSource(unit));
+      }else clearSource(sourceKey);
+      cleanupStudentAttendanceStorage(date,cls,student);
+    }
+    function deleteStudentHistoryEntry(type,encodedClass,encodedStudent,encodedDate,encodedReference){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), reference=decodeStudentHistoryReference(encodedReference); if(!cls||!student||!date||!reference) return;
+      if(type==='permission'){ if(reference.recordId) removePermissionRecord(date,cls,student,reference.recordId); }
+      else if(type==='violations'){
+        const record=getMutableStoredAttendanceSource(date,cls,student,reference.source); if(record&&Array.isArray(record.violations)){
+          let index=Number.isInteger(reference.violationIndex)&&record.violations[reference.violationIndex]===reference.violationId?reference.violationIndex:record.violations.indexOf(reference.violationId);
+          if(index>=0) record.violations.splice(index,1);
+        }
+        cleanupStudentAttendanceStorage(date,cls,student);
+      }else clearStudentHistoryStatus(date,cls,student,reference.source,reference.status);
+      saveData(); renderStudents(); renderPermissionStudents(); updateGlobalPermissionBubble(); schedulePermissionAutoClose();
+      if(document.getElementById('reportModal')?.style.display==='flex') switchReportTab(currentReportTab);
+      if(studentHistoryModalContext) renderStudentHistoryModal();
+    }
+
     function deleteDailyStatsEntry(type,encodedStudent,encodedRecordId){
       const cls=document.getElementById('classSelect')?.value||'', date=document.getElementById('dateSelect')?.value||'', student=decodeURIComponent(encodedStudent||''), recordId=decodeURIComponent(encodedRecordId||''); if(!cls||!date||!student) return;
       if(type==='permission'){ if(recordId) removePermissionRecord(date,cls,student,recordId); }
@@ -6498,7 +6622,10 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       if(!cls||!appData[cls]){ cont.innerHTML='<div style="text-align:center;padding:10px;">لا يوجد فصل محدد</div>'; return; }
       const students=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), dup=getDuplicateNames(), stats=buildAttendanceSummaryStats(cls,currentReportUnitSelection);
       let html=`<div style="font-size:11px;color:var(--text-secondary);font-weight:800;text-align:center;margin-bottom:6px;">نطاق التقرير: ${getAttendanceScopeLabel(currentReportUnitSelection)}</div><div class="table-responsive-wrapper"><table class="report-table"><thead><tr><th style="width:28px;">#</th><th style="text-align:right;">اسم الطالب</th><th style="width:45px;">الغياب</th><th style="width:45px;">التأخر</th><th style="width:50px;">مخالفات</th><th style="width:58px;">استئذان</th></tr></thead><tbody>`;
-      students.forEach((s,i)=>{ const color=dup.includes(s)?'color:#FF3B30;':'', permissions=getStudentPermissionCount(cls,s); html+=`<tr><td style="color:var(--text-secondary);font-weight:bold;">${i+1}</td><td class="student-name-td" style="font-weight:900;font-size:15px;${color}">${s}</td><td><span class="badge-num badge-absent">${stats[s].absent}</span></td><td><span class="badge-num badge-late">${stats[s].late}</span></td><td><span class="badge-num badge-violation">${stats[s].violations}</span></td><td><span class="badge-num" style="background:#E7F2FF;color:#1769AA;">${permissions}</span></td></tr>`; });
+      students.forEach((s,i)=>{
+        const color=dup.includes(s)?'color:#FF3B30;':'', permissions=getStudentPermissionCount(cls,s), scope=currentReportUnitSelection;
+        html+=`<tr><td style="color:var(--text-secondary);font-weight:bold;">${i+1}</td><td class="student-name-td" style="font-weight:900;font-size:15px;${color}">${s}</td><td>${getStudentHistoryBadgeMarkup('absent',stats[s].absent,cls,s,scope,'badge-absent')}</td><td>${getStudentHistoryBadgeMarkup('late',stats[s].late,cls,s,scope,'badge-late')}</td><td>${getStudentHistoryBadgeMarkup('violations',stats[s].violations,cls,s,scope,'badge-violation')}</td><td>${getStudentHistoryBadgeMarkup('permission',permissions,cls,s,scope,'','background:#E7F2FF;color:#1769AA;')}</td></tr>`;
+      });
       html+='</tbody></table></div>'; cont.innerHTML=html;
     }
 
