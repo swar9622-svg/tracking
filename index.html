@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.76";</script>
+  <script>const APP_VERSION = "21.77";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -673,6 +673,24 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .permission-report-times{display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;margin:.15rem 0 .42rem;}.permission-report-time{background:#F8FAFC;border-radius:.52rem;padding:.32rem .25rem;text-align:center;}.permission-report-time span{display:block;font-size:.56rem;color:#718096;font-weight:800;margin-bottom:.06rem;}.permission-report-time strong{display:block;font-size:.67rem;color:#263142;}
     .permission-report-reason{border-top:1px solid #EEF1F4;padding-top:.38rem;color:#4E5968;font-size:.67rem;line-height:1.5;font-weight:700;}.permission-report-reason b{color:#263142;}
     @media(max-width:390px){#permissionDetailReportModal .modal-content{padding:.75rem .62rem;}.permission-report-filters{gap:.34rem;padding:.48rem;}.permission-report-filter select,.permission-report-filter input{font-size:.67rem;height:2rem;}.permission-report-student{font-size:.78rem;}.permission-report-times{gap:.22rem;}}
+
+    /* فقاعة الاستئذانات النشطة المشتركة بين جميع الشاشات */
+    #globalPermissionBubble{position:fixed;top:calc(env(safe-area-inset-top) + 8px);left:10px;z-index:1200;display:none;align-items:center;gap:5px;border:0;border-radius:999px;background:linear-gradient(135deg,#176671,#1B9AAA);color:#fff;padding:7px 11px;box-shadow:0 4px 14px rgba(23,102,113,.32);font-family:inherit;font-size:.72rem;font-weight:900;cursor:pointer;direction:rtl;white-space:nowrap;animation:permissionBubbleIn .22s ease-out}
+    #globalPermissionBubble.is-visible{display:inline-flex}
+    #globalPermissionBubble .global-permission-clock{font-size:1.05rem;line-height:1}
+    #globalPermissionBubble .global-permission-count{min-width:19px;height:19px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:#fff;color:#176671;font-size:.68rem}
+    @keyframes permissionBubbleIn{from{opacity:0;transform:translateY(-7px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+    #globalPermissionModal{z-index:1190}
+    #globalPermissionModal .modal-content{max-width:450px;width:94%;max-height:82vh;display:flex;flex-direction:column}
+    .global-permission-hint{font-size:.72rem;line-height:1.5;color:#667085;text-align:center;margin:-2px 0 8px;font-weight:800}
+    #globalPermissionList{overflow-y:auto;display:flex;flex-direction:column;gap:7px}
+    .global-permission-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #CFE8EA;background:#F5FCFC;border-radius:11px;padding:8px 9px}
+    .global-permission-details{min-width:0;line-height:1.45}
+    .global-permission-name{font-size:.78rem;font-weight:900;color:#176671;overflow-wrap:anywhere}
+    .global-permission-meta{font-size:.66rem;color:#667085;font-weight:800}
+    .global-permission-return{flex:0 0 auto;border:0;border-radius:8px;background:#34A66C;color:#fff;padding:7px 9px;font-family:inherit;font-size:.68rem;font-weight:900;cursor:pointer}
+    .global-permission-return:active{opacity:.78}
+    .global-permission-empty{text-align:center;color:#667085;padding:18px 8px;font-size:.75rem;font-weight:800}
   </style>
 </head>
 <body class="startup-active">
@@ -831,6 +849,19 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </header>
     <div class="attendance-search-wrap"><input id="permissionStudentSearch" class="attendance-search-input" type="search" autocomplete="off" placeholder="ابحث باسم الطالب" aria-label="ابحث باسم الطالب" oninput="renderPermissionStudents()"></div>
     <main class="student-list" id="permissionStudentList"></main>
+  </div>
+
+
+  <!-- فقاعة الاستئذانات النشطة: تظهر فوق جميع الشاشات -->
+  <button id="globalPermissionBubble" type="button" onclick="openGlobalPermissionModal()" aria-label="عرض الطلاب الموجودين خارج الفصل">
+    <span class="global-permission-clock">🕒</span><span>خارج الفصل</span><span id="globalPermissionCount" class="global-permission-count">0</span>
+  </button>
+  <div class="modal" id="globalPermissionModal">
+    <div class="modal-content">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;"><div class="modal-title" style="margin:0;color:#176671;font-size:1rem;">🕒 الطلاب المستأذنون الآن</div><button class="btn-close-circle" onclick="closeGlobalPermissionModal()" aria-label="إغلاق">✕</button></div>
+      <div class="global-permission-hint">اختر «تسجيل العودة» بجانب الطالب لإعادته مباشرة، أو استخدم زر العودة المعتاد من كشف الاستئذان.</div>
+      <div id="globalPermissionList"></div>
+    </div>
   </div>
 
   <!-- ===== قائمة الاستئذان السريعة داخل كشف الغياب ===== -->
@@ -3087,6 +3118,9 @@ ${description}`)) return;
       restoreClassSelect('followupClassSelect',vals.followupClassSelect);
       restoreClassSelect('understandingClassSelect',vals.understandingClassSelect);
       restoreClassSelect('permissionClassSelect',vals.permissionClassSelect);
+      if(keys.length){
+        ['classSelect','modalClassSelect','studentNamesClassSelect','followupClassSelect','understandingClassSelect','permissionClassSelect'].forEach(id=>{ const select=document.getElementById(id); if(select&&!select.value) select.value=keys[0]; });
+      }
       if(studentNumbersSelect&&(vals.studentNumbersClassSelect==='__no_numbers__'||keys.includes(vals.studentNumbersClassSelect))) studentNumbersSelect.value=vals.studentNumbersClassSelect;
       renderAttendanceUnitsDropdown();
     }
@@ -3199,7 +3233,7 @@ ${description}`)) return;
     function returnInlinePermissionNow(encodedClass,encodedStudent,encodedDate){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), record=getOpenPermissionRecord(date,cls,student);
       if(!cls||!student||!date||!record) return;
-      record.returnTime=permissionNowTime(); record.updatedAt=new Date().toISOString(); record.autoCloseNote=''; record.periodEndAt=''; record.periodEndTime=''; record.periodLabel=''; saveData(); renderStudents(); schedulePermissionAutoClose();
+      record.returnTime=permissionNowTime(); record.updatedAt=new Date().toISOString(); record.autoCloseNote=''; record.periodEndAt=''; record.periodEndTime=''; record.periodLabel=''; saveData(); renderStudents(); updateGlobalPermissionBubble(); schedulePermissionAutoClose();
     }
     function openInlinePermissionEditModal(encodedClass,encodedStudent){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||'');
@@ -3224,7 +3258,7 @@ ${description}`)) return;
       if(isAttendancePermissionBlocked(date,cls,student)){ closeInlinePermissionReasonModal(); alert('الطالب غائب أو بعذر؛ لا يمكن تسجيل استئذان أو خروج له.'); return; }
       if(getOpenPermissionRecord(date,cls,student)){ closeInlinePermissionReasonModal(); alert('سجّل عودة الطالب أولاً قبل تسجيل استئذان جديد.'); return; }
       const record=createPermissionRecord(date,cls,student); record.outTime=permissionNowTime(); record.returnTime=''; record.reason=String(reason||'').trim(); assignPermissionPeriodDeadline(record,date,cls); record.updatedAt=new Date().toISOString();
-      closeInlinePermissionReasonModal(); saveData(); renderStudents(); schedulePermissionAutoClose();
+      closeInlinePermissionReasonModal(); saveData(); renderStudents(); updateGlobalPermissionBubble(); schedulePermissionAutoClose();
     }
     function openInlinePermissionCustomReason(){
       const cls=document.getElementById('permissionReasonClass').value, student=document.getElementById('permissionReasonStudent').value, date=document.getElementById('permissionReasonDate').value;
@@ -3311,6 +3345,9 @@ ${description}`)) return;
       openAttendanceStudentStats=''; showAttendanceStudentNotes=false; renderStudents();
     });
     function renderStudents() {
+      updateGlobalPermissionBubble();
+      const clsSelect=document.getElementById('classSelect');
+      if(clsSelect&&!clsSelect.value){ const firstClass=Object.keys(appData||{})[0]||''; if(firstClass) clsSelect.value=firstClass; }
       const cls=document.getElementById('classSelect').value, date=document.getElementById('dateSelect').value, cont=document.getElementById('studentList'), searchText=String(document.getElementById('attendanceStudentSearch')?.value||'').trim().toLocaleLowerCase('ar');
       cont.innerHTML='';
       if(!cls||!appData[cls]) return;
@@ -3339,6 +3376,43 @@ ${description}`)) return;
         cont.querySelectorAll('.attendance-buttons button').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
       }
       applyButtonColorsDelayed();
+    }
+
+
+    // ===== فقاعة الاستئذانات النشطة المشتركة بين الشاشات =====
+    function getActivePermissionEntries(){
+      const result=[];
+      Object.keys(permissionRecords||{}).forEach(date=>{
+        Object.keys(permissionRecords[date]||{}).forEach(cls=>{
+          Object.keys(permissionRecords[date][cls]||{}).forEach(student=>{
+            getPermissionRecords(date,cls,student).filter(record=>record&&record.outTime&&!record.returnTime&&!isGuardianExitRecord(record)).forEach(record=>result.push({date,cls,student,record}));
+          });
+        });
+      });
+      return result.sort((a,b)=>`${a.date}|${a.record.outTime}`.localeCompare(`${b.date}|${b.record.outTime}`));
+    }
+    function updateGlobalPermissionBubble(){
+      const bubble=document.getElementById('globalPermissionBubble'), count=document.getElementById('globalPermissionCount');
+      if(!bubble||!count) return;
+      const active=getActivePermissionEntries(); count.textContent=String(active.length); bubble.classList.toggle('is-visible',active.length>0);
+      const modal=document.getElementById('globalPermissionModal');
+      if(modal?.style.display==='flex') renderGlobalPermissionList(active);
+    }
+    function renderGlobalPermissionList(active=getActivePermissionEntries()){
+      const list=document.getElementById('globalPermissionList'); if(!list) return;
+      if(!active.length){ list.innerHTML='<div class="global-permission-empty">لا يوجد طلاب خارج الفصل حالياً.</div>'; return; }
+      list.innerHTML=active.map(({date,cls,student,record})=>{
+        const ec=encodeURIComponent(cls), es=encodeURIComponent(student), ed=encodeURIComponent(date), er=encodeURIComponent(record.id||'');
+        return `<div class="global-permission-row"><div class="global-permission-details"><div class="global-permission-name">${escapeTextForHtml(student)}</div><div class="global-permission-meta">${escapeTextForHtml(cls)} · خرج ${escapeTextForHtml(record.outTime)} · ${escapeTextForHtml(String(record.reason||'').trim()||'استئذان')}</div></div><button type="button" class="global-permission-return" onclick="returnFromGlobalPermission('${ec}','${es}','${ed}','${er}')">↩️ تسجيل العودة</button></div>`;
+      }).join('');
+    }
+    function openGlobalPermissionModal(){ renderGlobalPermissionList(); document.getElementById('globalPermissionModal').style.display='flex'; }
+    function closeGlobalPermissionModal(){ document.getElementById('globalPermissionModal').style.display='none'; }
+    function returnFromGlobalPermission(encodedClass,encodedStudent,encodedDate,encodedRecordId){
+      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), recordId=decodeURIComponent(encodedRecordId||'');
+      if(!cls||!student||!date||!recordId) return;
+      closeGlobalPermissionModal();
+      openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,'return',encodedRecordId);
     }
 
     // ===== كشف الاستئذان التجريبي: بياناته مستقلة وتدعم أكثر من استئذان في اليوم =====
@@ -3430,12 +3504,12 @@ ${description}`)) return;
       const record=(recordId&&getPermissionRecordById(date,cls,student,recordId))||(mode==='return'&&getOpenPermissionRecord(date,cls,student))||createPermissionRecord(date,cls,student); record.outTime=outTime; record.reason=reason;
       if(mode==='return'||mode==='edit') record.returnTime=returnTime; else { record.returnTime=''; assignPermissionPeriodDeadline(record,date,cls); }
       if(record.returnTime){ record.autoCloseNote=''; record.periodEndAt=''; record.periodEndTime=''; record.periodLabel=''; }
-      record.updatedAt=new Date().toISOString(); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents(); schedulePermissionAutoClose();
+      record.updatedAt=new Date().toISOString(); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents(); updateGlobalPermissionBubble(); schedulePermissionAutoClose();
     }
     function deletePermissionEntry(){
       const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value, recordId=document.getElementById('permissionEntryRecordId').value;
       if(!recordId||!confirm(`هل تريد حذف سجل الاستئذان المحدد للطالب «${student}»؟`)) return;
-      removePermissionRecord(date,cls,student,recordId); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents();
+      removePermissionRecord(date,cls,student,recordId); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents(); updateGlobalPermissionBubble();
     }
     function openPermissionReportModal(){
       const classSelect=document.getElementById('permissionReportClassSelect'), current=document.getElementById('permissionClassSelect')?.value||'', classes=Object.keys(appData).filter(cls=>(appData[cls]||[]).length);
@@ -7424,6 +7498,8 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
         schedulePermissionAutoClose();
         renderAttendanceUnitsDropdown();
         renderStudents();
+        updateGlobalPermissionBubble();
+        window.setInterval(updateGlobalPermissionBubble,30000);
         renderUnitsDropdown();
         installUnitLockLongPresses();
         refreshUnitLockIndicators();
