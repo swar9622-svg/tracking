@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.80";</script>
+  <script>const APP_VERSION = "21.81";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3421,7 +3421,7 @@ ${description}`)) return;
     function deleteDailyStatsEntry(type,encodedStudent,encodedRecordId){
       const cls=document.getElementById('classSelect')?.value||'', date=document.getElementById('dateSelect')?.value||'', student=decodeURIComponent(encodedStudent||''), recordId=decodeURIComponent(encodedRecordId||''); if(!cls||!date||!student) return;
       if(type==='permission'){ if(recordId) removePermissionRecord(date,cls,student,recordId); }
-      else { const rec=getStudentDayRecord(date,cls,student,currentAttendanceUnit); if(type==='violations') rec.violations=[]; else if((type==='absent'&&rec.status==='غائب')||(type==='late'&&rec.status==='متأخر')) rec.status=''; cleanupMutableAttendanceRecord(date,cls,student); }
+      else { const rec=getMutableAttendanceRecord(date,cls,student); if(type==='violations') rec.violations=[]; else if((type==='absent'&&rec.status==='غائب')||(type==='late'&&rec.status==='متأخر')) rec.status=''; cleanupMutableAttendanceRecord(date,cls,student); }
       saveData(); renderStudents(); renderPermissionStudents(); updateGlobalPermissionBubble(); openDailyStatsModal(type);
     }
 
