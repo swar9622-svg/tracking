@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.77";</script>
+  <script>const APP_VERSION = "21.76";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3403,7 +3403,7 @@ ${description}`)) return;
       if(!active.length){ list.innerHTML='<div class="global-permission-empty">لا يوجد طلاب خارج الفصل حالياً.</div>'; return; }
       list.innerHTML=active.map(({date,cls,student,record})=>{
         const ec=encodeURIComponent(cls), es=encodeURIComponent(student), ed=encodeURIComponent(date), er=encodeURIComponent(record.id||'');
-        return `<div class="global-permission-row"><div class="global-permission-details"><div class="global-permission-name">${escapeTextForHtml(student)}</div><div class="global-permission-meta">${escapeTextForHtml(cls)} · خرج ${escapeTextForHtml(record.outTime)} · ${escapeTextForHtml(String(record.reason||'').trim()||'استئذان')}</div></div><button type="button" class="global-permission-return" onclick="returnFromGlobalPermission('${ec}','${es}','${ed}','${er}')">↩️ تسجيل العودة</button></div>`;
+        return `<div class="global-permission-row"><div class="global-permission-details"><div class="global-permission-name">${escapeTextForHtml(student)}</div><div class="global-permission-meta">${escapeTextForHtml(cls)} · خرج ${escapeTextForHtml(record.outTime)} · ${escapeTextForHtml(formatPermissionReason(record))}</div></div><button type="button" class="global-permission-return" onclick="returnFromGlobalPermission('${ec}','${es}','${ed}','${er}')">↩️ تسجيل العودة</button></div>`;
       }).join('');
     }
     function openGlobalPermissionModal(){ renderGlobalPermissionList(); document.getElementById('globalPermissionModal').style.display='flex'; }
@@ -3411,7 +3411,6 @@ ${description}`)) return;
     function returnFromGlobalPermission(encodedClass,encodedStudent,encodedDate,encodedRecordId){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), recordId=decodeURIComponent(encodedRecordId||'');
       if(!cls||!student||!date||!recordId) return;
-      closeGlobalPermissionModal();
       openPermissionEntryModal(encodedClass,encodedStudent,encodedDate,'return',encodedRecordId);
     }
 
@@ -3504,12 +3503,12 @@ ${description}`)) return;
       const record=(recordId&&getPermissionRecordById(date,cls,student,recordId))||(mode==='return'&&getOpenPermissionRecord(date,cls,student))||createPermissionRecord(date,cls,student); record.outTime=outTime; record.reason=reason;
       if(mode==='return'||mode==='edit') record.returnTime=returnTime; else { record.returnTime=''; assignPermissionPeriodDeadline(record,date,cls); }
       if(record.returnTime){ record.autoCloseNote=''; record.periodEndAt=''; record.periodEndTime=''; record.periodLabel=''; }
-      record.updatedAt=new Date().toISOString(); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents(); updateGlobalPermissionBubble(); schedulePermissionAutoClose();
+      record.updatedAt=new Date().toISOString(); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents(); schedulePermissionAutoClose();
     }
     function deletePermissionEntry(){
       const cls=document.getElementById('permissionEntryClass').value, student=document.getElementById('permissionEntryStudent').value, date=document.getElementById('permissionEntryDate').value, recordId=document.getElementById('permissionEntryRecordId').value;
       if(!recordId||!confirm(`هل تريد حذف سجل الاستئذان المحدد للطالب «${student}»؟`)) return;
-      removePermissionRecord(date,cls,student,recordId); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents(); updateGlobalPermissionBubble();
+      removePermissionRecord(date,cls,student,recordId); saveData(); closePermissionEntryModal(); renderPermissionStudents(); renderStudents();
     }
     function openPermissionReportModal(){
       const classSelect=document.getElementById('permissionReportClassSelect'), current=document.getElementById('permissionClassSelect')?.value||'', classes=Object.keys(appData).filter(cls=>(appData[cls]||[]).length);
