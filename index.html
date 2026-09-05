@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.01";</script>
+  <script>const APP_VERSION = "22.02";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -98,6 +98,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .attendance-search-input:focus{border-color:#007AFF;box-shadow:0 0 0 2px rgba(0,122,255,.12);}
     .student-list { padding: 0.40rem 0.875rem 8.0rem 0.875rem; display: flex; flex-direction: column; gap: 0.5rem; }
     .student-card { background-color: var(--card-bg); border-radius: 0.75rem; padding: 0.625rem 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    #understandingScreen .understanding-collapsed-card{min-height:2.55rem;padding:.34rem .55rem;border:1px solid #CFE8D9;background:#F5FFF8;gap:.38rem;}
+    #understandingScreen .understanding-collapsed-card .student-name{font-size:.78rem;color:#176B45;}
+    #understandingScreen .understanding-collapsed-status{flex:0 0 auto;font-size:.66rem;font-weight:900;color:#176B45;background:#E1F4E8;border-radius:.42rem;padding:.28rem .38rem;}
+    #understandingScreen .understanding-collapsed-open{flex:0 0 auto;border:1px solid #A9DFBF;border-radius:.42rem;background:#FFF;color:#176B45;font:inherit;font-size:.62rem;font-weight:900;padding:.27rem .40rem;cursor:pointer;}
+    #understandingScreen .understanding-summary-visibility{display:block;width:100%;margin:.28rem 0 .12rem;border:1px solid #BBD7F3;border-radius:.55rem;background:#F0F7FF;color:#0B5394;padding:.42rem .5rem;font:inherit;font-size:.68rem;font-weight:900;cursor:pointer;}
     #absenceScreen .student-card { flex-wrap:wrap; position:relative; }
     #absenceScreen .student-note-count-badge{position:absolute;top:-0.34rem;left:-0.30rem;z-index:5;display:flex;align-items:center;justify-content:center;min-width:1.16rem;height:1.16rem;padding:0 0.18rem;border:2px solid #FFF;border-radius:999px;background:#5856D6;color:#FFF;box-shadow:0 2px 7px rgba(88,86,214,.36);font-size:0.65rem;font-weight:900;line-height:1;direction:ltr;pointer-events:none;}
     .student-name { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); flex: 1; word-break: break-word; }
@@ -3977,8 +3982,9 @@ ${description}`)) return;
       if(!understandingSummarySelectedUnits.length){ alert('اختر وحدة واحدة على الأقل للتقرير.'); return; }
       closeUnderstandingSummaryModal(); openPdfSizeModal('understandingSummary');
     }
-    let understandingRemainingMenuOpen=false;
+    let understandingRemainingMenuOpen=false, understandingShowEvaluated=false;
     let understandingRemainingMenuKey='';
+    function toggleUnderstandingEvaluatedVisibility(){ understandingShowEvaluated=!understandingShowEvaluated; renderUnderstandingScreen(); }
     function toggleUnderstandingRemainingMenu(){
       understandingRemainingMenuOpen=!understandingRemainingMenuOpen;
       renderUnderstandingScreen();
@@ -4012,7 +4018,7 @@ ${description}`)) return;
       cont.innerHTML=''; summary.innerHTML='';
       if(!cls||!unit||!lesson||!appData[cls]) return;
       const viewKey=`${cls}\u0001${unit}\u0001${lesson}`;
-      if(understandingRemainingMenuKey&&understandingRemainingMenuKey!==viewKey) understandingRemainingMenuOpen=false;
+      if(understandingRemainingMenuKey&&understandingRemainingMenuKey!==viewKey){ understandingRemainingMenuOpen=false; understandingShowEvaluated=false; }
       understandingRemainingMenuKey=viewKey;
       const states=getUnderstandingLessonStates(cls,unit,lesson), allStudents=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), searchText=String(document.getElementById('understandingStudentSearch')?.value||'').trim().toLocaleLowerCase('ar');
       const counts={mastered:0,partial:0,support:0,notDone:0,excellent:0,remaining:0};
@@ -4022,9 +4028,11 @@ ${description}`)) return;
       const remainingColor=getButtonColorCss('understandingRemainingBtn'), remainingTextColor=getButtonTextColor('understandingRemainingBtn');
       const remainingButtons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{ const color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey); return `<button class="btn-status understanding-status-${key}" onclick="applyUnderstandingStatusToRemaining('${key}')" style="background:${config.background};color:${color};border:1.3px solid ${color};font-weight:900;">${config.label}</button>`; }).join('');
       summary.innerHTML+=`<div class="understanding-remaining-control"><button type="button" class="understanding-summary-remaining" onclick="toggleUnderstandingRemainingMenu()" aria-expanded="${understandingRemainingMenuOpen}" style="background:${understandingRemainingMenuOpen?remainingColor:'#F2F2F7'};color:${understandingRemainingMenuOpen?remainingTextColor:'#3A3A3C'};border-color:${remainingColor};"><b>${counts.remaining}</b>البقية <span class="remaining-arrow">${understandingRemainingMenuOpen?'▴':'▾'}</span></button></div>`;
+      summary.innerHTML+=`<button type="button" class="understanding-summary-visibility" onclick="toggleUnderstandingEvaluatedVisibility()">${understandingShowEvaluated?'إخفاء المقيمين':'عرض الكل'} <small>(${allStudents.length-counts.remaining})</small></button>`;
       if(understandingRemainingMenuOpen) summary.innerHTML+=`<div class="understanding-remaining-menu">${remainingButtons}<button type="button" class="understanding-clear-all" onclick="clearUnderstandingLessonStatuses()">مسح الكل</button></div>`;
       const visibleStudents=searchText?allStudents.filter(student=>String(student).toLocaleLowerCase('ar').includes(searchText)):allStudents;
-      visibleStudents.forEach(student=>{
+      const studentsForCards=understandingShowEvaluated?visibleStudents:visibleStudents.filter(student=>!getUnderstandingStudentStatus(states,student));
+      studentsForCards.forEach(student=>{
         const selected=getUnderstandingStudentStatus(states,student), excellent=isUnderstandingStudentExcellent(states,student);
         const card=document.createElement('div'); card.className='student-card';
         const buttons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{
