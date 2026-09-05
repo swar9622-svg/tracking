@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.82";</script>
+  <script>const APP_VERSION = "21.83";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1012,7 +1012,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <span class="field-label" style="margin:0;white-space:nowrap;">الوحدة:</span>
         <select id="studentReportUnitSelect" class="select-class-full" onchange="onStudentReportUnitChange(this.value)" style="margin:0;"></select>
       </div>
-      <div id="studentReportColumnOptions" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:0 0 8px;padding:6px;border:1px solid #D7E3F7;border-radius:9px;background:#F7FAFF;">
+      <div id="studentReportColumnOptions" style="display:none;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:0 0 8px;padding:6px;border:1px solid #D7E3F7;border-radius:9px;background:#F7FAFF;">
         <label style="display:flex;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:900;color:#C0392B;white-space:nowrap;cursor:pointer;"><span>غياب</span><input id="studentReportOptionAbsence" type="checkbox" checked onchange="onStudentReportColumnOptionChange()" style="width:16px;height:16px;margin:0;accent-color:#FF3B30;"></label>
         <label style="display:flex;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:900;color:#C77B00;white-space:nowrap;cursor:pointer;"><span>تأخر</span><input id="studentReportOptionLate" type="checkbox" checked onchange="onStudentReportColumnOptionChange()" style="width:16px;height:16px;margin:0;accent-color:#FF9500;"></label>
         <label style="display:flex;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:900;color:#7D3C98;white-space:nowrap;cursor:pointer;"><span>مخالفات</span><input id="studentReportOptionViolations" type="checkbox" checked onchange="onStudentReportColumnOptionChange()" style="width:16px;height:16px;margin:0;accent-color:#AF52DE;"></label>
@@ -6063,22 +6063,35 @@ ${description}`)) return;
       units.forEach(u=>{ sel.innerHTML+=`<option value="${u}">${u}</option>`; });
       sel.value=currentStudentReportUnitSelection;
       document.getElementById('studentReportStudentNameHeader').innerHTML=`الطالب: ${selectedStudentForReport}<br><span style="font-size:12px;font-weight:700;color:var(--text-secondary);">الفصل: ${cls} — ${getAttendanceScopeLabel(currentStudentReportUnitSelection)}</span>`;
-      const options=getStudentReportColumnOptions(), columns=getStudentReportColumns(options), colGroup=document.getElementById('studentReportDetailColGroup'), tableHead=document.getElementById('studentReportDetailTableHead'), tbody=document.getElementById('studentReportDetailTableBody');
+      const columns=[{key:'date',label:'التاريخ',width:'25%'},{key:'absence',label:'الغياب',width:'18%'},{key:'late',label:'التأخر',width:'18%'},{key:'violations',label:'المخالفات',width:'19%'},{key:'permission',label:'الاستئذان',width:'20%'}], colGroup=document.getElementById('studentReportDetailColGroup'), tableHead=document.getElementById('studentReportDetailTableHead'), tbody=document.getElementById('studentReportDetailTableBody');
       colGroup.innerHTML=columns.map(column=>`<col style="width:${column.width}">`).join('');
       tableHead.innerHTML=columns.map(column=>`<th>${column.label}</th>`).join(''); tbody.innerHTML='';
-      const reportRows=buildStudentReportRows(cls,selectedStudentForReport,currentStudentReportUnitSelection);
-      reportRows.forEach(({date,unit,record,targetUnits,permissionEntries=[]})=>{
-        const isAbs=record.status==='غائب', isExcused=record.status==='بعذر', isLate=record.status==='متأخر';
-        const violationNames=(record.violations||[]).map(id=>{ const item=getViolationById(id); return item?item.name:String(id||''); }).filter(Boolean);
-        const token=encodeStudentReportAbsenceToken({date,cls,student:selectedStudentForReport,targetUnits:targetUnits||[]});
-        const absenceCell=(isAbs||isExcused)?`<button type="button" data-report-absence="${token}" onclick="toggleStudentReportExcusedAbsence(this.dataset.reportAbsence)" title="اضغط للتحويل بين غائب وبعذر" style="border:0;border-radius:8px;padding:5px 8px;background:${isExcused?'#FFF0F0':'transparent'};color:var(--red);font-weight:900;cursor:pointer;">${isExcused?'بعذر':'غائب'}</button>`:'-';
-        const unitLabel=currentStudentReportUnitSelection==='__all__'?'-':unit, permissionCell=permissionEntries.length?getStudentPermissionDetailsMarkup(date,cls,selectedStudentForReport):'-';
-        const violationCell=violationNames.length?`<span style="display:block;color:var(--purple);font-weight:800;font-size:11px;line-height:1.45;overflow-wrap:anywhere;">${violationNames.map(name=>escapeTextForHtml(name)).join('<br>')}</span>`:'-';
-        const cells={date:`<td style="font-weight:700;white-space:nowrap;font-size:11px;">${date}</td>`,unit:`<td style="font-weight:800;color:var(--accent);font-size:11px;overflow-wrap:anywhere;">${escapeTextForHtml(unitLabel)}</td>`,absence:`<td>${absenceCell}</td>`,late:`<td>${isLate?'<span style="color:var(--yellow);font-weight:900;">متأخر</span>':'-'}</td>`,violations:`<td style="text-align:center;">${violationCell}</td>`,permission:`<td style="text-align:center;font-size:11px;overflow-wrap:anywhere;">${permissionCell}</td>`};
+      const reportRows=buildStudentReportScreenRows(cls,selectedStudentForReport,currentStudentReportUnitSelection);
+      reportRows.forEach(({date,status,violationCount,permissionCount})=>{
+        const isAbs=status==='غائب', isExcused=status==='بعذر', isLate=status==='متأخر';
+        const absenceText=(isAbs||isExcused)?`<span style="color:var(--red);font-weight:900;">${isExcused?'بعذر':'غائب'}</span>`:'-';
+        const lateText=isLate?'<span style="color:var(--yellow);font-weight:900;">متأخر</span>':'-';
+        const violationText=violationCount?`<span style="color:var(--purple);font-weight:900;">${violationCount}</span>`:'-';
+        const permissionText=permissionCount?`<span style="color:#1769AA;font-weight:900;">${permissionCount}</span>`:'-';
+        const cells={date:`<td style="font-weight:700;white-space:nowrap;font-size:11px;">${date}</td>`,absence:`<td>${absenceText}</td>`,late:`<td>${lateText}</td>`,violations:`<td style="text-align:center;font-size:12px;">${violationText}</td>`,permission:`<td style="text-align:center;font-size:12px;">${permissionText}</td>`};
         tbody.innerHTML+=`<tr>${columns.map(column=>cells[column.key]).join('')}</tr>`;
       });
       if(reportRows.length===0) tbody.innerHTML=`<tr><td colspan="${columns.length}" style="padding:15px;color:var(--text-secondary);">لا توجد أي حالات مسجلة لهذا الطالب ضمن الوحدة المحددة.</td></tr>`;
       document.getElementById('studentReportDetailModal').style.display='flex';
+    }
+
+    function buildStudentReportScreenRows(cls,student,scope='__all__'){
+      const allDates=[...new Set([...Object.keys(records||{}),...Object.keys(permissionRecords||{})])].sort(), rows=[];
+      allDates.forEach(date=>{
+        const components=getAttendanceRecordComponents(date,cls,student,scope), permissionCount=getStudentPermissionEntries(date,cls,student).length;
+        let status='', violationCount=0;
+        components.forEach(({record})=>{
+          if(record.status==='غائب') status='غائب'; else if(record.status==='بعذر'&&status!=='غائب') status='بعذر'; else if(record.status==='متأخر'&&!status) status='متأخر';
+          violationCount+=(record.violations||[]).length;
+        });
+        if(status||violationCount||permissionCount) rows.push({date,status,violationCount,permissionCount});
+      });
+      return rows;
     }
 
     function onStudentReportUnitChange(unit){ currentStudentReportUnitSelection=unit; openStudentReportDetailModal(); }    function closeStudentReportDetailModal(){ document.getElementById('studentReportDetailModal').style.display='none'; }
