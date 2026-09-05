@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.13";</script>
+  <script>const APP_VERSION = "22.14";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4061,7 +4061,7 @@ ${description}`)) return;
         const card=document.createElement('div'); card.className='student-card';
         const buttons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{
           const active=selected===key, color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey);
-          return `<button class="btn-status understanding-status-${key}${active?' is-selected':''}" onclick="markUnderstandingStatusButton(this,'${key}');setUnderstandingStatus('${CSS.escape(student)}','${key}')" style="background:${active?color:'#FFFFFF'};color:${active?textColor:color};border:1.3px solid ${color};font-weight:${active?'900':'800'};">${config.label}</button>`;
+          return `<button class="btn-status understanding-status-${key}${active?' is-selected':''}" data-understanding-student="${encodeURIComponent(student)}" data-understanding-status="${key}" onclick="markUnderstandingStatusButton(this,'${key}');setUnderstandingStatus(decodeURIComponent(this.dataset.understandingStudent),'${key}')" style="background:${active?color:'#FFFFFF'};color:${active?textColor:color};border:1.3px solid ${color};font-weight:${active?'900':'800'};">${config.label}</button>`;
         }).join('');
         const excellenceStar=excellent?'<span class="student-excellence-star" title="متميز — مكافأة مستقلة">★</span>':'';
         const statsBubble=understandingStatsBubbleStudent===student?buildUnderstandingStudentStatsBubble(cls,student):'';
