@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.98";</script>
+  <script>const APP_VERSION = "22.00";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -707,7 +707,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .daily-stats-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #DDE7E8;border-radius:10px;background:#FAFEFE;padding:8px 9px;}
     .daily-stats-name{min-width:0;color:#17434A;font-size:.77rem;font-weight:900;line-height:1.45;overflow-wrap:anywhere;}
     .daily-stats-detail{display:block;color:#667085;font-size:.64rem;font-weight:800;}
-    .daily-stats-delete{flex:0 0 auto;border:1px solid #F4B6B6;border-radius:.56rem;min-height:2.18rem;padding:.34rem .52rem;background:#FFF0F0;color:#B42318;font:inherit;font-size:.68rem;font-weight:900;cursor:pointer;}
+    .daily-stats-delete{flex:0 0 auto;border:1px solid #F4B6B6;border-radius:.56rem;min-height:2.18rem;padding:.34rem .52rem;background:#FFF0F0;color:#B42318;font:inherit;font-size:.68rem;font-weight:900;cursor:pointer;}.daily-stats-excuse{flex:0 0 auto;border:1px solid #E5B7B7;border-radius:.56rem;min-height:2.18rem;padding:.34rem .52rem;background:#FFF8F8;color:#9C2F2F;font:inherit;font-size:.68rem;font-weight:900;cursor:pointer;}.daily-stats-actions{display:flex;align-items:center;gap:4px;flex:0 0 auto;}
     .daily-stats-empty{text-align:center;color:#667085;padding:18px 8px;font-size:.75rem;font-weight:800;}
     .student-history-trigger{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;}.student-history-trigger:active{transform:scale(.96);}
   </style>
@@ -730,8 +730,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <select id="attendanceUnitSelect" onchange="onAttendanceUnitChange(this.value)" title="وحدة الغياب والتأخر والمخالفات"></select>
       </div>
       <div class="stats-container">
-        <div class="stat-card absent" ondblclick="openDailyStatsModal('absent')" title="اضغط مرتين لعرض وحذف الغياب"><div class="stat-number" id="absentCount">0</div><div class="stat-label">غياب اليوم</div></div>
-        <div class="stat-card late" ondblclick="openDailyStatsModal('late')" title="اضغط مرتين لعرض وحذف التأخر"><div class="stat-number" id="lateCount">0</div><div class="stat-label">تأخر اليوم</div></div>
+        <div class="stat-card absent" ondblclick="openDailyStatsModal('absent')" title="اضغط مرتين لعرض وحذف الغياب"><div class="stat-number" id="absentCount">0</div><div class="stat-label">غياب<br>اليوم</div></div>
+        <div class="stat-card late" ondblclick="openDailyStatsModal('late')" title="اضغط مرتين لعرض وحذف التأخر"><div class="stat-number" id="lateCount">0</div><div class="stat-label">تأخر<br>اليوم</div></div>
         <div class="stat-card violation" ondblclick="openDailyStatsModal('violations')" title="اضغط مرتين لعرض وحذف المخالفات"><div class="stat-number" id="violationCount">0</div><div class="stat-label">مخالفات اليوم</div></div>
         <div class="stat-card permission-stat" ondblclick="openDailyStatsModal('permission')" title="اضغط مرتين لعرض وحذف الاستئذانات"><div class="stat-number" id="todayPermissionCount">0</div><div class="stat-label">استئذان اليوم</div></div>
         <div class="stat-card student-report clickable" onclick="openStudentReportSelectModal()" style="background-color:#EBF3FF;border-color:#B3D7FF;">
@@ -3505,7 +3505,7 @@ ${description}`)) return;
       title.textContent=`📋 ${STUDENT_HISTORY_LABELS[type]||'سجل الطالب'} — ${student}`;
       hint.textContent=`الفصل: ${cls}${scopeText} · جميع التواريخ — اضغط «حذف» لإزالة السجل المحدد.`;
       const encodedClass=encodeStudentHistoryValue(cls), encodedStudent=encodeStudentHistoryValue(student);
-      list.innerHTML=rows.length?rows.map(row=>{ const encodedDate=encodeStudentHistoryValue(row.date), encodedReference=encodeStudentHistoryValue(JSON.stringify(row.reference)); return `<div class="daily-stats-row"><div class="daily-stats-name">${escapeTextForHtml(row.date)}<span class="daily-stats-detail">${escapeTextForHtml(row.detail)}</span></div><button type="button" class="daily-stats-delete" onclick="deleteStudentHistoryEntry('${type}','${encodedClass}','${encodedStudent}','${encodedDate}','${encodedReference}')">حذف</button></div>`; }).join(''):'<div class="daily-stats-empty">لا توجد سجلات من هذا النوع لهذا الطالب.</div>';
+      list.innerHTML=rows.length?rows.map(row=>{ const encodedDate=encodeStudentHistoryValue(row.date), encodedReference=encodeStudentHistoryValue(JSON.stringify(row.reference)); const actions=type==='absent'?`<div class="daily-stats-actions"><button type="button" class="daily-stats-excuse" onclick="toggleStudentHistoryExcusedAbsence('${encodedClass}','${encodedStudent}','${encodedDate}','${encodedReference}')">بعذر</button><button type="button" class="daily-stats-delete" onclick="deleteStudentHistoryEntry('${type}','${encodedClass}','${encodedStudent}','${encodedDate}','${encodedReference}')">حذف</button></div>`:`<button type="button" class="daily-stats-delete" onclick="deleteStudentHistoryEntry('${type}','${encodedClass}','${encodedStudent}','${encodedDate}','${encodedReference}')">حذف</button>`; return `<div class="daily-stats-row"><div class="daily-stats-name">${escapeTextForHtml(row.date)}<span class="daily-stats-detail">${escapeTextForHtml(row.detail)}</span></div>${actions}</div>`; }).join(''):'<div class="daily-stats-empty">لا توجد سجلات من هذا النوع لهذا الطالب.</div>';
     }
     function getMutableStoredAttendanceSource(date,cls,student,sourceKey){
       let raw=rawStudentAttendanceRecord(date,cls,student); if(!raw) return null;
@@ -3538,6 +3538,12 @@ ${description}`)) return;
         clearSource('__legacy__'); Object.keys(raw?.units||{}).forEach(unit=>clearSource(unit));
       }else clearSource(sourceKey);
       cleanupStudentAttendanceStorage(date,cls,student);
+    }
+    function toggleStudentHistoryExcusedAbsence(encodedClass,encodedStudent,encodedDate,encodedReference){
+      const cls=decodeStudentHistoryValue(encodedClass),student=decodeStudentHistoryValue(encodedStudent),date=decodeStudentHistoryValue(encodedDate),reference=decodeStudentHistoryReference(encodedReference); if(!cls||!student||!date||!reference) return;
+      const record=getMutableStoredAttendanceSource(date,cls,student,reference.source); if(!record||(record.status!=='غائب'&&record.status!=='بعذر')) return;
+      record.status=record.status==='غائب'?'بعذر':'غائب'; if(record.status==='بعذر') record.violations=[];
+      cleanupStudentAttendanceStorage(date,cls,student); saveData(); renderStudents(); renderPermissionStudents(); updateGlobalPermissionBubble(); if(studentHistoryModalContext) renderStudentHistoryModal();
     }
     function deleteStudentHistoryEntry(type,encodedClass,encodedStudent,encodedDate,encodedReference){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), date=decodeURIComponent(encodedDate||''), reference=decodeStudentHistoryReference(encodedReference); if(!cls||!student||!date||!reference) return;
