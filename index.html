@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.86";</script>
+  <script>const APP_VERSION = "21.87";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -555,7 +555,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #understandingClassSelect{background:#EAF7EE;border-color:#A9DFBF;color:#166534;}
     #understandingUnitSelect{background:#EAF3FF;border-color:#AED6F1;color:#1D4ED8;}
     #understandingLessonSelect{background:#FFF3E0;border-color:#F5CBA7;color:#B45309;}
-    #understandingScreen .student-card{position:relative;overflow:hidden;padding:0;}.understanding-card-main{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:.5rem;width:100%;padding:.625rem .75rem;box-sizing:border-box;background:var(--card-bg);transition:transform .18s ease;}.understanding-card-main.is-note-revealed{transform:translateX(-88px);}.understanding-swipe-note-action{position:absolute;z-index:1;left:0;top:0;width:88px;height:100%;border:0;background:#147DF5;color:#FFF;font:inherit;font-size:.67rem;font-weight:900;cursor:pointer;opacity:0;transition:opacity .18s ease;}.understanding-swipe-note-action.is-visible{opacity:1;}.understanding-swipe-hint{font-size:.58rem;color:#7A8795;font-weight:800;text-align:center;margin-top:.25rem;}
+    #understandingScreen .student-card{position:relative;overflow:visible;}.understanding-swipe-note-action{position:absolute;z-index:8;left:0;top:0;width:88px;height:100%;border:0;border-radius:.72rem 0 0 .72rem;background:#147DF5;color:#FFF;font:inherit;font-size:.67rem;font-weight:900;line-height:1.2;cursor:pointer;opacity:0;transform:translateX(-12px);transition:opacity .18s ease,transform .18s ease;pointer-events:none;}.understanding-swipe-note-action.is-visible{opacity:1;transform:translateX(0);pointer-events:auto;}.understanding-swipe-note-action.is-visible~.student-name{transform:translateX(-88px);transition:transform .18s ease;}.understanding-note-badges{transition:transform .18s ease;}.understanding-swipe-hint{font-size:.58rem;color:#7A8795;font-weight:800;text-align:center;margin-top:.25rem;}
     .understanding-buttons{display:grid;grid-template-columns:repeat(2,minmax(58px,1fr));gap:3px;flex:0 0 142px;}
     .understanding-buttons .btn-status{width:100%;min-width:0;height:1.5rem;padding:0.12rem 0.1rem;font-size:0.58rem;line-height:1.02;}
     #understandingScreen .student-card{position:relative;}
@@ -3904,9 +3904,10 @@ ${understandingNoteDefinitions.map((item,index)=>`${index+1}. ${item}`).join('\n
     function installUnderstandingSwipeNote(card,main,cls,student){
       let startX=0,startY=0,moved=false;
       card.addEventListener('touchstart',event=>{ const touch=event.touches[0]; startX=touch.clientX; startY=touch.clientY; moved=false; },{passive:true});
-      card.addEventListener('touchmove',event=>{ const touch=event.touches[0], dx=touch.clientX-startX, dy=touch.clientY-startY; if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)){ moved=true; if(dx<-35){ main.classList.add('is-note-revealed'); card.querySelector('.understanding-swipe-note-action')?.classList.add('is-visible'); } else if(dx>25){ main.classList.remove('is-note-revealed'); card.querySelector('.understanding-swipe-note-action')?.classList.remove('is-visible'); } } },{passive:true});
-      card.addEventListener('touchend',()=>{ if(moved) setTimeout(()=>{moved=false;},0); },{passive:true});
+      card.addEventListener('touchmove',event=>{ const touch=event.touches[0], dx=touch.clientX-startX, dy=touch.clientY-startY; if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)){ moved=true; if(dx<-40){ card.classList.add('is-note-revealed'); card.querySelector('.understanding-swipe-note-action')?.classList.add('is-visible'); } else if(dx>30){ card.classList.remove('is-note-revealed'); card.querySelector('.understanding-swipe-note-action')?.classList.remove('is-visible'); } } },{passive:true});
+      card.addEventListener('touchend',()=>{ moved=false; },{passive:true});
     }
+
 
     function setUnderstandingStatus(student,status){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
@@ -4044,14 +4045,13 @@ ${understandingNoteDefinitions.map((item,index)=>`${index+1}. ${item}`).join('\n
         const excellenceStar=excellent?'<span class="student-excellence-star" title="متميز — مكافأة مستقلة">★</span>':'';
         const statsBubble=understandingStatsBubbleStudent===student?buildUnderstandingStudentStatsBubble(cls,student):'';
         const noteAction=`<button type="button" class="understanding-swipe-note-action" onclick="event.stopPropagation();openUnderstandingStudentNotesFromSwipe('${CSS.escape(cls)}','${CSS.escape(student)}')">📝<br>ملاحظات</button>`;
-        const cardMain=`<div class="understanding-card-main"><div class="student-name" title="اضغط مرتين للتميز، اضغط مطولاً للإحصائية، واسحب لليسار للملاحظات" ondblclick="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')" onpointerdown="startUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointermove="moveUnderstandingStudentNamePress(event)" onpointerup="endUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointercancel="cancelUnderstandingStudentNamePress()" oncontextmenu="event.preventDefault();return false;" onselectstart="return false;" ondragstart="return false;">${statsBubble}${student}</div><div class="understanding-buttons">${buttons}</div></div>`;
-        card.innerHTML=noteAction+cardMain;
-        installUnderstandingSwipeNote(card,card.querySelector('.understanding-card-main'),cls,student);
+        card.innerHTML=noteAction+`<div class="student-name" title="اضغط مرتين للتميز، اضغط مطولاً للإحصائية، واسحب لليسار للملاحظات" ondblclick="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')" onpointerdown="startUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointermove="moveUnderstandingStudentNamePress(event)" onpointerup="endUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointercancel="cancelUnderstandingStudentNamePress()" oncontextmenu="event.preventDefault();return false;" onselectstart="return false;" ondragstart="return false;">${statsBubble}${student}</div><div class="understanding-buttons">${buttons}</div>`;
+        installUnderstandingSwipeNote(card,null,cls,student);
         cont.appendChild(card);
       });
       if(isUnitLocked(cls,unit)){
         summary.querySelectorAll('button').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
-        cont.querySelectorAll('.understanding-buttons button').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
+        cont.querySelectorAll('.understanding-buttons .btn-status').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
       }
     }
     function getUnderstandingUnitPdfContext(){
