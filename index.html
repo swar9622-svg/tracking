@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.05";</script>
+  <script>const APP_VERSION = "22.06";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4042,7 +4042,7 @@ ${description}`)) return;
       const compactToggle=document.getElementById('understandingCompactToggle'); if(compactToggle){ compactToggle.textContent=`الصف المختصر: ${understandingCompactMode?'مفعّل':'متوقف'}`; compactToggle.classList.toggle('is-off',!understandingCompactMode); }
       if(understandingRemainingMenuOpen) summary.innerHTML+=`<div class="understanding-remaining-menu">${remainingButtons}<button type="button" class="understanding-clear-all" onclick="clearUnderstandingLessonStatuses()">مسح الكل</button></div>`;
       const visibleStudents=searchText?allStudents.filter(student=>String(student).toLocaleLowerCase('ar').includes(searchText)):allStudents;
-      const studentsForCards=understandingCompactMode?[...visibleStudents].sort((a,b)=>{ const ae=!!getUnderstandingStudentStatus(states,a),be=!!getUnderstandingStudentStatus(states,b); return Number(be)-Number(ae)||a.localeCompare(b,'ar'); }):visibleStudents;
+      const studentsForCards=understandingCompactMode?[...visibleStudents].sort((a,b)=>{ const ae=!!getUnderstandingStudentStatus(states,a),be=!!getUnderstandingStudentStatus(states,b); return Number(be)-Number(ae)||a.localeCompare(b,'ar'); }):(understandingShowEvaluated?visibleStudents:visibleStudents.filter(student=>!getUnderstandingStudentStatus(states,student)));
       studentsForCards.forEach(student=>{
         const selected=getUnderstandingStudentStatus(states,student), excellent=isUnderstandingStudentExcellent(states,student), noteBadges=getUnderstandingStudentNoteBadges(cls,student);
         if(selected&&understandingCompactMode&&!understandingShowEvaluated){
