@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.03";</script>
+  <script>const APP_VERSION = "22.04";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4032,9 +4032,15 @@ ${description}`)) return;
       const visibilityBar=document.getElementById('understandingVisibilityBar'); if(visibilityBar) visibilityBar.innerHTML=`${understandingShowEvaluated?'إخفاء المقيمين':'عرض الكل'} <small>(${allStudents.length-counts.remaining} مقيم)</small>`;
       if(understandingRemainingMenuOpen) summary.innerHTML+=`<div class="understanding-remaining-menu">${remainingButtons}<button type="button" class="understanding-clear-all" onclick="clearUnderstandingLessonStatuses()">مسح الكل</button></div>`;
       const visibleStudents=searchText?allStudents.filter(student=>String(student).toLocaleLowerCase('ar').includes(searchText)):allStudents;
-      const studentsForCards=understandingShowEvaluated?visibleStudents:visibleStudents.filter(student=>!getUnderstandingStudentStatus(states,student));
+      const studentsForCards=visibleStudents;
       studentsForCards.forEach(student=>{
-        const selected=getUnderstandingStudentStatus(states,student), excellent=isUnderstandingStudentExcellent(states,student);
+        const selected=getUnderstandingStudentStatus(states,student), excellent=isUnderstandingStudentExcellent(states,student), noteBadges=getUnderstandingStudentNoteBadges(cls,student);
+        if(selected&&!understandingShowEvaluated){
+          const compactCard=document.createElement('div'); compactCard.className='student-card understanding-collapsed-card';
+          const compactConfig=UNDERSTANDING_STATUS_CONFIG[selected]||UNDERSTANDING_STATUS_CONFIG.notDone;
+          compactCard.innerHTML=`${noteBadges}<div class="student-name">${escapeTextForHtml(student)}</div><span class="understanding-collapsed-status">${escapeTextForHtml(compactConfig.label)}${excellent?' ★':''}</span><button type="button" class="understanding-collapsed-open" onclick="understandingShowEvaluated=true;renderUnderstandingScreen()">تعديل</button>`;
+          cont.appendChild(compactCard); return;
+        }
         const card=document.createElement('div'); card.className='student-card';
         const buttons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{
           const active=selected===key, color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey);
@@ -4042,7 +4048,6 @@ ${description}`)) return;
         }).join('');
         const excellenceStar=excellent?'<span class="student-excellence-star" title="متميز — مكافأة مستقلة">★</span>':'';
         const statsBubble=understandingStatsBubbleStudent===student?buildUnderstandingStudentStatsBubble(cls,student):'';
-        const noteBadges=getUnderstandingStudentNoteBadges(cls,student);
         card.innerHTML=`${excellenceStar}${noteBadges}<div class="student-name" title="اضغط مرتين للمشاركة المتميزة، أو اضغط مطولاً للإحصائية" ondblclick="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')" onpointerdown="startUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointermove="moveUnderstandingStudentNamePress(event)" onpointerup="endUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointercancel="cancelUnderstandingStudentNamePress()" oncontextmenu="event.preventDefault();return false;" onselectstart="return false;" ondragstart="return false;">${statsBubble}${student}</div><div class="understanding-buttons">${buttons}</div>`;
         cont.appendChild(card);
       });
