@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.85";</script>
+  <script>const APP_VERSION = "21.86";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -555,6 +555,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #understandingClassSelect{background:#EAF7EE;border-color:#A9DFBF;color:#166534;}
     #understandingUnitSelect{background:#EAF3FF;border-color:#AED6F1;color:#1D4ED8;}
     #understandingLessonSelect{background:#FFF3E0;border-color:#F5CBA7;color:#B45309;}
+    #understandingScreen .student-card{position:relative;overflow:hidden;padding:0;}.understanding-card-main{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:.5rem;width:100%;padding:.625rem .75rem;box-sizing:border-box;background:var(--card-bg);transition:transform .18s ease;}.understanding-card-main.is-note-revealed{transform:translateX(-88px);}.understanding-swipe-note-action{position:absolute;z-index:1;left:0;top:0;width:88px;height:100%;border:0;background:#147DF5;color:#FFF;font:inherit;font-size:.67rem;font-weight:900;cursor:pointer;opacity:0;transition:opacity .18s ease;}.understanding-swipe-note-action.is-visible{opacity:1;}.understanding-swipe-hint{font-size:.58rem;color:#7A8795;font-weight:800;text-align:center;margin-top:.25rem;}
     .understanding-buttons{display:grid;grid-template-columns:repeat(2,minmax(58px,1fr));gap:3px;flex:0 0 142px;}
     .understanding-buttons .btn-status{width:100%;min-width:0;height:1.5rem;padding:0.12rem 0.1rem;font-size:0.58rem;line-height:1.02;}
     #understandingScreen .student-card{position:relative;}
@@ -595,8 +596,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .understanding-summary-unit-btn.is-selected{background:#D6EAF8;border-color:#1B4F72;box-shadow:inset 0 0 0 1px #1B4F72;}
     /* فقاعة إحصاءات صغيرة فوق اسم طالب تحقق من فهمك. */
     #understandingScreen .student-name{position:relative;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;}
-    .understanding-note-badges{position:absolute;top:-0.42rem;right:-0.28rem;z-index:6;display:flex;align-items:center;gap:2px;max-width:72%;overflow:hidden;pointer-events:none;direction:rtl;}.understanding-note-badge{display:inline-flex;align-items:center;max-width:4.2rem;height:1.05rem;padding:0 .25rem;border:2px solid #FFF;border-radius:999px;background:#FFF4CC;color:#8A5A00;box-shadow:0 2px 6px rgba(138,90,0,.22);font-size:.52rem;font-weight:900;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.understanding-note-count{background:#147DF5;color:#FFF;min-width:1.08rem;justify-content:center;}.understanding-note-action{grid-column:1/-1;width:100%;height:1.42rem;border:1px solid #B8D7F5;border-radius:.45rem;background:#EEF7FF;color:#1769AA;font:inherit;font-size:.58rem;font-weight:900;cursor:pointer;}.understanding-note-action:active{transform:scale(.98);}
-    .understanding-note-preset-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:.35rem 0 .55rem;}.understanding-note-preset{border:1px solid #D7E3F7;border-radius:.55rem;background:#F7FAFF;color:#1769AA;padding:.42rem .3rem;font:inherit;font-size:.65rem;font-weight:900;cursor:pointer;line-height:1.25;}.understanding-note-preset:active{background:#E4F1FF;}.understanding-notes-modal-list{display:flex;flex-direction:column;gap:5px;max-height:30vh;overflow:auto;margin-top:.55rem;}.understanding-note-item{display:flex;align-items:center;gap:.35rem;padding:.42rem;border:1px solid #E2E8F0;border-radius:.55rem;background:#FAFCFF;color:#334155;font-size:.68rem;font-weight:800;line-height:1.35;}.understanding-note-item span{flex:1;min-width:0;overflow-wrap:anywhere;}.understanding-note-item small{display:block;color:#8A94A6;font-size:.55rem;font-weight:700;}.understanding-note-delete{border:0;border-radius:.4rem;background:#FFF0F0;color:#B42318;padding:.3rem .4rem;font:inherit;font-size:.58rem;font-weight:900;cursor:pointer;}
     .understanding-stats-bubble{position:absolute;z-index:20;left:50%;bottom:calc(100% + 0.34rem);transform:translateX(-50%);display:flex;flex-direction:column;align-items:stretch;gap:2px;width:6.85rem;max-width:calc(100vw - 0.9rem);padding:0.24rem;border:1px solid #D1D1D6;border-radius:0.60rem;background:#FFFFFF;box-shadow:0 3px 10px rgba(0,0,0,.16);direction:rtl;pointer-events:none;user-select:none;-webkit-user-select:none;}
     .understanding-stats-bubble::after{content:'';position:absolute;left:50%;bottom:-5px;width:9px;height:9px;background:#FFFFFF;border-right:1px solid #D1D1D6;border-bottom:1px solid #D1D1D6;transform:translateX(-50%) rotate(45deg);}
     .understanding-stats-bubble > span{display:flex;align-items:center;justify-content:space-between;gap:0.25rem;min-width:0;border-radius:0.34rem;padding:0.22rem 0.30rem;font-size:0.54rem;font-weight:900;white-space:nowrap;line-height:1.04;}.understanding-stats-bubble b{font-size:0.72rem;font-weight:900;}.understanding-stats-bubble .mastered{background:#EAF7EE;color:#1E8449;}.understanding-stats-bubble .partial{background:#EAF3FF;color:#007AFF;}.understanding-stats-bubble .support{background:#FFF7E6;color:#D97706;}.understanding-stats-bubble .notDone{background:#FDEDEC;color:#C0392B;}.understanding-stats-bubble .excellent{background:#FFF4CC;color:#B77900;}
@@ -775,16 +774,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   </div>
 
   <!-- اختيار طالب ثم إدخال جميع دروس الوحدة في سجل تحقق من فهمك نفسه. -->
-  <div class="modal" id="understandingStudentNotesModal" style="z-index:180;">
-    <div class="modal-content" style="max-width:460px;width:94%;max-height:86vh;display:flex;flex-direction:column;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;"><div class="modal-title" style="margin:0;color:#1769AA;font-size:1rem;">📝 ملاحظات الطالب</div><button class="btn-close-circle" onclick="closeUnderstandingStudentNotesModal()" aria-label="إغلاق">✕</button></div>
-      <div id="understandingNotesStudentLabel" style="text-align:center;background:#EEF7FF;border:1px solid #CFE3F8;color:#1769AA;padding:7px;border-radius:8px;font-size:.78rem;font-weight:900;"></div>
-      <div class="understanding-note-preset-grid">${['عدم حفظ جدول الضرب','يحتاج إلى مراجعة القراءة','يحتاج إلى دعم في الفهم','عدم إحضار الواجب','ضعف في التركيز','مشاركة متميزة'].map(note=>`<button type="button" class="understanding-note-preset" onclick="useUnderstandingNotePreset(this.dataset.note)" data-note="${note}">${note}</button>`).join('')}</div>
-      <textarea id="understandingStudentNoteInput" rows="3" placeholder="اكتب ملاحظة أخرى…" style="width:100%;box-sizing:border-box;border:1px solid #C9D8EF;border-radius:8px;padding:8px;font:inherit;font-size:.75rem;font-weight:700;resize:vertical;direction:rtl;"></textarea>
-      <button type="button" class="btn-export-period" onclick="saveUnderstandingStudentNote()" style="background:#147DF5;margin:7px 0 0;">حفظ الملاحظة</button>
-      <div id="understandingStudentNotesList" class="understanding-notes-modal-list"></div>
-    </div>
-  </div>
   <div class="modal" id="understandingBulkModal" style="z-index:150;">
     <div class="modal-content" style="max-width:520px;width:95%;max-height:88vh;display:flex;flex-direction:column;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex:0 0 auto;">
@@ -1713,6 +1702,14 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     </div>
   </div>
 
+  <div class="modal" id="understandingNoteDefinitionsModal" style="z-index:170;">
+    <div class="modal-content" style="max-width:460px;width:94%;max-height:84vh;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div class="modal-title" style="margin:0;color:#1769AA;font-size:1rem;">📝 ملاحظات تحقق من فهمك</div><button class="btn-close-circle" onclick="closeUnderstandingNoteDefinitionsModal()">✕</button></div>
+      <div style="font-size:.72rem;line-height:1.5;color:var(--text-secondary);font-weight:800;text-align:center;margin-bottom:8px;">أضف الملاحظات التي تريد ظهورها في قائمة الطالب، أو احذف الملاحظات غير المناسبة.</div>
+      <div id="understandingNoteDefinitionsList" style="display:flex;flex-direction:column;gap:5px;max-height:42vh;overflow:auto;margin-bottom:9px;"></div>
+      <div style="display:flex;gap:5px;align-items:stretch;"><input id="newUnderstandingNoteDefinitionInput" type="text" placeholder="مثال: يحتاج إلى تدريب على الكسور" style="flex:1;min-width:0;border:1px solid #C9D8EF;border-radius:8px;padding:8px;font:inherit;font-size:.72rem;font-weight:700;"><button type="button" class="btn-action" onclick="addUnderstandingNoteDefinition()" style="flex:0 0 78px;min-height:40px;background:#147DF5;font-size:.68rem;">+ إضافة</button></div>
+    </div>
+  </div>
   <div class="modal" id="penaltyConfigModal" style="z-index:105;">
     <div class="modal-content">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1736,6 +1733,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button type="button" class="btn-action" style="background-color:var(--accent);min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openPenaltyConfigModal();">⚙️ إدارة درجات المخالفات</button>
+        <button type="button" class="btn-action" style="background-color:#147DF5;min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openUnderstandingNoteDefinitionsModal();">📝 ملاحظات تحقق من فهمك</button>
         <button type="button" class="btn-action" style="background-color:#5B2C6F;min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openParticipationModeModal();">⚙️ درجات المشاركة</button>
         <button type="button" class="btn-action" style="background-color:#8E44AD;min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openProjectGradesModal();">⚙️ إدارة درجات المشاريع</button>
         <button type="button" class="btn-action" style="background-color:#B77900;min-height:46px;font-size:13px;" onclick="closeGradesManageModal();openExcellenceSettingsModal();">⭐ إدارة درجات التميز</button>
@@ -2037,6 +2035,8 @@ ${description}`)) return;
     let understandingData = {};
     // ملاحظات كلية مستقلة لكل طالب: لا تغير الغياب أو التأخر أو الدرجات.
     let studentNotesData = {};
+    const DEFAULT_UNDERSTANDING_NOTE_DEFINITIONS=['عدم حفظ جدول الضرب','يحتاج إلى مراجعة القراءة','يحتاج إلى دعم في الفهم','عدم إحضار الواجب','ضعف في التركيز','مشاركة متميزة'];
+    let understandingNoteDefinitions=[...DEFAULT_UNDERSTANDING_NOTE_DEFINITIONS];
     // كل صف يحتفظ بفصوله ووحداته ودروسه وطلابه وسجلاته في مساحة مستقلة.
     // تبقى المتغيرات القديمة أدناه هي مساحة الصف النشط فقط، لحماية الدوال القائمة.
     let gradeWorkspaces={};
@@ -2044,10 +2044,10 @@ ${description}`)) return;
     let gradeWorkspacesMigrated=false;
     function isValidGradeName(value){ return typeof value==='string'&&value.trim().length>0; }
     function createEmptyGradeWorkspace(){
-      return {appData:{},records:{},permissionRecords:{},unitsData:{},unitLocks:{},followupData:{},understandingData:{},studentNotesData:{},penaltiesData:cloneData(defaultPenalties),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:[],projectDistributionOrder:{},excellenceSettings:cloneData(excellenceSettings),participationSettings:{mode:'per_unit',activeUnit:''},studentNumberMap:{},weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:{enabled:true},noteEntryWindow:cloneData(DEFAULT_NOTE_ENTRY_WINDOW)};
+      return {appData:{},records:{},permissionRecords:{},unitsData:{},unitLocks:{},followupData:{},understandingData:{},studentNotesData:{},understandingNoteDefinitions:[...DEFAULT_UNDERSTANDING_NOTE_DEFINITIONS],penaltiesData:cloneData(defaultPenalties),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:[],projectDistributionOrder:{},excellenceSettings:cloneData(excellenceSettings),participationSettings:{mode:'per_unit',activeUnit:''},studentNumberMap:{},weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:{enabled:true},noteEntryWindow:cloneData(DEFAULT_NOTE_ENTRY_WINDOW)};
     }
     function captureActiveGradeWorkspace(){
-      return {appData:cloneData(appData),records:cloneData(records),permissionRecords:cloneData(permissionRecords),unitsData:cloneData(unitsData),unitLocks:cloneData(unitLocks),followupData:cloneData(followupData),understandingData:cloneData(understandingData),studentNotesData:cloneData(studentNotesData),penaltiesData:cloneData(penaltiesData),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:cloneData(period1SelectedUnits),projectDistributionOrder:cloneData(projectDistributionOrder),excellenceSettings:cloneData(excellenceSettings),participationSettings:cloneData(participationSettings),studentNumberMap:cloneData(queryStudentNumberMap),weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:cloneData(gradeRoundingSettings),noteEntryWindow:cloneData(noteEntryWindow)};
+      return {appData:cloneData(appData),records:cloneData(records),permissionRecords:cloneData(permissionRecords),unitsData:cloneData(unitsData),unitLocks:cloneData(unitLocks),followupData:cloneData(followupData),understandingData:cloneData(understandingData),studentNotesData:cloneData(studentNotesData),understandingNoteDefinitions:cloneData(understandingNoteDefinitions),penaltiesData:cloneData(penaltiesData),violationDefinitions:cloneData(VIOLATION_DEFINITIONS),period1SelectedUnits:cloneData(period1SelectedUnits),projectDistributionOrder:cloneData(projectDistributionOrder),excellenceSettings:cloneData(excellenceSettings),participationSettings:cloneData(participationSettings),studentNumberMap:cloneData(queryStudentNumberMap),weakStudentsThresholds:cloneData(weakStudentsThresholds),gradeRoundingSettings:cloneData(gradeRoundingSettings),noteEntryWindow:cloneData(noteEntryWindow)};
     }
     function normalizeGradeWorkspace(value){
       const defaults=createEmptyGradeWorkspace(), source=value&&typeof value==='object'?value:{};
@@ -2066,7 +2066,7 @@ ${description}`)) return;
     }
     function applyGradeWorkspace(workspace){
       const state=normalizeGradeWorkspace(workspace);
-      appData=state.appData; records=state.records; permissionRecords=state.permissionRecords; unitsData=state.unitsData; unitLocks=state.unitLocks; followupData=state.followupData; understandingData=state.understandingData; studentNotesData=state.studentNotesData;
+      appData=state.appData; records=state.records; permissionRecords=state.permissionRecords; unitsData=state.unitsData; unitLocks=state.unitLocks; followupData=state.followupData; understandingData=state.understandingData; studentNotesData=state.studentNotesData; understandingNoteDefinitions=Array.isArray(state.understandingNoteDefinitions)&&state.understandingNoteDefinitions.length?state.understandingNoteDefinitions.filter(Boolean):[...DEFAULT_UNDERSTANDING_NOTE_DEFINITIONS];
       VIOLATION_DEFINITIONS=state.violationDefinitions; syncViolationNames(); defaultPenalties=createDefaultPenalties(); penaltiesData=state.penaltiesData; period1SelectedUnits=state.period1SelectedUnits; projectDistributionOrder=state.projectDistributionOrder; excellenceSettings=state.excellenceSettings;
       participationSettings=state.participationSettings; currentActiveUnit=Object.keys(unitsData)[0]||''; currentAttendanceUnit=participationSettings.activeUnit||currentActiveUnit; if(!unitsData[currentAttendanceUnit]) currentAttendanceUnit=currentActiveUnit;
       queryStudentNumberMap=state.studentNumberMap; weakStudentsThresholds=state.weakStudentsThresholds; gradeRoundingSettings=state.gradeRoundingSettings; noteEntryWindow=state.noteEntryWindow;
@@ -2658,7 +2658,7 @@ ${description}`)) return;
       unitLocks=normalizeUnitLocks(state.unitLocks);
       if(state.followupData&&typeof state.followupData==='object') followupData=state.followupData;
       if(state.understandingData&&typeof state.understandingData==='object') understandingData=state.understandingData;
-      if(state.studentNotesData&&typeof state.studentNotesData==='object') studentNotesData=state.studentNotesData;
+      if(state.studentNotesData&&typeof state.studentNotesData==='object') studentNotesData=state.studentNotesData; if(Array.isArray(state.understandingNoteDefinitions)) understandingNoteDefinitions=state.understandingNoteDefinitions.filter(Boolean);
       if(state.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(state.violationDefinitions);
       syncViolationNames();
       defaultPenalties=createDefaultPenalties();
@@ -3872,38 +3872,40 @@ ${description}`)) return;
       return `<span class="understanding-stats-bubble" role="status">${items.map(([key,label,value])=>`<span class="${key}">${label}<b>${value}</b></span>`).join('')}</span>`;
     }
 
-    let understandingNotesContext={cls:'',student:''};
-    const UNDERSTANDING_NOTE_PRESETS=['عدم حفظ جدول الضرب','يحتاج إلى مراجعة القراءة','يحتاج إلى دعم في الفهم','عدم إحضار الواجب','ضعف في التركيز','مشاركة متميزة'];
-    function getUnderstandingStudentNotes(cls,student){ return getAttendanceStudentNotes(cls,student); }
-    function openUnderstandingStudentNotes(cls,student){
-      understandingNotesContext={cls,student};
-      const label=document.getElementById('understandingNotesStudentLabel'), input=document.getElementById('understandingStudentNoteInput');
-      if(label) label.textContent=`${student} — ${cls}`; if(input) input.value=''; renderUnderstandingStudentNotes();
-      document.getElementById('understandingStudentNotesModal').style.display='flex';
+    function openUnderstandingNoteDefinitionsModal(){ renderUnderstandingNoteDefinitions(); document.getElementById('understandingNoteDefinitionsModal').style.display='flex'; }
+    function closeUnderstandingNoteDefinitionsModal(){ document.getElementById('understandingNoteDefinitionsModal').style.display='none'; }
+    function renderUnderstandingNoteDefinitions(){
+      const list=document.getElementById('understandingNoteDefinitionsList'); if(!list) return;
+      list.innerHTML=understandingNoteDefinitions.length?understandingNoteDefinitions.map((note,index)=>`<div style="display:flex;align-items:center;gap:6px;padding:7px 8px;border:1px solid #D7E3F7;border-radius:8px;background:#F7FAFF;color:#1769AA;font-size:.72rem;font-weight:900;"><span style="flex:1;overflow-wrap:anywhere;">${escapeTextForHtml(note)}</span><button type="button" onclick="deleteUnderstandingNoteDefinition(${index})" style="border:0;border-radius:6px;background:#FFF0F0;color:#B42318;padding:5px 7px;font:inherit;font-size:.62rem;font-weight:900;">حذف</button></div>`).join(''):'<div style="text-align:center;color:#8E8E93;padding:14px;font-size:.72rem;font-weight:800;">لا توجد ملاحظات محفوظة.</div>';
     }
-    function closeUnderstandingStudentNotesModal(){ document.getElementById('understandingStudentNotesModal').style.display='none'; understandingNotesContext={cls:'',student:''}; }
-    function useUnderstandingNotePreset(note){ const input=document.getElementById('understandingStudentNoteInput'); if(input){ input.value=note; input.focus(); } }
-    function renderUnderstandingStudentNotes(){
-      const {cls,student}=understandingNotesContext, list=document.getElementById('understandingStudentNotesList'); if(!list||!cls||!student) return;
-      const notes=getUnderstandingStudentNotes(cls,student);
-      list.innerHTML=notes.length?notes.slice().reverse().map(note=>`<div class="understanding-note-item"><span>${escapeTextForHtml(note.text||'')}<small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></span><button type="button" class="understanding-note-delete" onclick="deleteUnderstandingStudentNote('${encodeURIComponent(cls)}','${encodeURIComponent(student)}','${encodeURIComponent(String(note.id||''))}')">حذف</button></div>`).join(''):'<div class="student-notes-empty">لا توجد ملاحظات محفوظة لهذا الطالب.</div>';
+    function addUnderstandingNoteDefinition(){
+      const input=document.getElementById('newUnderstandingNoteDefinitionInput'), note=String(input?.value||'').trim(); if(!note) return;
+      if(understandingNoteDefinitions.some(item=>item===note)){ alert('هذه الملاحظة موجودة مسبقاً.'); return; }
+      understandingNoteDefinitions.push(note); if(input) input.value=''; saveData(); renderUnderstandingNoteDefinitions();
     }
-    function saveUnderstandingStudentNote(){
-      const {cls,student}=understandingNotesContext, input=document.getElementById('understandingStudentNoteInput'), text=String(input?.value||'').trim(); if(!cls||!student) return;
-      if(!text){ input?.focus(); return; }
+    function deleteUnderstandingNoteDefinition(index){
+      if(!Number.isInteger(index)||!understandingNoteDefinitions[index]) return;
+      if(!confirm(`هل تريد حذف الملاحظة «${understandingNoteDefinitions[index]}» من القائمة؟`)) return;
+      understandingNoteDefinitions.splice(index,1); saveData(); renderUnderstandingNoteDefinitions();
+    }
+    function openUnderstandingStudentNotesFromSwipe(cls,student){
+      const note=understandingNoteDefinitions[0]||'ملاحظة جديدة';
+      const choice=window.prompt(`اختر رقم الملاحظة أو اكتب ملاحظة جديدة:
+
+${understandingNoteDefinitions.map((item,index)=>`${index+1}. ${item}`).join('\n')}`, '');
+      if(choice===null) return;
+      const trimmed=String(choice).trim(); let text=trimmed;
+      const number=Number(trimmed); if(Number.isInteger(number)&&number>=1&&number<=understandingNoteDefinitions.length) text=understandingNoteDefinitions[number-1];
+      if(!text) return;
       if(!studentNotesData[cls]) studentNotesData[cls]={}; if(!Array.isArray(studentNotesData[cls][student])) studentNotesData[cls][student]=[];
-      studentNotesData[cls][student].push({id:`note_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,text,createdAt:new Date().toISOString()});
-      if(input) input.value=''; saveData(); renderUnderstandingStudentNotes(); renderUnderstandingScreen();
+      studentNotesData[cls][student].push({id:`note_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,text,createdAt:new Date().toISOString()}); saveData(); renderUnderstandingScreen();
     }
-    function deleteUnderstandingStudentNote(encodedClass,encodedStudent,encodedId){
-      const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||''), id=decodeURIComponent(encodedId||''); if(!cls||!student||!id||!studentNotesData?.[cls]?.[student]) return;
-      const remaining=studentNotesData[cls][student].filter(note=>note&&note.id!==id); if(remaining.length) studentNotesData[cls][student]=remaining; else { delete studentNotesData[cls][student]; if(Object.keys(studentNotesData[cls]).length===0) delete studentNotesData[cls]; }
-      saveData(); renderUnderstandingStudentNotes(); renderUnderstandingScreen();
-    }
-    function getUnderstandingStudentNoteBadges(cls,student){
-      const notes=getUnderstandingStudentNotes(cls,student); if(!notes.length) return '';
-      const recent=notes.slice(-2).map(note=>`<span class="understanding-note-badge" title="${escapeTextForHtml(note.text||'')}">${escapeTextForHtml(note.text||'')}</span>`).join('');
-      return `<span class="understanding-note-badges"><span class="understanding-note-badge understanding-note-count">📝 ${notes.length}</span>${recent}</span>`;
+    let understandingSwipeState=null;
+    function installUnderstandingSwipeNote(card,main,cls,student){
+      let startX=0,startY=0,moved=false;
+      card.addEventListener('touchstart',event=>{ const touch=event.touches[0]; startX=touch.clientX; startY=touch.clientY; moved=false; },{passive:true});
+      card.addEventListener('touchmove',event=>{ const touch=event.touches[0], dx=touch.clientX-startX, dy=touch.clientY-startY; if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)){ moved=true; if(dx<-35){ main.classList.add('is-note-revealed'); card.querySelector('.understanding-swipe-note-action')?.classList.add('is-visible'); } else if(dx>25){ main.classList.remove('is-note-revealed'); card.querySelector('.understanding-swipe-note-action')?.classList.remove('is-visible'); } } },{passive:true});
+      card.addEventListener('touchend',()=>{ if(moved) setTimeout(()=>{moved=false;},0); },{passive:true});
     }
 
     function setUnderstandingStatus(student,status){
@@ -4041,13 +4043,15 @@ ${description}`)) return;
         }).join('');
         const excellenceStar=excellent?'<span class="student-excellence-star" title="متميز — مكافأة مستقلة">★</span>':'';
         const statsBubble=understandingStatsBubbleStudent===student?buildUnderstandingStudentStatsBubble(cls,student):'';
-        const noteBadges=getUnderstandingStudentNoteBadges(cls,student), noteButton=`<button type="button" class="understanding-note-action" onclick="event.stopPropagation();openUnderstandingStudentNotes('${CSS.escape(cls)}','${CSS.escape(student)}')" title="إضافة أو تعديل ملاحظات الطالب">📝 ملاحظات الطالب${getUnderstandingStudentNotes(cls,student).length?` (${getUnderstandingStudentNotes(cls,student).length})`:''}</button>`;
-        card.innerHTML=`${excellenceStar}<div class="student-name" title="اضغط مرتين للتميز، أو اضغط مطولاً للإحصائية" ondblclick="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')" onpointerdown="startUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointermove="moveUnderstandingStudentNamePress(event)" onpointerup="endUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointercancel="cancelUnderstandingStudentNamePress()" oncontextmenu="event.preventDefault();return false;" onselectstart="return false;" ondragstart="return false;">${noteBadges}${statsBubble}${student}</div><div class="understanding-buttons">${buttons}${noteButton}</div>`;
+        const noteAction=`<button type="button" class="understanding-swipe-note-action" onclick="event.stopPropagation();openUnderstandingStudentNotesFromSwipe('${CSS.escape(cls)}','${CSS.escape(student)}')">📝<br>ملاحظات</button>`;
+        const cardMain=`<div class="understanding-card-main"><div class="student-name" title="اضغط مرتين للتميز، اضغط مطولاً للإحصائية، واسحب لليسار للملاحظات" ondblclick="handleUnderstandingStudentNameTap(event,'${CSS.escape(student)}')" onpointerdown="startUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointermove="moveUnderstandingStudentNamePress(event)" onpointerup="endUnderstandingStudentNamePress(event,'${CSS.escape(student)}')" onpointercancel="cancelUnderstandingStudentNamePress()" oncontextmenu="event.preventDefault();return false;" onselectstart="return false;" ondragstart="return false;">${statsBubble}${student}</div><div class="understanding-buttons">${buttons}</div></div>`;
+        card.innerHTML=noteAction+cardMain;
+        installUnderstandingSwipeNote(card,card.querySelector('.understanding-card-main'),cls,student);
         cont.appendChild(card);
       });
       if(isUnitLocked(cls,unit)){
         summary.querySelectorAll('button').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
-        cont.querySelectorAll('.understanding-buttons .btn-status').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
+        cont.querySelectorAll('.understanding-buttons button').forEach(button=>{ button.disabled=true; button.title='🔒 هذه الوحدة مقفلة للعرض فقط'; button.style.opacity='.58'; button.style.cursor='not-allowed'; });
       }
     }
     function getUnderstandingUnitPdfContext(){
@@ -7284,7 +7288,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
       reader.onload=async function(ev){ try {
         const imported=JSON.parse(ev.target.result);
-        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; unitLocks=normalizeUnitLocks(imported.unitLocks); if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.studentNotesData&&typeof imported.studentNotesData==='object') studentNotesData=imported.studentNotesData; if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
+        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; unitLocks=normalizeUnitLocks(imported.unitLocks); if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.studentNotesData&&typeof imported.studentNotesData==='object') studentNotesData=imported.studentNotesData; if(Array.isArray(imported.understandingNoteDefinitions)) understandingNoteDefinitions=imported.understandingNoteDefinitions.filter(Boolean); if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
         if(imported.participationSettings&&typeof imported.participationSettings==='object') participationSettings={...participationSettings,...imported.participationSettings};
         currentAttendanceUnit=participationSettings.activeUnit||Object.keys(unitsData)[0]||'';
         if(imported.projectDistributionOrder) projectDistributionOrder=imported.projectDistributionOrder;
