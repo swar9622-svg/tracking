@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.12";</script>
+  <script>const APP_VERSION = "22.13";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3921,7 +3921,7 @@ ${description}`)) return;
         understandingCompactRenderTimer=setTimeout(()=>{ understandingCompactRenderTimer=null; renderUnderstandingScreen(); },250);
       }else if(!understandingCompactMode&&!understandingShowEvaluated){
         if(understandingCompactRenderTimer) clearTimeout(understandingCompactRenderTimer);
-        understandingCompactRenderTimer=setTimeout(()=>{ understandingCompactRenderTimer=null; renderUnderstandingScreen(); },650);
+        understandingCompactRenderTimer=setTimeout(()=>{ understandingCompactRenderTimer=null; renderUnderstandingScreen(); },250);
       }else renderUnderstandingScreen();
     }
     function openUnderstandingBulkModal(){
