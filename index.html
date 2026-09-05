@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.04";</script>
+  <script>const APP_VERSION = "22.05";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -104,6 +104,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #understandingScreen .understanding-collapsed-open{flex:0 0 auto;border:1px solid #A9DFBF;border-radius:.42rem;background:#FFF;color:#176B45;font:inherit;font-size:.62rem;font-weight:900;padding:.27rem .40rem;cursor:pointer;}
     #understandingScreen .understanding-visibility-bar{display:block;width:100%;box-sizing:border-box;margin:.30rem 0 0;border:1px solid #BBD7F3;border-radius:.52rem;background:#F0F7FF;color:#0B5394;padding:.30rem .5rem;font:inherit;font-size:.67rem;font-weight:900;line-height:1.2;cursor:pointer;}
     #understandingScreen .understanding-visibility-bar:active{opacity:.78;}
+    #understandingScreen .understanding-filter-bars{display:flex;direction:ltr;gap:.30rem;width:100%;margin:.30rem 0 0;}
+    #understandingScreen .understanding-filter-bars .understanding-visibility-bar{flex:1;margin:0;}
+    #understandingScreen .understanding-compact-toggle{flex:1;border:1px solid #D9C7EA;border-radius:.52rem;background:#FAF5FF;color:#70439A;padding:.30rem .42rem;font:inherit;font-size:.65rem;font-weight:900;line-height:1.2;cursor:pointer;}
+    #understandingScreen .understanding-compact-toggle.is-off{background:#F7F7F9;border-color:#D1D1D6;color:#6E6E73;}
     #absenceScreen .student-card { flex-wrap:wrap; position:relative; }
     #absenceScreen .student-note-count-badge{position:absolute;top:-0.34rem;left:-0.30rem;z-index:5;display:flex;align-items:center;justify-content:center;min-width:1.16rem;height:1.16rem;padding:0 0.18rem;border:2px solid #FFF;border-radius:999px;background:#5856D6;color:#FFF;box-shadow:0 2px 7px rgba(88,86,214,.36);font-size:0.65rem;font-weight:900;line-height:1;direction:ltr;pointer-events:none;}
     .student-name { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); flex: 1; word-break: break-word; }
@@ -773,7 +777,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <div id="understandingSummary" class="understanding-summary"></div>
     </header>
-    <div class="attendance-search-wrap"><input id="understandingStudentSearch" class="attendance-search-input" type="search" autocomplete="off" placeholder="ابحث باسم الطالب" aria-label="ابحث باسم الطالب" oninput="renderUnderstandingScreen()"><button id="understandingVisibilityBar" type="button" class="understanding-visibility-bar" onclick="toggleUnderstandingEvaluatedVisibility()">عرض الكل</button></div>
+    <div class="attendance-search-wrap"><input id="understandingStudentSearch" class="attendance-search-input" type="search" autocomplete="off" placeholder="ابحث باسم الطالب" aria-label="ابحث باسم الطالب" oninput="renderUnderstandingScreen()"><div class="understanding-filter-bars"><button id="understandingCompactToggle" type="button" class="understanding-compact-toggle" onclick="toggleUnderstandingCompactMode()">الصف المختصر: مفعّل</button><button id="understandingVisibilityBar" type="button" class="understanding-visibility-bar" onclick="toggleUnderstandingEvaluatedVisibility()">عرض الكل</button></div></div>
     <main class="student-list" id="understandingStudentList"></main>
     <div class="understanding-export-area">
       <button class="btn-understanding-unit-pdf" onclick="openPdfSizeModal('understandingUnit')">📄 تصدير PDF للوحدة كاملة</button>
@@ -3907,7 +3911,11 @@ ${description}`)) return;
     function setUnderstandingStatus(student,status){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value, lesson=document.getElementById('understandingLessonSelect').value;
       if(!writeUnderstandingStatus(cls,unit,lesson,student,status)) return;
-      saveData(); renderUnderstandingScreen();
+      saveData();
+      if(understandingCompactMode&&!understandingShowEvaluated){
+        if(understandingCompactRenderTimer) clearTimeout(understandingCompactRenderTimer);
+        understandingCompactRenderTimer=setTimeout(()=>{ understandingCompactRenderTimer=null; renderUnderstandingScreen(); },500);
+      }else renderUnderstandingScreen();
     }
     function openUnderstandingBulkModal(){
       const cls=document.getElementById('understandingClassSelect').value, unit=document.getElementById('understandingUnitSelect').value;
@@ -3983,9 +3991,10 @@ ${description}`)) return;
       if(!understandingSummarySelectedUnits.length){ alert('اختر وحدة واحدة على الأقل للتقرير.'); return; }
       closeUnderstandingSummaryModal(); openPdfSizeModal('understandingSummary');
     }
-    let understandingRemainingMenuOpen=false, understandingShowEvaluated=false;
+    let understandingRemainingMenuOpen=false, understandingShowEvaluated=false, understandingCompactMode=true, understandingCompactRenderTimer=null;
     let understandingRemainingMenuKey='';
     function toggleUnderstandingEvaluatedVisibility(){ understandingShowEvaluated=!understandingShowEvaluated; renderUnderstandingScreen(); }
+    function toggleUnderstandingCompactMode(){ understandingCompactMode=!understandingCompactMode; understandingShowEvaluated=false; renderUnderstandingScreen(); }
     function toggleUnderstandingRemainingMenu(){
       understandingRemainingMenuOpen=!understandingRemainingMenuOpen;
       renderUnderstandingScreen();
@@ -4030,12 +4039,13 @@ ${description}`)) return;
       const remainingButtons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{ const color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey); return `<button class="btn-status understanding-status-${key}" onclick="applyUnderstandingStatusToRemaining('${key}')" style="background:${config.background};color:${color};border:1.3px solid ${color};font-weight:900;">${config.label}</button>`; }).join('');
       summary.innerHTML+=`<div class="understanding-remaining-control"><button type="button" class="understanding-summary-remaining" onclick="toggleUnderstandingRemainingMenu()" aria-expanded="${understandingRemainingMenuOpen}" style="background:${understandingRemainingMenuOpen?remainingColor:'#F2F2F7'};color:${understandingRemainingMenuOpen?remainingTextColor:'#3A3A3C'};border-color:${remainingColor};"><b>${counts.remaining}</b>البقية <span class="remaining-arrow">${understandingRemainingMenuOpen?'▴':'▾'}</span></button></div>`;
       const visibilityBar=document.getElementById('understandingVisibilityBar'); if(visibilityBar) visibilityBar.innerHTML=`${understandingShowEvaluated?'إخفاء المقيمين':'عرض الكل'} <small>(${allStudents.length-counts.remaining} مقيم)</small>`;
+      const compactToggle=document.getElementById('understandingCompactToggle'); if(compactToggle){ compactToggle.textContent=`الصف المختصر: ${understandingCompactMode?'مفعّل':'متوقف'}`; compactToggle.classList.toggle('is-off',!understandingCompactMode); }
       if(understandingRemainingMenuOpen) summary.innerHTML+=`<div class="understanding-remaining-menu">${remainingButtons}<button type="button" class="understanding-clear-all" onclick="clearUnderstandingLessonStatuses()">مسح الكل</button></div>`;
       const visibleStudents=searchText?allStudents.filter(student=>String(student).toLocaleLowerCase('ar').includes(searchText)):allStudents;
-      const studentsForCards=visibleStudents;
+      const studentsForCards=understandingCompactMode?[...visibleStudents].sort((a,b)=>{ const ae=!!getUnderstandingStudentStatus(states,a),be=!!getUnderstandingStudentStatus(states,b); return Number(be)-Number(ae)||a.localeCompare(b,'ar'); }):visibleStudents;
       studentsForCards.forEach(student=>{
         const selected=getUnderstandingStudentStatus(states,student), excellent=isUnderstandingStudentExcellent(states,student), noteBadges=getUnderstandingStudentNoteBadges(cls,student);
-        if(selected&&!understandingShowEvaluated){
+        if(selected&&understandingCompactMode&&!understandingShowEvaluated){
           const compactCard=document.createElement('div'); compactCard.className='student-card understanding-collapsed-card';
           const compactConfig=UNDERSTANDING_STATUS_CONFIG[selected]||UNDERSTANDING_STATUS_CONFIG.notDone;
           compactCard.innerHTML=`${noteBadges}<div class="student-name">${escapeTextForHtml(student)}</div><span class="understanding-collapsed-status">${escapeTextForHtml(compactConfig.label)}${excellent?' ★':''}</span><button type="button" class="understanding-collapsed-open" onclick="understandingShowEvaluated=true;renderUnderstandingScreen()">تعديل</button>`;
