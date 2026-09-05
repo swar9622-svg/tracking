@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "21.83";</script>
+  <script>const APP_VERSION = "21.84";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -6067,9 +6067,10 @@ ${description}`)) return;
       colGroup.innerHTML=columns.map(column=>`<col style="width:${column.width}">`).join('');
       tableHead.innerHTML=columns.map(column=>`<th>${column.label}</th>`).join(''); tbody.innerHTML='';
       const reportRows=buildStudentReportScreenRows(cls,selectedStudentForReport,currentStudentReportUnitSelection);
-      reportRows.forEach(({date,status,violationCount,permissionCount})=>{
+      reportRows.forEach(({date,status,violationCount,permissionCount,targetUnits=[]})=>{
         const isAbs=status==='غائب', isExcused=status==='بعذر', isLate=status==='متأخر';
-        const absenceText=(isAbs||isExcused)?`<span style="color:var(--red);font-weight:900;">${isExcused?'بعذر':'غائب'}</span>`:'-';
+        const absenceToken=encodeStudentReportAbsenceToken({date,cls,student:selectedStudentForReport,targetUnits});
+        const absenceText=(isAbs||isExcused)?`<button type="button" data-report-absence="${absenceToken}" onclick="toggleStudentReportExcusedAbsence(this.dataset.reportAbsence)" title="اضغط للتبديل بين غائب وبعذر" style="border:0;border-radius:8px;padding:5px 8px;background:${isExcused?'#FFF0F0':'transparent'};color:var(--red);font-weight:900;cursor:pointer;">${isExcused?'بعذر':'غائب'}</button>`:'-';
         const lateText=isLate?'<span style="color:var(--yellow);font-weight:900;">متأخر</span>':'-';
         const violationText=violationCount?`<span style="color:var(--purple);font-weight:900;">${violationCount}</span>`:'-';
         const permissionText=permissionCount?`<span style="color:#1769AA;font-weight:900;">${permissionCount}</span>`:'-';
@@ -6083,13 +6084,15 @@ ${description}`)) return;
     function buildStudentReportScreenRows(cls,student,scope='__all__'){
       const allDates=[...new Set([...Object.keys(records||{}),...Object.keys(permissionRecords||{})])].sort(), rows=[];
       allDates.forEach(date=>{
-        const components=getAttendanceRecordComponents(date,cls,student,scope), permissionCount=getStudentPermissionEntries(date,cls,student).length;
+        const components=getAttendanceRecordComponents(date,cls,student,scope), permissionCount=getStudentPermissionEntries(date,cls,student).length, statusUnits={غائب:[],بعذر:[],متأخر:[]};
         let status='', violationCount=0;
-        components.forEach(({record})=>{
+        components.forEach(({unit,record})=>{
+          if(statusUnits[record.status]) statusUnits[record.status].push(isPerUnitParticipationMode()?(unit==='سجلات سابقة'?'__legacy__':unit):'__cumulative__');
           if(record.status==='غائب') status='غائب'; else if(record.status==='بعذر'&&status!=='غائب') status='بعذر'; else if(record.status==='متأخر'&&!status) status='متأخر';
           violationCount+=(record.violations||[]).length;
         });
-        if(status||violationCount||permissionCount) rows.push({date,status,violationCount,permissionCount});
+        const targetUnits=[...new Set(statusUnits[status]||[])];
+        if(status||violationCount||permissionCount) rows.push({date,status,violationCount,permissionCount,targetUnits});
       });
       return rows;
     }
