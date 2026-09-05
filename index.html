@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.00";</script>
+  <script>const APP_VERSION = "22.01";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3540,9 +3540,13 @@ ${description}`)) return;
       cleanupStudentAttendanceStorage(date,cls,student);
     }
     function toggleStudentHistoryExcusedAbsence(encodedClass,encodedStudent,encodedDate,encodedReference){
-      const cls=decodeStudentHistoryValue(encodedClass),student=decodeStudentHistoryValue(encodedStudent),date=decodeStudentHistoryValue(encodedDate),reference=decodeStudentHistoryReference(encodedReference); if(!cls||!student||!date||!reference) return;
-      const record=getMutableStoredAttendanceSource(date,cls,student,reference.source); if(!record||(record.status!=='غائب'&&record.status!=='بعذر')) return;
-      record.status=record.status==='غائب'?'بعذر':'غائب'; if(record.status==='بعذر') record.violations=[];
+      const cls=decodeURIComponent(encodedClass||''),student=decodeURIComponent(encodedStudent||''),date=decodeURIComponent(encodedDate||''),reference=decodeStudentHistoryReference(encodedReference); if(!cls||!student||!date||!reference) return;
+      const recordsToChange=[];
+      if(reference.source==='__aggregate__'){
+        const raw=rawStudentAttendanceRecord(date,cls,student); if(raw){ if(raw.units&&typeof raw.units==='object') Object.keys(raw.units).forEach(unit=>{ const record=getMutableStoredAttendanceSource(date,cls,student,unit); if(record) recordsToChange.push(record); }); const legacy=getMutableStoredAttendanceSource(date,cls,student,'__legacy__'); if(legacy) recordsToChange.push(legacy); }
+      }else{ const record=getMutableStoredAttendanceSource(date,cls,student,reference.source); if(record) recordsToChange.push(record); }
+      const eligible=recordsToChange.filter(record=>record.status==='غائب'||record.status==='بعذر'); if(!eligible.length) return;
+      const next=eligible[0].status==='غائب'?'بعذر':'غائب'; eligible.forEach(record=>{ record.status=next; if(next==='بعذر') record.violations=[]; });
       cleanupStudentAttendanceStorage(date,cls,student); saveData(); renderStudents(); renderPermissionStudents(); updateGlobalPermissionBubble(); if(studentHistoryModalContext) renderStudentHistoryModal();
     }
     function deleteStudentHistoryEntry(type,encodedClass,encodedStudent,encodedDate,encodedReference){
