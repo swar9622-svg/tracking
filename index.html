@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.19";</script>
+  <script>const APP_VERSION = "22.20";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -158,6 +158,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .btn-status.active-late { background-color: var(--yellow); color: #FFFFFF; }
     .btn-status.active-violation { background-color: var(--purple); color: #FFFFFF; font-size: 0.6875rem; font-weight: 800; }
     .btn-status.disabled-btn { opacity: 0.4; cursor: not-allowed; }
+    #absenceScreen .attendance-buttons .btn-status{position:relative;}
+    .attendance-button-count{position:absolute;top:-.34rem;left:-.30rem;z-index:5;display:inline-flex;align-items:center;justify-content:center;min-width:1.08rem;height:1.08rem;padding:0 .16rem;border:2px solid #FFF;border-radius:999px;background:#F29B9B;color:#7A2020;box-shadow:0 2px 6px rgba(190,70,70,.25);font-size:.58rem;font-weight:900;line-height:1;direction:ltr;}
 
     .bottom-controls {
       position: fixed;
@@ -1426,6 +1428,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           </label>
           <span id="followupSortVisibilityStatus" hidden></span>
         </div>
+        <div id="attendanceLateBadgeSettingsCard" class="display-settings-switch-card is-sort"><span class="display-settings-switch-label">إظهار شارة إجمالي التأخر</span><label class="ios-grade-rounding-switch display-settings-ios-switch" title="إظهار أو إخفاء شارة إجمالي التأخر"><input id="attendanceLateBadgeToggle" type="checkbox" onchange="toggleAttendanceBadgeSetting('late',this.checked)"><span class="ios-grade-rounding-slider"></span></label></div>
+        <div id="attendancePermissionBadgeSettingsCard" class="display-settings-switch-card is-sort"><span class="display-settings-switch-label">إظهار شارة إجمالي الاستئذان</span><label class="ios-grade-rounding-switch display-settings-ios-switch" title="إظهار أو إخفاء شارة إجمالي الاستئذان"><input id="attendancePermissionBadgeToggle" type="checkbox" onchange="toggleAttendanceBadgeSetting('permission',this.checked)"><span class="ios-grade-rounding-slider"></span></label></div>
         <div id="startupSettingsCard" class="display-settings-switch-card is-startup">
           <span class="display-settings-switch-label">شاشة الافتتاح</span>
           <label class="ios-grade-rounding-switch display-settings-ios-switch" title="تشغيل أو إيقاف شاشة الافتتاح">
@@ -2038,6 +2042,7 @@ ${description}`)) return;
     let understandingData = {};
     // ملاحظات كلية مستقلة لكل طالب: لا تغير الغياب أو التأخر أو الدرجات.
     let studentNotesData = {};
+    let attendanceBadgeSettings = {late:true, permission:true};
     let understandingNotesData = {};
     const DEFAULT_UNDERSTANDING_NOTE_DEFINITIONS=['عدم حفظ جدول الضرب','يحتاج إلى مراجعة القراءة','يحتاج إلى دعم في الفهم','ضعف في التركيز'];
     let understandingNoteDefinitions=[...DEFAULT_UNDERSTANDING_NOTE_DEFINITIONS];
@@ -2641,7 +2646,7 @@ ${description}`)) return;
         appData:cloneData(appData), records:cloneData(records), permissionRecords:cloneData(permissionRecords), unitsData:cloneData(unitsData), unitLocks:cloneData(unitLocks), followupData:cloneData(followupData), understandingData:cloneData(understandingData), studentNotesData:cloneData(studentNotesData),
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), excellenceSettings:cloneData(excellenceSettings), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
-        fontSettings:cloneData(fontSettings), notificationSettings:cloneData(notificationSettings), startupSettings:cloneData(startupSettings), classScheduleSettings:cloneData(classScheduleSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
+        fontSettings:cloneData(fontSettings), attendanceBadgeSettings:cloneData(attendanceBadgeSettings), notificationSettings:cloneData(notificationSettings), startupSettings:cloneData(startupSettings), classScheduleSettings:cloneData(classScheduleSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
         weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), noteEntryWindow:cloneData(noteEntryWindow), gradeWorkspaces:cloneData(gradeWorkspaces), activeGradeName, savedAt:new Date().toISOString()
       };
     }
@@ -2676,7 +2681,7 @@ ${description}`)) return;
       unitLocks=normalizeUnitLocks(state.unitLocks);
       if(state.followupData&&typeof state.followupData==='object') followupData=state.followupData;
       if(state.understandingData&&typeof state.understandingData==='object') understandingData=state.understandingData;
-      if(state.studentNotesData&&typeof state.studentNotesData==='object') studentNotesData=state.studentNotesData; if(state.understandingNotesData&&typeof state.understandingNotesData==='object') understandingNotesData=state.understandingNotesData; if(Array.isArray(state.understandingNoteDefinitions)) understandingNoteDefinitions=state.understandingNoteDefinitions.filter(note=>note&&note!=='عدم إحضار الواجب'&&note!=='مشاركة متميزة');
+      if(state.studentNotesData&&typeof state.studentNotesData==='object') studentNotesData=state.studentNotesData; if(state.attendanceBadgeSettings&&typeof state.attendanceBadgeSettings==='object') attendanceBadgeSettings={late:state.attendanceBadgeSettings.late!==false,permission:state.attendanceBadgeSettings.permission!==false}; if(state.understandingNotesData&&typeof state.understandingNotesData==='object') understandingNotesData=state.understandingNotesData; if(Array.isArray(state.understandingNoteDefinitions)) understandingNoteDefinitions=state.understandingNoteDefinitions.filter(note=>note&&note!=='عدم إحضار الواجب'&&note!=='مشاركة متميزة');
       if(state.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(state.violationDefinitions);
       syncViolationNames();
       defaultPenalties=createDefaultPenalties();
@@ -2819,7 +2824,9 @@ ${description}`)) return;
     }
     function updateStartupSettingsButton(){ const toggle=document.getElementById('startupSettingsToggle'), card=document.getElementById('startupSettingsCard'); if(!toggle||!card) return; const enabled=startupSettings&&startupSettings.enabled!==false; toggle.checked=enabled; card.classList.toggle('is-enabled',enabled); }
     function toggleStartupAnimation(){ startupSettings=normalizeStartupSettings(startupSettings); startupSettings.enabled=!startupSettings.enabled; persistStartupPreference(); document.documentElement.classList.toggle('startup-disabled',!startupSettings.enabled); saveData(); updateStartupSettingsButton(); }
-    function openDisplaySettingsModal(){ updateStartupSettingsButton(); updateFollowupSortControlsManageUI(); document.getElementById('displaySettingsModal').style.display='flex'; }
+    function updateAttendanceBadgeSettingsUI(){ const late=document.getElementById('attendanceLateBadgeToggle'), permission=document.getElementById('attendancePermissionBadgeToggle'); if(late)late.checked=attendanceBadgeSettings.late!==false; if(permission)permission.checked=attendanceBadgeSettings.permission!==false; }
+    function toggleAttendanceBadgeSetting(type,value){ if(type!=='late'&&type!=='permission')return; attendanceBadgeSettings[type]=!!value; saveData(); renderStudents(); }
+    function openDisplaySettingsModal(){ updateStartupSettingsButton(); updateFollowupSortControlsManageUI(); updateAttendanceBadgeSettingsUI(); document.getElementById('displaySettingsModal').style.display='flex'; }
     function closeDisplaySettingsModal(){ document.getElementById('displaySettingsModal').style.display='none'; }
     function openNoteEntryWindowModal(){
       const setting=normalizeNoteEntryWindow(noteEntryWindow);
@@ -3430,9 +3437,11 @@ ${description}`)) return;
         const nameColor=dup.includes(s)?'color:#FF3B30;':'';
         const safeStudent=CSS.escape(s);
         const summaryBubble=openAttendanceStudentSummary===s?getAttendanceStudentSummaryBubble(cls,s):'';
-        const encodedClass=encodeURIComponent(cls), encodedStudent=encodeURIComponent(s), encodedDate=encodeURIComponent(date), absenceInPermissionSlot=showAttendanceAbsenceActionStudent===s;
-        const permissionSlot=absenceInPermissionSlot?`<button class="btn-status ${status==='غائب'||status==='بعذر'?'active-absent':''}" onclick="showAttendanceAbsenceActionStudent='';setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غياب'}</button>`:`<button class="btn-status ${permissionActive?'active-permission':''}" onclick="handleAttendancePermissionButton(event,'${encodedClass}','${encodedStudent}','${encodedDate}')">استئذان</button>`;
-        card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات والاستئذان" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}${guardianExitRecord?`<span class="attendance-permission-live">👤 خرج مع ولي الأمر ${escapeTextForHtml(guardianExitRecord.outTime)}</span>`:permissionActive?`<span class="attendance-permission-live">🕒 خارج منذ ${escapeTextForHtml(permissionRecord.outTime)}</span>`:''}</div><div class="attendance-buttons"><button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button>${permissionSlot}<button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button></div>${getAttendanceStudentStatsMarkup(cls,s)}`;
+        const totalStudentStats=getStudentAttendanceStats(cls,s,'__all__'), totalLateCount=Number(totalStudentStats?.late||0), totalPermissionCount=getStudentPermissionCount(cls,s);
+        const lateBadge=attendanceBadgeSettings.late!==false?`<span class="attendance-button-count" aria-label="إجمالي التأخر ${totalLateCount}">${totalLateCount}</span>`:'';
+        const permissionBadge=attendanceBadgeSettings.permission!==false?`<span class="attendance-button-count" aria-label="إجمالي الاستئذان ${totalPermissionCount}">${totalPermissionCount}</span>`:'';
+        const absenceButton=`<button class="btn-status ${(status==='غائب'||status==='بعذر')?'active-absent':''}" onclick="setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غياب'}</button>`;
+        card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات والاستئذان" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}${guardianExitRecord?`<span class="attendance-permission-live">👤 خرج مع ولي الأمر ${escapeTextForHtml(guardianExitRecord.outTime)}</span>`:permissionActive?`<span class="attendance-permission-live">🕒 خارج منذ ${escapeTextForHtml(permissionRecord.outTime)}</span>`:''}</div><div class="attendance-buttons"><button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">${lateBadge}متأخر</button>${absenceButton.replace('</button>', permissionBadge+'</button>') }<button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button></div>${getAttendanceStudentStatsMarkup(cls,s)}`;
         cont.appendChild(card);
       });
       document.getElementById('absentCount').innerText=absent;
@@ -7316,7 +7325,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
       reader.onload=async function(ev){ try {
         const imported=JSON.parse(ev.target.result);
-        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; unitLocks=normalizeUnitLocks(imported.unitLocks); if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.studentNotesData&&typeof imported.studentNotesData==='object') studentNotesData=imported.studentNotesData; if(imported.understandingNotesData&&typeof imported.understandingNotesData==='object') understandingNotesData=imported.understandingNotesData; if(Array.isArray(imported.understandingNoteDefinitions)) understandingNoteDefinitions=imported.understandingNoteDefinitions.filter(note=>note&&note!=='عدم إحضار الواجب'&&note!=='مشاركة متميزة'); if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
+        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; unitLocks=normalizeUnitLocks(imported.unitLocks); if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.studentNotesData&&typeof imported.studentNotesData==='object') studentNotesData=imported.studentNotesData; if(imported.attendanceBadgeSettings&&typeof imported.attendanceBadgeSettings==='object') attendanceBadgeSettings={late:imported.attendanceBadgeSettings.late!==false,permission:imported.attendanceBadgeSettings.permission!==false}; if(imported.understandingNotesData&&typeof imported.understandingNotesData==='object') understandingNotesData=imported.understandingNotesData; if(Array.isArray(imported.understandingNoteDefinitions)) understandingNoteDefinitions=imported.understandingNoteDefinitions.filter(note=>note&&note!=='عدم إحضار الواجب'&&note!=='مشاركة متميزة'); if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
         if(imported.participationSettings&&typeof imported.participationSettings==='object') participationSettings={...participationSettings,...imported.participationSettings};
         currentAttendanceUnit=participationSettings.activeUnit||Object.keys(unitsData)[0]||'';
         if(imported.projectDistributionOrder) projectDistributionOrder=imported.projectDistributionOrder;
