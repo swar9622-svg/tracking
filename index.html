@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.24";</script>
+  <script>const APP_VERSION = "22.25";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -712,6 +712,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .unified-editor-tabs button{border:0;border-radius:8px;background:#fff;color:#52606D;padding:8px 3px;font:inherit;font-size:.66rem;font-weight:900;cursor:pointer;white-space:nowrap;}
     .unified-editor-tabs button.is-active{background:#176671;color:#fff;box-shadow:0 2px 5px rgba(23,102,113,.22);}
     .unified-editor-panel{min-height:110px;max-height:48vh;overflow:auto;padding:2px;}
+    .unified-history-panel{display:flex;flex-direction:column;gap:7px;max-height:48vh;overflow:auto;padding:1px;}
+    .unified-note-row{display:grid;grid-template-columns:1fr;gap:5px;padding:8px;border:1px solid #E2E8F0;border-radius:9px;background:#fff;}
+    .unified-note-date{font-size:.62rem;font-weight:900;color:#176671;background:#EDF9FA;border-radius:6px;padding:4px 6px;justify-self:start;}
+    .unified-note-actions{display:flex;gap:5px;align-items:center;}
+    .unified-note-actions button{flex:1;border:0;border-radius:7px;padding:6px;font:inherit;font-size:.64rem;font-weight:900;cursor:pointer;}
     .unified-editor-action{width:100%;border:0;border-radius:9px;padding:10px;font:inherit;font-size:.75rem;font-weight:900;cursor:pointer;margin-bottom:7px;}
     .unified-editor-action.absence{background:#FFF0F0;color:#B42318;border:1px solid #F4B6B6;}
     .unified-editor-action.late{background:#FFF7E6;color:#A96800;border:1px solid #F2D39A;}
@@ -3332,36 +3337,62 @@ ${description}`)) return;
     function openInlinePermissionEditModal(encodedClass,encodedStudent){
       const cls=decodeURIComponent(encodedClass||''), student=decodeURIComponent(encodedStudent||'');
       if(!cls||!student) return;
-      unifiedStudentEditContext={cls,student,tab:'absence'};
+      unifiedStudentEditContext={cls,student,tab:'absence'}; unifiedNoteEditId='';
       document.getElementById('permissionEditStudentLabel').textContent=`${student} — ${cls}`;
       document.getElementById('permissionEditModal').style.display='flex';
       switchUnifiedStudentEditTab('absence');
     }
     function closeInlinePermissionEditModal(){ document.getElementById('permissionEditModal').style.display='none'; unifiedStudentEditContext={cls:'',student:'',tab:'absence'}; }
     function refreshUnifiedStudentEditor(){ if(unifiedStudentEditContext.cls&&document.getElementById('permissionEditModal')?.style.display==='flex') switchUnifiedStudentEditTab(unifiedStudentEditContext.tab); }
+    function renderUnifiedHistoryRows(type){
+      const {cls,student}=unifiedStudentEditContext, rows=getStudentHistoryRows(cls,student,type,'__all__');
+      const ec=encodeStudentHistoryValue(cls), es=encodeStudentHistoryValue(student);
+      if(!rows.length) return '<div class="daily-stats-empty">لا توجد سجلات لهذا الطالب في جميع التواريخ.</div>';
+      return rows.map(row=>{
+        const ed=encodeStudentHistoryValue(row.date), er=encodeStudentHistoryValue(JSON.stringify(row.reference));
+        let actions='';
+        if(type==='absent') actions=`<div class="daily-stats-actions"><button type="button" class="daily-stats-excuse" onclick="toggleStudentHistoryExcusedAbsence('${ec}','${es}','${ed}','${er}');refreshUnifiedStudentEditor()">بعذر</button><button type="button" class="daily-stats-delete" onclick="deleteStudentHistoryEntry('${type}','${ec}','${es}','${ed}','${er}')">حذف</button></div>`;
+        else actions=`<button type="button" class="daily-stats-delete" onclick="deleteStudentHistoryEntry('${type}','${ec}','${es}','${ed}','${er}')">حذف</button>`;
+        return `<div class="daily-stats-row"><div class="daily-stats-name">${escapeTextForHtml(row.date)}<span class="daily-stats-detail">${escapeTextForHtml(row.detail)}</span></div>${actions}</div>`;
+      }).join('');
+    }
+    function renderUnifiedPermissionRows(){
+      const {cls,student}=unifiedStudentEditContext, rows=getStudentHistoryRows(cls,student,'permission','__all__'), ec=encodeURIComponent(cls), es=encodeURIComponent(student);
+      if(!rows.length) return '<div class="daily-stats-empty">لا توجد سجلات استئذان لهذا الطالب في جميع التواريخ.</div>';
+      return rows.map(row=>{
+        const date=encodeURIComponent(row.date), ref=encodeURIComponent(JSON.stringify(row.reference)), recordId=row.reference.recordId||'';
+        const record=getPermissionRecordById(row.date,cls,student,recordId), returned=record?.returnTime;
+        const actions=returned?`<button type="button" class="permission-edit-open" onclick="openInlinePermissionRecordEdit('${ec}','${es}','${date}','${encodeURIComponent(recordId)}')">تعديل</button>`:`<button type="button" class="permission-return" onclick="returnFromGlobalPermission('${ec}','${es}','${date}','${encodeURIComponent(recordId)}');refreshUnifiedStudentEditor()">↩ عودة</button><button type="button" class="permission-edit-open" onclick="openInlinePermissionRecordEdit('${ec}','${es}','${date}','${encodeURIComponent(recordId)}')">تعديل</button>`;
+        return `<div class="permission-edit-item"><div class="permission-edit-details"><b>${escapeTextForHtml(row.date)}</b><span>${escapeTextForHtml(row.detail)}</span></div>${actions}<button type="button" class="permission-edit-delete" onclick="deleteStudentHistoryEntry('permission','${ec}','${es}','${date}','${ref}')">حذف</button></div>`;
+      }).join('');
+    }
+    let unifiedNoteEditId='';
     function switchUnifiedStudentEditTab(tab){
       const {cls,student}=unifiedStudentEditContext; if(!cls||!student) return;
       unifiedStudentEditContext.tab=tab;
       document.querySelectorAll('.unified-editor-tabs button').forEach(button=>button.classList.toggle('is-active',button.dataset.editorTab===tab));
       const panel=document.getElementById('unifiedStudentEditPanel'), list=document.getElementById('permissionEditList'); if(!panel||!list) return;
-      list.style.display='none'; panel.style.display='block';
-      const date=document.getElementById('dateSelect')?.value||'', rec=getStudentDayRecord(date,cls,student,currentAttendanceUnit), status=rec.status;
-      if(tab==='absence'||tab==='late'){
-        const isAbs=tab==='absence', active=status===(isAbs?'غائب':'متأخر'), blocked=isAbs?false:(status==='غائب'||status==='بعذر');
-        panel.innerHTML=`<button type="button" class="unified-editor-action ${isAbs?'absence':'late'} ${active?'is-active':''}" ${blocked?'disabled':''} onclick="setStatus('${CSS.escape(student)}','${isAbs?'غائب':'متأخر'}');refreshUnifiedStudentEditor()">${active?(isAbs?'إلغاء الغياب':'إلغاء التأخر'):(isAbs?'تسجيل غياب':'تسجيل تأخر')}</button><div class="unified-editor-note">الحالة الحالية: <b>${status||'حاضر'}</b>${blocked?' — لا يمكن تسجيل التأخر للغائب أو بعذر.':''}</div>`;
-      }else if(tab==='permission'){
-        panel.style.display='none'; list.style.display='flex';
-        const rows=Object.keys(permissionRecords||{}).flatMap(d=>getPermissionRecords(d,cls,student).map(record=>({date:d,record}))).sort((a,b)=>`${b.date}|${b.record.outTime}`.localeCompare(`${a.date}|${a.record.outTime}`));
-        const ec=encodeURIComponent(cls), es=encodeURIComponent(student), ed=encodeURIComponent(date), open=getOpenPermissionRecord(date,cls,student);
-        list.innerHTML=`<button type="button" class="permission-entry" style="width:100%;margin-bottom:7px;" ${status==='غائب'||status==='بعذر'?'disabled':''} onclick="openInlinePermissionAction('${ec}','${es}','${ed}')">🕒 تسجيل استئذان جديد</button>`+(rows.length?rows.map(({date:d,record})=>{const id=encodeURIComponent(record.id||''),text=isGuardianExitRecord(record)?`خرج مع ولي الأمر ${escapeTextForHtml(record.outTime||'-')}`:`خرج ${escapeTextForHtml(record.outTime||'-')} · ${record.returnTime?`عاد ${escapeTextForHtml(record.returnTime)}`:'لم يعد بعد'}`;return `<div class="permission-edit-item"><div class="permission-edit-details"><b>${escapeTextForHtml(d)} · ${text}</b><span>${formatPermissionReason(record)}</span></div>${!record.returnTime&&!isGuardianExitRecord(record)?`<button type="button" class="permission-edit-open" onclick="returnFromGlobalPermission('${ec}','${es}','${encodeURIComponent(d)}','${id}')">عودة</button>`:''}<button type="button" class="permission-edit-open" onclick="openInlinePermissionRecordEdit('${ec}','${es}','${encodeURIComponent(d)}','${id}')">تعديل</button><button type="button" class="permission-edit-delete" onclick="deleteInlinePermissionRecord('${ec}','${es}','${encodeURIComponent(d)}','${id}')">حذف</button></div>`;}).join(''):'<div style="text-align:center;color:#667085;padding:1rem;font-size:.72rem;font-weight:800;">لا توجد سجلات استئذان لهذا الطالب.</div>');
-      }else if(tab==='violations'){
-        const selected=new Set(rec.violations||[]);
-        panel.innerHTML=`<div class="unified-violation-list">${VIOLATION_DEFINITIONS.map((item,i)=>`<label class="unified-violation-item ${selected.has(item.id)?'is-selected':''}"><input type="checkbox" data-violation-id="${escapeTextForHtml(item.id)}" ${selected.has(item.id)?'checked':''} onchange="this.parentElement.classList.toggle('is-selected',this.checked)"><span>${escapeTextForHtml(item.name)}</span></label>`).join('')}</div><button type="button" class="unified-editor-action" style="background:#8E44AD;color:#fff;" onclick="saveUnifiedViolations()">💾 حفظ المخالفات</button>`;
-      }else{
-        const notes=getAttendanceStudentNotes(cls,student);
-        panel.innerHTML=`<textarea id="unifiedNoteInput" class="unified-note-input" placeholder="اكتب ملاحظة جديدة…"></textarea><button type="button" class="unified-note-save" onclick="saveUnifiedStudentNote()">حفظ الملاحظة</button>${notes.length?`<div class="student-notes-list" style="margin-top:8px;">${notes.slice().reverse().map(note=>`<div class="student-note-item"><div class="student-note-content"><span>${escapeTextForHtml(note.text||'')}</span><small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></div><button type="button" class="student-note-delete" onclick="deleteAttendanceStudentNote('${CSS.escape(cls)}','${CSS.escape(student)}','${encodeURIComponent(String(note.id||''))}')">حذف</button></div>`).join('')}</div>`:'<div class="unified-editor-note" style="margin-top:8px;">لا توجد ملاحظات لهذا الطالب.</div>'}`;
+      panel.style.display='block'; list.style.display='none';
+      if(tab==='absence'||tab==='late'||tab==='violations'){
+        panel.innerHTML=`<div class="unified-history-panel">${renderUnifiedHistoryRows(tab==='absence'?'absent':tab==='late'?'late':'violations')}</div>`;
+        return;
       }
+      if(tab==='permission'){
+        panel.innerHTML=`<div class="unified-history-panel">${renderUnifiedPermissionRows()}</div>`;
+        return;
+      }
+      const notes=getAttendanceStudentNotes(cls,student), editing=notes.find(note=>note&&note.id===unifiedNoteEditId);
+      const noteRows=notes.slice().reverse().map(note=>{
+        const id=encodeURIComponent(String(note.id||''));
+        const content=editing&&editing.id===note.id?`<textarea id="unifiedEditingNote" class="unified-note-input">${escapeTextForHtml(note.text||'')}</textarea><div class="unified-note-actions"><button type="button" class="unified-note-save" onclick="saveUnifiedStudentNoteEdit('${id}')">حفظ التعديل</button><button type="button" class="student-note-delete" onclick="cancelUnifiedStudentNoteEdit()">إلغاء</button></div>`:`<div class="student-note-content"><span>${escapeTextForHtml(note.text||'')}</span><small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></div><div class="unified-note-actions"><button type="button" class="permission-edit-open" onclick="startUnifiedStudentNoteEdit('${id}')">تعديل</button><button type="button" class="student-note-delete" onclick="deleteUnifiedStudentNote('${id}')">حذف</button></div>`;
+        return `<div class="student-note-item unified-note-row"><div class="unified-note-date">${escapeTextForHtml(formatAttendanceStudentNoteDate(note.createdAt))}</div>${content}</div>`;
+      }).join('');
+      panel.innerHTML=`<textarea id="unifiedNoteInput" class="unified-note-input" placeholder="اكتب ملاحظة جديدة…"></textarea><button type="button" class="unified-note-save" onclick="saveUnifiedStudentNote()">حفظ الملاحظة</button>${noteRows||'<div class="unified-editor-note" style="margin-top:8px;">لا توجد ملاحظات محفوظة لهذا الطالب.</div>'}`;
     }
+    function startUnifiedStudentNoteEdit(encodedId){ unifiedNoteEditId=decodeURIComponent(encodedId||''); switchUnifiedStudentEditTab('notes'); }
+    function cancelUnifiedStudentNoteEdit(){ unifiedNoteEditId=''; switchUnifiedStudentEditTab('notes'); }
+    function saveUnifiedStudentNoteEdit(encodedId){ const {cls,student}=unifiedStudentEditContext, id=decodeURIComponent(encodedId||''), input=document.getElementById('unifiedEditingNote'), text=String(input?.value||'').trim(), note=getAttendanceStudentNotes(cls,student).find(item=>item&&item.id===id); if(!note||!text)return; note.text=text; unifiedNoteEditId=''; saveData(); renderStudents(); switchUnifiedStudentEditTab('notes'); }
+    function deleteUnifiedStudentNote(encodedId){ const {cls,student}=unifiedStudentEditContext, id=decodeURIComponent(encodedId||''), notes=getAttendanceStudentNotes(cls,student); if(!notes.some(note=>note&&note.id===id)||!confirm('هل تريد حذف هذه الملاحظة؟'))return; const remaining=notes.filter(note=>note&&note.id!==id); if(remaining.length)studentNotesData[cls][student]=remaining;else{delete studentNotesData[cls][student];if(Object.keys(studentNotesData[cls]).length===0)delete studentNotesData[cls];} unifiedNoteEditId=''; saveData(); renderStudents(); switchUnifiedStudentEditTab('notes'); }
     function saveUnifiedViolations(){
       const {cls,student}=unifiedStudentEditContext, date=document.getElementById('dateSelect')?.value||''; if(!cls||!student||!date) return;
       if(!ensureUnitIsEditable(cls,currentAttendanceUnit)||!canRecordInCurrentAttendanceUnit(date,cls)) return;
