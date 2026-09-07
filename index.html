@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.18";</script>
+  <script>const APP_VERSION = "22.19";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3239,6 +3239,16 @@ ${description}`)) return;
     }
 
     let openAttendanceStudentStats='', showAttendanceStudentNotes=false, lastAttendanceNameTap={student:'',at:0};
+    let attendancePermissionButtonTimer=null, attendancePermissionButtonStudent='';
+    let showAttendanceAbsenceActionStudent='';
+    function handleAttendancePermissionButton(event,encodedClass,encodedStudent,encodedDate){
+      event.preventDefault(); event.stopPropagation();
+      const student=decodeURIComponent(encodedStudent||'');
+      if(attendancePermissionButtonTimer&&attendancePermissionButtonStudent===student){ clearTimeout(attendancePermissionButtonTimer); attendancePermissionButtonTimer=null; attendancePermissionButtonStudent=''; showAttendanceAbsenceActionStudent=student; renderStudents(); return; }
+      if(attendancePermissionButtonTimer) clearTimeout(attendancePermissionButtonTimer);
+      attendancePermissionButtonStudent=student;
+      attendancePermissionButtonTimer=setTimeout(()=>{ attendancePermissionButtonTimer=null; attendancePermissionButtonStudent=''; openInlinePermissionAction(encodedClass,encodedStudent,encodedDate); },300);
+    }
     let attendanceStudentNoteEdit=null;
     let openAttendanceStudentSummary='';
     function getAttendanceStudentNotes(cls,student){ return Array.isArray(studentNotesData?.[cls]?.[student])?studentNotesData[cls][student]:[]; }
@@ -3420,7 +3430,9 @@ ${description}`)) return;
         const nameColor=dup.includes(s)?'color:#FF3B30;':'';
         const safeStudent=CSS.escape(s);
         const summaryBubble=openAttendanceStudentSummary===s?getAttendanceStudentSummaryBubble(cls,s):'';
-        card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات والاستئذان" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}${guardianExitRecord?`<span class="attendance-permission-live">👤 خرج مع ولي الأمر ${escapeTextForHtml(guardianExitRecord.outTime)}</span>`:permissionActive?`<span class="attendance-permission-live">🕒 خارج منذ ${escapeTextForHtml(permissionRecord.outTime)}</span>`:''}</div><div class="attendance-buttons"><button class="btn-status ${(status==='غائب'||status==='بعذر')?'active-absent':''}" onclick="setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غائب'}</button><button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button><button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button></div>${getAttendanceStudentStatsMarkup(cls,s)}`;
+        const encodedClass=encodeURIComponent(cls), encodedStudent=encodeURIComponent(s), encodedDate=encodeURIComponent(date), absenceInPermissionSlot=showAttendanceAbsenceActionStudent===s;
+        const permissionSlot=absenceInPermissionSlot?`<button class="btn-status ${status==='غائب'||status==='بعذر'?'active-absent':''}" onclick="showAttendanceAbsenceActionStudent='';setStatus('${safeStudent}','${status==='بعذر'?'بعذر':'غائب'}')">${status==='بعذر'?'بعذر':'غياب'}</button>`:`<button class="btn-status ${permissionActive?'active-permission':''}" onclick="handleAttendancePermissionButton(event,'${encodedClass}','${encodedStudent}','${encodedDate}')">استئذان</button>`;
+        card.innerHTML=`${noteCountBadge}<div class="student-name" style="${nameColor}" title="اضغط مطولاً للإحصائية الكلية — واضغط مرتين للملاحظات والاستئذان" oncontextmenu="event.preventDefault()" ondblclick="handleAttendanceStudentNameTap(event,'${safeStudent}')" onpointerdown="startAttendanceStudentNamePress(event,'${safeStudent}')" onpointermove="moveAttendanceStudentNamePress(event)" onpointercancel="cancelAttendanceStudentNamePress()" onpointerup="endAttendanceStudentNamePress(event,'${safeStudent}')">${summaryBubble}${s}${guardianExitRecord?`<span class="attendance-permission-live">👤 خرج مع ولي الأمر ${escapeTextForHtml(guardianExitRecord.outTime)}</span>`:permissionActive?`<span class="attendance-permission-live">🕒 خارج منذ ${escapeTextForHtml(permissionRecord.outTime)}</span>`:''}</div><div class="attendance-buttons"><button class="btn-status ${status==='متأخر'?'active-late':''} ${statusBlocksNotes?'disabled-btn':''}" onclick="setStatus('${safeStudent}','متأخر')">متأخر</button>${permissionSlot}<button class="btn-status ${vClass} ${disabled}" onclick="openViolationModal('${safeStudent}')">${vText}</button></div>${getAttendanceStudentStatsMarkup(cls,s)}`;
         cont.appendChild(card);
       });
       document.getElementById('absentCount').innerText=absent;
