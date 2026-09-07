@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.21";</script>
+  <script>const APP_VERSION = "22.22";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3406,6 +3406,22 @@ ${description}`)) return;
       if(!openAttendanceStudentStats||event.target.closest('.student-card')) return;
       openAttendanceStudentStats=''; showAttendanceStudentNotes=false; renderStudents();
     });
+    let attendancePermissionButtonTimer=null, attendancePermissionButtonStudent='';
+    let showAttendanceAbsenceActionStudent='';
+    function handleAttendancePermissionButton(event,encodedClass,encodedStudent,encodedDate){
+      event.preventDefault(); event.stopPropagation();
+      const student=decodeURIComponent(encodedStudent||'');
+      if(attendancePermissionButtonTimer&&attendancePermissionButtonStudent===student){
+        clearTimeout(attendancePermissionButtonTimer); attendancePermissionButtonTimer=null; attendancePermissionButtonStudent='';
+        showAttendanceAbsenceActionStudent=student; renderStudents(); return;
+      }
+      if(attendancePermissionButtonTimer) clearTimeout(attendancePermissionButtonTimer);
+      attendancePermissionButtonStudent=student;
+      attendancePermissionButtonTimer=setTimeout(()=>{
+        attendancePermissionButtonTimer=null; attendancePermissionButtonStudent='';
+        openInlinePermissionAction(encodedClass,encodedStudent,encodedDate);
+      },300);
+    }
     function showAttendanceAbsenceButton(event,student){event.preventDefault();event.stopPropagation();if(attendancePermissionButtonTimer)clearTimeout(attendancePermissionButtonTimer);attendancePermissionButtonTimer=null;attendancePermissionButtonStudent='';showAttendanceAbsenceActionStudent=student;renderStudents();}
     function renderStudents() {
       updateGlobalPermissionBubble();
