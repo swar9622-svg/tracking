@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.25";</script>
+  <script>const APP_VERSION = "22.26";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -713,10 +713,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     .unified-editor-tabs button.is-active{background:#176671;color:#fff;box-shadow:0 2px 5px rgba(23,102,113,.22);}
     .unified-editor-panel{min-height:110px;max-height:48vh;overflow:auto;padding:2px;}
     .unified-history-panel{display:flex;flex-direction:column;gap:7px;max-height:48vh;overflow:auto;padding:1px;}
-    .unified-note-row{display:grid;grid-template-columns:1fr;gap:5px;padding:8px;border:1px solid #E2E8F0;border-radius:9px;background:#fff;}
-    .unified-note-date{font-size:.62rem;font-weight:900;color:#176671;background:#EDF9FA;border-radius:6px;padding:4px 6px;justify-self:start;}
-    .unified-note-actions{display:flex;gap:5px;align-items:center;}
-    .unified-note-actions button{flex:1;border:0;border-radius:7px;padding:6px;font:inherit;font-size:.64rem;font-weight:900;cursor:pointer;}
+    .unified-note-actions{display:flex;flex-direction:row;gap:4px;align-items:center;justify-content:flex-end;flex:0 0 84px;}
+    .unified-note-actions button{width:40px;height:24px;min-height:24px;border:0;border-radius:6px;padding:0;font:inherit;font-size:.57rem;font-weight:900;cursor:pointer;}
     .unified-editor-action{width:100%;border:0;border-radius:9px;padding:10px;font:inherit;font-size:.75rem;font-weight:900;cursor:pointer;margin-bottom:7px;}
     .unified-editor-action.absence{background:#FFF0F0;color:#B42318;border:1px solid #F4B6B6;}
     .unified-editor-action.late{background:#FFF7E6;color:#A96800;border:1px solid #F2D39A;}
@@ -3203,7 +3201,7 @@ ${description}`)) return;
       selects.forEach(([,select])=>select.innerHTML='');
       const studentNumbersSelect=document.getElementById('studentNumbersClassSelect');
       if(studentNumbersSelect) studentNumbersSelect.innerHTML='<option value="">-- اختر فصل --</option><option value="__no_numbers__">🔴 طلاب بدون أرقام</option>';
-      const keys = Object.keys(appData||{});
+      const keys = getAllGradeClassNames();
       keys.forEach(cls=>{ selects.forEach(([,select])=>{ select.innerHTML += `<option value="${cls}">${cls}</option>`; }); });
       const restoreClassSelect=(id,value)=>{ const select=document.getElementById(id); if(select&&keys.includes(value)) select.value=value; };
       restoreClassSelect('classSelect',vals.classSelect);
@@ -3385,9 +3383,9 @@ ${description}`)) return;
       const noteRows=notes.slice().reverse().map(note=>{
         const id=encodeURIComponent(String(note.id||''));
         const content=editing&&editing.id===note.id?`<textarea id="unifiedEditingNote" class="unified-note-input">${escapeTextForHtml(note.text||'')}</textarea><div class="unified-note-actions"><button type="button" class="unified-note-save" onclick="saveUnifiedStudentNoteEdit('${id}')">حفظ التعديل</button><button type="button" class="student-note-delete" onclick="cancelUnifiedStudentNoteEdit()">إلغاء</button></div>`:`<div class="student-note-content"><span>${escapeTextForHtml(note.text||'')}</span><small>${formatAttendanceStudentNoteDate(note.createdAt)}</small></div><div class="unified-note-actions"><button type="button" class="permission-edit-open" onclick="startUnifiedStudentNoteEdit('${id}')">تعديل</button><button type="button" class="student-note-delete" onclick="deleteUnifiedStudentNote('${id}')">حذف</button></div>`;
-        return `<div class="student-note-item unified-note-row"><div class="unified-note-date">${escapeTextForHtml(formatAttendanceStudentNoteDate(note.createdAt))}</div>${content}</div>`;
+        return `<div class="student-note-item">${content}</div>`;
       }).join('');
-      panel.innerHTML=`<textarea id="unifiedNoteInput" class="unified-note-input" placeholder="اكتب ملاحظة جديدة…"></textarea><button type="button" class="unified-note-save" onclick="saveUnifiedStudentNote()">حفظ الملاحظة</button>${noteRows||'<div class="unified-editor-note" style="margin-top:8px;">لا توجد ملاحظات محفوظة لهذا الطالب.</div>'}`;
+      panel.innerHTML=noteRows||'<div class="unified-editor-note">لا توجد ملاحظات محفوظة لهذا الطالب.</div>';
     }
     function startUnifiedStudentNoteEdit(encodedId){ unifiedNoteEditId=decodeURIComponent(encodedId||''); switchUnifiedStudentEditTab('notes'); }
     function cancelUnifiedStudentNoteEdit(){ unifiedNoteEditId=''; switchUnifiedStudentEditTab('notes'); }
