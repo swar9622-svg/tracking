@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.32";</script>
+  <script>const APP_VERSION = "22.33";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -564,13 +564,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #understandingClassSelect{background:#EAF7EE;border-color:#A9DFBF;color:#166534;}
     #understandingUnitSelect{background:#EAF3FF;border-color:#AED6F1;color:#1D4ED8;}
     #understandingLessonSelect{background:#FFF3E0;border-color:#F5CBA7;color:#B45309;}
-    .understanding-lesson-picker{position:relative;flex:1;min-width:0;}
-    .understanding-lesson-picker-button{width:100%;min-height:2.2rem;padding:.42rem .35rem;border:1px solid #F5CBA7;border-radius:.55rem;background:#FFF3E0;color:#B45309;font:inherit;font-size:.78rem;font-weight:900;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    .understanding-lesson-menu{position:absolute;z-index:1200;top:calc(100% + 3px);right:0;left:0;max-height:16rem;overflow-y:auto;padding:5px;border:1px solid #C9D2DE;border-radius:.58rem;background:#FFFFFF;box-shadow:0 6px 16px rgba(31,41,55,.18);}
-    .understanding-lesson-menu[hidden]{display:none;}
-    .understanding-lesson-option{display:block;width:100%;box-sizing:border-box;min-height:2.05rem;margin:3px 0;padding:.42rem .55rem;border:1px solid #D8DEE7;border-radius:.48rem;color:#1F2937;font:inherit;font-size:.76rem;font-weight:900;text-align:center;cursor:pointer;}
-    .understanding-lesson-option:active{filter:brightness(.94);}
-    .understanding-lesson-option.is-current{border-color:#C27A18;box-shadow:inset 0 0 0 1px #C27A18;}
     .understanding-buttons{display:grid;grid-template-columns:repeat(2,minmax(58px,1fr));gap:3px;flex:0 0 142px;}
     .understanding-buttons .btn-status{width:100%;min-width:0;height:1.5rem;padding:0.12rem 0.1rem;font-size:0.58rem;line-height:1.02;}
     #understandingScreen .student-card{position:relative;}
@@ -801,7 +794,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="controls-bar understanding-controls">
         <select id="understandingClassSelect" onchange="onUnderstandingClassChange(this.value)" title="الفصل"></select>
         <select id="understandingUnitSelect" onchange="onUnderstandingUnitChange()" title="الوحدة"></select>
-        <div class="understanding-lesson-picker"><button type="button" id="understandingLessonPickerButton" class="understanding-lesson-picker-button" onclick="toggleUnderstandingLessonMenu()">اختر الدرس</button><div id="understandingLessonMenu" class="understanding-lesson-menu" hidden></div><select id="understandingLessonSelect" onchange="onUnderstandingLessonChange()" title="الدرس" aria-hidden="true" tabindex="-1" style="display:none"></select></div>
+        <select id="understandingLessonSelect" onchange="onUnderstandingLessonChange()" title="الدرس"></select>
       </div>
       <div id="understandingSummary" class="understanding-summary"></div>
     </header>
@@ -3888,18 +3881,6 @@ ${description}`)) return;
     try{ const saved=JSON.parse(localStorage.getItem(UNDERSTANDING_VIEW_PREFS_KEY)||'{}'); if(saved&&typeof saved==='object') understandingViewPreferences=saved; }catch(_){ understandingViewPreferences={}; }
     function getUnderstandingViewPreference(cls){ const value=understandingViewPreferences?.[cls]; return value&&typeof value==='object'?value:{}; }
     function saveUnderstandingViewPreference(cls,unit,lesson){ if(!cls)return; understandingViewPreferences[cls]={unit:String(unit||''),lesson:String(lesson||'')}; try{ localStorage.setItem(UNDERSTANDING_VIEW_PREFS_KEY,JSON.stringify(understandingViewPreferences)); }catch(_){} }
-    function closeUnderstandingLessonMenu(){ const menu=document.getElementById('understandingLessonMenu'); if(menu) menu.hidden=true; }
-    function toggleUnderstandingLessonMenu(){ const menu=document.getElementById('understandingLessonMenu'); if(!menu)return; if(menu.hidden){ renderUnderstandingLessonMenu(); menu.hidden=false; }else closeUnderstandingLessonMenu(); }
-    function chooseUnderstandingLesson(encodedLesson){ const lesson=decodeURIComponent(encodedLesson||''); const select=document.getElementById('understandingLessonSelect'); if(!select||![...select.options].some(option=>option.value===lesson))return; select.value=lesson; closeUnderstandingLessonMenu(); onUnderstandingLessonChange(); }
-    document.addEventListener('pointerdown',event=>{ const picker=document.querySelector('.understanding-lesson-picker'); if(picker&&!picker.contains(event.target)) closeUnderstandingLessonMenu(); });
-    document.addEventListener('keydown',event=>{ if(event.key==='Escape') closeUnderstandingLessonMenu(); });
-    function renderUnderstandingLessonMenu(){
-      const cls=document.getElementById('understandingClassSelect')?.value||'', unit=document.getElementById('understandingUnitSelect')?.value||'', select=document.getElementById('understandingLessonSelect'), menu=document.getElementById('understandingLessonMenu'), button=document.getElementById('understandingLessonPickerButton'); if(!select||!menu||!button)return;
-      const total=(appData?.[cls]||[]).length, current=select.value;
-      button.textContent=current||'اختر الدرس';
-      const items=[...select.options].map(option=>{ const states=getUnderstandingLessonStates(cls,unit,option.value), evaluated=(appData?.[cls]||[]).filter(student=>!!getUnderstandingStudentStatus(states,student)).length, complete=total>0&&evaluated>=total, bg=evaluated===0?'#FFFFFF':complete?'#DDF5E3':'#FADDDD'; return `<button type="button" class="understanding-lesson-option ${option.value===current?'is-current':''}" style="background:${bg}" onclick="chooseUnderstandingLesson('${encodeURIComponent(option.value)}')"><span>${escapeTextForHtml(option.textContent||option.value)}</span></button>`; }).join('');
-      menu.innerHTML=items||'<div style="padding:10px;text-align:center;color:#667085;font-size:.7rem;font-weight:800;">لا توجد دروس</div>';
-    }
     function colorUnderstandingLessonOptions(){
       const cls=document.getElementById('understandingClassSelect')?.value||'', unit=document.getElementById('understandingUnitSelect')?.value||'', select=document.getElementById('understandingLessonSelect'); if(!select||!cls||!unit)return;
       const total=(appData?.[cls]||[]).length;
@@ -3908,7 +3889,6 @@ ${description}`)) return;
         option.style.backgroundColor=color;
         option.style.color='#1F2937'; option.title=evaluated===0?'لم يتم تقييم أي طالب':(total>0&&evaluated>=total?'تم تقييم جميع الطلاب':`تم تقييم ${evaluated} من ${total}`);
       });
-      renderUnderstandingLessonMenu();
     }
     function refreshUnderstandingLessonSelect(preferredLesson=''){
       const cls=document.getElementById('understandingClassSelect')?.value||'', unit=document.getElementById('understandingUnitSelect')?.value||'', pref=getUnderstandingViewPreference(cls), lessonSelect=document.getElementById('understandingLessonSelect'), old=preferredLesson||pref.lesson||lessonSelect.value;
