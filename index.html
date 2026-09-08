@@ -794,7 +794,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="controls-bar understanding-controls">
         <select id="understandingClassSelect" onchange="onUnderstandingClassChange(this.value)" title="الفصل"></select>
         <select id="understandingUnitSelect" onchange="onUnderstandingUnitChange()" title="الوحدة"></select>
-        <select id="understandingLessonSelect" onchange="onUnderstandingLessonChange()" title="الدرس"></select>
+        <select id="understandingLessonSelect" onchange="onUnderstandingLessonChange()" onfocus="showUnderstandingLessonOptionDetails()" onblur="hideUnderstandingLessonOptionDetails()" title="الدرس"></select>
       </div>
       <div id="understandingSummary" class="understanding-summary"></div>
     </header>
@@ -3881,6 +3881,17 @@ ${description}`)) return;
     try{ const saved=JSON.parse(localStorage.getItem(UNDERSTANDING_VIEW_PREFS_KEY)||'{}'); if(saved&&typeof saved==='object') understandingViewPreferences=saved; }catch(_){ understandingViewPreferences={}; }
     function getUnderstandingViewPreference(cls){ const value=understandingViewPreferences?.[cls]; return value&&typeof value==='object'?value:{}; }
     function saveUnderstandingViewPreference(cls,unit,lesson){ if(!cls)return; understandingViewPreferences[cls]={unit:String(unit||''),lesson:String(lesson||'')}; try{ localStorage.setItem(UNDERSTANDING_VIEW_PREFS_KEY,JSON.stringify(understandingViewPreferences)); }catch(_){} }
+    function showUnderstandingLessonOptionDetails(){
+      const select=document.getElementById('understandingLessonSelect'); if(!select)return;
+      [...select.options].forEach(option=>{
+        const baseLabel=option.dataset.baseLabel||option.textContent, evaluated=option.dataset.evaluated||'0', total=option.dataset.total||'0';
+        option.textContent=Number(evaluated)>0?`${baseLabel} (قيم ${evaluated} من ${total})`:baseLabel;
+      });
+    }
+    function hideUnderstandingLessonOptionDetails(){
+      const select=document.getElementById('understandingLessonSelect'); if(!select)return;
+      [...select.options].forEach(option=>{ option.textContent=option.dataset.baseLabel||option.textContent; });
+    }
     function colorUnderstandingLessonOptions(){
       const cls=document.getElementById('understandingClassSelect')?.value||'', unit=document.getElementById('understandingUnitSelect')?.value||'', select=document.getElementById('understandingLessonSelect'); if(!select||!cls||!unit)return;
       const total=(appData?.[cls]||[]).length;
@@ -3889,7 +3900,8 @@ ${description}`)) return;
         const bgColor=evaluated===0?'#FFFFFF':(allDone?'#DDF5E3':'#FADDDD');
         option.style.backgroundColor=bgColor;
         option.style.removeProperty('color');
-        option.textContent=evaluated===0?baseLabel:`${baseLabel} (قيم ${evaluated} من ${total})`;
+        option.dataset.evaluated=String(evaluated); option.dataset.total=String(total);
+        option.textContent=baseLabel;
         option.title=evaluated===0?'لم يتم تقييم أي طالب':(allDone?'تم تقييم جميع الطلاب':`تم تقييم ${evaluated} من ${total}`);
       });
     }
