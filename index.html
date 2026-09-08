@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.34";</script>
+  <script>const APP_VERSION = "22.35";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -570,12 +570,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     #understandingScreen .understanding-note-badges{z-index:5;}
     #understandingScreen .student-excellence-star{position:absolute;top:-0.34rem;left:-0.28rem;z-index:5;width:1.34rem;height:1.34rem;border:2px solid #FFFFFF;border-radius:999px;background:#FFF4CC;color:#B77900;box-shadow:0 2px 7px rgba(183,121,0,.28);font-size:0.88rem;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;pointer-events:none;}
     .understanding-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:0 0 0.42rem;overflow:hidden;}
-    .understanding-summary-item{min-height:2.38rem;box-sizing:border-box;border-radius:0.55rem;padding:0.15rem 0.02rem;text-align:center;font-size:0.50rem;font-weight:900;border:1px solid rgba(0,0,0,.08);line-height:1.08;min-width:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .understanding-summary-item{min-height:2.38rem;box-sizing:border-box;border-radius:0.55rem;padding:0.15rem 0.02rem;text-align:center;font-size:0.50rem;font-weight:900;border:1px solid rgba(0,0,0,.08);line-height:1.08;min-width:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;}
     .understanding-summary-item b{display:block;font-size:0.74rem;margin-bottom:0.04rem;}
     /* يصغّر عنوان يحتاج دعماً فقط؛ الرقم داخل b يحتفظ بحجمه المعتاد. */
     #understandingScreen .understanding-summary-item.understanding-summary-support{font-size:0.60rem!important;white-space:nowrap;letter-spacing:-0.02em;}
     .understanding-remaining-control{min-width:0;min-height:2.38rem;}
-    .understanding-summary-remaining{width:100%;height:100%;min-height:2.38rem;box-sizing:border-box;border:1.4px solid #6E6E73;border-radius:0.55rem;background:#F2F2F7;color:#3A3A3C;padding:0.14rem 0.02rem;font-family:inherit;font-size:0.50rem;font-weight:900;line-height:1.08;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.68);white-space:normal;overflow:hidden;}
+    .understanding-summary-remaining{width:100%;height:100%;min-height:2.38rem;box-sizing:border-box;border:1.4px solid #6E6E73;border-radius:0.55rem;background:#F2F2F7;color:#3A3A3C;padding:0.14rem 0.02rem;font-family:inherit;font-size:0.50rem;font-weight:900;line-height:1.08;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.68);white-space:normal;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;}
     .understanding-summary-remaining b{display:block;font-size:0.74rem;margin-bottom:0.04rem;}
     .understanding-summary-remaining:active{opacity:.78;transform:scale(.98);}
     .understanding-summary-remaining .remaining-arrow{display:inline-block;margin-inline-start:0.12rem;font-size:0.52rem;vertical-align:0.08rem;}
@@ -3886,9 +3886,9 @@ ${description}`)) return;
       const total=(appData?.[cls]||[]).length;
       [...select.options].forEach(option=>{
         const states=getUnderstandingLessonStates(cls,unit,option.value), evaluated=(appData?.[cls]||[]).filter(student=>!!getUnderstandingStudentStatus(states,student)).length, allDone=total>0&&evaluated>=total, baseLabel=option.dataset.baseLabel||option.textContent;
-        const bgColor=evaluated===0?'#FFFFFF':(allDone?'#DDF5E3':'#FADDDD'), textColor=evaluated===0?'#1F2937':(allDone?'#1E8449':'#D64545');
+        const bgColor=evaluated===0?'#FFFFFF':(allDone?'#DDF5E3':'#FADDDD');
         option.style.backgroundColor=bgColor;
-        option.style.color=textColor;
+        option.style.removeProperty('color');
         option.textContent=evaluated===0?baseLabel:`${baseLabel} (قيم ${evaluated} من ${total})`;
         option.title=evaluated===0?'لم يتم تقييم أي طالب':(allDone?'تم تقييم جميع الطلاب':`تم تقييم ${evaluated} من ${total}`);
       });
@@ -4152,30 +4152,18 @@ ${description}`)) return;
       understandingRemainingMenuOpen=!understandingRemainingMenuOpen;
       renderUnderstandingScreen();
     }
-    const UNDERSTANDING_CATEGORY_LABELS={excellent:'⭐ الطلاب المتميزون',remaining:'الطلاب المتبقون (بلا تقييم)'};
-    function openUnderstandingCategoryModal(key){
-      const cls=document.getElementById('understandingClassSelect')?.value||'', unit=document.getElementById('understandingUnitSelect')?.value||'', lesson=document.getElementById('understandingLessonSelect')?.value||'';
-      if(!cls||!unit||!lesson||!appData[cls]) return;
-      const states=getUnderstandingLessonStates(cls,unit,lesson), allStudents=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar'));
-      const students=allStudents.filter(student=>{
-        if(key==='excellent') return isUnderstandingStudentExcellent(states,student);
-        if(key==='remaining') return !getUnderstandingStudentStatus(states,student);
-        return getUnderstandingStudentStatus(states,student)===key;
-      });
-      const label=UNDERSTANDING_CATEGORY_LABELS[key]||UNDERSTANDING_STATUS_CONFIG[key]?.label||'الطلاب';
-      const list=document.getElementById('dailyStatsModalList'), title=document.getElementById('dailyStatsModalTitle'), hint=document.getElementById('dailyStatsModalHint');
-      if(!list||!title||!hint) return;
-      title.textContent=`📋 ${label}`;
-      hint.textContent=`${lesson} — ${students.length} طالب`;
-      list.innerHTML=students.length?students.map(student=>`<div class="daily-stats-row"><div class="daily-stats-name">${escapeTextForHtml(student)}</div></div>`).join(''):'<div class="daily-stats-empty">لا يوجد طلاب في هذه الفئة حالياً.</div>';
-      document.getElementById('dailyStatsModal').style.display='flex';
+    const UNDERSTANDING_CATEGORY_LABELS={excellent:'⭐ المتميزون',remaining:'البقية (بلا تقييم)'};
+    let understandingCategoryFilter='';
+    function filterUnderstandingByCategory(key){
+      understandingCategoryFilter=understandingCategoryFilter===key?'':key;
+      renderUnderstandingScreen();
     }
     let lastUnderstandingCategoryTap={key:'',at:0};
     function handleUnderstandingCategoryTap(event,key){
-      if(event.type==='dblclick'){ event.preventDefault(); event.stopPropagation(); lastUnderstandingCategoryTap={key:'',at:0}; openUnderstandingCategoryModal(key); return; }
+      if(event.type==='dblclick'){ event.preventDefault(); event.stopPropagation(); lastUnderstandingCategoryTap={key:'',at:0}; filterUnderstandingByCategory(key); return; }
       if(event.pointerType!=='touch') return;
       const now=Date.now();
-      if(lastUnderstandingCategoryTap.key===key&&now-lastUnderstandingCategoryTap.at<420){ event.preventDefault(); event.stopPropagation(); lastUnderstandingCategoryTap={key:'',at:0}; openUnderstandingCategoryModal(key); }
+      if(lastUnderstandingCategoryTap.key===key&&now-lastUnderstandingCategoryTap.at<420){ event.preventDefault(); event.stopPropagation(); lastUnderstandingCategoryTap={key:'',at:0}; filterUnderstandingByCategory(key); }
       else lastUnderstandingCategoryTap={key,at:now};
     }
     let understandingRemainingLongPressTimer=null, understandingRemainingLongPressPoint=null, understandingRemainingLongPressOpened=false;
@@ -4235,20 +4223,25 @@ ${description}`)) return;
       cont.innerHTML=''; summary.innerHTML='';
       if(!cls||!unit||!lesson||!appData[cls]) return;
       const viewKey=`${cls}\u0001${unit}\u0001${lesson}`;
-      if(understandingRemainingMenuKey&&understandingRemainingMenuKey!==viewKey){ understandingRemainingMenuOpen=false; understandingShowEvaluated=false; }
+      if(understandingRemainingMenuKey&&understandingRemainingMenuKey!==viewKey){ understandingRemainingMenuOpen=false; understandingShowEvaluated=false; understandingCategoryFilter=''; }
       understandingRemainingMenuKey=viewKey;
       const states=getUnderstandingLessonStates(cls,unit,lesson), allStudents=[...appData[cls]].sort((a,b)=>a.localeCompare(b,'ar')), searchText=String(document.getElementById('understandingStudentSearch')?.value||'').trim().toLocaleLowerCase('ar');
       const counts={mastered:0,partial:0,support:0,notDone:0,excellent:0,remaining:0};
       allStudents.forEach(student=>{ const status=getUnderstandingStudentStatus(states,student); if(status&&counts[status]!==undefined) counts[status]++; else counts.remaining++; if(isUnderstandingStudentExcellent(states,student)) counts.excellent++; });
-      Object.entries(UNDERSTANDING_STATUS_CONFIG).forEach(([key,config])=>{ summary.innerHTML+=`<div class="understanding-summary-item${key==='support'?' understanding-summary-support':''}" role="button" tabindex="0" title="اضغط مرتين لعرض الطلاب" ondblclick="handleUnderstandingCategoryTap(event,'${key}')" onpointerup="handleUnderstandingCategoryTap(event,'${key}')" style="background:${config.background};color:${config.color};cursor:pointer;"><b>${counts[key]}</b>${config.label}</div>`; });
-      summary.innerHTML+=`<div class="understanding-summary-item" role="button" tabindex="0" title="اضغط مرتين لعرض الطلاب" ondblclick="handleUnderstandingCategoryTap(event,'excellent')" onpointerup="handleUnderstandingCategoryTap(event,'excellent')" style="background:#FFF4CC;color:#B77900;border-color:#F3D58B;cursor:pointer;"><b>${counts.excellent}</b>★ متميز</div>`;
+      Object.entries(UNDERSTANDING_STATUS_CONFIG).forEach(([key,config])=>{ const isActive=understandingCategoryFilter===key; summary.innerHTML+=`<div class="understanding-summary-item${key==='support'?' understanding-summary-support':''}" role="button" tabindex="0" title="اضغط مرتين لعرض هؤلاء الطلاب فقط بالأسفل" ondblclick="handleUnderstandingCategoryTap(event,'${key}')" onpointerup="handleUnderstandingCategoryTap(event,'${key}')" style="background:${config.background};color:${config.color};cursor:pointer;${isActive?'outline:2px solid '+config.color+';outline-offset:-2px;':''}"><b>${counts[key]}</b>${config.label}</div>`; });
+      summary.innerHTML+=`<div class="understanding-summary-item" role="button" tabindex="0" title="اضغط مرتين لعرض هؤلاء الطلاب فقط بالأسفل" ondblclick="handleUnderstandingCategoryTap(event,'excellent')" onpointerup="handleUnderstandingCategoryTap(event,'excellent')" style="background:#FFF4CC;color:#B77900;border-color:#F3D58B;cursor:pointer;${understandingCategoryFilter==='excellent'?'outline:2px solid #B77900;outline-offset:-2px;':''}"><b>${counts.excellent}</b>★ متميز</div>`;
       const remainingColor=getButtonColorCss('understandingRemainingBtn'), remainingTextColor=getButtonTextColor('understandingRemainingBtn');
       const remainingButtons=Object.entries(UNDERSTANDING_STATUS_CONFIG).map(([key,config])=>{ const color=getButtonColorCss(config.colorKey), textColor=getButtonTextColor(config.colorKey); return `<button class="btn-status understanding-status-${key}" onclick="applyUnderstandingStatusToRemaining('${key}')" style="background:${config.background};color:${color};border:1.3px solid ${color};font-weight:900;">${config.label}</button>`; }).join('');
-      summary.innerHTML+=`<div class="understanding-remaining-control"><button type="button" class="understanding-summary-remaining" aria-expanded="${understandingRemainingMenuOpen}" title="اضغط مطولاً لتطبيق حالة على البقية، أو اضغط مرتين لعرض أسمائهم" onpointerdown="startUnderstandingRemainingPress(event)" onpointermove="moveUnderstandingRemainingPress(event)" onpointerup="endUnderstandingRemainingPress(event)" onpointercancel="cancelUnderstandingRemainingPress()" ondblclick="handleUnderstandingCategoryTap(event,'remaining')" oncontextmenu="event.preventDefault();return false;" style="background:${understandingRemainingMenuOpen?remainingColor:'#F2F2F7'};color:${understandingRemainingMenuOpen?remainingTextColor:'#3A3A3C'};border-color:${remainingColor};"><b>${counts.remaining}</b>البقية <span class="remaining-arrow">${understandingRemainingMenuOpen?'▴':'▾'}</span></button></div>`;
+      summary.innerHTML+=`<div class="understanding-remaining-control"><button type="button" class="understanding-summary-remaining" aria-expanded="${understandingRemainingMenuOpen}" title="اضغط مطولاً لتطبيق حالة على البقية، أو اضغط مرتين لعرض أسمائهم بالأسفل" onpointerdown="startUnderstandingRemainingPress(event)" onpointermove="moveUnderstandingRemainingPress(event)" onpointerup="endUnderstandingRemainingPress(event)" onpointercancel="cancelUnderstandingRemainingPress()" ondblclick="handleUnderstandingCategoryTap(event,'remaining')" oncontextmenu="event.preventDefault();return false;" style="background:${understandingRemainingMenuOpen?remainingColor:'#F2F2F7'};color:${understandingRemainingMenuOpen?remainingTextColor:'#3A3A3C'};border-color:${remainingColor};${understandingCategoryFilter==='remaining'?'outline:2px solid #3A3A3C;outline-offset:-2px;':''}"><b>${counts.remaining}</b>البقية <span class="remaining-arrow">${understandingRemainingMenuOpen?'▴':'▾'}</span></button></div>`;
       const visibilityBar=document.getElementById('understandingVisibilityBar'); if(visibilityBar) visibilityBar.innerHTML=`${understandingShowEvaluated?'إخفاء المقيمين':'عرض الكل'} <small>(${allStudents.length-counts.remaining} مقيم)</small>`;
       if(understandingRemainingMenuOpen) summary.innerHTML+=`<div class="understanding-remaining-menu">${remainingButtons}<button type="button" class="understanding-clear-all" onclick="clearUnderstandingLessonStatuses()">مسح الكل</button></div>`;
+      if(understandingCategoryFilter){ const filterLabel=UNDERSTANDING_CATEGORY_LABELS[understandingCategoryFilter]||UNDERSTANDING_STATUS_CONFIG[understandingCategoryFilter]?.label||''; summary.innerHTML+=`<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0.32rem 0.55rem;background:#F2F2F7;border-radius:0.5rem;font-size:0.66rem;font-weight:900;color:#3A3A3C;"><span>عرض: ${filterLabel} فقط</span><button type="button" onclick="filterUnderstandingByCategory('${understandingCategoryFilter}')" style="border:0;background:#FFFFFF;color:#3A3A3C;border-radius:0.4rem;padding:0.2rem 0.5rem;font:inherit;font-weight:900;cursor:pointer;">إلغاء</button></div>`; }
       const visibleStudents=searchText?allStudents.filter(student=>String(student).toLocaleLowerCase('ar').includes(searchText)):allStudents;
-      const studentsForCards=understandingShowEvaluated?visibleStudents:visibleStudents.filter(student=>!getUnderstandingStudentStatus(states,student));
+      const studentsForCards=understandingCategoryFilter?visibleStudents.filter(student=>{
+        if(understandingCategoryFilter==='excellent') return isUnderstandingStudentExcellent(states,student);
+        if(understandingCategoryFilter==='remaining') return !getUnderstandingStudentStatus(states,student);
+        return getUnderstandingStudentStatus(states,student)===understandingCategoryFilter;
+      }):(understandingShowEvaluated?visibleStudents:visibleStudents.filter(student=>!getUnderstandingStudentStatus(states,student)));
       studentsForCards.forEach(student=>{
         const selected=getUnderstandingStudentStatus(states,student), excellent=isUnderstandingStudentExcellent(states,student), noteBadges=getUnderstandingStudentNoteBadges(cls,student);
         const card=document.createElement('div'); card.className='student-card';
