@@ -841,9 +841,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="modal-title" style="margin:0;font-size:1rem;color:#0B5394;">📊 التقرير الشامل لتحقق من فهمك</div>
         <button class="btn-close-circle" onclick="closeUnderstandingSummaryModal()" title="إغلاق">✕</button>
       </div>
-      <div style="font-size:0.75rem;line-height:1.55;color:var(--text-secondary);font-weight:700;text-align:center;margin-bottom:9px;">اختر وحدة واحدة أو أكثر. سيظهر في ملف PDF اسم الطالب، ولكل وحدة دروسها ثم موزونتها، وفي آخر الجدول «الموزونة للكل» وهي متوسط موزونات الوحدات المختارة. تعرض خلايا الدروس الدرجات الرقمية فقط: 10 أو 7 أو 4 أو 0.</div>
+      <div style="font-size:0.75rem;line-height:1.55;color:var(--text-secondary);font-weight:700;text-align:center;margin-bottom:9px;">اختر الصف والفصل والوحدات. ترك الفصل على «جميع الفصول» يضم كل فصول الصف في ملف Excel.</div>
+      <div style="display:flex;gap:7px;margin-bottom:9px;">
+        <select id="understandingSummaryGradeSelect" onchange="onUnderstandingSummaryGradeChange(this.value)" title="اختر الصف" aria-label="اختر الصف" style="flex:1;min-width:0;text-align:center;"></select>
+        <select id="understandingSummaryClassSelect" title="اختر الفصل" aria-label="اختر الفصل" style="flex:1;min-width:0;text-align:center;"></select>
+      </div>
       <div id="understandingSummaryUnitsChooser" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#F2F2F7;border-radius:8px;padding:8px;margin-bottom:10px;"></div>
-      <button class="btn-export-period" onclick="openUnderstandingSummaryPdfSettings()" style="margin:0;background:#0B5394;">📄 تصدير التقرير الشامل PDF</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-export-period" onclick="exportUnderstandingSummaryExcel()" style="flex:1;margin:0;background:#217346;">📊 تصدير Excel</button>
+        <button class="btn-export-period" onclick="openUnderstandingSummaryPdfSettings()" style="flex:1;margin:0;background:#0B5394;">📄 تصدير PDF</button>
+      </div>
     </div>
   </div>
 
@@ -4134,12 +4141,28 @@ ${description}`)) return;
       saveData(); renderUnderstandingBulkLessons(); renderUnderstandingScreen();
     }
     let understandingSummarySelectedUnits=[];
+    function renderUnderstandingSummaryClassChooser(preferredClass=''){
+      const gradeSelect=document.getElementById('understandingSummaryGradeSelect'), classSelect=document.getElementById('understandingSummaryClassSelect');
+      if(!gradeSelect||!classSelect) return;
+      const grades=Object.keys(gradeWorkspaces||{});
+      gradeSelect.innerHTML=grades.length?grades.map(grade=>`<option value="${escapeTextForHtml(grade)}">${escapeTextForHtml(grade)}</option>`).join(''):'<option value="">-- لا توجد صفوف --</option>';
+      if(grades.includes(activeGradeName)) gradeSelect.value=activeGradeName;
+      const classes=Object.keys(appData||{});
+      classSelect.innerHTML='<option value="">جميع الفصول</option>'+classes.map(cls=>`<option value="${escapeTextForHtml(cls)}">${escapeTextForHtml(cls)}</option>`).join('');
+      classSelect.value=classes.includes(preferredClass)?preferredClass:'';
+    }
+    function onUnderstandingSummaryGradeChange(grade){
+      if(!grade||!gradeWorkspaces?.[grade]) return;
+      switchActiveGrade(grade);
+      renderUnderstandingSummaryClassChooser('');
+    }
     function openUnderstandingSummaryModal(){
-      const cls=document.getElementById('understandingClassSelect').value, activeUnit=document.getElementById('understandingUnitSelect').value;
-      if(!cls||!appData[cls]){ alert('اختر الفصل أولاً.'); return; }
+      const activeClass=document.getElementById('understandingClassSelect').value, activeUnit=document.getElementById('understandingUnitSelect').value;
+      if(!activeClass||!appData[activeClass]){ alert('اختر الفصل أولاً.'); return; }
       const units=Object.keys(unitsData);
       understandingSummarySelectedUnits=understandingSummarySelectedUnits.filter(unit=>units.includes(unit));
       if(!understandingSummarySelectedUnits.length&&activeUnit&&units.includes(activeUnit)) understandingSummarySelectedUnits=[activeUnit];
+      renderUnderstandingSummaryClassChooser(activeClass);
       renderUnderstandingSummaryUnitsChooser();
       document.getElementById('understandingSummaryModal').style.display='flex';
     }
@@ -4325,7 +4348,7 @@ ${description}`)) return;
       await deliverPdfBlob(pdf.output('blob'),`تحقق_من_فهمك_الوحدة_${context.cls}_${context.unit}.pdf`);
     }
     function getUnderstandingSummaryPdfContext(){
-      const cls=document.getElementById('understandingClassSelect').value;
+      const cls=document.getElementById('understandingSummaryClassSelect')?.value||document.getElementById('understandingClassSelect').value;
       const selectedUnits=understandingSummarySelectedUnits.filter(unit=>unitsData[unit]&&Array.isArray(unitsData[unit].lessons));
       if(!cls||!appData[cls]||!selectedUnits.length) return null;
       const units=selectedUnits.map(unit=>({name:unit,lessons:(unitsData[unit].lessons||[]).filter(Boolean)})).filter(unit=>unit.lessons.length);
@@ -4350,6 +4373,39 @@ ${description}`)) return;
       });
       return {cls,units,students,rows};
     }
+    function exportUnderstandingSummaryExcel(){
+      const classSelect=document.getElementById('understandingSummaryClassSelect'), selectedClass=classSelect?.value||'';
+      const selectedUnits=understandingSummarySelectedUnits.filter(unit=>unitsData[unit]&&Array.isArray(unitsData[unit].lessons));
+      if(!selectedUnits.length){ alert('اختر وحدة واحدة على الأقل للتقرير.'); return; }
+      const classes=selectedClass?[selectedClass]:Object.keys(appData||{});
+      if(!classes.length){ alert('لا توجد فصول في الصف المختار.'); return; }
+      // الأعمدة بعد الاسم والفصل: عمود مستقل لكل درس، بنفس ترتيب الوحدات ثم الدروس.
+      const lessonColumns=[];
+      selectedUnits.forEach(unit=>{
+        (unitsData[unit].lessons||[]).filter(Boolean).forEach(lesson=>lessonColumns.push({unit,lesson,label:lesson}));
+      });
+      if(!lessonColumns.length){ alert('لا توجد دروس في الوحدات المختارة.'); return; }
+      const rows=[['اسم الطالب','الفصل',...lessonColumns.map(column=>column.label)]];
+      classes.forEach(cls=>{
+        const students=[...(appData[cls]||[])].sort((a,b)=>a.localeCompare(b,'ar'));
+        students.forEach(student=>{
+          const scores=lessonColumns.map(column=>{
+            const states=getUnderstandingLessonStates(cls,column.unit,column.lesson);
+            const status=getUnderstandingStudentStatus(states,student);
+            const scoreMap={mastered:10,partial:7,support:4,notDone:0};
+            return Object.prototype.hasOwnProperty.call(scoreMap,status)?scoreMap[status]:0;
+          });
+          rows.push([student,cls,...scores]);
+        });
+      });
+      if(typeof XLSX==='undefined'){ alert('مكتبة Excel غير محملة!'); return; }
+      const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:28},{wch:18},...lessonColumns.map(()=>({wch:16}))];
+      XLSX.utils.book_append_sheet(wb,ws,'تحقق من فهمك');
+      const wbout=XLSX.write(wb,{bookType:'xlsx',type:'array'}), blob=new Blob([wbout],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), link=document.createElement('a');
+      link.href=URL.createObjectURL(blob); link.download=`التقرير_الشامل_تحقق_من_فهمك_${activeGradeName||'الصف'}.xlsx`; document.body.appendChild(link); link.click(); document.body.removeChild(link); setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+    }
+
     async function exportUnderstandingSummaryPDF(){
       const context=getUnderstandingSummaryPdfContext();
       if(!context){ alert('اختر الفصل ووحدة تحتوي على درس واحد على الأقل.'); return; }
