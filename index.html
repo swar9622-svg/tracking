@@ -844,7 +844,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div style="font-size:0.75rem;line-height:1.55;color:var(--text-secondary);font-weight:700;text-align:center;margin-bottom:9px;">اختر وحدة واحدة أو أكثر. سيظهر في ملف PDF اسم الطالب، ولكل وحدة دروسها ثم موزونتها، وفي آخر الجدول «الموزونة للكل» وهي متوسط موزونات الوحدات المختارة. تعرض خلايا الدروس الدرجات الرقمية فقط: 10 أو 7 أو 4 أو 0.</div>
       <div id="understandingSummaryUnitsChooser" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#F2F2F7;border-radius:8px;padding:8px;margin-bottom:10px;"></div>
       <button class="btn-export-period" onclick="openUnderstandingSummaryPdfSettings()" style="margin:0;background:#0B5394;">📄 تصدير التقرير الشامل PDF</button>
-      <button class="btn-export-period" onclick="exportUnderstandingXLSX()" style="margin:7px 0 0;background:#059669;">📗 تصدير تحقق من فهمك Excel</button>
     </div>
   </div>
 
@@ -1375,7 +1374,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div style="margin-top:14px;">
         <button id="pdfExportBtn" class="btn-menu-option" style="background-color:var(--accent);" onclick="openPdfSizeModal(currentReportTab==='summary'?'reportSummary':'reportViolations')">📄 تصدير ملف PDF</button>
         <button id="csvExportBtn" class="btn-menu-option" style="background-color:var(--green);" onclick="exportComprehensiveCSV()">📊 تصدير ملف CSV</button>
-        <button id="violationsXlsxExportBtn" class="btn-menu-option" style="background-color:#dc2626;" onclick="exportViolationsXLSX()">⚠️ تصدير المخالفات Excel</button>
         <button id="xlsxExportBtn" class="btn-menu-option" style="background-color:#059669;" onclick="exportComprehensiveXLSX()">📗 تصدير Excel (تحقق والمخالفات)</button>
       </div>
     </div>
@@ -1430,6 +1428,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         <div class="backup-function-row">
           <div class="data-box-title">🗂️ برنامج الاستعلام</div>
           <button class="btn-menu-option" style="background-color:#4D7FA3;" onclick="closeDataMenuModal();openStudentHtmlDataJsonModeModal()">🗂️ تصدير data.json</button>
+          <button class="btn-menu-option" style="background-color:#059669;margin-top:6px;" onclick="exportPortalExchangeXLSX()">📗 تصدير لبرنامج بوابة الواجبات (تحقق + مخالفات)</button>
         </div>
       </div>
       <div class="data-box-section" style="border-top:2px solid #E5E5EA;padding-top:0.55rem;">
@@ -7487,46 +7486,29 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
       downloadFile(csv, `تقرير_${currentReportTab === 'summary' ? 'شامل' : 'المخالفات'}_${cls}_${scope}.csv`, 'text/csv;charset=utf-8;');
     }
 
-    function exportUnderstandingXLSX(){
+    function exportPortalExchangeXLSX(){
       if(typeof XLSX==='undefined'){ alert('مكتبة Excel غير محملة.'); return; }
-      const lessonSet=[]; Object.values(unitsData||{}).forEach(unit=>(unit.lessons||[]).forEach(lesson=>{if(lesson&&!lessonSet.includes(lesson))lessonSet.push(lesson);}));
-      const rows=[['اسم الطالب','الفصل'].concat(lessonSet)]; Object.keys(appData||{}).forEach(cls=>(appData[cls]||[]).forEach(student=>rows.push([student,String(cls)].concat(lessonSet.map(lesson=>{const unit=Object.keys(unitsData||{}).find(u=>(unitsData[u]?.lessons||[]).includes(lesson));try{return unit?getUnderstandingScore(cls,student,unit):'';}catch(e){return ''}})))));
-      const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'تحقق من فهمك'); XLSX.writeFile(wb,'تقرير_تحقق_من_فهمك.xlsx');
-    }
-    function exportViolationsXLSX(){
-      if(typeof XLSX==='undefined'){ alert('مكتبة Excel غير محملة.'); return; }
-      const cls=document.getElementById('classSelect').value; if(!cls||!appData[cls]){alert('يرجى اختيار فصل أولاً!');return;}
-      const scope=currentReportUnitSelection, rows=[['اسم الطالب','الفصل','التاريخ','نوع المخالفة']], students=appData[cls]||[];
-      Object.keys(records||{}).forEach(date=>students.forEach(student=>{const rec=records[date]?.[cls]?.[student];if(!rec)return;(rec.violations||[]).forEach(id=>{const item=(VIOLATION_DEFINITIONS||[]).find(v=>v.id===id);rows.push([student,cls,date,item?item.name:String(id||'')]);});}));
-      const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'المخالفات'); XLSX.writeFile(wb,'تقرير_المخالفات.xlsx');
-    }
-
-    function exportComprehensiveXLSX(){
-      if(typeof XLSX==='undefined'){ alert('مكتبة Excel غير محملة.'); return; }
-      const workspaces=[];
-      const addWorkspace=(grade,ws)=>{ if(!ws||!ws.appData) return; workspaces.push({grade:String(grade||''),ws}); };
-      Object.keys(gradeWorkspaces||{}).forEach(g=>addWorkspace(g,gradeWorkspaces[g]));
-      if(activeGradeName && !workspaces.some(x=>x.grade===String(activeGradeName))) addWorkspace(activeGradeName,{appData,unitsData,records,understandingData,followupData});
-      if(!workspaces.length) addWorkspace(activeGradeName||'',{appData,unitsData,records,understandingData,followupData});
-      const lessonSet=[];
-      workspaces.forEach(({ws})=>Object.values(ws.unitsData||unitsData||{}).forEach(unit=>(unit.lessons||[]).forEach(lesson=>{if(lesson&&!lessonSet.includes(lesson))lessonSet.push(lesson);}))); 
-      const rows=[['اسم الطالب','الفصل'].concat(lessonSet)];
-      const violations=[['اسم الطالب','الفصل','التاريخ','نوع المخالفة']];
-      const seen={};
-      workspaces.forEach(({grade,ws})=>{
-        Object.keys(ws.appData||{}).forEach(cls=>{
-          (ws.appData[cls]||[]).forEach(student=>{
-            const key=student+'\\u0000'+String(cls); if(seen[key]) return; seen[key]=true;
-            const vals=lessonSet.map(lesson=>{ try{return getUnderstandingScore(cls,student,Object.keys(ws.unitsData||unitsData||{}).find(u=>(ws.unitsData||unitsData||{})[u]?.lessons?.includes(lesson))||'')||'';}catch(e){return '';} });
-            rows.push([student,String(cls)].concat(vals));
-            Object.keys(ws.records||{}).forEach(date=>{ const rec=ws.records[date]?.[cls]?.[student]; if(!rec) return; (rec.violations||[]).forEach(id=>{const item=(ws.violationDefinitions||VIOLATION_DEFINITIONS||[]).find(v=>v.id===id);violations.push([student,String(cls),date,item?item.name:String(id||'')]);}); });
-          });
-        });
+      syncActiveGradeWorkspace();
+      const original=activeGradeName, gradeNames=Object.keys(gradeWorkspaces||{}), wb=XLSX.utils.book_new();
+      if(original && !gradeNames.includes(original)) gradeNames.push(original);
+      if(!gradeNames.length){ alert('لا توجد بيانات للتصدير.'); return; }
+      const safeName=(name,fallback)=>{let x=String(name||fallback).replace(/[\\/?*\\[\\]:]/g,' ').trim().slice(0,31);return x||fallback;};
+      gradeNames.forEach(grade=>{
+        const ws=grade===original?{appData,records,unitsData,understandingData,followupData}:gradeWorkspaces[grade]; if(!ws||!ws.appData)return;
+        applyGradeWorkspace(ws);
+        const check=[['اسم الطالب','الفصل']], vio=[['اسم الطالب','الفصل','التاريخ','نوع المخالفة']], lessons=[];
+        Object.values(unitsData||{}).forEach(unit=>(unit.lessons||[]).forEach(lesson=>{if(lesson&&!lessons.includes(lesson))lessons.push(lesson);})); check[0]=['اسم الطالب','الفصل'].concat(lessons);
+        Object.keys(appData||{}).forEach(cls=>(appData[cls]||[]).forEach(student=>{
+          const prefix=String(grade||'').trim()+' ', section=String(cls).startsWith(prefix)?String(cls).slice(prefix.length).replace(/^فصل\\s+/,'').trim():String(cls).replace(/^فصل\\s+/,'').trim();
+          const values=lessons.map(lesson=>{let unit=Object.keys(unitsData||{}).find(u=>(unitsData[u]?.lessons||[]).includes(lesson));if(!unit)return '';try{const st=getUnderstandingStudentStatus(getUnderstandingLessonStates(cls,unit,lesson),student)||'notDone';return (UNDERSTANDING_STATUS_CONFIG[st]||UNDERSTANDING_STATUS_CONFIG.notDone).score;}catch(e){return '';}});
+          check.push([student,section].concat(values));
+          Object.keys(records||{}).forEach(date=>{const rec=getStudentDayRecord(date,cls,student);(rec.violations||[]).forEach(id=>{const item=getViolationById(id);vio.push([student,section,date,item?item.name:String(id||'')]);});});
+        }));
+        XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(check),safeName('تحقق '+grade,'تحقق'));
+        XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(vio),safeName('مخالفات '+grade,'مخالفات'));
       });
-      const wb=XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'تحقق من فهمك');
-      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(violations),'المخالفات');
-      XLSX.writeFile(wb,'تقرير_تحقق_من_فهمك_والمخالفات.xlsx');
+      if(original && gradeNames.includes(original)) applyGradeWorkspace(gradeWorkspaces[original]||{appData,records,unitsData,understandingData,followupData});
+      XLSX.writeFile(wb,'بوابة_الواجبات_تحقق_ومخالفات_جميع_المراحل.xlsx');
     }
 
     function exportPeriodSummaryCSV() {
