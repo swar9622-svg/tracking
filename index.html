@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.43";</script>
+  <script>const APP_VERSION = "22.44";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -7576,7 +7576,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     function handlePortalExcelImport(event){
       const file=event.target.files?.[0]; if(!file)return; event.target.value=''; if(typeof XLSX==='undefined'){alert('مكتبة قراءة الإكسل غير محملة.');return;} if(!confirm('سيتم مسح البيانات الحالية وإنشاء برنامج جديد مطابق لبوابة الواجبات. هل تريد المتابعة؟'))return;
       const reader=new FileReader(); reader.onload=async function(ev){ try{
-        const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array',cellDates:true}), rowsByName={}; wb.SheetNames.forEach(name=>rowsByName[name]=portalSheetRows(wb,name));
+        const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array',cellDates:false}), rowsByName={}; wb.SheetNames.forEach(name=>rowsByName[name]=portalSheetRows(wb,name));
         const rawArchive={sheetNames:wb.SheetNames.slice(),ignoredSheets:wb.SheetNames.filter(name=>!['سادس','اولى متوسط','إعدادات_الواجبات','تحقق سادس','تحقق أول متوسط','تسليم أنشطة سادس','تسليم أنشطة أول متوسط','اختبارات سادس','اختبارات أول متوسط','إعدادات الإنجازات','إنجازات سادس','إنجازات أول متوسط','المخالفات'].includes(name))};
         const grades=[['سادس','سادس'],['أول متوسط','اولى متوسط']]; const workspaces={}, rosterRows={}; grades.forEach(([grade,sheet])=>{ workspaces[grade]=createEmptyGradeWorkspace(); workspaces[grade].portalAchievementScores={}; workspaces[grade].portalCheckScores={}; rosterRows[grade]=rowsByName[sheet]||[]; });
         // مصدر الوحدات والدروس الوحيد: عناوين درجات الواجب في ورقة كل صف. نحتفظ بكل عنوان حتى لو كانت درجاته فارغة.
