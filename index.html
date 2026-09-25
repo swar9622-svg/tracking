@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.41";</script>
+  <script>const APP_VERSION = "22.42";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -7550,7 +7550,7 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     function portalNumber(value){ if(value===undefined||value===null||value==='') return null; const n=Number(String(value).replace(/,/g,'.').replace(/٬/g,'')); return Number.isFinite(n)?n:null; }
     function portalNormalizeSection(value){ const raw=portalText(value).replace(/[،,]/g,'.'); if(/^\d+(?:\.0+)?$/.test(raw)) return String(Number(raw)); return raw; }
     function portalAssignmentId(value){
-      if(value instanceof Date&&!isNaN(value.getTime())) return `${value.getMonth()+1}-${value.getDate()}`;
+      if(value instanceof Date&&!isNaN(value.getTime())) return `${value.getUTCMonth()+1}-${value.getUTCDate()}`;
       if(typeof value==='number'&&Number.isFinite(value)&&window.XLSX?.SSF){ try{ const d=XLSX.SSF.parse_date_code(value); if(d&&d.y>=2000) return `${d.m}-${d.d}`; }catch(_){} }
       const raw=portalText(value).replace(/\s/g,'');
       let m=raw.match(/^(\d{1,2})[-\/]\s*(\d{1,2})(?:[-\/]\d{2,4})?$/); if(m) return `${Number(m[1])}-${Number(m[2])}`;
