@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.40";</script>
+  <script>const APP_VERSION = "22.41";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -8088,13 +8088,8 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
         updateScreenNavigation('absence');
         initFollowupTablePinchZoom();
         fixBottomControlsPosition();
-        bootStage='تسجيل تحديث التطبيق';
-        if ('serviceWorker' in navigator) {
-          const serviceWorkerUrl=`./sw2.js?v=${encodeURIComponent(APP_VERSION)}`;
-          navigator.serviceWorker.register(serviceWorkerUrl,{updateViaCache:'none'})
-            .then(registration=>registration.update().catch(()=>{}))
-            .catch(err => console.error('❌ فشل تسجيل Service Worker:', err));
-        }
+        bootStage='إلغاء التخزين المؤقت القديم';
+        await purgeLegacyServiceWorkerAndCaches();
       }catch(error){
         console.error(`تعذر بدء التطبيق في مرحلة: ${bootStage}`,error);
         const storageFailure=bootStage==='فتح قاعدة البيانات واستعادة السجل'||bootStage==='ترتيب أرقام الطلاب وترقية السجل';
@@ -8104,8 +8099,14 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
         finishStartupSplash();
       }
     }
+    async function purgeLegacyServiceWorkerAndCaches(){
+      try{
+        if('serviceWorker' in navigator){ const regs=await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map(reg=>reg.unregister())); }
+        if('caches' in window){ const names=await caches.keys(); await Promise.all(names.map(name=>caches.delete(name))); }
+      }catch(err){ console.warn('تعذر تنظيف التخزين المؤقت القديم:',err); }
+    }
     bootApplication();
-    async function clearAppCacheAndReload(){ try { if ('serviceWorker' in navigator){ const regs=await navigator.serviceWorker.getRegistrations(); for(const reg of regs) await reg.unregister(); } if ('caches' in window){ const names=await caches.keys(); for(const name of names) await caches.delete(name); } alert('تم مسح الكاش بنجاح، سيتم الآن تحديث التطبيق...'); } catch(err){ console.error('❌ خطأ أثناء مسح الكاش:', err); alert('حدث خطأ أثناء مسح الكاش، حاول مرة أخرى.'); } finally { window.location.reload(true); } }
+    async function clearAppCacheAndReload(){ await purgeLegacyServiceWorkerAndCaches(); window.location.reload(); }
   </script>
 </body>
 </html>
