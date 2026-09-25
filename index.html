@@ -3,7 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <!-- 🔢 رقم إصدار التطبيق — غيّر الرقم هنا فقط ليتحدث تلقائياً في كل الشاشات -->
-  <script>const APP_VERSION = "22.35";</script>
+  <script>const APP_VERSION = "22.36";</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1422,7 +1422,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           <button class="btn-menu-option" style="background-color:var(--green);" onclick="exportFullBackupJSON()">💾 Backup<br><small>تصدير نسخة</small></button>
           <button class="btn-menu-option" style="background-color:var(--accent);" onclick="triggerFileInput()">📥 Restore<br><small>استعادة نسخة</small></button>
         </div>
+        <button class="btn-menu-option" style="background-color:#0B7A75;width:100%;margin-top:8px;" onclick="triggerPortalExcelImport()">📗 استيراد كامل من بوابة الواجبات<br><small>يبدأ البرنامج من جديد ويستورد جميع أوراق Excel</small></button>
         <input type="file" id="jsonFileInput" accept=".json" style="display:none;" onchange="importFullBackupJSON(event)">
+        <input type="file" id="portalExcelFileInput" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handlePortalExcelImport(event)">
       </div>
       <div class="data-box-section" style="border-top:2px solid #E5E5EA;padding-top:0.55rem;">
         <div class="backup-function-row">
@@ -1956,6 +1958,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     let defaultPenalties = createDefaultPenalties();
 
     let appData = JSON.parse(JSON.stringify(defaultData));
+    // نسخة خام من كل أوراق بوابة الواجبات؛ تحفظ البيانات التي لا يقابلها حقل مباشر في التطبيق.
+    let portalImportArchive = {};
     let records = {};
     // الاستئذان مستقل تماماً عن الغياب والتأخر والمخالفات والدرجات.
     // البنية: التاريخ ← الفصل ← الطالب ← وقت الخروج / وقت العودة / السبب.
@@ -2682,7 +2686,7 @@ ${description}`)) return;
         penaltiesData:cloneData(penaltiesData), violationDefinitions:cloneData(VIOLATION_DEFINITIONS), period1SelectedUnits:cloneData(period1SelectedUnits),
         projectDistributionOrder:cloneData(projectDistributionOrder), excellenceSettings:cloneData(excellenceSettings), participationSettings:cloneData(participationSettings), studentNumberMap:cloneData(queryStudentNumberMap),
         fontSettings:cloneData(fontSettings), attendanceBadgeSettings:cloneData(attendanceBadgeSettings), notificationSettings:cloneData(notificationSettings), startupSettings:cloneData(startupSettings), classScheduleSettings:cloneData(classScheduleSettings), buttonColors:cloneData(buttonColors), buttonColorDefaultsVersion, pdfSizeSettings:cloneData(pdfSizeSettings),
-        weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), noteEntryWindow:cloneData(noteEntryWindow), gradeWorkspaces:cloneData(gradeWorkspaces), activeGradeName, savedAt:new Date().toISOString()
+        weakStudentsThresholds:cloneData(weakStudentsThresholds), gradeRoundingSettings:cloneData(gradeRoundingSettings), noteEntryWindow:cloneData(noteEntryWindow), portalImportArchive:cloneData(portalImportArchive), gradeWorkspaces:cloneData(gradeWorkspaces), activeGradeName, savedAt:new Date().toISOString()
       };
     }
     async function writeIndexedDBSnapshot(snapshot){
@@ -2710,6 +2714,7 @@ ${description}`)) return;
       if(!state||typeof state!=='object') return;
       lastSuccessfulLocalSaveAt=typeof state.savedAt==='string'?state.savedAt:'';
       if(state.appData&&typeof state.appData==='object') appData=state.appData;
+      if(state.portalImportArchive&&typeof state.portalImportArchive==='object') portalImportArchive=state.portalImportArchive;
       if(state.records&&typeof state.records==='object') records=state.records;
       if(state.permissionRecords&&typeof state.permissionRecords==='object') permissionRecords=state.permissionRecords;
       if(state.unitsData&&typeof state.unitsData==='object') unitsData=state.unitsData;
@@ -7526,13 +7531,79 @@ ${STUDENT_NOTIFICATION_SHARED_CSS}</style></head><body><main class="student-noti
     }
 
     // ===== نسخ احتياطي =====
-    function exportFullBackupJSON(){ syncActiveGradeWorkspace(); const data={backupVersion:6,storageBackend:'IndexedDB',appData,records,permissionRecords,unitsData,unitLocks,followupData,understandingData,studentNotesData,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,classScheduleSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds,gradeWorkspaces,activeGradeName}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+    function exportFullBackupJSON(){ syncActiveGradeWorkspace(); const data={backupVersion:6,storageBackend:'IndexedDB',appData,records,permissionRecords,unitsData,unitLocks,followupData,understandingData,studentNotesData,portalImportArchive,penaltiesData,violationDefinitions:VIOLATION_DEFINITIONS,period1SelectedUnits,projectDistributionOrder,excellenceSettings,participationSettings,studentNumberMap:queryStudentNumberMap,fontSettings,notificationSettings,startupSettings,classScheduleSettings,buttonColors,buttonColorDefaultsVersion,pdfSizeSettings,weakStudentsThresholds,gradeWorkspaces,activeGradeName}; downloadFile(JSON.stringify(data,null,2),`backup_school_system_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
+
+    // ===== استيراد كامل لمصنف بوابة الواجبات =====
+    function triggerPortalExcelImport(){ document.getElementById('portalExcelFileInput')?.click(); }
+    function portalText(value){ return value===undefined||value===null?'':String(value).trim(); }
+    function portalNumber(value){ if(value===undefined||value===null||value==='') return null; const n=Number(String(value).replace(/,/g,'')); return Number.isFinite(n)?n:null; }
+    function portalDate(value){
+      if(value instanceof Date&&!isNaN(value.getTime())) return `${value.getFullYear()}-${String(value.getMonth()+1).padStart(2,'0')}-${String(value.getDate()).padStart(2,'0')}`;
+      if(typeof value==='number'&&window.XLSX?.SSF){ try{ const d=XLSX.SSF.parse_date_code(value); if(d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`; }catch(_){} }
+      const raw=portalText(value); if(!raw) return ''; const d=new Date(raw);
+      return isNaN(d.getTime())?raw.slice(0,10):`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function portalGradeName(value){ const raw=portalText(value); return /^(?:اولى|أولى|اول|أول)\s*متوسط$/.test(raw)?'أول متوسط':raw; }
+    function portalClassName(grade,section){
+      let raw=portalText(section).replace(/^فصل\s+/,'').trim();
+      raw=raw.replace(/^(?:سادس|أول\s+متوسط|اول\s+متوسط|أولى\s+متوسط)\s+/,'').trim();
+      return gradeClassName(grade,raw||'غير محدد');
+    }
+    function portalSheetRows(wb,name){ const ws=wb.Sheets[name]; return ws?XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true}):[]; }
+    function portalAddStudent(workspace,grade,name,section,id){
+      name=portalText(name); if(!name) return ''; const cls=portalClassName(grade,section||'غير محدد');
+      if(!workspace.appData[cls]) workspace.appData[cls]=[]; if(!workspace.appData[cls].includes(name)) workspace.appData[cls].push(name);
+      if(id!==undefined&&id!==null&&portalText(id)){ const raw=portalText(id), match=raw.match(/\d{5,}$/); if(match&&!workspace.studentNumberMap[name]) workspace.studentNumberMap[name]=match[0].slice(-5); }
+      return cls;
+    }
+    function portalEnsureUnit(workspace,name,lessons){ if(!workspace.unitsData[name]) workspace.unitsData[name]={lessons:[]}; (lessons||[]).forEach(lesson=>{ lesson=portalText(lesson); if(lesson&&!workspace.unitsData[name].lessons.includes(lesson)) workspace.unitsData[name].lessons.push(lesson); }); return workspace.unitsData[name]; }
+    function handlePortalExcelImport(event){
+      const file=event.target.files?.[0]; if(!file) return; event.target.value='';
+      if(typeof XLSX==='undefined'){ alert('مكتبة قراءة الإكسل غير محملة.'); return; }
+      if(!confirm('سيتم مسح بيانات البرنامج الحالية وإنشاء برنامج جديد من ملف بوابة الواجبات. هل تريد المتابعة؟')) return;
+      const reader=new FileReader(); reader.onload=async function(ev){
+        try{
+          const wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array',cellDates:true});
+          const rowsByName={}; wb.SheetNames.forEach(name=>{ rowsByName[name]=portalSheetRows(wb,name); });
+          const rawArchive={}; wb.SheetNames.forEach(name=>{ rawArchive[name]=rowsByName[name]; });
+          const gradeSources={};
+          const knownGrades=['سادس','أول متوسط'];
+          const findGrade=raw=>{ const n=portalGradeName(raw); return knownGrades.includes(n)?n:''; };
+          const workspaces={}; knownGrades.forEach(g=>{ workspaces[g]=createEmptyGradeWorkspace(); });
+          const studentSheetForGrade={};
+          wb.SheetNames.forEach(name=>{ const g=findGrade(name); if(g&&!/^تحقق|^اختبارات|^تسليم|^إنجازات/.test(name)){ studentSheetForGrade[g]=name; } });
+          // الطلاب والفصول وأرقامهم من أوراق المرحلة الأساسية.
+          Object.entries(studentSheetForGrade).forEach(([grade,sheet])=>{ const rows=rowsByName[sheet]||[], ws=workspaces[grade]; (rows.slice(1)).forEach(row=>portalAddStudent(ws,grade,row[1],row[2],row[0])); });
+          const settings=rowsByName['إعدادات_الواجبات']||[];
+          const lessonMap={};
+          settings.slice(1).forEach(row=>{ const grade=findGrade(row[0]); if(!grade)return; const code=portalText(row[1]), title=portalText(row[2])||code, unitNo=code.split('-')[0]||'1', unit=`الوحدة ${unitNo}`; if(!lessonMap[grade])lessonMap[grade]={}; lessonMap[grade][code]={unit,lesson:title}; portalEnsureUnit(workspaces[grade],unit,[title]); });
+          // أي كود ظهر في التسليمات ولا يوجد في الإعدادات يظل محفوظاً باسم الكود نفسه.
+          const ensureCode=(grade,code)=>{ if(!lessonMap[grade])lessonMap[grade]={}; if(!lessonMap[grade][code]){ const unitNo=code.split('-')[0]||'1', unit=`الوحدة ${unitNo}`; lessonMap[grade][code]={unit,lesson:code}; portalEnsureUnit(workspaces[grade],unit,[code]); } return lessonMap[grade][code]; };
+          // تسليم الأنشطة: يتحول إلى درجات الأنشطة وروابطها وملاحظات التسليم.
+          knownGrades.forEach(grade=>{ const rows=rowsByName[`تسليم أنشطة ${grade}`]||[]; rows.slice(1).forEach(row=>{ const name=portalText(row[0]), section=portalText(row[1]), code=`${portalNumber(row[2])??portalText(row[2])}-${portalNumber(row[3])??portalText(row[3])}`; if(!name)return; const cls=portalAddStudent(workspaces[grade],grade,name,section), meta=ensureCode(grade,code), key=`${cls}_${meta.unit}`, unitData=workspaces[grade].followupData[key]||(workspaces[grade].followupData[key]={}); const st=unitData[name]||(unitData[name]={hw:{},act:{},test1:'',test2:'',projectLink:''}); const score=portalNumber(row[5]), link=portalText(row[4]), state=portalText(row[6]), note=portalText(row[7]); if(score!==null) st.act[meta.lesson]=Math.min(10,Math.max(0,score)); if(link) st.projectLink=link; if(state||note){ if(!workspaces[grade].studentNotesData[cls])workspaces[grade].studentNotesData[cls]={}; if(!Array.isArray(workspaces[grade].studentNotesData[cls][name]))workspaces[grade].studentNotesData[cls][name]=[]; const text=`${meta.lesson}: ${state}${note?` — ${note}`:''}${link?` — ${link}`:''}`.trim(); if(text)workspaces[grade].studentNotesData[cls][name].push({id:`portal_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,text,createdAt:new Date().toISOString()}); } }); });
+          // أوراق الاختبارات: تضاف للوحدة الأولى باعتبارها كشف اختبارات المرحلة.
+          knownGrades.forEach(grade=>{ const rows=rowsByName[`اختبارات ${grade}`]||[]; const firstUnit=Object.keys(workspaces[grade].unitsData)[0]||'الوحدة 1'; portalEnsureUnit(workspaces[grade],firstUnit,['اختبارات مستوردة']); rows.slice(1).forEach(row=>{ const name=portalText(row[0]); if(!name)return; const cls=portalAddStudent(workspaces[grade],grade,name,row[1]); const key=`${cls}_${firstUnit}`, map=workspaces[grade].followupData[key]||(workspaces[grade].followupData[key]={}), st=map[name]||(map[name]={hw:{},act:{},test1:'',test2:'',projectLink:''}); const t1=portalNumber(row[2]),t2=portalNumber(row[3]); if(t1!==null)st.test1=Math.min(20,Math.max(0,t1)); if(t2!==null)st.test2=Math.min(20,Math.max(0,t2)); }); });
+          // أوراق تحقق من فهمك: تحفظ درجاتها الدقيقة في وحدة مستقلة ضمن الأنشطة.
+          knownGrades.forEach(grade=>{ const rows=rowsByName[`تحقق ${grade}`]||[]; if(rows.length<1)return; const unit='التحقق المستورد', headers=rows[0]||[], lessons=headers.slice(2).map(portalDate).filter(Boolean); portalEnsureUnit(workspaces[grade],unit,lessons); rows.slice(1).forEach(row=>{ const name=portalText(row[1]); if(!name)return; const cls=portalAddStudent(workspaces[grade],grade,name,row[0]), key=`${cls}_${unit}`, map=workspaces[grade].followupData[key]||(workspaces[grade].followupData[key]={}), st=map[name]||(map[name]={hw:{},act:{},test1:'',test2:'',projectLink:''}); lessons.forEach((lesson,i)=>{ const n=portalNumber(row[i+2]); if(n!==null)st.act[lesson]=Math.min(10,Math.max(0,n)); }); }); });
+          // أوراق المرحلة الأساسية: تحفظ المتابعة الرقمية اليومية كوحدة مستقلة حتى لا تضيع القيم.
+          knownGrades.forEach(grade=>{ const sheet=studentSheetForGrade[grade], rows=rowsByName[sheet]||[]; if(!rows.length)return; const headers=rows[0]||[], lessons=headers.slice(3).map(portalDate).filter(Boolean), unit='المتابعة اليومية المستوردة'; portalEnsureUnit(workspaces[grade],unit,lessons); rows.slice(1).forEach(row=>{ const name=portalText(row[1]); if(!name)return; const cls=portalAddStudent(workspaces[grade],grade,name,row[2],row[0]), key=`${cls}_${unit}`, map=workspaces[grade].followupData[key]||(workspaces[grade].followupData[key]={}), st=map[name]||(map[name]={hw:{},act:{},test1:'',test2:'',projectLink:''}); lessons.forEach((lesson,i)=>{ const n=portalNumber(row[i+3]); if(n!==null)st.hw[lesson]=Math.min(10,Math.max(0,n)); }); }); });
+          // الإنجازات: تربط بالوحدة الخاصة بها وتظهر كحالات تميز قابلة للمراجعة.
+          knownGrades.forEach(grade=>{ const rows=rowsByName[`إنجازات ${grade}`]||[]; if(!rows.length)return; const headers=rows[0]||[], unit='الإنجازات المستوردة', lessons=headers.slice(3).map(portalText).filter(Boolean); portalEnsureUnit(workspaces[grade],unit,lessons); rows.slice(1).forEach(row=>{ const name=portalText(row[0]); if(!name)return; const cls=portalAddStudent(workspaces[grade],grade,name,row[2]); if(!workspaces[grade].understandingData[cls])workspaces[grade].understandingData[cls]={}; if(!workspaces[grade].understandingData[cls][unit])workspaces[grade].understandingData[cls][unit]={}; lessons.forEach((lesson,i)=>{ const raw=portalText(row[i+3]); if(!raw)return; let obj={}; try{obj=JSON.parse(raw);}catch(_){obj={score:raw};} const score=portalNumber(obj.score); if(score!==null||obj.url){ workspaces[grade].understandingData[cls][unit][lesson]??={}; workspaces[grade].understandingData[cls][unit][lesson][name]={status:score>0?'mastered':'notDone',excellent:score>0}; } }); }); });
+          // المخالفات: تتحول إلى سجلات يومية مع ربط اسم المخالفة بمعرف البرنامج عند الإمكان.
+          const vioRows=rowsByName['المخالفات']||[], vioByName={}; VIOLATION_DEFINITIONS.forEach(v=>{vioByName[portalText(v.name)]=v.id;}); vioRows.slice(1).forEach(row=>{ const grade=findGrade(row[0]),name=portalText(row[1]),section=portalText(row[2]),date=portalDate(row[3]),vio=portalText(row[4]); if(!grade||!name||!date)return; const ws=workspaces[grade],cls=portalAddStudent(ws,grade,name,section); ws.records[date]??={}; ws.records[date][cls]??={}; ws.records[date][cls][name]??={status:'',violations:[]}; const id=vioByName[vio]||vio; if(id&&!ws.records[date][cls][name].violations.includes(id))ws.records[date][cls][name].violations.push(id); });
+          Object.values(workspaces).forEach(ws=>{ ws.period1SelectedUnits=Object.keys(ws.unitsData); ws.participationSettings={mode:'per_unit',activeUnit:Object.keys(ws.unitsData)[0]||''}; ws.violationDefinitions=cloneData(VIOLATION_DEFINITIONS); ws.penaltiesData=cloneData(defaultPenalties); });
+          portalImportArchive={sourceFile:file.name,importedAt:new Date().toISOString(),sheets:rawArchive}; gradeWorkspaces=workspaces; activeGradeName=Object.keys(workspaces).find(g=>Object.keys(workspaces[g].appData).length)||Object.keys(workspaces)[0]||''; applyGradeWorkspace(gradeWorkspaces[activeGradeName]||createEmptyGradeWorkspace());
+          if(!(await saveData())) throw new Error('تعذر حفظ البيانات المستوردة في التخزين المحلي.'); initGradeSelects(); initClassSelects(); renderStudents(); renderUnitsDropdown(); renderAttendanceUnitsDropdown(); refreshUnderstandingUnitSelect?.(); applyFontSettings(); applyButtonColors();
+          const summary=Object.entries(workspaces).map(([g,w])=>`${g}: ${Object.values(w.appData).reduce((n,a)=>n+a.length,0)} طالب`).join('\n'); alert(`✅ تم إنشاء البرنامج واستيراد المصنف بالكامل.\n\n${summary}\n\nتم حفظ ${wb.SheetNames.length} ورقة خاماً داخل النسخة الاحتياطية.`);
+        }catch(err){ console.error(err); alert(`❌ تعذر استيراد ملف بوابة الواجبات.\n\n${err?.message||'تأكد من صحة ملف Excel.'}`); }
+      }; reader.readAsArrayBuffer(file);
+    }
     function triggerFileInput(){ document.getElementById('jsonFileInput').click(); }
     function importFullBackupJSON(e){
       const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
       reader.onload=async function(ev){ try {
         const imported=JSON.parse(ev.target.result);
-        if(imported.appData) appData=imported.appData; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; unitLocks=normalizeUnitLocks(imported.unitLocks); if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.studentNotesData&&typeof imported.studentNotesData==='object') studentNotesData=imported.studentNotesData; if(imported.attendanceBadgeSettings&&typeof imported.attendanceBadgeSettings==='object') attendanceBadgeSettings={late:imported.attendanceBadgeSettings.late!==false,permission:imported.attendanceBadgeSettings.permission!==false}; if(imported.understandingNotesData&&typeof imported.understandingNotesData==='object') understandingNotesData=imported.understandingNotesData; if(Array.isArray(imported.understandingNoteDefinitions)) understandingNoteDefinitions=imported.understandingNoteDefinitions.filter(note=>note&&note!=='عدم إحضار الواجب'&&note!=='مشاركة متميزة'); if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
+        if(imported.appData) appData=imported.appData; if(imported.portalImportArchive&&typeof imported.portalImportArchive==='object') portalImportArchive=imported.portalImportArchive; if(imported.records) records=imported.records; if(imported.unitsData) unitsData=imported.unitsData; unitLocks=normalizeUnitLocks(imported.unitLocks); if(imported.followupData) followupData=imported.followupData; if(imported.understandingData&&typeof imported.understandingData==='object') understandingData=imported.understandingData; if(imported.studentNotesData&&typeof imported.studentNotesData==='object') studentNotesData=imported.studentNotesData; if(imported.attendanceBadgeSettings&&typeof imported.attendanceBadgeSettings==='object') attendanceBadgeSettings={late:imported.attendanceBadgeSettings.late!==false,permission:imported.attendanceBadgeSettings.permission!==false}; if(imported.understandingNotesData&&typeof imported.understandingNotesData==='object') understandingNotesData=imported.understandingNotesData; if(Array.isArray(imported.understandingNoteDefinitions)) understandingNoteDefinitions=imported.understandingNoteDefinitions.filter(note=>note&&note!=='عدم إحضار الواجب'&&note!=='مشاركة متميزة'); if(imported.penaltiesData) penaltiesData=imported.penaltiesData; if(imported.violationDefinitions) VIOLATION_DEFINITIONS=normalizeViolationDefinitions(imported.violationDefinitions); syncViolationNames(); migrateViolationStorage(); if(imported.period1SelectedUnits) period1SelectedUnits=imported.period1SelectedUnits;
         if(imported.participationSettings&&typeof imported.participationSettings==='object') participationSettings={...participationSettings,...imported.participationSettings};
         currentAttendanceUnit=participationSettings.activeUnit||Object.keys(unitsData)[0]||'';
         if(imported.projectDistributionOrder) projectDistributionOrder=imported.projectDistributionOrder;
